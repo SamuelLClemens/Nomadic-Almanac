@@ -1,0 +1,12 @@
+# Old backup builds — not part of the live site
+index_*.html
+~$*
+
+# Word document — not needed on the web
+*.docx
+
+# Local dev tooling
+.claude/
+
+# macOS noise
+.DS_Store

@@ -1,0 +1,250 @@
+/* ─── Reset & Base ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:     #0e0b06;
+  --panel:   rgba(14,11,6,0.94);
+  --panel2:  rgba(18,14,7,0.97);
+  --sand:    #e8d5a3;
+  --gold:    #c9a84c;
+  --crimson: #9b1c2e;
+  --dim:     #2e3d1a;
+  --b1:      rgba(201,168,76,0.12);
+  --b2:      rgba(201,168,76,0.28);
+  --fm:      'IBM Plex Mono', monospace;
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--ink);
+  font-family: var(--fm);
+}
+
+/* ─── Topbar ─────────────────────────────────────────────────────────────── */
+#topbar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; gap: 10px; padding: 0 16px;
+  min-height: 58px; flex-wrap: wrap;
+  background: var(--panel);
+  border-bottom: 1px solid var(--b2);
+  backdrop-filter: blur(20px);
+}
+
+.vdiv {
+  width: 1px; height: 32px; flex-shrink: 0;
+  background: rgba(201,168,76,0.12);
+}
+
+/* ─── Logo ───────────────────────────────────────────────────────────────── */
+#logo { display: flex; align-items: center; gap: 13px; flex-shrink: 0; padding: 8px 0; }
+#logo-icon { width: 52px; height: 52px; flex-shrink: 0; }
+#logo-text { display: flex; flex-direction: column; line-height: 1; }
+
+#logo-the {
+  font-family: var(--fm); font-size: 7.5px; font-weight: 700;
+  color: var(--crimson); letter-spacing: 6px; margin-bottom: 2px;
+}
+#logo-nomadic {
+  font-family: var(--fm); font-size: 19px; font-weight: 700;
+  color: var(--sand); letter-spacing: 3px; line-height: 1;
+}
+#logo-almanac {
+  font-family: var(--fm); font-size: 19px; font-weight: 400;
+  color: var(--gold); letter-spacing: 3px; line-height: 1; margin-top: 1px;
+}
+#logo-rule {
+  width: 100%; height: 1px;
+  background: linear-gradient(to right, rgba(201,168,76,0.45), transparent);
+  margin: 3px 0;
+}
+#logo-sub {
+  font-family: var(--fm); font-size: 6.5px; font-weight: 400;
+  color: var(--dim); letter-spacing: 2.5px;
+}
+
+/* ─── Month Buttons ──────────────────────────────────────────────────────── */
+#months {
+  display: flex; align-items: center; gap: 3px; flex-wrap: wrap; flex-shrink: 0;
+}
+
+.mb {
+  font-family: var(--fm); font-size: 9px; font-weight: 500;
+  padding: 4px 8px; cursor: pointer; border-radius: 3px;
+  background: rgba(201,168,76,0.04); border: 1px solid var(--b1);
+  color: var(--dim); transition: all .12s; letter-spacing: .5px;
+  white-space: nowrap; user-select: none;
+}
+.mb:hover { background: rgba(201,168,76,0.1); color: var(--sand); }
+.mb.on    { background: var(--crimson); color: var(--sand); border-color: var(--crimson); font-weight: 700; }
+.mb.range { background: rgba(155,28,46,0.18); color: var(--sand); border-color: rgba(155,28,46,0.4); }
+
+#btn-year {
+  font-family: var(--fm); font-size: 8px; font-weight: 700;
+  padding: 4px 10px; cursor: pointer; border-radius: 3px;
+  background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.22);
+  color: var(--gold); transition: all .12s; letter-spacing: .5px; margin-left: 3px;
+  user-select: none;
+}
+#btn-year:hover { background: rgba(201,168,76,0.16); }
+#btn-year.on    { background: var(--gold); color: var(--ink); }
+
+/* ─── Layer Buttons ──────────────────────────────────────────────────────── */
+#layers {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.lb {
+  font-family: var(--fm); font-size: 8.5px; font-weight: 500;
+  padding: 4px 9px; cursor: pointer; border-radius: 3px;
+  background: rgba(201,168,76,0.04); border: 1px solid var(--b1);
+  color: var(--dim); transition: all .12s;
+  display: flex; align-items: center; gap: 5px; white-space: nowrap;
+  letter-spacing: .3px; user-select: none;
+}
+.lb:hover { background: rgba(201,168,76,0.1); color: var(--sand); border-color: var(--b2); }
+.lb.on    { background: rgba(201,168,76,0.08); color: var(--sand); border-color: var(--b2); }
+
+.ldot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.ldiamond {
+  width: 8px; height: 8px; flex-shrink: 0;
+  transform: rotate(45deg); border-radius: 1px;
+}
+
+#btn-borders {
+  font-family: var(--fm); font-size: 8.5px; font-weight: 500;
+  padding: 4px 9px; cursor: pointer; border-radius: 3px;
+  background: rgba(34,211,238,0.04); border: 1px solid rgba(34,211,238,0.15);
+  color: #4a6a6e; transition: all .12s;
+  display: flex; align-items: center; gap: 5px; white-space: nowrap;
+  letter-spacing: .3px; user-select: none; margin-left: 4px;
+}
+#btn-borders:hover { background: rgba(34,211,238,0.1); color: #a0d4db; border-color: rgba(34,211,238,0.35); }
+#btn-borders.on    { background: rgba(34,211,238,0.08); color: #a0d4db; border-color: rgba(34,211,238,0.35); }
+
+#btn-political {
+  font-family: var(--fm); font-size: 8.5px; font-weight: 500;
+  padding: 4px 9px; cursor: pointer; border-radius: 3px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12);
+  color: #5a5a70; transition: all .12s;
+  display: flex; align-items: center; gap: 5px; white-space: nowrap;
+  letter-spacing: .3px; user-select: none; margin-left: 4px;
+}
+#btn-political:hover { background: rgba(255,255,255,0.08); color: #b0b0c8; border-color: rgba(255,255,255,0.30); }
+#btn-political.on    { background: rgba(255,255,255,0.06); color: #b0b0c8; border-color: rgba(255,255,255,0.30); }
+
+.lpolitical {
+  width: 9px; height: 9px; flex-shrink: 0; border-radius: 1px;
+  border: 1px solid rgba(255,255,255,0.45); background: transparent;
+}
+
+/* ─── Transport Layer Buttons ────────────────────────────────────────────── */
+#transport {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+}
+
+.tb {
+  font-family: var(--fm); font-size: 8.5px; font-weight: 500;
+  padding: 4px 9px; cursor: pointer; border-radius: 3px;
+  background: rgba(99,102,241,0.04); border: 1px solid rgba(99,102,241,0.16);
+  color: #4a5a7a; transition: all .12s;
+  display: flex; align-items: center; gap: 5px; white-space: nowrap;
+  letter-spacing: .3px; user-select: none;
+}
+.tb:hover { background: rgba(99,102,241,0.12); color: #9aa8d8; border-color: rgba(99,102,241,0.38); }
+.tb.on    { background: rgba(99,102,241,0.10); color: #9aa8d8; border-color: rgba(99,102,241,0.38); }
+
+/* Roads tile layer — multiply blend makes white tiles transparent over satellite */
+.transport-roads-layer { mix-blend-mode: multiply; }
+
+/* ─── Map ─────────────────────────────────────────────────────────────────── */
+#map {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: #060402;
+}
+
+/* Smooth transitions on choropleth */
+.leaflet-choroplethPane-pane { transition: opacity .2s ease; }
+.leaflet-interactive { transition: fill-opacity .25s ease, fill .25s ease; }
+
+/* ─── Tooltip ────────────────────────────────────────────────────────────── */
+#tt {
+  position: fixed; z-index: 2000; pointer-events: none;
+  background: var(--panel2); border: 1px solid var(--b2);
+  border-top: 2px solid var(--crimson); border-radius: 3px;
+  max-width: 300px; min-width: 228px; display: none; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,.85);
+  font-family: var(--fm);
+}
+.tth {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--b1);
+  background: rgba(0,0,0,.22);
+}
+.tth h3 { font-size: 14px; font-weight: 700; color: var(--sand); line-height: 1.2; }
+.tth .ts { font-size: 7px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.tth .tm { font-size: 7px; color: var(--dim); letter-spacing: 1.5px; margin-top: 2px; }
+.ttb { padding: 8px 14px 11px; }
+.ttr { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 7px; padding-bottom: 7px; border-bottom: 1px solid rgba(201,168,76,0.05); }
+.ttr:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.ttstrip { width: 3px; border-radius: 1px; flex-shrink: 0; align-self: stretch; min-height: 32px; }
+.tti { flex: 1; min-width: 0; }
+.ttln { font-size: 7px; color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 2px; }
+.ttrat { font-size: 10px; font-weight: 700; line-height: 1.1; margin-bottom: 2px; }
+.ttdesc { font-size: 7px; color: #5a4a20; line-height: 1.65; }
+.spark { display: flex; align-items: flex-end; gap: 1.5px; height: 16px; margin-top: 5px; }
+.spark-bar { flex: 1; border-radius: 1px 1px 0 0; }
+.spark-labels { display: flex; justify-content: space-between; margin-top: 2px; }
+.spark-label { font-size: 5.5px; color: var(--dim); letter-spacing: .3px; }
+
+/* Border tooltip status */
+.tt-status-open       { color: #22d3ee; }
+.tt-status-restricted { color: #f59e0b; }
+.tt-status-closed     { color: #ef4444; }
+
+/* ─── Legend ─────────────────────────────────────────────────────────────── */
+#legend {
+  position: absolute; bottom: 38px; left: 14px; z-index: 1000;
+  background: var(--panel2); border: 1px solid var(--b2);
+  border-radius: 3px; padding: 12px 14px;
+  backdrop-filter: blur(16px); min-width: 190px; max-width: 240px;
+  display: none; box-shadow: 0 6px 28px rgba(0,0,0,.75);
+  font-family: var(--fm);
+}
+#legend h4 {
+  font-size: 7.5px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 2.5px;
+  margin-bottom: 10px; padding-bottom: 7px; border-bottom: 1px solid var(--b1);
+}
+.ll { margin-bottom: 10px; }
+.ll:last-child { margin-bottom: 0; }
+.ll-name { font-size: 8px; font-weight: 700; color: var(--sand); margin-bottom: 4px; letter-spacing: .5px; }
+.lr { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.lsw { width: 9px; height: 9px; border-radius: 1px; flex-shrink: 0; }
+.lsw-diamond { width: 9px; height: 9px; flex-shrink: 0; transform: rotate(45deg); border-radius: 1px; }
+.lsw-line { width: 22px; height: 2px; border-radius: 1px; flex-shrink: 0; margin: 3px 0; opacity: 0.8; }
+.llabel { font-size: 7.5px; color: var(--dim); }
+.llabel-note { font-size: 6.5px; color: #3a2a10; letter-spacing: .3px; margin-left: 5px; }
+
+/* ─── Leaflet overrides ───────────────────────────────────────────────────── */
+.leaflet-control-zoom {
+  border: 1px solid var(--b2) !important;
+  background: var(--panel) !important;
+  border-radius: 3px !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  color: var(--sand) !important;
+  background: transparent !important;
+  font-family: var(--fm) !important;
+  border-bottom-color: var(--b1) !important;
+}
+.leaflet-control-zoom a:hover { background: rgba(201,168,76,0.1) !important; }
+
+.leaflet-control-attribution {
+  background: rgba(10,8,3,.85) !important;
+  color: #3a2a10 !important;
+  font-size: 8px !important;
+  font-family: var(--fm) !important;
+}
+.leaflet-control-attribution a { color: #5a4020 !important; }
