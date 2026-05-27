@@ -728,6 +728,29 @@ const CITIES = [
     remote:rep(2), corrupt:rep(1), health:rep(0), crowds:s12(0,0,0,1,2,2,3,3,2,1,0,0),
     disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,3,2,1,0,0,0,0,1,2,3), vaccines:rep(0)
   }),
+  mk('London','GB',51.507,-0.127,{
+    // Grey, mild, frequently overcast; one of Europe's most expensive cities
+    weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,3,3,2,2,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,3,3,3,2,2,2,3,3,3,3), vaccines:rep(0)
+  }),
+  mk('Edinburgh','GB',55.953,-3.189,{
+    // Colder and wetter than London; dramatically cheaper; world-class culture
+    weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,0,1,1,2,3,3,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Vienna','AT',48.208,16.373,{
+    weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,2,1,2),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Reykjavik','IS',64.133,-21.895,{
+    // Sub-arctic; dramatic landscape; extremely expensive
+    weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,0,1,2,2,3,3,2,1,0,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
   // ── Americas ─────────────────────────────────────────────────────────────────
   mk('New York','US',40.712,-74.006,{
     weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(3), family:rep(1), solo:rep(1),
@@ -738,6 +761,102 @@ const CITIES = [
     weather:s12(0,0,0,1,2,2,2,2,2,1,0,0), safety:rep(1), cost:rep(3), family:rep(1), solo:rep(1),
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,2,1,1,1,1,1,1,2,2),
     disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(1,1,1,1,1,1,1,1,1,1,1,1), vaccines:rep(0)
+  }),
+  // ── USA — city-level granularity (weather, cost, safety vary significantly) ──
+  mk('Los Angeles','US',34.052,-118.244,{
+    weather:s12(0,0,0,0,0,0,0,0,0,0,0,0), safety:rep(1), cost:rep(3), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,2,1,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(0,0,0,0,0,0,0,0,0,0,0,0), vaccines:rep(0)
+  }),
+  mk('San Francisco','US',37.774,-122.419,{
+    // Mild Mediterranean coast — noticeably cooler than inland CA all year
+    weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(2), cost:rep(3), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), vaccines:rep(0)
+  }),
+  mk('Bakersfield','US',35.373,-119.019,{
+    // Central Valley: 40 °C+ summers — much hotter and cheaper than coastal CA
+    weather:s12(0,0,1,1,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(1), health:rep(1), crowds:rep(0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Sacramento','US',38.582,-121.494,{
+    // Inland valley — hot dry summers, mild winters; moderately priced
+    weather:s12(0,0,1,1,1,1,3,3,2,1,0,0), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,1,1,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Las Vegas','US',36.175,-115.137,{
+    // Desert: extreme heat Jun–Sep; cheap accommodation, poor walkability
+    weather:s12(0,1,1,1,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(2), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,2,2,1,1,1,2,2,2,2),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Seattle','US',47.607,-122.331,{
+    // Rainy but mild; excellent summer; expensive tech-hub city
+    weather:s12(2,2,2,1,1,0,0,0,1,1,2,2), safety:rep(1), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,2,1,1,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), vaccines:rep(0)
+  }),
+  mk('Denver','US',39.739,-104.984,{
+    // Mile-high: variable weather, cold snaps Oct–Apr; growing but moderate cost
+    weather:s12(1,1,1,1,1,0,0,0,0,1,1,1), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Chicago','US',41.881,-87.623,{
+    // Brutally cold winters and wind; good summer; mid-high cost
+    weather:s12(3,2,2,1,1,0,0,0,0,1,1,3), safety:rep(2), cost:rep(2), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,2,1,1,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,0,0,1,3,3,3), vaccines:rep(0)
+  }),
+  mk('Boston','US',42.360,-71.059,{
+    // Cold winters, pleasant fall/spring; one of the most expensive US cities
+    weather:s12(2,2,2,1,1,0,0,0,0,1,1,2), safety:rep(1), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,2,2,2,2,2,2,2,1,0),
+    disaster:rep(0), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), vaccines:rep(0)
+  }),
+  mk('Worcester','US',42.262,-71.802,{
+    // Same climate as Boston but significantly cheaper; few tourists
+    weather:s12(2,2,2,1,1,0,0,0,0,1,1,2), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:rep(0),
+    disaster:rep(0), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Austin','US',30.267,-97.743,{
+    // Hot summers (≥38 °C Jul–Aug), mild winters; fast-growing, moderately expensive
+    weather:s12(1,1,1,1,2,2,3,3,2,1,1,1), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Houston','US',29.760,-95.370,{
+    // Humid subtropical: sweltering summers; hurricane risk; affordable
+    weather:s12(1,1,1,2,2,2,3,3,3,2,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(1), crowds:s12(0,0,1,1,2,2,1,1,1,1,0,0),
+    disaster:rep(3), visa:rep(1), lgbtq:rep(1), beaches:s12(2,2,2,2,2,2,3,3,3,2,2,2), vaccines:rep(0)
+  }),
+  mk('New Orleans','US',29.951,-90.071,{
+    // Hot and very humid Jun–Sep; hurricane season; affordable; rich culture
+    weather:s12(1,1,1,2,2,2,3,3,3,2,1,1), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(2,2,2,3,2,1,1,1,1,1,2,2),
+    disaster:rep(3), visa:rep(1), lgbtq:rep(1), beaches:s12(2,2,2,2,2,3,3,3,3,2,2,2), vaccines:rep(0)
+  }),
+  mk('Nashville','US',36.162,-86.782,{
+    // Four distinct seasons; hot humid summers; affordable, rapidly gentrifying
+    weather:s12(1,1,2,1,1,0,1,1,0,1,1,2), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,2,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Phoenix','US',33.448,-112.074,{
+    // Sonoran Desert: brutal dry heat Jun–Sep (45 °C); excellent Nov–Apr
+    weather:s12(0,0,0,1,2,3,3,3,3,1,0,0), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,1,1,0,0,0,1,2,2,2),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Portland','US',45.523,-122.676,{
+    // Mild rainy winters; excellent warm dry summer; moderately expensive
+    weather:s12(2,2,2,1,1,0,0,0,1,1,2,2), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,2,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), vaccines:rep(0)
   }),
   mk('Mexico City','MX',19.433,-99.133,{
     weather:s12(1,1,1,1,2,1,1,1,2,1,1,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),

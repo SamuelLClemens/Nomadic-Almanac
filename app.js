@@ -26,9 +26,12 @@ let _coveredByAdmin1 = new Set();   // ISO-2 codes present in admin-1 data
 const TRANSPORT_LAYERS = {
   roads: {
     label: '🛣 Roads',
-    url: 'https://tiles.stadiamaps.com/tiles/stamen_toner_lines/{z}/{x}/{y}{r}.png',
-    opts: { opacity: 0.60, maxZoom: 20, className: 'transport-roads-layer',
-            attribution: '&copy; <a href="https://stadia.maps.com">Stadia</a> &copy; <a href="https://stamen.com">Stamen</a> &copy; <a href="https://osm.org/copyright">OSM</a>' },
+    // Stadia/Stamen Toner Lines requires an API key since 2024; replaced with
+    // the free Esri World Transportation reference overlay (transparent PNG tiles).
+    // Note: ArcGIS REST tile order is {z}/{y}/{x} — different from OSM convention.
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+    opts: { opacity: 0.75, maxZoom: 19, className: 'transport-roads-layer',
+            attribution: 'Roads &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin' },
     layer: null, active: false,
   },
   rail: {
@@ -88,6 +91,7 @@ function initMap() {
     zoom: 3,
     minZoom: 2,
     maxZoom: 18,
+    worldCopyJump: true,   // snap view back to primary copy when panning past ±180°
     preferCanvas: false,
   });
 
@@ -391,7 +395,9 @@ function makeMarkerIcon(city) {
     ctx.strokeStyle = 'rgba(201,168,76,0.65)'; ctx.lineWidth = 2; ctx.stroke();
   }
 
-  return L.divIcon({ html: cv.outerHTML, className: '', iconSize: [D, D], iconAnchor: [SZ, SZ] });
+  // canvas.outerHTML only serialises the element tag — pixel data is lost.
+  // toDataURL() encodes the drawn pixels as a PNG data URI used in an <img>.
+  return L.divIcon({ html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`, className: '', iconSize: [D, D], iconAnchor: [SZ, SZ] });
 }
 
 function makeBorderIcon(bc) {
@@ -412,7 +418,7 @@ function makeBorderIcon(bc) {
     ctx.beginPath(); ctx.moveTo(c - 5, c - 5); ctx.lineTo(c + 5, c + 5);
     ctx.moveTo(c + 5, c - 5); ctx.lineTo(c - 5, c + 5); ctx.stroke();
   }
-  return L.divIcon({ html: cv.outerHTML, className: '', iconSize: [D, D], iconAnchor: [sz, sz] });
+  return L.divIcon({ html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`, className: '', iconSize: [D, D], iconAnchor: [sz, sz] });
 }
 
 // ─── Political Borders & Territory Overlays ───────────────────────────────────
