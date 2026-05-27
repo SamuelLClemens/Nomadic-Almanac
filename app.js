@@ -337,12 +337,12 @@ function getCountryStyle(iso2, hover) {
   }
   const r = getCountryRating(iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.88 : 0.72) : 0;
+  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
   return {
     fillColor: fc,
     fillOpacity: fo,
-    color: hover ? 'rgba(232,213,163,0.5)' : 'rgba(201,168,76,0.06)',
-    weight: hover ? 1.2 : 0.3,
+    color: hover ? 'rgba(232,213,163,0.65)' : 'rgba(255,255,255,0.30)',
+    weight: hover ? 1.5 : 0.65,
   };
 }
 
@@ -355,12 +355,12 @@ function getAdmin1Style(iso2, subCode, hover) {
   }
   const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.88 : 0.72) : 0;
+  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
   return {
     fillColor: fc,
     fillOpacity: fo,
-    color: hover ? 'rgba(232,213,163,0.28)' : 'rgba(255,255,255,0.08)',
-    weight: hover ? 0.7 : 0.22,
+    color: hover ? 'rgba(232,213,163,0.40)' : 'rgba(255,255,255,0.20)',
+    weight: hover ? 0.9 : 0.35,
   };
 }
 
@@ -481,7 +481,7 @@ function initPoliticalLayers() {
   borderLinesLayer = L.geoJSON(_geoData, {
     pane: 'politicalPane',
     interactive: false,
-    style: () => ({ fill: false, color: 'rgba(255,255,255,0.20)', weight: 0.65 }),
+    style: () => ({ fill: false, color: 'rgba(255,255,255,0.35)', weight: 0.90 }),
   });
 
   // Territory polygons — Gaza, West Bank, Golan Heights
