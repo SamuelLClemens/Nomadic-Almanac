@@ -375,21 +375,25 @@ function makeMarkerIcon(city, zoom) {
   const la = [...activeLayers];
   const n = la.length;
   if (n === 0) return null;
-  // Base radius: single layer = 9px, multi-layer = 13px; scale down at low zoom
-  const baseR = n > 1 ? 13 : 9;
-  const zScale = zoom >= 6 ? 1 : zoom >= 4 ? 0.80 : 0.62;
-  const SZ = Math.max(7, Math.round(baseR * zScale));
+
+  // Radius: tiny dots that grow slightly with zoom.
+  // No floor — at low zoom we want the smallest possible mark.
+  const baseR = n > 1 ? 5 : 4;
+  const zScale = zoom >= 8 ? 1.4 : zoom >= 6 ? 1.0 : 0.70;
+  const SZ = Math.max(3, Math.round(baseR * zScale));  // min 3 → 6 px diam
   const D = SZ * 2;
+  const lw = SZ <= 4 ? 1 : 1.5;  // thinner stroke on small markers
+
   const cv = document.createElement('canvas');
   cv.width = D; cv.height = D;
   const ctx = cv.getContext('2d');
-  const cx = SZ, cy = SZ, r = SZ - 1.5;
+  const cx = SZ, cy = SZ, r = SZ - lw;
 
   if (n === 1) {
     const v = getRating(city.data[la[0]]) ?? 0;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = RC[Math.min(3, v)]; ctx.fill();
-    ctx.strokeStyle = 'rgba(201,168,76,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = 'rgba(201,168,76,0.75)'; ctx.lineWidth = lw; ctx.stroke();
   } else {
     const slice = (Math.PI * 2) / n;
     la.forEach((lk, i) => {
@@ -398,10 +402,10 @@ function makeMarkerIcon(city, zoom) {
       ctx.beginPath(); ctx.moveTo(cx, cy);
       ctx.arc(cx, cy, r, s, s + slice); ctx.closePath();
       ctx.fillStyle = RC[Math.min(3, v)]; ctx.fill();
-      ctx.strokeStyle = 'rgba(14,11,6,0.5)'; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.strokeStyle = 'rgba(14,11,6,0.4)'; ctx.lineWidth = 0.5; ctx.stroke();
     });
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(201,168,76,0.65)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = 'rgba(201,168,76,0.70)'; ctx.lineWidth = lw; ctx.stroke();
   }
 
   // canvas.outerHTML only serialises the element tag — pixel data is lost.
@@ -671,10 +675,12 @@ function renderCityMarkers() {
   if (activeLayers.size === 0) return;
 
   const zoom = map.getZoom();
-  const minZoom = 3;
-  if (zoom < minZoom) {
-    const filtered = CITIES.filter((c, i) => i % 3 === 0);
-    _placeCities(filtered);
+  // Don't clutter world-view (zoom < 4) with dots — they add noise at that scale.
+  // Show a reduced set at zoom 4, all cities at zoom 5+.
+  if (zoom < 4) return;
+  if (zoom < 5) {
+    // Major cities only — every third entry keeps the list representative without overcrowding.
+    _placeCities(CITIES.filter((_, i) => i % 3 === 0));
   } else {
     _placeCities(CITIES);
   }
