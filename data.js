@@ -407,12 +407,12 @@ const CD_A1 = {
 
   // ── India ────────────────────────────────────────────────────────────────
   // Delhi — solo female safety significantly worse than national average; extreme heat/pollution
-  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1), solo:rep(3), safety:rep(2) }, — extreme heat May–Jun; humid Jul–Sep
+  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1), solo:rep(3), safety:rep(2) }, // — extreme heat May–Jun; humid Jul–Sep
   'IN-RJ': { weather: s12(0,1,1,2,3,3,2,2,2,1,0,0) }, // Rajasthan — Thar desert; scorching Apr–Jun
   // Kerala — most progressive state; lower solo risk; excellent public healthcare
-  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), solo:rep(1), safety:rep(1), lgbtq:rep(1) }, — heavy monsoon Jun–Aug; best Nov–Feb
+  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), solo:rep(1), safety:rep(1), lgbtq:rep(1) }, // — heavy monsoon Jun–Aug; best Nov–Feb
   // Goa — India's most LGBTQ-tolerant state; international beach scene; safer for solo travellers
-  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0), lgbtq:rep(1), solo:rep(1), safety:rep(1) }, — best Nov–Feb; heavy monsoon Jun–Sep
+  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0), lgbtq:rep(1), solo:rep(1), safety:rep(1) }, // — best Nov–Feb; heavy monsoon Jun–Sep
   'IN-HP': { weather: s12(3,3,2,1,0,1,2,2,1,0,1,3) }, // Himachal Pradesh — mountain; snow Nov–Mar
   'IN-UK': { weather: s12(2,2,1,1,1,2,3,3,2,0,1,2) }, // Uttarakhand — Himalayan foothills
   'IN-MH': { weather: s12(0,0,1,2,3,3,3,3,3,1,1,0) }, // Maharashtra (Mumbai) — heavy monsoon Jun–Sep
@@ -421,7 +421,7 @@ const CD_A1 = {
   'IN-WB': { weather: s12(1,1,2,2,3,3,3,3,2,1,1,1) }, // West Bengal (Kolkata)
   'IN-AS': { weather: s12(1,1,2,2,3,3,3,3,3,2,1,1) }, // Assam — very heavy monsoon
   // Jammu & Kashmir — active conflict zone; special permits; do not travel near LoC
-  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3), safety:rep(3), visa:rep(3), crowds:rep(0), solo:rep(3) }, — valley; snowy winters
+  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3), safety:rep(3), visa:rep(3), crowds:rep(0), solo:rep(3) }, // — valley; snowy winters
 
   // ── USA — all 50 states ───────────────────────────────────────────────────
   // US national fallbacks: cost:rep(3), safety:rep(1), lgbtq:rep(1), disaster:rep(1)
