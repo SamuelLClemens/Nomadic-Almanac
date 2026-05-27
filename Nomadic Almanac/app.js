@@ -25,28 +25,28 @@ let _coveredByAdmin1 = new Set();   // ISO-2 codes present in admin-1 data
 // Transport tile layers — config + runtime state bundled per layer
 const TRANSPORT_LAYERS = {
   roads: {
-    label: 'Roads',
+    label: '🛣 Roads',
     url: 'https://tiles.stadiamaps.com/tiles/stamen_toner_lines/{z}/{x}/{y}{r}.png',
     opts: { opacity: 0.60, maxZoom: 20, className: 'transport-roads-layer',
             attribution: '&copy; <a href="https://stadia.maps.com">Stadia</a> &copy; <a href="https://stamen.com">Stamen</a> &copy; <a href="https://osm.org/copyright">OSM</a>' },
     layer: null, active: false,
   },
   rail: {
-    label: 'Rail & Transit',
+    label: '🚆 Rail & Transit',
     url: 'https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
     opts: { subdomains: 'abc', maxZoom: 19, opacity: 0.88,
             attribution: '&copy; <a href="https://openrailwaymap.org">OpenRailwayMap</a> &copy; <a href="https://osm.org/copyright">OSM</a>' },
     layer: null, active: false,
   },
   trails: {
-    label: 'Hiking Trails',
+    label: '🥾 Hiking Trails',
     url: 'https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png',
     opts: { maxZoom: 19, opacity: 0.85,
             attribution: '&copy; <a href="https://hiking.waymarkedtrails.org">Waymarked Trails</a> &copy; <a href="https://osm.org/copyright">OSM</a>' },
     layer: null, active: false,
   },
   maritime: {
-    label: 'Maritime',
+    label: '⚓ Maritime',
     url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
     opts: { maxZoom: 18, opacity: 0.80,
             attribution: '&copy; <a href="https://openseamap.org">OpenSeaMap</a>' },
@@ -69,6 +69,14 @@ const getAdmin1Iso2 = p => {
     if (c && c.length === 2) return c;
   }
   return '';
+};
+
+// Returns the full ISO 3166-2 subdivision code (e.g. 'CN-11', 'US-AK') for
+// sub-national data lookup in CD_A1.
+const getAdmin1Code = p => {
+  if (!p) return '';
+  const s = p.iso_3166_2 || '';
+  return (s && s !== '-99' && s !== '-1') ? s : '';
 };
 
 let _ttX = 0, _ttY = 0;
@@ -205,18 +213,16 @@ function buildLayerButtons() {
     btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
     btn.dataset.key = key;
 
-    const dot = document.createElement('span');
-    dot.className = 'ldot';
-    dot.style.background = activeLayers.has(key) ? RC[0] : '#2e3d1a';
-
-    btn.appendChild(dot);
+    const emojiSpan = document.createElement('span');
+    emojiSpan.className = 'lb-emoji';
+    emojiSpan.textContent = layer.emoji;
+    btn.appendChild(emojiSpan);
     btn.appendChild(document.createTextNode(layer.name));
 
     btn.addEventListener('click', () => {
       if (activeLayers.has(key)) activeLayers.delete(key);
       else activeLayers.add(key);
       btn.classList.toggle('on', activeLayers.has(key));
-      dot.style.background = activeLayers.has(key) ? RC[0] : '#2e3d1a';
       refresh();
     });
 
@@ -225,7 +231,7 @@ function buildLayerButtons() {
 
   const borderBtn = document.createElement('button');
   borderBtn.id = 'btn-borders';
-  borderBtn.innerHTML = '<span class="ldiamond" style="background:#22d3ee"></span>Borders';
+  borderBtn.innerHTML = '🛂 Borders';
   borderBtn.addEventListener('click', () => {
     showBorders = !showBorders;
     borderBtn.classList.toggle('on', showBorders);
@@ -236,7 +242,7 @@ function buildLayerButtons() {
 
   const politicalBtn = document.createElement('button');
   politicalBtn.id = 'btn-political';
-  politicalBtn.innerHTML = '<span class="lpolitical"></span>Political';
+  politicalBtn.innerHTML = '🗺 Political';
   politicalBtn.classList.toggle('on', showPolitical);
   politicalBtn.addEventListener('click', () => {
     showPolitical = !showPolitical;
@@ -300,6 +306,22 @@ function getCountryRating(iso2) {
   return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
 }
 
+// Like getCountryRating but checks CD_A1[subCode] first for province-specific
+// data, then falls back to CD[parentIso2] for any layer not overridden.
+function getAdmin1Rating(subCode, parentIso2) {
+  const d1 = subCode ? CD_A1[subCode] : null;
+  const d2 = CD[parentIso2];
+  if (!d1 && !d2) return null;
+  const layers = [...activeLayers];
+  if (layers.length === 0) return null;
+  const ratings = layers.map(lk => {
+    const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
+    return arr != null ? getRating(arr) : null;
+  }).filter(v => v !== null);
+  if (ratings.length === 0) return null;
+  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
+}
+
 // ─── Style ────────────────────────────────────────────────────────────────────
 function getCountryStyle(iso2, hover) {
   // Hide countries that are fully represented in the admin-1 layer
@@ -320,18 +342,19 @@ function getCountryStyle(iso2, hover) {
   };
 }
 
-// Style for admin-1 (province/state) choropleth features
-function getAdmin1Style(iso2, hover) {
+// Style for admin-1 (province/state) choropleth features.
+// Uses province-specific data from CD_A1[subCode] when available,
+// falling back to parent country CD[iso2] for any missing layers.
+function getAdmin1Style(iso2, subCode, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.07)', weight: 0.2 };
   }
-  const r = getCountryRating(iso2);
+  const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
   const fo = r !== null ? (hover ? 0.88 : 0.72) : 0;
   return {
     fillColor: fc,
     fillOpacity: fo,
-    // Thin sub-national border; hover brightens it
     color: hover ? 'rgba(232,213,163,0.28)' : 'rgba(255,255,255,0.08)',
     weight: hover ? 0.7 : 0.22,
   };
@@ -373,7 +396,7 @@ function makeMarkerIcon(city) {
 
 function makeBorderIcon(bc) {
   const col = { open: '#22d3ee', restricted: '#f59e0b', closed: '#ef4444' }[bc.status];
-  const sz = 11, D = sz * 2;
+  const sz = 14, D = sz * 2;
   const cv = document.createElement('canvas');
   cv.width = D; cv.height = D;
   const ctx = cv.getContext('2d');
@@ -381,13 +404,13 @@ function makeBorderIcon(bc) {
   ctx.beginPath();
   ctx.moveTo(c, 2); ctx.lineTo(D - 2, c); ctx.lineTo(c, D - 2); ctx.lineTo(2, c);
   ctx.closePath();
-  ctx.fillStyle = col; ctx.globalAlpha = 0.9; ctx.fill();
-  ctx.strokeStyle = 'rgba(232,213,163,0.8)'; ctx.lineWidth = 1.2;
+  ctx.fillStyle = col; ctx.globalAlpha = 0.92; ctx.fill();
+  ctx.strokeStyle = 'rgba(232,213,163,0.9)'; ctx.lineWidth = 1.8;
   ctx.globalAlpha = 1; ctx.stroke();
   if (bc.status === 'closed') {
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.moveTo(c - 4, c - 4); ctx.lineTo(c + 4, c + 4);
-    ctx.moveTo(c + 4, c - 4); ctx.lineTo(c - 4, c + 4); ctx.stroke();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(c - 5, c - 5); ctx.lineTo(c + 5, c + 5);
+    ctx.moveTo(c + 5, c - 5); ctx.lineTo(c - 5, c + 5); ctx.stroke();
   }
   return L.divIcon({ html: cv.outerHTML, className: '', iconSize: [D, D], iconAnchor: [sz, sz] });
 }
@@ -550,8 +573,11 @@ function renderChoropleth() {
 function renderAdmin1Styles() {
   if (!admin1ChoroLayer) return;
   admin1ChoroLayer.eachLayer(layer => {
-    const iso2 = layer.feature && getAdmin1Iso2(layer.feature.properties);
-    if (iso2) layer.setStyle(getAdmin1Style(iso2, false));
+    if (!layer.feature) return;
+    const p = layer.feature.properties;
+    const iso2 = getAdmin1Iso2(p);
+    const subCode = getAdmin1Code(p);
+    if (iso2) layer.setStyle(getAdmin1Style(iso2, subCode, false));
   });
 }
 
@@ -573,21 +599,26 @@ async function initAdmin1Choropleth() {
 
     admin1ChoroLayer = L.geoJSON(_admin1GeoData, {
       pane: 'choroplethPane',
-      style: feature => getAdmin1Style(getAdmin1Iso2(feature.properties), false),
+      style: feature => {
+        const p = feature.properties;
+        return getAdmin1Style(getAdmin1Iso2(p), getAdmin1Code(p), false);
+      },
       onEachFeature: (feature, layer) => {
-        const iso2 = getAdmin1Iso2(feature.properties);
+        const p         = feature.properties;
+        const iso2      = getAdmin1Iso2(p);
+        const subCode   = getAdmin1Code(p);
         if (!iso2) return;
-        const stateName   = feature.properties.name  || '';
-        const countryName = feature.properties.admin || countryNames[iso2] || iso2;
+        const stateName   = p.name  || '';
+        const countryName = p.admin || countryNames[iso2] || iso2;
 
         layer.on('mouseover', () => {
-          layer.setStyle(getAdmin1Style(iso2, true));
-          const html = buildAdmin1Tooltip(iso2, stateName, countryName);
+          layer.setStyle(getAdmin1Style(iso2, subCode, true));
+          const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
           if (html) showTooltip(html);
         });
         layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
         layer.on('mouseout', () => {
-          layer.setStyle(getAdmin1Style(iso2, false));
+          layer.setStyle(getAdmin1Style(iso2, subCode, false));
           hideTooltip();
         });
       },
@@ -786,10 +817,13 @@ function buildBorderTooltip(bc) {
   </div>`;
 }
 
-function buildAdmin1Tooltip(iso2, stateName, countryName) {
+function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
   if (activeLayers.size === 0) return null;
-  const rows = CD[iso2]
-    ? buildLayerRows(CD[iso2])
+  const d1 = subCode ? CD_A1[subCode] : null;
+  const d2 = CD[iso2];
+  const merged = d1 ? Object.assign({}, d2, d1) : d2;
+  const rows = merged
+    ? buildLayerRows(merged)
     : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No travel data available for this region.</div>';
   return `<div class="tth">
     <h3 id="tt-name">${stateName || countryName}</h3>

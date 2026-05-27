@@ -299,6 +299,122 @@ const CD = {
   'XWB': { weather:s12(1,1,0,0,0,1,2,2,1,0,1,1), safety:rep(3), cost:rep(1), family:rep(3), solo:rep(3), remote:rep(2), corrupt:rep(3), health:rep(2), crowds:rep(1), disaster:rep(2), visa:rep(3), lgbtq:rep(3), beaches:rep(3), vaccines:rep(2) },
 };
 
+// ─── Sub-national climate data ────────────────────────────────────────────────
+// Keyed by ISO 3166-2 subdivision code (e.g. 'CN-11', 'US-AK').
+// Only layers that meaningfully differ from the parent country are included;
+// all other layers fall through to the parent CD entry at runtime.
+const CD_A1 = {
+
+  // ── China ─────────────────────────────────────────────────────────────────
+  // Northeast — extreme cold winters, pleasant short summer
+  'CN-23': { weather: s12(3,3,3,2,1,0,0,0,0,1,2,3) }, // Heilongjiang (Harbin)
+  'CN-22': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) }, // Jilin
+  'CN-21': { weather: s12(3,2,2,1,0,0,0,0,0,1,1,3) }, // Liaoning (Shenyang)
+
+  // North — cold dry winters, hot humid summers, excellent Sep–Oct
+  'CN-11': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Beijing
+  'CN-12': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Tianjin
+  'CN-13': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Hebei
+  'CN-14': { weather: s12(2,2,1,1,0,1,1,2,0,0,1,2) }, // Shanxi
+  'CN-37': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Shandong (Qingdao)
+  'CN-41': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Henan
+
+  // Inner Mongolia — extreme continental steppe
+  'CN-15': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) },
+
+  // East / Lower Yangtze — subtropical; plum rain Jun, typhoon Jul–Sep
+  'CN-31': { weather: s12(1,2,1,1,1,2,3,3,2,0,1,1) }, // Shanghai
+  'CN-32': { weather: s12(1,2,1,1,1,2,2,3,2,0,1,1) }, // Jiangsu (Nanjing)
+  'CN-33': { weather: s12(1,2,1,1,1,2,2,3,2,0,1,1) }, // Zhejiang (Hangzhou)
+  'CN-34': { weather: s12(2,2,1,1,1,2,2,2,1,0,1,2) }, // Anhui
+  'CN-35': { weather: s12(1,1,1,1,1,2,2,2,2,1,1,1) }, // Fujian (Xiamen)
+  'CN-36': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Jiangxi
+
+  // Central — hot, humid summers; flooding risk Jul–Aug
+  'CN-42': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Hubei (Wuhan)
+  'CN-43': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Hunan (Changsha)
+
+  // South — subtropical/tropical; excellent Nov–Mar
+  'CN-44': { weather: s12(1,2,2,2,2,2,2,2,2,1,0,1) }, // Guangdong
+  'CN-45': { weather: s12(1,2,2,2,2,2,2,2,1,0,1,1) }, // Guangxi (Guilin)
+  'CN-46': { weather: s12(0,0,0,1,2,2,2,2,2,1,0,0) }, // Hainan (tropical)
+
+  // Southwest — Chengdu/Chongqing basin foggy; Yunnan "spring city"
+  'CN-50': { weather: s12(1,1,1,1,1,2,2,3,2,1,1,1) }, // Chongqing
+  'CN-51': { weather: s12(1,1,1,1,1,2,2,2,2,1,1,2) }, // Sichuan (Chengdu)
+  'CN-52': { weather: s12(1,1,1,1,1,2,1,1,1,0,1,1) }, // Guizhou (mild/overcast)
+  'CN-53': { weather: s12(0,0,0,0,1,2,2,2,1,0,0,0) }, // Yunnan (Kunming — spring city)
+
+  // Northwest — arid, extreme continental
+  'CN-61': { weather: s12(2,2,1,1,0,1,1,2,0,0,1,2) }, // Shaanxi (Xi'an)
+  'CN-62': { weather: s12(2,2,1,1,0,0,1,2,0,1,2,2) }, // Gansu (Lanzhou)
+  'CN-64': { weather: s12(2,2,1,1,0,0,1,2,0,0,1,2) }, // Ningxia
+  'CN-65': { weather: s12(3,3,2,1,0,0,3,3,1,1,2,3) }, // Xinjiang (extreme: 40°C summer basins)
+
+  // High plateau
+  'CN-54': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3) }, // Tibet/Xizang
+  'CN-63': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3) }, // Qinghai
+
+  // ── India ────────────────────────────────────────────────────────────────
+  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1) }, // Delhi — extreme heat May–Jun; humid Jul–Sep
+  'IN-RJ': { weather: s12(0,1,1,2,3,3,2,2,2,1,0,0) }, // Rajasthan — Thar desert; scorching Apr–Jun
+  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0) }, // Kerala — heavy monsoon Jun–Aug; best Nov–Feb
+  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0) }, // Goa — best Nov–Feb; heavy monsoon Jun–Sep
+  'IN-HP': { weather: s12(3,3,2,1,0,1,2,2,1,0,1,3) }, // Himachal Pradesh — mountain; snow Nov–Mar
+  'IN-UK': { weather: s12(2,2,1,1,1,2,3,3,2,0,1,2) }, // Uttarakhand — Himalayan foothills
+  'IN-MH': { weather: s12(0,0,1,2,3,3,3,3,3,1,1,0) }, // Maharashtra (Mumbai) — heavy monsoon Jun–Sep
+  'IN-GJ': { weather: s12(0,0,1,2,3,3,2,2,2,1,0,0) }, // Gujarat — hot/arid; monsoon Jun–Sep
+  'IN-TN': { weather: s12(0,0,1,1,2,2,2,2,1,2,3,1) }, // Tamil Nadu — NE monsoon Oct–Dec!
+  'IN-WB': { weather: s12(1,1,2,2,3,3,3,3,2,1,1,1) }, // West Bengal (Kolkata)
+  'IN-AS': { weather: s12(1,1,2,2,3,3,3,3,3,2,1,1) }, // Assam — very heavy monsoon
+  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3) }, // Jammu & Kashmir — valley; snowy winters
+
+  // ── USA ──────────────────────────────────────────────────────────────────
+  'US-AK': { weather: s12(3,3,3,2,1,1,1,1,2,2,3,3) }, // Alaska — harsh; short pleasant summer
+  'US-HI': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0) }, // Hawaii — warm tropical year-round
+  'US-FL': { weather: s12(1,1,0,0,1,2,2,2,2,1,1,1) }, // Florida — great Oct–Apr; humid/hurricane summer
+  'US-AZ': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0) }, // Arizona — desert; extreme heat Jun–Aug
+  'US-CA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1) }, // California — Mediterranean; mostly pleasant
+  'US-TX': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1) }, // Texas — hot summers; mild winters in south
+  'US-WA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // Washington — rainy mild; pleasant summer
+  'US-OR': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // Oregon — similar to Washington
+  'US-NY': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2) }, // New York — cold winters; nice spring/fall
+  'US-LA': { weather: s12(1,1,1,2,2,2,3,3,2,1,1,1) }, // Louisiana — hot humid; hurricane risk
+  'US-MT': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Montana — cold winters; beautiful summers
+  'US-NM': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // New Mexico — high desert; pleasant most of year
+
+  // ── Australia ────────────────────────────────────────────────────────────
+  'AU-QLD': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) }, // Queensland — tropical north; cyclone season Dec–Mar
+  'AU-NT':  { weather: s12(3,3,3,2,0,0,0,0,0,0,1,3) }, // Northern Territory — severe wet season Nov–Apr
+  'AU-WA':  { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // Western Australia — Perth Mediterranean
+  'AU-SA':  { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1) }, // South Australia — hot summers; mild winters
+  'AU-NSW': { weather: s12(1,1,1,0,0,1,1,1,1,0,0,1) }, // New South Wales (Sydney) — mostly pleasant
+  'AU-VIC': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // Victoria (Melbourne) — variable; warm summers
+  'AU-TAS': { weather: s12(2,2,2,1,1,2,2,2,1,1,1,2) }, // Tasmania — cooler; windier
+
+  // ── Russia ───────────────────────────────────────────────────────────────
+  'RU-MOW': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Moscow — harsh continental winters
+  'RU-KDA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1) }, // Krasnodar (Sochi/Black Sea) — much milder
+  'RU-SA':  { weather: s12(3,3,3,3,1,0,0,1,2,3,3,3) }, // Sakha/Yakutia — coldest inhabited region on Earth
+  'RU-PRI': { weather: s12(3,2,1,1,1,1,2,2,1,0,2,3) }, // Primorsky (Vladivostok) — monsoon influenced
+
+  // ── Brazil ───────────────────────────────────────────────────────────────
+  'BR-AM': { weather: s12(2,2,2,2,2,1,1,1,1,1,2,2) }, // Amazonas (Manaus) — hot/wet year-round
+  'BR-PA': { weather: s12(2,3,3,3,2,1,1,1,1,1,2,2) }, // Pará — very heavy rain Mar–May
+  'BR-BA': { weather: s12(1,1,2,2,2,2,2,2,1,1,1,1) }, // Bahia (Salvador) — wet Apr–Jul
+  'BR-SP': { weather: s12(2,2,2,2,1,1,1,1,1,1,2,2) }, // São Paulo — subtropical; mild most of year
+  'BR-RS': { weather: s12(1,1,1,2,2,2,3,2,2,1,1,1) }, // Rio Grande do Sul — coldest Brazil; cool winters
+  'BR-CE': { weather: s12(2,2,3,3,2,1,0,0,0,0,1,1) }, // Ceará (Fortaleza) — NE; rainy Feb–May
+
+  // ── Canada ───────────────────────────────────────────────────────────────
+  'CA-BC': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // British Columbia — mild coast; rainy winters
+  'CA-ON': { weather: s12(3,3,2,1,1,0,0,0,0,1,2,3) }, // Ontario (Toronto) — cold winters; hot summers
+  'CA-QC': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3) }, // Quebec (Montreal) — harsh winters
+  'CA-AB': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Alberta (Calgary) — continental; cold winters
+  'CA-YT': { weather: s12(3,3,3,3,2,1,1,1,2,3,3,3) }, // Yukon — subarctic; very cold
+  'CA-NS': { weather: s12(3,3,2,2,1,1,1,1,1,1,2,3) }, // Nova Scotia — maritime; foggy; cold winters
+};
+
 // ─── City markers ─────────────────────────────────────────────────────────────
 const CITIES = [
   // ── Southeast Asia ──────────────────────────────────────────────────────────
