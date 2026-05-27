@@ -371,16 +371,19 @@ function getAdmin1Style(iso2, subCode, hover) {
 }
 
 // ─── Canvas Markers ───────────────────────────────────────────────────────────
-function makeMarkerIcon(city) {
+function makeMarkerIcon(city, zoom) {
   const la = [...activeLayers];
   const n = la.length;
   if (n === 0) return null;
-  const SZ = n > 1 ? 28 : 20;
+  // Base radius: single layer = 9px, multi-layer = 13px; scale down at low zoom
+  const baseR = n > 1 ? 13 : 9;
+  const zScale = zoom >= 6 ? 1 : zoom >= 4 ? 0.80 : 0.62;
+  const SZ = Math.max(7, Math.round(baseR * zScale));
   const D = SZ * 2;
   const cv = document.createElement('canvas');
   cv.width = D; cv.height = D;
   const ctx = cv.getContext('2d');
-  const cx = SZ, cy = SZ, r = SZ - 2.5;
+  const cx = SZ, cy = SZ, r = SZ - 1.5;
 
   if (n === 1) {
     const v = getRating(city.data[la[0]]) ?? 0;
@@ -678,8 +681,9 @@ function renderCityMarkers() {
 }
 
 function _placeCities(list) {
+  const zoom = map.getZoom();
   list.forEach(city => {
-    const icon = makeMarkerIcon(city);
+    const icon = makeMarkerIcon(city, zoom);
     if (!icon) return;
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
 
