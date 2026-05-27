@@ -10,20 +10,20 @@ const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','N
 const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 const LAYERS = {
-  weather:  { name:'Weather',          emoji:'🌤', levels:['Excellent','Good','Mixed','Harsh'] },
-  safety:   { name:'Safety',           emoji:'🛡', levels:['Very Safe','Moderate','Caution','Avoid'] },
-  cost:     { name:'Cost',             emoji:'💰', levels:['Budget','Mid-range','Expensive','Premium'] },
-  family:   { name:'Family',           emoji:'👨‍👩‍👧', levels:['Ideal','Suitable','Limited','Not Recommended'] },
-  solo:     { name:'Solo Female',      emoji:'👩', levels:['Excellent','Good','Take Care','High Risk'] },
-  remote:   { name:'Remote Work',      emoji:'💻', levels:['Excellent','Good','Adequate','Poor'] },
-  corrupt:  { name:'Corruption',       emoji:'🏛', levels:['Clean','Minor','Moderate','Severe'] },
-  health:   { name:'Health Risk',      emoji:'💊', levels:['Low','Moderate','Elevated','High'] },
-  crowds:   { name:'Overtourism',      emoji:'👁', levels:['Uncrowded','Busy','Crowded','Saturated'] },
-  disaster: { name:'Natural Disaster', emoji:'🌋', levels:['Low Risk','Some Risk','Moderate','High Risk'] },
-  visa:     { name:'Visa',             emoji:'🗂', levels:['Visa Free','Easy','Moderate','Difficult'] },
-  lgbtq:    { name:'LGBTQ+',           emoji:'🏳️‍🌈', levels:['Welcoming','Accepted','Hostile','Dangerous'] },
-  beaches:  { name:'Public Beaches',   emoji:'🏖', levels:['Excellent','Good','Limited','Poor'] },
-  vaccines: { name:'Vaccines',         emoji:'💉', levels:['None','Routine','Required','Extensive'] },
+  weather:  { name:'Weather',          emoji:'🌤', color:'#7EC8E3', levels:['Excellent','Good','Mixed','Harsh'] },
+  safety:   { name:'Safety',           emoji:'🛡', color:'#5B9BD5', levels:['Very Safe','Moderate','Caution','Avoid'] },
+  cost:     { name:'Cost',             emoji:'💰', color:'#C8A84B', levels:['Budget','Mid-range','Expensive','Premium'] },
+  family:   { name:'Family',           emoji:'👨‍👩‍👧', color:'#B87FC4', levels:['Ideal','Suitable','Limited','Not Recommended'] },
+  solo:     { name:'Solo Female',      emoji:'👩', color:'#E87AAF', levels:['Excellent','Good','Take Care','High Risk'] },
+  remote:   { name:'Remote Work',      emoji:'💻', color:'#00B4D8', levels:['Excellent','Good','Adequate','Poor'] },
+  corrupt:  { name:'Corruption',       emoji:'🏛', color:'#A07840', levels:['Clean','Minor','Moderate','Severe'] },
+  health:   { name:'Health Risk',      emoji:'💊', color:'#D9607A', levels:['Low','Moderate','Elevated','High'] },
+  crowds:   { name:'Overtourism',      emoji:'👁', color:'#8878C8', levels:['Uncrowded','Busy','Crowded','Saturated'] },
+  disaster: { name:'Natural Disaster', emoji:'🌋', color:'#C06E3E', levels:['Low Risk','Some Risk','Moderate','High Risk'] },
+  visa:     { name:'Visa',             emoji:'🗂', color:'#6898C0', levels:['Visa Free','Easy','Moderate','Difficult'] },
+  lgbtq:    { name:'LGBTQ+',           emoji:'🏳️‍🌈', color:'#D055A8', levels:['Welcoming','Accepted','Hostile','Dangerous'] },
+  beaches:  { name:'Public Beaches',   emoji:'🏖', color:'#2EC4B6', levels:['Excellent','Good','Limited','Poor'] },
+  vaccines: { name:'Vaccines',         emoji:'💉', color:'#7888D8', levels:['None','Routine','Required','Extensive'] },
 };
 
 const DESCS = {
@@ -1554,6 +1554,117 @@ const BORDERS = [
   bc('Siret / Porubne','RO','UA',47.921,26.073,'open','24 hours','Romania–Ukraine crossing; humanitarian traffic'),
   bc('Horgos / Röszke','RS','HU',46.177,19.976,'open','24 hours','Main Serbia–Hungary motorway crossing'),
   bc('Bruzgi / Kuznica','BY','PL',53.394,23.851,'closed','Closed','Closed to tourist traffic; security exclusion zone'),
+
+  // ── Europe — Schengen / EU external ──────────────────────────────────────────
+  bc('Vaalimaa / Torfyanovka','FI','RU',60.724,27.813,'closed','Closed','Closed since 2023; all Finnish–Russian border crossings shut'),
+  bc('Nuijamaa / Brusnichnoe','FI','RU',61.057,28.584,'closed','Closed','Closed since 2023'),
+  bc('Imatra / Svetogorsk','FI','RU',61.172,28.773,'closed','Closed','Closed since 2023'),
+  bc('Narva / Ivangorod','EE','RU',59.376,28.194,'restricted','07:00–21:00','Freight only since 2023; tourist access suspended'),
+  bc('Terehova / Burachki','LV','RU',56.832,27.622,'closed','Closed','Closed since 2023'),
+  bc('Kybartai / Nesterov','LT','RU',54.638,22.752,'closed','Closed','Kaliningrad transit; closed since 2023'),
+  bc('Terespol / Brest','PL','BY',52.075,23.606,'restricted','24 hours','Humanitarian and freight only; razor-wire exclusion zone in effect'),
+  bc('Vyšné Nemecké / Uzhhorod','SK','UA',48.607,22.152,'open','24 hours','Main Slovakia–Ukraine road crossing'),
+  bc('Záhony / Chop','HU','UA',48.396,22.182,'open','24 hours','Main Hungary–Ukraine road and rail crossing'),
+  bc('Albița / Leușeni','RO','MD',46.551,28.226,'open','24 hours','Main Romania–Moldova crossing'),
+  bc('Palanca','MD','UA',46.418,29.960,'open','24 hours','Main Moldova–Ukraine southern crossing'),
+
+  // ── Balkans / Western Balkans ─────────────────────────────────────────────────
+  bc('Merdare','RS','XK',43.227,21.390,'restricted','07:00–22:00','Kosovo not recognized by Serbia; passport protocols differ by direction'),
+  bc('Bratunac / Ljubovija','BA','RS',44.012,19.345,'open','06:00–22:00','Drina River crossing between Bosnia and Serbia'),
+  bc('Dobrakovo','ME','RS',42.959,19.764,'open','24 hours','Main Montenegro–Serbia motorway crossing'),
+  bc('Evzoni / Gevgelija','GR','MK',41.133,22.582,'open','24 hours','Main E75 highway crossing between Greece and North Macedonia'),
+  bc('Kakavijë / Kakavia','AL','GR',40.090,20.363,'open','24 hours','Primary Albania–Greece road crossing'),
+  bc('Hani i Hotit','AL','ME',42.282,19.487,'open','06:00–22:00','Albania–Montenegro crossing near Lake Shkodër'),
+
+  // ── Turkey borders ────────────────────────────────────────────────────────────
+  bc('Sarp / Sarpi','TR','GE',41.494,41.505,'open','24 hours','Main Turkey–Georgia crossing; Batumi gateway'),
+  bc('Doğukapı / Akyaka','TR','AM',40.036,43.566,'closed','Closed','Closed since 1993; Armenia–Turkey border sealed'),
+  bc('Gürbulak / Razi','TR','IR',39.380,44.414,'open','24 hours','Main Turkey–Iran truck route'),
+  bc('Habur / Ibrahim Khalil','TR','IQ',37.205,42.349,'open','24 hours','Main Turkey–Iraq road crossing'),
+  bc('Cilvegözü / Bab al-Hawa','TR','SY',36.636,36.648,'restricted','Daylight hours','Humanitarian and repatriation traffic only'),
+  bc('Kapitan Andreevo / Kapıkule','TR','BG',41.710,26.342,'open','24 hours','Busiest Turkey–EU road crossing'),
+  bc('Pazarkule / Kastanies','TR','GR',41.669,26.494,'restricted','Variable','Subject to closure due to irregular migration pressure; verify before travel'),
+
+  // ── Middle East / North Africa ────────────────────────────────────────────────
+  bc('Khosravi / Khanaqin','IQ','IR',34.350,45.464,'open','07:00–21:00','Iraq–Iran crossing on the Baghdad–Tehran route'),
+  bc('Trebil / Karameh','IQ','JO',32.680,38.194,'open','08:00–20:00','Trans-desert highway; Jordan–Iraq'),
+  bc('Durra / Haditha','JO','SA',29.533,36.011,'open','08:00–17:00','Jordan–Saudi Arabia; check permit requirements'),
+  bc('Rafah','EG','GZ',31.277,34.261,'closed','Closed','Closed due to crisis; intermittent humanitarian openings only'),
+  bc('Rosh HaNikra / Naqoura','IL','LB',33.084,35.116,'closed','Closed','All Israel–Lebanon crossings closed'),
+  bc('Masnaa / Jdeidat Yabus','LB','SY',33.629,35.997,'open','08:00–20:00','Main Beirut–Damascus road; verify current conditions'),
+  bc('Guerguerat','MA','MR',21.336,-16.996,'open','24 hours','Trans-Sahara route; Mauritania gateway'),
+  bc('Bab el-Assa','DZ','TN',36.654,8.306,'open','06:00–20:00','Main Algeria–Tunisia northern crossing'),
+  bc('Ras Ajdir','TN','LY',33.153,11.515,'open','07:00–19:00','Main Tunisia–Libya crossing; check travel advisories'),
+
+  // ── Sub-Saharan Africa ────────────────────────────────────────────────────────
+  bc('Moyale','ET','KE',3.528,39.057,'open','06:00–18:00','Ethiopia–Kenya; Addis Ababa to Nairobi overland route'),
+  bc('Tunduma / Nakonde','TZ','ZM',-9.300,32.766,'open','06:00–22:00','TAZARA corridor; Tanzania–Zambia'),
+  bc('Chirundu','ZM','ZW',-16.026,28.851,'open','06:00–22:00','Zambia–Zimbabwe crossing on the Zambezi'),
+  bc('Ramokgwebana / Plumtree','BW','ZW',-20.818,27.808,'open','06:00–22:00','Botswana–Zimbabwe; A1 highway crossing'),
+  bc('Ressano Garcia / Komatipoort','MZ','ZA',-25.429,32.017,'open','24 hours','Busiest Mozambique–South Africa crossing'),
+  bc('Forbes / Machipanda','MZ','ZW',-18.993,32.777,'open','06:00–18:00','Beira corridor; Mozambique to Zimbabwe'),
+  bc('Mchinji','MW','ZM',-13.820,32.888,'open','06:00–18:00','Main Malawi–Zambia crossing'),
+  bc('Nimule / Elegu','SS','UG',3.596,32.062,'restricted','06:00–18:00','South Sudan–Uganda; check current security advisories'),
+  bc('Aflao / Kodjoviakopé','GH','TG',6.104,1.190,'open','24 hours','Ghana–Togo; busy west African crossing'),
+  bc('Farafenni','SN','GM',13.567,-15.601,'open','06:00–20:00','Senegal–Gambia; ferry across the Gambia River'),
+  bc('Seme / Kraké','NG','BJ',6.355,2.713,'open','24 hours','Nigeria–Benin; Lagos corridor'),
+  bc('Petite Barrière Goma','CD','RW',-1.678,29.233,'open','06:00–18:00','DRC–Rwanda urban crossing; Goma–Gisenyi'),
+  bc('Metema / Gallabat','SD','ET',12.947,36.205,'restricted','Daylight hours','Armed conflict nearby; check advisories before travel'),
+
+  // ── South Asia ────────────────────────────────────────────────────────────────
+  bc('Wagah / Attari','IN','PK',31.604,74.572,'restricted','09:00–17:00','Ceremonial crossing; advance permit required; limited tourist access'),
+  bc('Sunauli / Bhairahawa','IN','NP',27.508,83.433,'open','24 hours','Main Varanasi–Pokhara overland route'),
+  bc('Raxaul / Birgunj','IN','NP',26.983,84.927,'open','24 hours','Busy Patna–Kathmandu corridor'),
+  bc('Kakarbhitta / Panitanki','IN','NP',26.878,88.126,'open','24 hours','Northeast India gateway to Nepal'),
+  bc('Phuentsholing / Jaigaon','IN','BT',26.851,89.389,'open','09:00–18:00','Most-used India–Bhutan crossing; permit required for Bhutan'),
+  bc('Petrapole / Benapole','IN','BD',23.023,88.588,'open','06:00–20:00','Main India–Bangladesh road crossing'),
+  bc('Akhaura / Agartala','BD','IN',23.875,91.200,'open','06:00–18:00','Secondary India–Bangladesh crossing'),
+  bc('Rasuwagadhi / Gyirong','NP','CN',28.534,85.821,'restricted','09:00–17:00','Tibet permit required; closed to most foreign nationals'),
+  bc('Torkham','PK','AF',34.101,71.103,'restricted','Daylight hours','Volatile; check current conditions before travel'),
+  bc('Chaman / Spin Boldak','PK','AF',30.920,66.457,'restricted','Daylight hours','Volatile; check current conditions before travel'),
+  bc('Taftan / Mirjaveh','PK','IR',28.960,61.596,'restricted','Daylight hours','Security concerns; travel advisories in effect'),
+  bc('Islam Qala','AF','IR',34.685,61.259,'closed','Closed','De facto closed; no regular civilian crossing'),
+  bc('Teknaf','BD','MM',20.864,92.297,'closed','Closed','Sealed due to Rohingya crisis'),
+
+  // ── East Asia / Northeast Asia ────────────────────────────────────────────────
+  bc('Erlian / Zamyn-Üüd','CN','MN',43.646,111.974,'open','09:00–18:00','Trans-Mongolian Railway gateway; main China–Mongolia crossing'),
+  bc('Altai / Bulgan','CN','MN',46.371,90.855,'open','09:00–17:00','Western overland route between China and Mongolia'),
+  bc('Altanbulag / Kyakhta','MN','RU',50.336,106.466,'open','09:00–18:00','Trans-Mongolian Railway gateway; Mongolia–Russia'),
+  bc('Manzhouli / Zabaikalsk','CN','RU',49.572,117.452,'open','09:00–17:00','Main northeast China–Russia land crossing'),
+  bc('Dostyk / Alashankou','KZ','CN',45.282,82.261,'open','09:00–18:00','Silk Road rail and road; Kazakhstan–China'),
+  bc('Khunjerab Pass','PK','CN',36.848,75.467,'open','08:00–17:00','Seasonal May–Nov; CPEC highway at 4,693 m'),
+  bc('Panmunjom / JSA','KP','KR',37.953,126.680,'closed','Closed','DMZ; no public crossing permitted'),
+  bc('Sinuiju / Dandong','KP','CN',40.092,124.396,'closed','Closed','Sealed since 2020; no tourist crossing permitted'),
+  bc('Tumangang / Khasan','KP','RU',42.367,130.619,'closed','Closed','Rare freight only; no tourist crossing'),
+
+  // ── Southeast Asia additions ──────────────────────────────────────────────────
+  bc('Moreh / Tamu','IN','MM',24.237,94.280,'restricted','Daylight hours','Suspended since 2024 due to armed conflict; verify current status'),
+  bc('Trapaeng Kreal / Nong Nok Khiene','KH','LA',13.984,106.002,'open','07:00–17:00','Cambodia–Laos crossing in northeastern Cambodia'),
+  bc('Mota\'ain / Batugade','TL','ID',-8.930,124.972,'open','07:00–17:00','Main Timor-Leste–Indonesia land crossing'),
+  bc('Sungai Tujoh / Kuala Lurah','BN','MY',4.967,114.897,'open','06:00–22:00','Brunei–Malaysia crossing on Borneo'),
+
+  // ── Additional Americas ───────────────────────────────────────────────────────
+  bc('Nogales / Heroica Nogales','US','MX',31.338,-110.934,'open','24 hours','Arizona–Sonora crossing'),
+  bc('Brownsville / Matamoros','US','MX',25.905,-97.498,'open','24 hours','Texas Rio Grande Valley crossing'),
+  bc('Simon Bolivar Bridge — Cucuta','CO','VE',7.897,-72.453,'restricted','Variable','Intermittent; political tensions; verify hours before travel'),
+  bc('Rumichaca Bridge','CO','EC',0.819,-77.671,'open','24 hours','Main Colombia–Ecuador crossing on the Pan-American Highway'),
+  bc('Macará / La Tina','EC','PE',-4.383,-79.940,'open','24 hours','Ecuador–Peru crossing; secondary to the main Pan-American route'),
+  bc('Chacalluta / Santa Rosa','PE','CL',-18.340,-70.120,'open','24 hours','Main Peru–Chile crossing near Arica'),
+  bc('Tambo Quemado / Chungará','BO','CL',-18.472,-69.083,'open','07:00–20:00','High-altitude Bolivia–Chile crossing at 4,600 m'),
+  bc('Fray Bentos','AR','UY',-33.129,-58.298,'open','24 hours','Rail-road bridge over the Uruguay River'),
+  bc('La Quiaca / Villazón','AR','BO',-22.104,-65.595,'open','07:00–21:00','Argentina–Bolivia; Jujuy to Potosí route'),
+  bc('Rivera / Santana do Livramento','BR','UY',-30.889,-55.532,'open','24 hours','Integrated conurbation; open border town'),
+  bc('Puerto Uruguayana / Paso de los Libres','BR','AR',-29.754,-57.082,'open','24 hours','Busy Brazil–Argentina crossing on the Uruguay River'),
+  bc('Paso Canoas','PA','CR',8.532,-82.860,'open','06:00–22:00','Main Panama–Costa Rica road crossing'),
+  bc('Ciudad Hidalgo / Suchiate','MX','GT',14.678,-92.146,'open','06:00–22:00','Busy Mexico–Guatemala crossing on the Suchiate River'),
+  bc('Benque Viejo / Melchor de Mencos','BZ','GT',17.080,-89.143,'open','06:00–20:00','Belize–Guatemala; access to Tikal'),
+
+  // ── Russia / Former Soviet space (non-Ukraine) ────────────────────────────────
+  bc('Storskog / Borisoglebsk','NO','RU',69.596,29.996,'closed','Closed','Closed since February 2024'),
+  bc('Troitsk / Karabutak','RU','KZ',54.088,61.557,'open','07:00–20:00','One of the busiest Russia–Kazakhstan land crossings'),
+
+  // ── Pacific / Oceania ─────────────────────────────────────────────────────────
+  bc('Skouw / Wutung','PG','ID',-2.617,140.975,'restricted','07:00–17:00','PNG–Indonesia; visa-on-arrival available for PNG; check advisories'),
 ];
 
 // ─── Special territories (hardcoded GeoJSON polygons) ─────────────────────────

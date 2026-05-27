@@ -217,11 +217,17 @@ function buildLayerButtons() {
     btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
     btn.dataset.key = key;
 
+    if (layer.color) btn.style.setProperty('--lb-color', layer.color);
+
     const emojiSpan = document.createElement('span');
     emojiSpan.className = 'lb-emoji';
     emojiSpan.textContent = layer.emoji;
     btn.appendChild(emojiSpan);
-    btn.appendChild(document.createTextNode(layer.name));
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'lb-name';
+    nameSpan.textContent = layer.name;
+    btn.appendChild(nameSpan);
 
     btn.addEventListener('click', () => {
       if (activeLayers.has(key)) activeLayers.delete(key);
