@@ -9,8 +9,10 @@ let showBorders    = false;
 let showPolitical  = true;   // country borders + territory overlays on by default
 let map            = null;
 let cityMarkers    = [];
-let borderMarkers  = [];
-let geojsonLayer   = null;
+let borderMarkers    = [];
+let beachMarkers     = [];
+let climateZoneLayer = null;
+let geojsonLayer     = null;
 let borderLinesLayer     = null;
 let territoryLayerGroup  = null;
 let _geoData       = null;   // cached choropleth GeoJSON for border-lines reuse
@@ -56,6 +58,9 @@ const TRANSPORT_LAYERS = {
     layer: null, active: false,
   },
 };
+
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds']);
+const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
 const getIso2 = p => (p && (p.ISO_A2 || p.iso_a2 || p['ISO3166-1-Alpha-2'])) || '';
@@ -413,23 +418,25 @@ function makeMarkerIcon(city, zoom) {
   return L.divIcon({ html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`, className: '', iconSize: [D, D], iconAnchor: [SZ, SZ] });
 }
 
-function makeBorderIcon(bc) {
+function makeBorderIcon(bc, zoom) {
   const col = { open: '#22d3ee', restricted: '#f59e0b', closed: '#ef4444' }[bc.status];
-  const sz = 14, D = sz * 2;
+  const sz = zoom >= 9 ? 9 : zoom >= 7 ? 7 : zoom >= 5 ? 6 : 5;
+  const D = sz * 2;
   const cv = document.createElement('canvas');
   cv.width = D; cv.height = D;
   const ctx = cv.getContext('2d');
   const c = sz;
   ctx.beginPath();
-  ctx.moveTo(c, 2); ctx.lineTo(D - 2, c); ctx.lineTo(c, D - 2); ctx.lineTo(2, c);
+  ctx.moveTo(c, 1); ctx.lineTo(D - 1, c); ctx.lineTo(c, D - 1); ctx.lineTo(1, c);
   ctx.closePath();
-  ctx.fillStyle = col; ctx.globalAlpha = 0.92; ctx.fill();
-  ctx.strokeStyle = 'rgba(232,213,163,0.9)'; ctx.lineWidth = 1.8;
+  ctx.fillStyle = col; ctx.globalAlpha = 0.88; ctx.fill();
+  ctx.strokeStyle = 'rgba(232,213,163,0.85)'; ctx.lineWidth = 1.2;
   ctx.globalAlpha = 1; ctx.stroke();
   if (bc.status === 'closed') {
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.8;
-    ctx.beginPath(); ctx.moveTo(c - 5, c - 5); ctx.lineTo(c + 5, c + 5);
-    ctx.moveTo(c + 5, c - 5); ctx.lineTo(c - 5, c + 5); ctx.stroke();
+    const x = Math.max(3, sz - 3);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(c - x, c - x); ctx.lineTo(c + x, c + x);
+    ctx.moveTo(c + x, c - x); ctx.lineTo(c - x, c + x); ctx.stroke();
   }
   return L.divIcon({ html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`, className: '', iconSize: [D, D], iconAnchor: [sz, sz] });
 }
@@ -713,8 +720,9 @@ function renderBorderMarkers() {
   borderMarkers = [];
   if (!showBorders) return;
 
+  const zoom = map.getZoom();
   BORDERS.forEach(bc => {
-    const icon = makeBorderIcon(bc);
+    const icon = makeBorderIcon(bc, zoom);
     const marker = L.marker([bc.lat, bc.lng], { icon, pane: 'markersPane' });
 
     marker.on('mouseover', e => showTooltip(buildBorderTooltip(bc)));
@@ -724,6 +732,166 @@ function renderBorderMarkers() {
     marker.addTo(map);
     borderMarkers.push(marker);
   });
+}
+
+// ─── Beach Markers ────────────────────────────────────────────────────────────
+function makeBeachIcon(beach, zoom) {
+  const col = BEACH_STATUS_COL[beach.status] || '#06b6d4';
+  const r = zoom >= 9 ? 8 : zoom >= 7 ? 6 : zoom >= 5 ? 5 : 4;
+  const D = r * 2 + 4;
+  const cv = document.createElement('canvas');
+  cv.width = D; cv.height = D;
+  const ctx = cv.getContext('2d');
+  const cx = D / 2, cy = D / 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = col;
+  ctx.globalAlpha = 0.90;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.90)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  if (r >= 5) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.arc(cx - 1, cy + 1, r * 0.38, Math.PI, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx + 1, cy - 1, r * 0.28, Math.PI, 0);
+    ctx.stroke();
+  }
+  return L.divIcon({
+    html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`,
+    className: '',
+    iconSize: [D, D],
+    iconAnchor: [D / 2, D / 2],
+  });
+}
+
+function renderBeachMarkers() {
+  beachMarkers.forEach(m => m.remove());
+  beachMarkers = [];
+  if (!activeLayers.has('beaches')) return;
+  const zoom = map.getZoom();
+  if (zoom < 3) return;
+  BEACHES.forEach(beach => {
+    const icon = makeBeachIcon(beach, zoom);
+    const marker = L.marker([beach.lat, beach.lng], { icon, pane: 'markersPane' });
+    marker.on('mouseover', () => showTooltip(buildBeachTooltip(beach)));
+    marker.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
+    marker.on('mouseout', () => hideTooltip());
+    marker.addTo(map);
+    beachMarkers.push(marker);
+  });
+}
+
+function buildBeachTooltip(beach) {
+  const cname = countryNames[beach.country] || beach.country;
+  const scol = BEACH_STATUS_COL[beach.status] || '#06b6d4';
+  const wqCol = { excellent:'#4ade80', good:'#facc15', fair:'#fb923c', poor:'#f87171' }[beach.water] || '#facc15';
+  const dcMap = {
+    'standard': 'Standard swimwear',
+    'topless-ok': 'Topless accepted',
+    'naturist': 'Naturist / Fully nude',
+    'clothing-required': 'Covered clothing required',
+  };
+  const dc = dcMap[beach.dresscode] || beach.dresscode || '—';
+  const fac = beach.facilities || '—';
+  const note = beach.note ? `<div class="ttdesc" style="margin-top:4px">${beach.note}</div>` : '';
+  return `<div class="tth">
+    <h3 id="tt-name">${beach.name}</h3>
+    <div class="ts" id="tt-sub">${cname}</div>
+    <div class="tm" id="tt-period">PUBLIC BEACH</div>
+  </div>
+  <div class="ttb" id="tt-body">
+    <div class="ttr">
+      <div class="ttstrip" style="background:${scol}"></div>
+      <div class="tti">
+        <div class="ttln">Status</div>
+        <div class="ttrat" style="color:${scol}">${(beach.status || 'open').toUpperCase()}</div>
+        <div class="ttdesc">Best season: ${beach.season || '—'}</div>
+      </div>
+    </div>
+    <div class="ttr">
+      <div class="ttstrip" style="background:${wqCol}"></div>
+      <div class="tti">
+        <div class="ttln">Water Quality</div>
+        <div class="ttrat" style="color:${wqCol}">${(beach.water || 'good').charAt(0).toUpperCase() + (beach.water || 'good').slice(1)}</div>
+        <div class="ttdesc">Facilities: ${fac}</div>
+      </div>
+    </div>
+    <div class="ttr">
+      <div class="ttstrip" style="background:#8878c8"></div>
+      <div class="tti">
+        <div class="ttln">Dress Code</div>
+        <div class="ttrat" style="color:#b8a8f8">${dc}</div>
+        ${note}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─── Climate Zones ────────────────────────────────────────────────────────────
+function initClimateZones() {
+  if (typeof CLIMATE_ZONES === 'undefined' || !CLIMATE_ZONES.length) return;
+  climateZoneLayer = L.geoJSON(
+    {
+      type: 'FeatureCollection',
+      features: CLIMATE_ZONES.map(z => ({
+        type: 'Feature',
+        properties: { id: z.id, name: z.name, parent: z.parent, layers: z.layers },
+        geometry: z.geometry,
+      })),
+    },
+    {
+      pane: 'choroplethPane',
+      style: f => styleClimateZone(f.properties),
+      onEachFeature: (f, layer) => {
+        layer.on('mouseover', () => showTooltip(buildClimateZoneTooltip(f.properties)));
+        layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
+        layer.on('mouseout', () => hideTooltip());
+      },
+    }
+  );
+}
+
+function styleClimateZone(props) {
+  const activeGeoLayer = [...activeLayers].find(lk => GEOGRAPHIC_LAYERS.has(lk) && props.layers[lk]);
+  if (!activeGeoLayer) return { fillOpacity: 0, opacity: 0, weight: 0 };
+  const v = getRating(props.layers[activeGeoLayer]);
+  if (v === null) return { fillOpacity: 0, opacity: 0, weight: 0 };
+  return {
+    fillColor: RC[Math.min(3, Math.max(0, v))],
+    fillOpacity: 0.76,
+    color: 'rgba(0,0,0,0)',
+    opacity: 0,
+    weight: 0,
+  };
+}
+
+function buildClimateZoneTooltip(props) {
+  const geoRows = buildLayerRows(props.layers);
+  const parentData = CD[props.parent];
+  let politicalRows = '';
+  if (parentData) {
+    const politicalKeys = [...activeLayers].filter(lk => !GEOGRAPHIC_LAYERS.has(lk));
+    if (politicalKeys.length) {
+      const filtered = {};
+      politicalKeys.forEach(lk => { if (parentData[lk]) filtered[lk] = parentData[lk]; });
+      if (Object.keys(filtered).length) {
+        politicalRows = `<div style="padding:4px 8px 2px;font-size:7.5px;color:#8a7a50;letter-spacing:0.06em;text-transform:uppercase;border-top:1px solid rgba(201,168,76,0.12);margin-top:4px">Political data — ${countryNames[props.parent] || props.parent}</div>` +
+          buildLayerRows(filtered, { iso2: props.parent });
+      }
+    }
+  }
+  return `<div class="tth">
+    <h3 id="tt-name">${props.name}</h3>
+    <div class="ts" id="tt-sub">CLIMATE ZONE</div>
+    <div class="tm" id="tt-period">${periodLabel()}</div>
+  </div>
+  <div class="ttb" id="tt-body">${geoRows}${politicalRows}</div>`;
 }
 
 // ─── Tooltip ─────────────────────────────────────────────────────────────────
@@ -905,6 +1073,16 @@ function updateLegend() {
     html += `</div>`;
   });
 
+  if (activeLayers.has('beaches') && typeof BEACHES !== 'undefined' && BEACHES.length) {
+    html += `<div class="ll">
+      <div class="ll-name">Beach Markers</div>
+      <div class="lr"><div class="lsw" style="background:#06b6d4;border-radius:50%"></div><span class="llabel">Open / Year-round</span></div>
+      <div class="lr"><div class="lsw" style="background:#f59e0b;border-radius:50%"></div><span class="llabel">Seasonal</span></div>
+      <div class="lr"><div class="lsw" style="background:#8b5cf6;border-radius:50%"></div><span class="llabel">Restricted</span></div>
+      <div class="lr"><div class="lsw" style="background:#ef4444;border-radius:50%"></div><span class="llabel">Closed</span></div>
+    </div>`;
+  }
+
   if (showBorders) {
     html += `<div class="ll">
       <div class="ll-name">Border Crossings</div>
@@ -956,16 +1134,26 @@ function refresh() {
   updateBadge();
   renderChoropleth();
   renderAdmin1Styles();
+  if (climateZoneLayer) {
+    const hasGeoLayer = [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk));
+    if (hasGeoLayer) {
+      climateZoneLayer.setStyle(f => styleClimateZone(f.properties));
+      if (!map.hasLayer(climateZoneLayer)) climateZoneLayer.addTo(map);
+    } else {
+      if (map.hasLayer(climateZoneLayer)) climateZoneLayer.remove();
+    }
+  }
   renderCityMarkers();
   renderBorderMarkers();
+  renderBeachMarkers();
   renderPoliticalLayers();
 }
 
-// Re-render city markers on zoom (density changes)
+// Re-render city and border markers on zoom (size and density changes)
 let _zoomTimer = null;
 function onZoom() {
   clearTimeout(_zoomTimer);
-  _zoomTimer = setTimeout(() => renderCityMarkers(), 150);
+  _zoomTimer = setTimeout(() => { renderCityMarkers(); renderBorderMarkers(); renderBeachMarkers(); }, 150);
 }
 
 // ─── Transport Layer Feature Click ───────────────────────────────────────────
@@ -1212,9 +1400,9 @@ function initTransportClickHandlers() {
   updateBadge();
   await initChoropleth();
   initPoliticalLayers();
+  initClimateZones();
   refresh();
   map.on('zoom', onZoom);
   initTransportClickHandlers();
-  // Admin-1 loads in background — map is fully functional without it
   initAdmin1Choropleth();
 })();
