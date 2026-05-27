@@ -587,7 +587,7 @@ function renderAdmin1Styles() {
   });
 }
 
-// Loads Natural Earth 110 m admin-1 GeoJSON and creates the sub-national choropleth.
+// Loads Natural Earth 10 m admin-1 GeoJSON and creates the sub-national choropleth.
 // Runs after initChoropleth so _geoData / geojsonLayer already exist.
 async function initAdmin1Choropleth() {
   try {
@@ -597,13 +597,29 @@ async function initAdmin1Choropleth() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     _admin1GeoData = await res.json();
 
-    // Record which country ISO-2 codes have admin-1 coverage
+    // IMPORTANT: only suppress the country-level choropleth polygon for countries
+    // that have *explicit* province/state entries in CD_A1.  The Natural Earth
+    // admin-1 file covers ~230 countries — if we add all of them to
+    // _coveredByAdmin1 the country layer becomes entirely transparent and the map
+    // renders as large flat colour blobs (province borders at 0.22 px are
+    // invisible at low zoom).  We want province-level detail only where we have
+    // actual sub-national data (CN, IN, US, AU, RU, BR, CA, …).
+    const cd_a1_countries = new Set(Object.keys(CD_A1).map(k => k.split('-')[0]));
     _admin1GeoData.features.forEach(f => {
       const iso2 = getAdmin1Iso2(f.properties);
-      if (iso2) _coveredByAdmin1.add(iso2);
+      if (iso2 && cd_a1_countries.has(iso2)) _coveredByAdmin1.add(iso2);
     });
 
-    admin1ChoroLayer = L.geoJSON(_admin1GeoData, {
+    // Filter to only the provinces of countries with CD_A1 data.  This reduces
+    // the feature set from ~4 600 to ~150, dramatically improving render performance
+    // and ensuring the admin-1 layer does not intercept mouse events for countries
+    // that still rely on the country-level choropleth.
+    const filteredFeatures = _admin1GeoData.features.filter(f => {
+      const iso2 = getAdmin1Iso2(f.properties);
+      return iso2 && _coveredByAdmin1.has(iso2);
+    });
+
+    admin1ChoroLayer = L.geoJSON({ type: 'FeatureCollection', features: filteredFeatures }, {
       pane: 'choroplethPane',
       style: feature => {
         const p = feature.properties;
@@ -630,7 +646,8 @@ async function initAdmin1Choropleth() {
       },
     }).addTo(map);
 
-    // Update country fallback layer to hide now-covered countries
+    // Re-render the country layer so that covered countries (CN, IN, US, etc.)
+    // become transparent — their admin-1 provinces are now shown instead.
     renderChoropleth();
 
   } catch (e) {
