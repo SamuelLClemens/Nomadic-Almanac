@@ -217,11 +217,17 @@ function buildLayerButtons() {
     btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
     btn.dataset.key = key;
 
+    if (layer.color) btn.style.setProperty('--lb-color', layer.color);
+
     const emojiSpan = document.createElement('span');
     emojiSpan.className = 'lb-emoji';
     emojiSpan.textContent = layer.emoji;
     btn.appendChild(emojiSpan);
-    btn.appendChild(document.createTextNode(layer.name));
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'lb-name';
+    nameSpan.textContent = layer.name;
+    btn.appendChild(nameSpan);
 
     btn.addEventListener('click', () => {
       if (activeLayers.has(key)) activeLayers.delete(key);
@@ -337,12 +343,12 @@ function getCountryStyle(iso2, hover) {
   }
   const r = getCountryRating(iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.88 : 0.72) : 0;
+  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
   return {
     fillColor: fc,
     fillOpacity: fo,
-    color: hover ? 'rgba(232,213,163,0.5)' : 'rgba(201,168,76,0.06)',
-    weight: hover ? 1.2 : 0.3,
+    color: hover ? 'rgba(232,213,163,0.65)' : 'rgba(255,255,255,0.30)',
+    weight: hover ? 1.5 : 0.65,
   };
 }
 
@@ -355,12 +361,12 @@ function getAdmin1Style(iso2, subCode, hover) {
   }
   const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.88 : 0.72) : 0;
+  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
   return {
     fillColor: fc,
     fillOpacity: fo,
-    color: hover ? 'rgba(232,213,163,0.28)' : 'rgba(255,255,255,0.08)',
-    weight: hover ? 0.7 : 0.22,
+    color: hover ? 'rgba(232,213,163,0.40)' : 'rgba(255,255,255,0.20)',
+    weight: hover ? 0.9 : 0.35,
   };
 }
 
@@ -464,7 +470,7 @@ function buildTerritoryTooltip(id, name, type, adminIso) {
   const note = type === 'contested' ? '<div style="font-size:6.5px;color:#5a4a20;margin-top:3px;letter-spacing:.5px">Data reflects general regional conditions</div>' : '';
   const dataId = CD[id] ? id : (adminIso && CD[adminIso] ? adminIso : null);
   const rows = dataId
-    ? buildLayerRows(CD[dataId])
+    ? buildLayerRows(CD[dataId], {iso2: dataId})
     : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">Contested — no unified travel data available.</div>';
   return `<div class="tth">
     <h3 id="tt-name">${name}</h3>
@@ -481,7 +487,7 @@ function initPoliticalLayers() {
   borderLinesLayer = L.geoJSON(_geoData, {
     pane: 'politicalPane',
     interactive: false,
-    style: () => ({ fill: false, color: 'rgba(255,255,255,0.20)', weight: 0.65 }),
+    style: () => ({ fill: false, color: 'rgba(255,255,255,0.35)', weight: 0.90 }),
   });
 
   // Territory polygons — Gaza, West Bank, Golan Heights
@@ -769,7 +775,8 @@ function periodLabel() {
   return `${MONTHS[arr[0]]}–${MONTHS[arr[arr.length - 1]]} AVG`;
 }
 
-function buildLayerRows(dataObj) {
+// context is optional: { iso2 } — used to append country-specific safety notes.
+function buildLayerRows(dataObj, context) {
   let html = '';
   activeLayers.forEach(key => {
     const layer = LAYERS[key];
@@ -781,12 +788,17 @@ function buildLayerRows(dataObj) {
     const color = RC[vc];
     const label = layer.levels[vc];
     const desc = DESCS[key] ? DESCS[key][vc] : '';
+    // Append country-specific crime context when the Safety layer is active.
+    const crimeNote = (key === 'safety' && context && context.iso2 && SAFETY_NOTES && SAFETY_NOTES[context.iso2])
+      ? `<div class="ttdesc" style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(201,168,76,0.08);color:#6a5a30">${SAFETY_NOTES[context.iso2]}</div>`
+      : '';
     html += `<div class="ttr">
       <div class="ttstrip" style="background:${color}"></div>
       <div class="tti">
         <div class="ttln">${layer.name}</div>
         <div class="ttrat" style="color:${color}">${label}</div>
         <div class="ttdesc">${desc}</div>
+        ${crimeNote}
         ${buildSparkline(arr)}
       </div>
     </div>`;
@@ -797,7 +809,7 @@ function buildLayerRows(dataObj) {
 function buildCountryTooltip(iso2) {
   if (activeLayers.size === 0) return null;
   const name = countryNames[iso2] || iso2;
-  const rows = CD[iso2] ? buildLayerRows(CD[iso2]) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
+  const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
   return `<div class="tth">
     <h3 id="tt-name">${name}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
@@ -808,7 +820,7 @@ function buildCountryTooltip(iso2) {
 
 function buildCityTooltip(city) {
   const cname = countryNames[city.country] || city.country;
-  const rows = buildLayerRows(city.data);
+  const rows = buildLayerRows(city.data, {iso2: city.country});
   return `<div class="tth">
     <h3 id="tt-name">${city.name}</h3>
     <div class="ts" id="tt-sub">${cname}</div>
@@ -846,7 +858,7 @@ function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
   const d2 = CD[iso2];
   const merged = d1 ? Object.assign({}, d2, d1) : d2;
   const rows = merged
-    ? buildLayerRows(merged)
+    ? buildLayerRows(merged, {iso2})
     : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No travel data available for this region.</div>';
   return `<div class="tth">
     <h3 id="tt-name">${stateName || countryName}</h3>
@@ -946,6 +958,240 @@ function onZoom() {
   _zoomTimer = setTimeout(() => renderCityMarkers(), 150);
 }
 
+// ─── Transport Layer Feature Click ───────────────────────────────────────────
+// When a transport tile layer is active, clicking the map queries OSM/Overpass
+// for features near the click point and displays a rich tooltip.
+
+function buildTransportWaitTooltip(name, emoji) {
+  return `<div class="tth">
+    <h3>${emoji} ${name}</h3>
+    <div class="ts">QUERYING NEARBY FEATURES</div>
+    <div class="tm">Fetching OpenStreetMap data…</div>
+  </div><div class="ttb"><div style="color:var(--dim);font-size:8px;padding:4px 0">Please wait — this may take a few seconds.</div></div>`;
+}
+
+async function fetchTrailInfo(lat, lng) {
+  try {
+    const d = 0.045; // ~5 km radius
+    const bbox = `${lat - d},${lng - d},${lat + d},${lng + d}`;
+    const query = `[out:json][timeout:12];(relation["route"~"hiking|foot|mtb"](${bbox});way["highway"~"path|footway|track"]["name"](around:400,${lat},${lng}););out body;`;
+    const res = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    const data = await res.json();
+
+    const routes = (data.elements || []).filter(e => e.type === 'relation');
+    const paths  = (data.elements || []).filter(e => e.type === 'way');
+
+    if (routes.length === 0 && paths.length === 0) {
+      return `<div class="tth"><h3>🥾 No Named Trails Found</h3><div class="ts">HIKING</div>
+        <div class="tm">Try clicking directly on a highlighted trail</div></div>
+        <div class="ttb"><div style="color:var(--dim);font-size:8px">No named hiking routes within 5 km. The tile overlay shows all mapped paths; only named OSM routes return data here.</div></div>`;
+    }
+
+    const routeRows = routes.slice(0, 4).map(r => {
+      const t = r.tags || {};
+      const name  = t.name || t.ref || 'Unnamed Route';
+      const dist  = t.distance ? `${parseFloat(t.distance).toFixed(0)} km` : '';
+      const diff  = t['sac_scale'] ? t['sac_scale'].replace(/_/g, ' ') : '';
+      const net   = t.network ? t.network.toUpperCase() : '';
+      const surf  = t.surface || '';
+      const parts = [dist && `${dist}`, diff, surf, net].filter(Boolean).join(' · ');
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:#44aa66"></div>
+        <div class="tti">
+          <div class="ttln">HIKING ROUTE</div>
+          <div class="ttrat" style="color:#4ade80">${name}</div>
+          <div class="ttdesc">${parts || 'Named OSM route — click Waymarked Trails for full details.'}</div>
+        </div></div>`;
+    }).join('');
+
+    const pathRows = paths.slice(0, 3).map(p => {
+      const t = p.tags || {};
+      const name = t.name;
+      if (!name) return '';
+      const hw   = (t.highway || '').replace(/_/g, ' ');
+      const surf = t.surface ? ` · ${t.surface}` : '';
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:#2d7a4f"></div>
+        <div class="tti">
+          <div class="ttln">PATH / TRACK</div>
+          <div class="ttrat" style="color:#4ade80">${name}</div>
+          <div class="ttdesc">${hw}${surf}</div>
+        </div></div>`;
+    }).filter(Boolean).join('');
+
+    return `<div class="tth">
+      <h3>🥾 Hiking Trails</h3>
+      <div class="ts">NEARBY ROUTES — OSM DATA</div>
+      <div class="tm">Within 5 km of click point</div>
+    </div><div class="ttb">${routeRows}${pathRows}</div>`;
+
+  } catch (e) {
+    return `<div class="tth"><h3>🥾 Hiking Trails</h3><div class="ts">CONNECTION ERROR</div></div>
+      <div class="ttb"><div style="color:var(--dim);font-size:8px">Could not load trail data. Check your connection.</div></div>`;
+  }
+}
+
+async function fetchRailInfo(lat, lng) {
+  try {
+    const query = `[out:json][timeout:12];(node["railway"~"station|halt|stop"]["name"](around:2500,${lat},${lng});relation["route"~"train|railway|subway|tram|light_rail"]["name"](around:2000,${lat},${lng}););out body;`;
+    const res = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    const data = await res.json();
+
+    const stations = (data.elements || []).filter(e => e.type === 'node');
+    const lines    = (data.elements || []).filter(e => e.type === 'relation');
+
+    if (stations.length === 0 && lines.length === 0) {
+      return `<div class="tth"><h3>🚆 No Rail Features Found</h3><div class="ts">RAIL & TRANSIT</div>
+        <div class="tm">Try clicking near a station marker or line</div></div>
+        <div class="ttb"><div style="color:var(--dim);font-size:8px">No rail stations or named lines within 2.5 km.</div></div>`;
+    }
+
+    const stationRows = stations.slice(0, 3).map(s => {
+      const t   = s.tags || {};
+      const name = t.name || t['name:en'] || 'Station';
+      const rw   = (t.railway || 'station').replace(/_/g, ' ');
+      const op   = t.operator ? ` · ${t.operator}` : '';
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:#4466cc"></div>
+        <div class="tti">
+          <div class="ttln">${rw.toUpperCase()}</div>
+          <div class="ttrat" style="color:#b0bce8">${name}</div>
+          <div class="ttdesc">${op}</div>
+        </div></div>`;
+    }).join('');
+
+    const lineRows = lines.slice(0, 3).map(l => {
+      const t    = l.tags || {};
+      const name  = t.name || t.ref || 'Rail Line';
+      const route = (t.route || '').toUpperCase();
+      const from  = t.from || '';
+      const to    = t.to   || '';
+      const via   = (from && to) ? `${from} → ${to}` : '';
+      const op    = t.operator ? ` · ${t.operator}` : '';
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:#2244aa"></div>
+        <div class="tti">
+          <div class="ttln">${route} ROUTE</div>
+          <div class="ttrat" style="color:#b0bce8">${name}</div>
+          <div class="ttdesc">${via}${op}</div>
+        </div></div>`;
+    }).join('');
+
+    return `<div class="tth">
+      <h3>🚆 Rail & Transit</h3>
+      <div class="ts">NEARBY STATIONS & LINES — OSM</div>
+      <div class="tm">Within 2.5 km of click point</div>
+    </div><div class="ttb">${stationRows}${lineRows}</div>`;
+
+  } catch (e) {
+    return `<div class="tth"><h3>🚆 Rail & Transit</h3><div class="ts">CONNECTION ERROR</div></div>
+      <div class="ttb"><div style="color:var(--dim);font-size:8px">Could not load rail data.</div></div>`;
+  }
+}
+
+async function fetchMaritimeInfo(lat, lng) {
+  try {
+    const query = `[out:json][timeout:12];(node["seamark:type"~"harbour|ferry_terminal|port"]["name"](around:4000,${lat},${lng});relation["route"="ferry"]["name"](around:6000,${lat},${lng}););out body;`;
+    const res = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    const data = await res.json();
+
+    const ports   = (data.elements || []).filter(e => e.type === 'node');
+    const ferries = (data.elements || []).filter(e => e.type === 'relation');
+
+    if (ports.length === 0 && ferries.length === 0) {
+      return `<div class="tth"><h3>⚓ No Maritime Features Found</h3><div class="ts">MARITIME</div>
+        <div class="tm">Try clicking near a port or ferry route</div></div>
+        <div class="ttb"><div style="color:var(--dim);font-size:8px">No ports or ferry routes within 6 km.</div></div>`;
+    }
+
+    const portRows = ports.slice(0, 3).map(p => {
+      const t    = p.tags || {};
+      const name = t.name || t['seamark:name'] || 'Port';
+      const type = (t['seamark:type'] || 'harbour').replace(/_/g, ' ');
+      const cat  = t['seamark:harbour:category'] || t.description || '';
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:#22aabb"></div>
+        <div class="tti">
+          <div class="ttln">${type.toUpperCase()}</div>
+          <div class="ttrat" style="color:#80d8e0">${name}</div>
+          <div class="ttdesc">${cat}</div>
+        </div></div>`;
+    }).join('');
+
+    const ferryRows = ferries.slice(0, 3).map(f => {
+      const t    = f.tags || {};
+      const name = t.name || 'Ferry Route';
+      const from = t.from || '';
+      const to   = t.to   || '';
+      const via  = (from && to) ? `${from} → ${to}` : '';
+      const op   = t.operator ? ` · ${t.operator}` : '';
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:#009ab0"></div>
+        <div class="tti">
+          <div class="ttln">FERRY ROUTE</div>
+          <div class="ttrat" style="color:#80d8e0">${name}</div>
+          <div class="ttdesc">${via}${op}</div>
+        </div></div>`;
+    }).join('');
+
+    return `<div class="tth">
+      <h3>⚓ Maritime</h3>
+      <div class="ts">PORTS & FERRY ROUTES — OSM</div>
+      <div class="tm">Within 6 km of click point</div>
+    </div><div class="ttb">${portRows}${ferryRows}</div>`;
+
+  } catch (e) {
+    return `<div class="tth"><h3>⚓ Maritime</h3><div class="ts">CONNECTION ERROR</div></div>
+      <div class="ttb"><div style="color:var(--dim);font-size:8px">Could not load maritime data.</div></div>`;
+  }
+}
+
+function initTransportClickHandlers() {
+  map.on('click', async e => {
+    const activeKeys = Object.entries(TRANSPORT_LAYERS)
+      .filter(([, d]) => d.active)
+      .map(([k]) => k);
+    if (activeKeys.length === 0) return;
+
+    const { lat, lng } = e.latlng;
+    const cx = e.originalEvent.clientX;
+    const cy = e.originalEvent.clientY;
+    _ttX = cx; _ttY = cy;
+
+    // Priority: trails > rail > maritime > roads (roads have no queryable feature API)
+    if (activeKeys.includes('trails')) {
+      showTooltip(buildTransportWaitTooltip('Hiking Trails', '🥾'));
+      const html = await fetchTrailInfo(lat, lng);
+      if (tooltipVisible) { showTooltip(html); positionTooltip(cx, cy); }
+      return;
+    }
+    if (activeKeys.includes('rail')) {
+      showTooltip(buildTransportWaitTooltip('Rail & Transit', '🚆'));
+      const html = await fetchRailInfo(lat, lng);
+      if (tooltipVisible) { showTooltip(html); positionTooltip(cx, cy); }
+      return;
+    }
+    if (activeKeys.includes('maritime')) {
+      showTooltip(buildTransportWaitTooltip('Maritime', '⚓'));
+      const html = await fetchMaritimeInfo(lat, lng);
+      if (tooltipVisible) { showTooltip(html); positionTooltip(cx, cy); }
+      return;
+    }
+    // Roads layer: show a brief instructional tooltip
+    if (activeKeys.includes('roads')) {
+      _ttX = cx; _ttY = cy;
+      showTooltip(`<div class="tth"><h3>🛣 Roads</h3><div class="ts">ESRI WORLD TRANSPORTATION</div>
+        <div class="tm">Raster tile overlay — no feature data available</div></div>
+        <div class="ttb"><div style="color:var(--dim);font-size:8px">Road names and classifications are rendered in the tile image. Switch to the Rail layer for clickable OSM data.</div></div>`);
+    }
+  });
+
+  // Dismiss transport tooltip on map mouseout
+  map.on('mouseout', () => {
+    if (tooltipVisible) hideTooltip();
+  });
+}
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
   initMap();
@@ -958,6 +1204,7 @@ function onZoom() {
   initPoliticalLayers();
   refresh();
   map.on('zoom', onZoom);
+  initTransportClickHandlers();
   // Admin-1 loads in background — map is fully functional without it
   initAdmin1Choropleth();
 })();

@@ -10,20 +10,20 @@ const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','N
 const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 const LAYERS = {
-  weather:  { name:'Weather',          emoji:'🌤', levels:['Excellent','Good','Mixed','Harsh'] },
-  safety:   { name:'Safety',           emoji:'🛡', levels:['Very Safe','Moderate','Caution','Avoid'] },
-  cost:     { name:'Cost',             emoji:'💰', levels:['Budget','Mid-range','Expensive','Premium'] },
-  family:   { name:'Family',           emoji:'👨‍👩‍👧', levels:['Ideal','Suitable','Limited','Not Recommended'] },
-  solo:     { name:'Solo Female',      emoji:'👩', levels:['Excellent','Good','Take Care','High Risk'] },
-  remote:   { name:'Remote Work',      emoji:'💻', levels:['Excellent','Good','Adequate','Poor'] },
-  corrupt:  { name:'Corruption',       emoji:'🏛', levels:['Clean','Minor','Moderate','Severe'] },
-  health:   { name:'Health Risk',      emoji:'💊', levels:['Low','Moderate','Elevated','High'] },
-  crowds:   { name:'Overtourism',      emoji:'👁', levels:['Uncrowded','Busy','Crowded','Saturated'] },
-  disaster: { name:'Natural Disaster', emoji:'🌋', levels:['Low Risk','Some Risk','Moderate','High Risk'] },
-  visa:     { name:'Visa',             emoji:'🗂', levels:['Visa Free','Easy','Moderate','Difficult'] },
-  lgbtq:    { name:'LGBTQ+',           emoji:'🏳️‍🌈', levels:['Welcoming','Accepted','Hostile','Dangerous'] },
-  beaches:  { name:'Public Beaches',   emoji:'🏖', levels:['Excellent','Good','Limited','Poor'] },
-  vaccines: { name:'Vaccines',         emoji:'💉', levels:['None','Routine','Required','Extensive'] },
+  weather:  { name:'Weather',          emoji:'🌤', color:'#7EC8E3', levels:['Excellent','Good','Mixed','Harsh'] },
+  safety:   { name:'Safety',           emoji:'🛡', color:'#5B9BD5', levels:['Very Safe','Moderate','Caution','Avoid'] },
+  cost:     { name:'Cost',             emoji:'💰', color:'#C8A84B', levels:['Budget','Mid-range','Expensive','Premium'] },
+  family:   { name:'Family',           emoji:'👨‍👩‍👧', color:'#B87FC4', levels:['Ideal','Suitable','Limited','Not Recommended'] },
+  solo:     { name:'Solo Female',      emoji:'👩', color:'#E87AAF', levels:['Excellent','Good','Take Care','High Risk'] },
+  remote:   { name:'Remote Work',      emoji:'💻', color:'#00B4D8', levels:['Excellent','Good','Adequate','Poor'] },
+  corrupt:  { name:'Corruption',       emoji:'🏛', color:'#A07840', levels:['Clean','Minor','Moderate','Severe'] },
+  health:   { name:'Health Risk',      emoji:'💊', color:'#D9607A', levels:['Low','Moderate','Elevated','High'] },
+  crowds:   { name:'Overtourism',      emoji:'👁', color:'#8878C8', levels:['Uncrowded','Busy','Crowded','Saturated'] },
+  disaster: { name:'Natural Disaster', emoji:'🌋', color:'#C06E3E', levels:['Low Risk','Some Risk','Moderate','High Risk'] },
+  visa:     { name:'Visa',             emoji:'🗂', color:'#6898C0', levels:['Visa Free','Easy','Moderate','Difficult'] },
+  lgbtq:    { name:'LGBTQ+',           emoji:'🏳️‍🌈', color:'#D055A8', levels:['Welcoming','Accepted','Hostile','Dangerous'] },
+  beaches:  { name:'Public Beaches',   emoji:'🏖', color:'#2EC4B6', levels:['Excellent','Good','Limited','Poor'] },
+  vaccines: { name:'Vaccines',         emoji:'💉', color:'#7888D8', levels:['None','Routine','Required','Extensive'] },
 };
 
 const DESCS = {
@@ -111,6 +111,49 @@ const DESCS = {
     "Several vaccines required or strongly recommended — Yellow Fever, Meningitis, or Rabies. Confirm with a travel clinic.",
     "Extensive pre-travel vaccination schedule required. Yellow Fever certificate mandatory in some cases. Consult a specialist."
   ]
+};
+
+// ─── Safety context notes ─────────────────────────────────────────────────────
+// Keyed by ISO-2. Shown beneath the generic Safety description in the tooltip
+// when the Safety layer is active. Brief, factual, traveller-relevant.
+const SAFETY_NOTES = {
+  'AU': 'Very low violent crime; wildlife awareness needed in bush; 000 reliable nationwide.',
+  'AT': 'One of Europe\'s safest; extremely low violent crime; pickpockets rare.',
+  'BE': 'Generally safe; pickpockets in central Brussels and Bruges; stay alert at major stations.',
+  'BR': 'Homicide rate ~20/100k; street robbery common in Rio and São Paulo; resort zones well-policed.',
+  'CA': 'Very low violent crime; 911 nationwide; drug issues in parts of Vancouver / Toronto.',
+  'CL': 'Low crime by South American standards; occasional political unrest; earthquake preparedness essential.',
+  'CN': 'Violent crime toward tourists is extremely rare; petty theft in crowded areas; political detention risk for activism.',
+  'CO': 'Tourist hotspots (Medellín, Cartagena) have transformed; rural areas carry kidnap risk; FARC remnants active in some zones.',
+  'DE': 'Very low crime; pickpockets at tourist sites; politically motivated incidents occasional.',
+  'EG': 'Terrorism risk in Sinai peninsula; Cairo street harassment common; tourist sites well-guarded; do not photograph security forces.',
+  'ES': 'Petty theft and distraction scams in Barcelona and Madrid; violent crime rare; safe overall.',
+  'FR': 'Paris is Europe\'s pickpocket capital; outer suburbs (banlieues) of major cities have elevated crime; rural France very safe.',
+  'GB': 'Low violent crime; knife crime in parts of London; bag-snatch risk in tourist areas; terrorism threat at public events.',
+  'GH': 'One of West Africa\'s safest destinations; petty crime in Accra; political stability consistent since 1992.',
+  'ID': 'Low violent crime toward tourists; bag-snatching by motorbike in cities; Bali very safe; Papua remote-risk areas.',
+  'IN': 'Petty theft and scams common; sexual harassment a serious concern, especially for solo women; Delhi / Mumbai require extra urban vigilance.',
+  'IT': 'Very low violent crime; pickpockets aggressive in Rome, Naples, Florence; moped theft endemic in Naples.',
+  'JP': 'One of the world\'s safest countries; violent crime almost non-existent; lost wallets are frequently returned.',
+  'KE': 'Nairobi has violent street crime; carjackings reported; tourist areas and safari circuits well-patrolled; exercise caution after dark.',
+  'KR': 'Extremely safe; very low crime in tourist areas; nightlife safe; North Korea political tension remains distant.',
+  'MX': 'Homicide rate ~28/100k nationally; cartel violence in border states, Guerrero, Sinaloa; Yucatán Peninsula and CDMX tourist zones comparatively safer.',
+  'MY': 'Petty crime in KL; occasional snatch-theft on foot; very safe by Southeast Asian standards overall.',
+  'NL': 'Safe country; bicycle theft endemic; pickpockets on Amsterdam trams and Dam Square; bag-snatch risk in Red Light District.',
+  'NZ': 'Very safe; low violent crime; earthquake and volcanic risk awareness needed; some property crime in Auckland.',
+  'NG': 'Kidnapping for ransom risk; armed robbery; terrorism in north from Boko Haram; stay within secured accommodation in Lagos.',
+  'PH': 'Violent crime in parts of Mindanao; Manila requires heightened awareness; tourist islands (Palawan, Cebu) generally safe.',
+  'PL': 'Very safe; low crime; pickpockets in Warsaw and Kraków tourist zones; increasing hate crime reports toward LGBTQ+ people.',
+  'PT': 'Among Europe\'s safest; pickpockets on Lisbon\'s tram 28 and in Alfama; Porto very safe.',
+  'RU': 'State threat to foreign nationals since 2022; petty crime in Moscow/St. Petersburg; do not travel.',
+  'SG': 'World\'s safest city; capital punishment a strong deterrent; near-zero violent crime.',
+  'TH': 'Low violent crime toward tourists; taxi scams and gem cons in Bangkok; full-moon party theft on Koh Phangan; safe overall.',
+  'TR': 'Pickpockets in Istanbul Grand Bazaar; terrorism risk (PKK-linked) in southeast; coastal and tourist areas safe.',
+  'TW': 'Extremely safe; violent crime negligible; politically tense with China but internal safety excellent.',
+  'TZ': 'Petty crime in Dar es Salaam; tourist circuits well-policed; Zanzibar safer than mainland; express kidnap reported.',
+  'US': 'Gun homicide rate ~4/100k; property crime elevated in urban cores; 911 nationwide; wide city-to-city variation.',
+  'VN': 'Very safe for tourists; motorbike bag-snatching in HCMC; political restrictions; violent crime toward visitors rare.',
+  'ZA': 'Homicide rate ~35/100k; carjacking and mugging common; townships and some CBDs high-risk; tourism zones manageable with vigilance.',
 };
 
 const CD = {
@@ -312,7 +355,8 @@ const CD_A1 = {
   'CN-21': { weather: s12(3,2,2,1,0,0,0,0,0,1,1,3) }, // Liaoning (Shenyang)
 
   // North — cold dry winters, hot humid summers, excellent Sep–Oct
-  'CN-11': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Beijing
+  // Beijing — capital; most expensive for China; intense tourist and commuter crowds
+  'CN-11': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2), cost:rep(2), crowds:rep(3) },
   'CN-12': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Tianjin
   'CN-13': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Hebei
   'CN-14': { weather: s12(2,2,1,1,0,1,1,2,0,0,1,2) }, // Shanxi
@@ -323,7 +367,8 @@ const CD_A1 = {
   'CN-15': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) },
 
   // East / Lower Yangtze — subtropical; plum rain Jun, typhoon Jul–Sep
-  'CN-31': { weather: s12(1,2,1,1,1,2,3,3,2,0,1,1) }, // Shanghai
+  // Shanghai — most international city in China; premium prices; best nightlife
+  'CN-31': { weather: s12(1,2,1,1,1,2,3,3,2,0,1,1), cost:rep(2), crowds:rep(2) },
   'CN-32': { weather: s12(1,2,1,1,1,2,2,3,2,0,1,1) }, // Jiangsu (Nanjing)
   'CN-33': { weather: s12(1,2,1,1,1,2,2,3,2,0,1,1) }, // Zhejiang (Hangzhou)
   'CN-34': { weather: s12(2,2,1,1,1,2,2,2,1,0,1,2) }, // Anhui
@@ -335,9 +380,11 @@ const CD_A1 = {
   'CN-43': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Hunan (Changsha)
 
   // South — subtropical/tropical; excellent Nov–Mar
-  'CN-44': { weather: s12(1,2,2,2,2,2,2,2,2,1,0,1) }, // Guangdong
+  // Guangdong — megacity belt (Guangzhou/Shenzhen); expensive; gateway to HK/Macau
+  'CN-44': { weather: s12(1,2,2,2,2,2,2,2,2,1,0,1), cost:rep(2), crowds:rep(2) },
   'CN-45': { weather: s12(1,2,2,2,2,2,2,2,1,0,1,1) }, // Guangxi (Guilin)
-  'CN-46': { weather: s12(0,0,0,1,2,2,2,2,2,1,0,0) }, // Hainan (tropical)
+  // Hainan — China's tropical island; resort prices; best beaches in the country
+  'CN-46': { weather: s12(0,0,0,1,2,2,2,2,2,1,0,0), beaches:rep(0), cost:rep(2) },
 
   // Southwest — Chengdu/Chongqing basin foggy; Yunnan "spring city"
   'CN-50': { weather: s12(1,1,1,1,1,2,2,3,2,1,1,1) }, // Chongqing
@@ -349,17 +396,23 @@ const CD_A1 = {
   'CN-61': { weather: s12(2,2,1,1,0,1,1,2,0,0,1,2) }, // Shaanxi (Xi'an)
   'CN-62': { weather: s12(2,2,1,1,0,0,1,2,0,1,2,2) }, // Gansu (Lanzhou)
   'CN-64': { weather: s12(2,2,1,1,0,0,1,2,0,0,1,2) }, // Ningxia
-  'CN-65': { weather: s12(3,3,2,1,0,0,3,3,1,1,2,3) }, // Xinjiang (extreme: 40°C summer basins)
+  // Xinjiang — pervasive surveillance; restricted zones near borders; Silk Road sites open but monitored
+  'CN-65': { weather: s12(3,3,2,1,0,0,3,3,1,1,2,3), safety:rep(2), crowds:rep(0), visa:rep(2) },
 
   // High plateau
-  'CN-54': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3) }, // Tibet/Xizang
-  'CN-63': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3) }, // Qinghai
+  // Tibet/Xizang — Tibet Travel Permit required beyond Chinese visa; strict surveillance; very few tourists
+  'CN-54': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3), visa:rep(3), crowds:rep(0), safety:rep(2) },
+  // Qinghai — high plateau; no special permit; remote but accessible; low tourist density
+  'CN-63': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3), crowds:rep(0) },
 
   // ── India ────────────────────────────────────────────────────────────────
-  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1) }, // Delhi — extreme heat May–Jun; humid Jul–Sep
+  // Delhi — solo female safety significantly worse than national average; extreme heat/pollution
+  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1), solo:rep(3), safety:rep(2) }, — extreme heat May–Jun; humid Jul–Sep
   'IN-RJ': { weather: s12(0,1,1,2,3,3,2,2,2,1,0,0) }, // Rajasthan — Thar desert; scorching Apr–Jun
-  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0) }, // Kerala — heavy monsoon Jun–Aug; best Nov–Feb
-  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0) }, // Goa — best Nov–Feb; heavy monsoon Jun–Sep
+  // Kerala — most progressive state; lower solo risk; excellent public healthcare
+  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), solo:rep(1), safety:rep(1), lgbtq:rep(1) }, — heavy monsoon Jun–Aug; best Nov–Feb
+  // Goa — India's most LGBTQ-tolerant state; international beach scene; safer for solo travellers
+  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0), lgbtq:rep(1), solo:rep(1), safety:rep(1) }, — best Nov–Feb; heavy monsoon Jun–Sep
   'IN-HP': { weather: s12(3,3,2,1,0,1,2,2,1,0,1,3) }, // Himachal Pradesh — mountain; snow Nov–Mar
   'IN-UK': { weather: s12(2,2,1,1,1,2,3,3,2,0,1,2) }, // Uttarakhand — Himalayan foothills
   'IN-MH': { weather: s12(0,0,1,2,3,3,3,3,3,1,1,0) }, // Maharashtra (Mumbai) — heavy monsoon Jun–Sep
@@ -367,21 +420,76 @@ const CD_A1 = {
   'IN-TN': { weather: s12(0,0,1,1,2,2,2,2,1,2,3,1) }, // Tamil Nadu — NE monsoon Oct–Dec!
   'IN-WB': { weather: s12(1,1,2,2,3,3,3,3,2,1,1,1) }, // West Bengal (Kolkata)
   'IN-AS': { weather: s12(1,1,2,2,3,3,3,3,3,2,1,1) }, // Assam — very heavy monsoon
-  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3) }, // Jammu & Kashmir — valley; snowy winters
+  // Jammu & Kashmir — active conflict zone; special permits; do not travel near LoC
+  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3), safety:rep(3), visa:rep(3), crowds:rep(0), solo:rep(3) }, — valley; snowy winters
 
-  // ── USA ──────────────────────────────────────────────────────────────────
-  'US-AK': { weather: s12(3,3,3,2,1,1,1,1,2,2,3,3) }, // Alaska — harsh; short pleasant summer
-  'US-HI': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0) }, // Hawaii — warm tropical year-round
-  'US-FL': { weather: s12(1,1,0,0,1,2,2,2,2,1,1,1) }, // Florida — great Oct–Apr; humid/hurricane summer
-  'US-AZ': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0) }, // Arizona — desert; extreme heat Jun–Aug
-  'US-CA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1) }, // California — Mediterranean; mostly pleasant
-  'US-TX': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1) }, // Texas — hot summers; mild winters in south
-  'US-WA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // Washington — rainy mild; pleasant summer
-  'US-OR': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // Oregon — similar to Washington
-  'US-NY': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2) }, // New York — cold winters; nice spring/fall
-  'US-LA': { weather: s12(1,1,1,2,2,2,3,3,2,1,1,1) }, // Louisiana — hot humid; hurricane risk
-  'US-MT': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Montana — cold winters; beautiful summers
-  'US-NM': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // New Mexico — high desert; pleasant most of year
+  // ── USA — all 50 states ───────────────────────────────────────────────────
+  // US national fallbacks: cost:rep(3), safety:rep(1), lgbtq:rep(1), disaster:rep(1)
+  // Per-state entries only specify layers that meaningfully differ from those defaults.
+
+  // Pacific Coast
+  'US-AK': { weather: s12(3,3,3,2,1,1,1,1,2,2,3,3), safety:rep(0), disaster:rep(1), beaches:rep(3) },
+  'US-HI': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), lgbtq:rep(0), beaches:rep(0), disaster:rep(2) },
+  'US-WA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), lgbtq:rep(0) },
+  'US-OR': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(2), lgbtq:rep(0) },
+  'US-CA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), lgbtq:rep(0), disaster:rep(2) },
+
+  // Mountain West
+  'US-MT': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
+  'US-ID': { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
+  'US-WY': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
+  'US-CO': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,1), cost:rep(2), lgbtq:rep(0) },
+  'US-NV': { weather: s12(1,1,1,1,1,2,3,3,2,1,0,0), cost:rep(1), lgbtq:rep(1) },
+  'US-UT': { weather: s12(1,1,1,1,1,1,2,2,1,0,0,1), cost:rep(1), lgbtq:rep(3) },
+  'US-AZ': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), cost:rep(1), lgbtq:rep(1) },
+  'US-NM': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1), cost:rep(1), safety:rep(2), lgbtq:rep(1) },
+
+  // Great Plains
+  'US-ND': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
+  'US-SD': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2), disaster:rep(2) },
+  'US-NE': { weather: s12(2,2,1,1,2,1,1,2,0,1,1,2), cost:rep(1), lgbtq:rep(2), disaster:rep(2) },
+  'US-KS': { weather: s12(1,1,1,1,2,1,2,3,1,1,1,1), cost:rep(1), lgbtq:rep(2), disaster:rep(2) },
+  'US-OK': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1), cost:rep(1), safety:rep(2), lgbtq:rep(2), disaster:rep(2) },
+  'US-TX': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1), cost:rep(2), lgbtq:rep(2), disaster:rep(2) },
+
+  // Upper Midwest
+  'US-MN': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(0) },
+  'US-WI': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(1) },
+  'US-MI': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(1) },
+  'US-IA': { weather: s12(3,2,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(2), disaster:rep(2) },
+  'US-MO': { weather: s12(2,2,1,1,2,1,2,2,1,1,1,2), cost:rep(1), lgbtq:rep(2) },
+  'US-IL': { weather: s12(3,2,2,1,1,0,1,1,0,1,1,3), cost:rep(2), lgbtq:rep(0) },
+  'US-IN': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1), lgbtq:rep(2) },
+  'US-OH': { weather: s12(2,2,1,1,1,0,0,0,0,1,1,2), cost:rep(1), lgbtq:rep(1) },
+
+  // South / Gulf Coast
+  'US-LA': { weather: s12(1,1,1,2,2,2,3,3,2,1,1,1), cost:rep(1), safety:rep(2), lgbtq:rep(2), disaster:rep(3) },
+  'US-AR': { weather: s12(1,1,1,1,2,1,2,2,1,1,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(2) },
+  'US-MS': { weather: s12(1,1,1,1,2,2,2,2,2,1,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(3) },
+  'US-AL': { weather: s12(1,1,1,0,1,1,2,2,1,0,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(3) },
+  'US-TN': { weather: s12(1,1,1,1,1,0,1,1,0,1,1,1), cost:rep(1), lgbtq:rep(2) },
+  'US-KY': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1), lgbtq:rep(2) },
+  'US-WV': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(1), lgbtq:rep(2) },
+  'US-FL': { weather: s12(1,1,0,0,1,2,2,2,2,1,1,1), cost:rep(2), lgbtq:rep(1), disaster:rep(2) },
+
+  // Southeast Atlantic
+  'US-GA': { weather: s12(1,1,1,0,1,1,2,2,1,0,0,1), cost:rep(1), lgbtq:rep(2) },
+  'US-SC': { weather: s12(1,1,0,0,0,0,1,1,0,0,0,1), cost:rep(1), lgbtq:rep(2) },
+  'US-NC': { weather: s12(1,1,1,1,0,0,1,1,0,0,1,1), cost:rep(1), lgbtq:rep(2) },
+  'US-VA': { weather: s12(1,1,1,1,0,0,1,1,0,0,1,1), cost:rep(2), lgbtq:rep(1) },
+  'US-MD': { weather: s12(1,1,1,1,1,0,1,1,0,0,1,2), cost:rep(2), lgbtq:rep(0) },
+  'US-DE': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2), cost:rep(2), lgbtq:rep(0) },
+
+  // Northeast
+  'US-NJ': { weather: s12(2,2,1,1,0,0,1,1,0,1,1,2), lgbtq:rep(0) },
+  'US-NY': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2), lgbtq:rep(0) },
+  'US-PA': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(2), lgbtq:rep(1) },
+  'US-CT': { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), lgbtq:rep(0) },
+  'US-RI': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(2), lgbtq:rep(0) },
+  'US-MA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), lgbtq:rep(0) },
+  'US-VT': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(0) },
+  'US-NH': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1) },
+  'US-ME': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1) },
 
   // ── Australia ────────────────────────────────────────────────────────────
   'AU-QLD': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) }, // Queensland — tropical north; cyclone season Dec–Mar
@@ -413,6 +521,76 @@ const CD_A1 = {
   'CA-AB': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Alberta (Calgary) — continental; cold winters
   'CA-YT': { weather: s12(3,3,3,3,2,1,1,1,2,3,3,3) }, // Yukon — subarctic; very cold
   'CA-NS': { weather: s12(3,3,2,2,1,1,1,1,1,1,2,3) }, // Nova Scotia — maritime; foggy; cold winters
+
+  // ── France ───────────────────────────────────────────────────────────────────
+  // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(0), corrupt:rep(0)
+  // Ile-de-France — Paris; most expensive; Europe's pickpocket capital; extreme summer crowds
+  'FR-IDF': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(3), crowds:rep(3), safety:rep(1) },
+  // Provence-Alpes-Cote d'Azur — Mediterranean coast; Riviera; excellent beaches; very crowded Jul-Aug
+  'FR-PAC': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0) },
+  // Occitanie — Toulouse/Montpellier; Mediterranean access; affordable; beautiful countryside
+  'FR-OCC': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), cost:rep(1), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3) },
+  // Bretagne — Atlantic coast; rainy; Celtic culture; seafood; affordable
+  'FR-BRE': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1), beaches:s12(2,2,2,1,1,1,1,1,1,1,1,2) },
+  // Nouvelle-Aquitaine — Bordeaux wine country; Atlantic Basque coast; affordable
+  'FR-NAQ': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), cost:rep(1), beaches:s12(2,2,1,1,0,0,0,0,0,1,2,2) },
+  // Auvergne-Rhone-Alpes — Lyon/Alps; ski season inflates cost Dec-Mar
+  'FR-ARA': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(1) },
+  // Normandie — rainy Atlantic climate; D-Day history; affordable; cider and cheese country
+  'FR-NOR': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1) },
+  // Grand Est — Alsace/Strasbourg; continental winters; Germanic culture; affordable
+  'FR-GES': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(1) },
+  // Corse — island; hot dry summers; expensive; low crime; very limited winter tourism
+  'FR-COR': { weather: s12(1,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
+
+  // ── Germany ──────────────────────────────────────────────────────────────────
+  // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(0)
+  // Bavaria — Munich; Oktoberfest; conservative south; most expensive German state
+  'DE-BY': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(2), lgbtq:rep(1), crowds:s12(1,1,1,1,1,1,2,2,2,2,3,1) },
+  // Berlin — city-state; most progressive; significantly cheaper than Munich; cultural capital
+  'DE-BE': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(1), lgbtq:rep(0), crowds:rep(2) },
+  // Hamburg — maritime gateway; progressive; milder Atlantic climate
+  'DE-HH': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(2), lgbtq:rep(0) },
+  // North Rhine-Westphalia — Cologne/Dusseldorf; densely urban; industrial heartland
+  'DE-NW': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(2) },
+  // Baden-Wurttemberg — Stuttgart/Black Forest; wealthy; expensive; tech industry
+  'DE-BW': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(2) },
+
+  // ── Spain ────────────────────────────────────────────────────────────────────
+  // National fallbacks: cost:rep(1), safety:rep(0), lgbtq:rep(0)
+  // Catalonia — Barcelona; premium prices; severe overtourism Jul-Aug; active separatist politics
+  'ES-CT': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,2,2,2,3,3,2,2,1,1), beaches:s12(2,2,1,1,0,0,0,0,0,1,2,2) },
+  // Andalucia — cheapest region; extreme heat Jul-Aug (45C in Sevilla); Flamenco/Alhambra
+  'ES-AN': { weather: s12(1,1,0,0,0,2,3,3,1,0,0,1), cost:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
+  // Canary Islands — perpetual spring; excellent beaches; year-round destination; EU territory
+  'ES-CN': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), beaches:rep(0), crowds:s12(2,2,1,1,1,1,2,2,1,1,1,2) },
+  // Balearic Islands — Ibiza/Majorca; very expensive in summer; extreme overtourism Jul-Aug
+  'ES-IB': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0), cost:rep(2) },
+  // Basque Country — rainy Atlantic; San Sebastian food capital; high cost; cultural autonomy
+  'ES-PV': { weather: s12(2,2,1,1,1,1,1,1,1,1,2,2), cost:rep(2) },
+  // Madrid region — hot dry summers; expensive capital; lively nightlife year-round
+  'ES-MD': { weather: s12(1,1,1,1,0,1,2,2,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1) },
+  // Valencia — sunniest major city; good beaches; more affordable than Barcelona
+  'ES-VC': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1), cost:rep(1), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2) },
+
+  // ── Italy ─────────────────────────────────────────────────────────────────────
+  // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(1), corrupt:rep(1)
+  // Lombardia — Milan; most expensive region; fashion/finance; top healthcare
+  'IT-25': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(3) },
+  // Veneto — Venice; extremely crowded; premium prices; flooding risk in Venice
+  'IT-34': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,2), cost:rep(2), crowds:s12(1,1,2,3,3,3,3,3,3,2,2,1) },
+  // Toscana — Florence/Tuscany; severe overtourism May-Sep; excellent spring and fall
+  'IT-52': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,1), cost:rep(2), crowds:s12(1,1,2,3,3,3,3,3,3,2,1,1) },
+  // Lazio — Rome; extreme summer crowds and heat; premium tourist pricing
+  'IT-62': { weather: s12(1,1,1,0,0,0,1,1,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,3,2,2,3,3,2,2,1,1) },
+  // Campania — Naples/Amalfi; cheapest mainland; higher petty crime; Camorra influence
+  'IT-72': { weather: s12(1,1,1,0,0,0,1,1,0,0,1,1), cost:rep(0), safety:rep(1), corrupt:rep(2), beaches:s12(2,2,1,1,0,0,0,0,0,1,2,2) },
+  // Puglia — heel of Italy; very affordable; beautiful beaches; less crowded than north
+  'IT-75': { weather: s12(1,1,0,0,0,0,1,1,0,0,0,1), cost:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
+  // Sicilia — warm, cheap, Mafia-related corruption still present; best in spring/fall
+  'IT-82': { weather: s12(1,1,0,0,0,0,0,0,0,0,1,1), cost:rep(0), safety:rep(1), corrupt:rep(2), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
+  // Sardegna — beautiful beaches; very expensive Jul-Aug; deserted in winter
+  'IT-88': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
 };
 
 // ─── City markers ─────────────────────────────────────────────────────────────
@@ -579,6 +757,36 @@ const CITIES = [
     remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,2,2,2,2,1,1,0,1),
     disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
   }),
+  mk('Guangzhou','CN',23.130,113.264,{
+    // South China trade hub; warm subtropical; visa-friendly entry point
+    weather:s12(1,2,2,2,2,2,2,2,2,1,0,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(1), crowds:rep(2),
+    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Shenzhen','CN',22.543,114.057,{
+    // Tech megacity; ultra-modern; near Hong Kong; subtropical
+    weather:s12(1,2,2,2,2,2,2,2,2,1,0,1), safety:rep(0), cost:rep(2), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(0), crowds:rep(2),
+    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Xi\'an','CN',34.341,108.940,{
+    // Terracotta warriors; ancient Silk Road capital; dry continental climate
+    weather:s12(2,2,1,1,0,1,1,2,0,0,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,2,2,2,2,2,1,1,0,0),
+    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Fukuoka','JP',33.590,130.401,{
+    // Japan's most liveable city; gateway to Korea/China; mild climate; affordable
+    weather:s12(1,1,1,1,1,2,2,1,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,2,2,1,1,1,1,0,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,3,3,1,0,0,0,1,2,3,3), vaccines:rep(0)
+  }),
+  mk('Sapporo','JP',43.064,141.347,{
+    // Snow Festival; powder skiing; cooler summers; ramen culture
+    weather:s12(3,3,2,1,0,0,0,0,0,0,1,3), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(2), corrupt:rep(0), health:rep(0), crowds:s12(0,0,0,1,0,0,0,2,0,0,0,2),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
   // ── South Asia ───────────────────────────────────────────────────────────────
   mk('Delhi','IN',28.660,77.228,{
     weather:s12(1,1,1,2,3,3,2,2,2,1,0,1), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(3),
@@ -604,6 +812,18 @@ const CITIES = [
     weather:s12(1,1,1,1,2,3,3,3,2,0,0,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(2),
     remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,1,2,1,0,0,1,2,1,0),
     disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Bangalore','IN',12.972,77.594,{
+    // India's tech capital at 900m — best climate in India year-round; cosmopolitan
+    weather:s12(0,0,0,1,2,2,2,2,2,1,0,0), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(0), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,2,2,1,1,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Chennai','IN',13.082,80.270,{
+    // Hot and humid coastal Tamil Nadu; Oct–Dec NE monsoon; good beach access
+    weather:s12(0,0,1,1,2,2,2,2,1,2,3,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(0,0,1,1,2,2,1,1,1,1,1,0),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:s12(1,1,1,1,2,2,1,1,1,2,3,1), vaccines:rep(2)
   }),
   mk('Colombo','LK',6.927,79.861,{
     weather:s12(0,0,1,2,3,3,2,2,2,2,2,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(2),
@@ -751,6 +971,144 @@ const CITIES = [
     remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,0,1,2,2,3,3,2,1,0,0),
     disaster:rep(2), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
   }),
+  mk('Marseille','FR',43.296,5.370,{
+    // Mediterranean coast — hot dry summers; gritty, affordable; North Africa influence
+    weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,2), vaccines:rep(0)
+  }),
+  mk('Nice','FR',43.710,7.262,{
+    // French Riviera: excellent weather, expensive in summer peak
+    weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,2,2,3,3,2,2,1,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,2,1,0,0,0,0,0,1,2,3), vaccines:rep(0)
+  }),
+  mk('Lyon','FR',45.748,4.847,{
+    // France's culinary capital; affordable vs Paris; good rail links
+    weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Bordeaux','FR',44.838,-0.578,{
+    // Atlantic coast; wine region; pleasant year-round
+    weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,1,2,2,2,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,2,1,0,0,0,0,0,1,2,3), vaccines:rep(0)
+  }),
+  mk('Munich','DE',48.135,11.582,{
+    // Expensive German city; Alpine access; Oktoberfest; liveable
+    weather:s12(2,2,1,1,0,0,0,0,0,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,2,3,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Hamburg','DE',53.551,10.000,{
+    // Maritime gateway; milder than Berlin; mid-cost; vibrant arts scene
+    weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Madrid','ES',40.416,-3.703,{
+    // Hot dry continental summers; affordable vs London/Paris
+    weather:s12(1,1,1,0,0,1,1,1,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,2,2,2,2,2,2,1,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Seville','ES',37.389,-5.985,{
+    // Hottest city in mainland Europe Jul–Aug (45 °C possible); magical spring/fall
+    weather:s12(1,1,0,0,0,2,3,3,1,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,2,2,1,1,1,1,2,1,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,2,1,0,0,0,0,1,2,3,3), vaccines:rep(0)
+  }),
+  mk('Valencia','ES',39.470,-0.376,{
+    // Sunniest major European city; beach access; more affordable than Barcelona
+    weather:s12(1,1,0,0,0,0,0,0,0,0,0,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2), vaccines:rep(0)
+  }),
+  mk('Milan','IT',45.465,9.186,{
+    // Italy's most expensive city; fashion/finance hub; Alpine proximity
+    weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Florence','IT',43.769,11.256,{
+    // Renaissance art; extremely overcrowded May–Sep; great spring/fall
+    weather:s12(1,1,1,1,1,0,0,0,0,1,1,1), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,3,3,3,3,3,3,2,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Venice','IT',45.441,12.315,{
+    // Unique city; flood-prone; premium prices; avoid Jul–Aug cruise crowds
+    weather:s12(1,1,1,1,1,0,0,0,0,1,1,2), safety:rep(0), cost:rep(3), family:rep(1), solo:rep(0),
+    remote:rep(2), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,3,3,3,3,3,3,2,2,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Naples','IT',40.851,14.268,{
+    // Affordable Italy; pizza capital; chaotic; Vesuvius nearby
+    weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,2,1,1),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,2,1,0,0,0,0,0,1,2,3), vaccines:rep(0)
+  }),
+  mk('Porto','PT',41.157,-8.629,{
+    // Charming; one of Europe's best-value cities; mild Atlantic climate
+    weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2), vaccines:rep(0)
+  }),
+  mk('Copenhagen','DK',55.676,12.568,{
+    // Expensive Scandinavian capital; cycling-friendly; very high quality of life
+    weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,2,2,3,2,2,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Stockholm','SE',59.330,18.068,{
+    // Beautiful archipelago city; very expensive; bright summer; dark winter
+    weather:s12(3,2,2,1,1,0,0,0,1,1,2,3), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,0,1,1,2,3,3,1,0,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Dublin','IE',53.344,-6.267,{
+    // Rainy but friendly; expensive; great pub culture
+    weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Brussels','BE',50.850,4.351,{
+    // EU capital; mid-cost; multicultural; grey winters
+    weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Warsaw','PL',52.237,21.017,{
+    // Fast-growing; excellent value; cold winters; welcoming for remote workers
+    weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Krakow','PL',50.062,19.940,{
+    // Best-value city in Central Europe; beautiful Old Town; cold winters
+    weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,2,2,2,3,3,2,2,1,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Tallinn','EE',59.437,24.754,{
+    // Medieval gem; affordable; cold dark winters; thriving digital scene
+    weather:s12(3,2,2,1,1,0,0,0,1,1,2,3), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,0,1,1,2,3,3,2,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Zurich','CH',47.378,8.540,{
+    // World's most expensive city; exceptionally clean and efficient
+    weather:s12(2,2,1,1,0,0,0,0,0,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Split','HR',43.508,16.440,{
+    // Adriatic gateway; cheaper than Dubrovnik; excellent summer
+    weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(0,0,0,1,2,2,3,3,2,1,0,0),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,3,2,1,0,0,0,0,1,2,3), vaccines:rep(0)
+  }),
   // ── Americas ─────────────────────────────────────────────────────────────────
   mk('New York','US',40.712,-74.006,{
     weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(3), family:rep(1), solo:rep(1),
@@ -858,6 +1216,72 @@ const CITIES = [
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,2,1,0,0),
     disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), vaccines:rep(0)
   }),
+  mk('San Diego','US',32.716,-117.163,{
+    // Near-perfect weather year-round; expensive but less than LA; Navy city
+    weather:s12(0,0,0,0,0,0,0,0,0,0,0,0), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,2,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:s12(0,0,0,0,0,0,0,0,0,0,0,0), vaccines:rep(0)
+  }),
+  mk('Minneapolis','US',44.978,-93.265,{
+    // Extremely cold winters; excellent culture and lakes; mid-cost
+    weather:s12(3,3,3,2,1,0,0,0,1,1,2,3), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,0,1,1,2,2,2,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(0), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Dallas','US',32.776,-96.797,{
+    // Hot Dallas summers; sprawling metro; business hub; tornado risk
+    weather:s12(1,1,1,1,2,2,3,3,2,1,1,1), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,1,1,1,1,1,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Atlanta','US',33.749,-84.388,{
+    // Hot humid summers; international airport; significant cost variation by area
+    weather:s12(1,1,1,0,1,1,2,2,1,0,0,1), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,2,1,1,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Orlando','US',28.538,-81.379,{
+    // Theme park capital; hot humid summers; hurricane season; very busy
+    weather:s12(1,1,0,0,1,2,2,2,2,1,1,1), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(1),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(3,3,2,2,2,2,2,2,2,2,3,3),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Charlotte','US',35.227,-80.843,{
+    // Fast-growing banking hub; mild four seasons; mid-cost
+    weather:s12(1,1,1,1,0,0,1,1,0,0,1,1), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,2,2,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Salt Lake City','US',40.760,-111.891,{
+    // Gateway to Utah's parks; cold winters; near-perfect powder skiing
+    weather:s12(1,1,1,1,1,1,2,2,1,0,0,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,1,1,1,1,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(3), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Indianapolis','US',39.769,-86.158,{
+    // Affordable Midwest hub; cold winters; F1/IndyCar racing
+    weather:s12(2,2,1,1,1,0,1,1,0,1,1,2), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,0,1,1,2,1,1,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Detroit','US',42.331,-83.046,{
+    // Very affordable; industrial revival; brutal winters; excellent music/food
+    weather:s12(3,3,2,1,1,0,0,0,1,1,2,3), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(0), crowds:s12(0,0,0,1,1,2,2,2,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('San Antonio','US',29.425,-98.494,{
+    // Affordable Texas city; River Walk; hot summers but less intense than Dallas
+    weather:s12(1,1,1,1,2,2,3,3,2,1,1,1), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,1,1,1,1,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Honolulu','US',21.307,-157.858,{
+    // Tropical paradise; premium cost; ideal year-round weather
+    weather:s12(0,0,0,0,0,0,0,0,0,0,0,0), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,2,1,1,1,1,1,2,2,2),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(0,0,0,0,0,0,0,0,0,0,0,0), vaccines:rep(0)
+  }),
   mk('Mexico City','MX',19.433,-99.133,{
     weather:s12(1,1,1,1,2,1,1,1,2,1,1,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
     remote:rep(1), corrupt:rep(3), health:rep(1), crowds:s12(1,2,1,1,1,1,0,0,1,1,2,2),
@@ -897,6 +1321,167 @@ const CITIES = [
     weather:s12(0,0,1,1,1,2,2,2,1,0,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(2),
     remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,0,1,1,1,1,1,2,2,1),
     disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Lima','PE',-12.046,-77.043,{
+    // Pacific coast capital; perpetual grey overcast Jun-Oct; South America's best food scene
+    weather:s12(0,0,1,1,1,2,2,2,1,0,0,0), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,2,2,1),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:s12(2,2,1,1,1,2,3,3,2,1,1,2), vaccines:rep(2)
+  }),
+  mk('Bogota','CO',4.711,-74.073,{
+    // High-altitude capital at 2,600m; transformed safety; cool climate year-round; thriving food scene
+    weather:s12(1,2,2,2,2,1,0,0,1,2,2,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(0), corrupt:rep(3), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,1,1,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Santiago','CL',-33.459,-70.648,{
+    // South America's most developed city; Andes access; wine country nearby; earthquake-prone
+    weather:s12(1,1,0,0,1,2,2,2,1,0,0,1), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(1,1,0,0,1,1,1,1,1,0,0,1),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(1)
+  }),
+  mk('Quito','EC',-0.229,-78.524,{
+    // Equatorial capital at 2,850m; near-perfect spring climate year-round; Galapagos gateway
+    weather:s12(1,2,2,1,1,0,0,0,1,2,1,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,1,1,0),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Havana','CU',23.135,-82.358,{
+    // Frozen-in-time capital; vibrant music and art; very limited internet; genuinely unique
+    weather:s12(0,0,0,1,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(3), corrupt:rep(3), health:rep(1), crowds:s12(0,0,0,1,1,1,1,1,0,0,0,0),
+    disaster:rep(2), visa:rep(2), lgbtq:rep(2), beaches:s12(0,0,0,0,1,2,3,3,1,0,0,0), vaccines:rep(1)
+  }),
+  mk('Guadalajara','MX',20.676,-103.347,{
+    // Mexico's cultural capital; tequila and mariachi heartland; safer than CDMX; colonial charm
+    weather:s12(0,0,1,1,2,1,1,1,2,1,0,0), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(3), health:rep(1), crowds:s12(0,0,1,1,1,1,1,1,1,1,1,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(1)
+  }),
+  // ── Africa (new) ─────────────────────────────────────────────────────────────
+  mk('Johannesburg','ZA',-26.205,28.049,{
+    // Africa's economic hub; world-class food and arts; among the world's highest crime rates
+    weather:s12(1,1,1,0,1,2,2,2,1,0,0,1), safety:rep(3), cost:rep(1), family:rep(2), solo:rep(3),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,0,0,1,1,2,2,1,0,0,0),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:rep(3), vaccines:rep(1)
+  }),
+  mk('Lagos','NG',6.524,3.379,{
+    // Africa's largest city; raw energy; serious safety concerns; major trade hub
+    weather:s12(1,1,2,2,3,3,3,3,2,2,1,1), safety:rep(3), cost:rep(2), family:rep(3), solo:rep(3),
+    remote:rep(2), corrupt:rep(3), health:rep(3), crowds:rep(3),
+    disaster:rep(2), visa:rep(2), lgbtq:rep(3), beaches:s12(1,1,1,2,3,3,3,3,2,2,1,1), vaccines:rep(3)
+  }),
+  mk('Accra','GH',5.614,-0.205,{
+    // West Africa's most welcoming capital; English-speaking; stable democracy; rising tech scene
+    weather:s12(1,2,2,2,3,3,2,2,2,1,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(3), crowds:rep(0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(3), beaches:s12(1,1,1,2,3,3,2,2,2,1,1,1), vaccines:rep(3)
+  }),
+  mk('Addis Ababa','ET',8.995,38.763,{
+    // High-altitude capital at 2,400m; Africa's diplomatic centre; improving infrastructure
+    weather:s12(1,1,2,2,3,3,2,2,2,1,0,1), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(2),
+    remote:rep(2), corrupt:rep(2), health:rep(3), crowds:rep(0),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(3), beaches:rep(3), vaccines:rep(3)
+  }),
+  mk('Dakar','SN',14.693,-17.447,{
+    // West Africa's cultural capital; ocean breezes keep temperatures bearable; friendly and safe
+    weather:s12(1,1,1,1,2,3,3,3,3,2,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(3), crowds:rep(0),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:s12(0,0,0,0,1,2,2,2,2,1,0,0), vaccines:rep(3)
+  }),
+  mk('Casablanca','MA',33.573,-7.589,{
+    // Morocco's business capital; less touristy than Marrakech; cosmopolitan Atlantic city
+    weather:s12(1,1,0,0,1,1,1,1,1,0,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,1,1,1,1,1,0,0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(3), beaches:s12(1,1,1,0,0,0,0,0,0,0,1,1), vaccines:rep(1)
+  }),
+  mk('Kigali','RW',-1.941,30.060,{
+    // Cleanest city in Africa; remarkable post-genocide development; very safe; gorilla trekking base
+    weather:s12(1,1,2,2,1,0,0,0,1,2,2,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(1), health:rep(2), crowds:rep(0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(3), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Mombasa','KE',-4.043,39.668,{
+    // Kenya's coastal city; Swahili culture; Old Town; Indian Ocean beaches; less safe than Nairobi
+    weather:s12(1,1,2,2,2,1,0,0,1,2,2,1), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,1,1,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(3), beaches:s12(0,0,1,1,1,0,0,0,0,1,1,0), vaccines:rep(3)
+  }),
+  // ── Central Asia (new) ────────────────────────────────────────────────────────
+  mk('Almaty','KZ',43.238,76.896,{
+    // Kazakhstan's financial hub; Tian Shan ski resorts nearby; excellent food scene; cold winters
+    weather:s12(3,2,1,1,0,0,0,0,0,1,2,3), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(3), health:rep(1), crowds:rep(0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(1)
+  }),
+  mk('Tashkent','UZ',41.300,69.240,{
+    // Modernised Silk Road capital; Soviet architecture meets new developments; very affordable
+    weather:s12(1,1,1,1,2,3,3,3,1,0,1,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(3), health:rep(1), crowds:rep(0),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), vaccines:rep(1)
+  }),
+  mk('Samarkand','UZ',39.655,66.975,{
+    // Legendary Silk Road city; Registan and Bibi-Khanym; unmissable blue-tiled architecture
+    weather:s12(1,1,1,1,2,3,3,3,1,0,0,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(3), health:rep(1), crowds:s12(0,0,1,1,2,2,2,2,2,1,0,0),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), vaccines:rep(1)
+  }),
+  mk('Bishkek','KG',42.870,74.590,{
+    // Central Asian nomadic gateway; Tian Shan trekking; very cheap; limited urban infrastructure
+    weather:s12(3,2,1,1,0,0,0,0,0,1,2,3), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:rep(0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:rep(3), vaccines:rep(1)
+  }),
+  // ── South Asia (new) ─────────────────────────────────────────────────────────
+  mk('Kolkata','IN',22.573,88.364,{
+    // India's most intellectual city; extreme monsoon flooding; very affordable; intense atmosphere
+    weather:s12(1,1,2,2,3,3,3,3,2,1,1,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:rep(2),
+    disaster:rep(3), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Varanasi','IN',25.318,83.007,{
+    // One of the world's oldest inhabited cities; Ganges ghats; spiritually intense
+    weather:s12(1,1,2,2,3,3,2,2,2,1,0,1), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,2,2,2,1,1,2,2,2,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), vaccines:rep(2)
+  }),
+  mk('Lahore','PK',31.552,74.343,{
+    // Pakistan's cultural capital; Mughal architecture; Lahori cuisine; safety improving steadily
+    weather:s12(1,1,2,2,3,3,3,3,2,1,1,1), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(3),
+    remote:rep(2), corrupt:rep(3), health:rep(2), crowds:rep(1),
+    disaster:rep(2), visa:rep(2), lgbtq:rep(3), beaches:rep(3), vaccines:rep(2)
+  }),
+  // ── Southeast Asia (new) ──────────────────────────────────────────────────────
+  mk('Nha Trang','VN',12.242,109.194,{
+    // Vietnam's beach resort city; clear blue water; international party scene
+    weather:s12(1,1,1,0,0,0,0,0,1,2,2,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,0,0,0,1,2,2,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:s12(0,0,0,0,0,0,0,0,1,2,2,0), vaccines:rep(1)
+  }),
+  mk('Kota Kinabalu','MY',5.840,116.047,{
+    // Borneo gateway; world-class diving; orangutan encounters; affordable island hopping
+    weather:s12(1,1,1,2,2,2,2,1,1,1,2,2), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,1,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:s12(0,0,0,1,1,2,1,0,0,0,1,1), vaccines:rep(2)
+  }),
+  mk('Yangon','MM',16.867,96.195,{
+    // Myanmar's largest city; Shwedagon Pagoda; military junta control; check current advisories
+    weather:s12(0,0,1,2,2,3,3,3,2,1,0,0), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(2),
+    remote:rep(3), corrupt:rep(3), health:rep(2), crowds:rep(0),
+    disaster:rep(2), visa:rep(2), lgbtq:rep(3), beaches:rep(2), vaccines:rep(2)
+  }),
+  // ── Middle East (new) ─────────────────────────────────────────────────────────
+  mk('Riyadh','SA',24.688,46.722,{
+    // Saudi capital; Vision 2030 rapid change; still strict dress and behaviour codes
+    weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(2), health:rep(0), crowds:s12(0,0,0,1,1,1,1,1,1,1,0,0),
+    disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:rep(3), vaccines:rep(0)
+  }),
+  mk('Doha','QA',25.286,51.533,{
+    // Ultra-modern Gulf capital; FIFA World Cup legacy; expensive; strict laws but tolerant of tourists
+    weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(1),
+    remote:rep(1), corrupt:rep(1), health:rep(0), crowds:rep(1),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(3), beaches:rep(2), vaccines:rep(0)
   }),
 ];
 
@@ -969,6 +1554,117 @@ const BORDERS = [
   bc('Siret / Porubne','RO','UA',47.921,26.073,'open','24 hours','Romania–Ukraine crossing; humanitarian traffic'),
   bc('Horgos / Röszke','RS','HU',46.177,19.976,'open','24 hours','Main Serbia–Hungary motorway crossing'),
   bc('Bruzgi / Kuznica','BY','PL',53.394,23.851,'closed','Closed','Closed to tourist traffic; security exclusion zone'),
+
+  // ── Europe — Schengen / EU external ──────────────────────────────────────────
+  bc('Vaalimaa / Torfyanovka','FI','RU',60.724,27.813,'closed','Closed','Closed since 2023; all Finnish–Russian border crossings shut'),
+  bc('Nuijamaa / Brusnichnoe','FI','RU',61.057,28.584,'closed','Closed','Closed since 2023'),
+  bc('Imatra / Svetogorsk','FI','RU',61.172,28.773,'closed','Closed','Closed since 2023'),
+  bc('Narva / Ivangorod','EE','RU',59.376,28.194,'restricted','07:00–21:00','Freight only since 2023; tourist access suspended'),
+  bc('Terehova / Burachki','LV','RU',56.832,27.622,'closed','Closed','Closed since 2023'),
+  bc('Kybartai / Nesterov','LT','RU',54.638,22.752,'closed','Closed','Kaliningrad transit; closed since 2023'),
+  bc('Terespol / Brest','PL','BY',52.075,23.606,'restricted','24 hours','Humanitarian and freight only; razor-wire exclusion zone in effect'),
+  bc('Vyšné Nemecké / Uzhhorod','SK','UA',48.607,22.152,'open','24 hours','Main Slovakia–Ukraine road crossing'),
+  bc('Záhony / Chop','HU','UA',48.396,22.182,'open','24 hours','Main Hungary–Ukraine road and rail crossing'),
+  bc('Albița / Leușeni','RO','MD',46.551,28.226,'open','24 hours','Main Romania–Moldova crossing'),
+  bc('Palanca','MD','UA',46.418,29.960,'open','24 hours','Main Moldova–Ukraine southern crossing'),
+
+  // ── Balkans / Western Balkans ─────────────────────────────────────────────────
+  bc('Merdare','RS','XK',43.227,21.390,'restricted','07:00–22:00','Kosovo not recognized by Serbia; passport protocols differ by direction'),
+  bc('Bratunac / Ljubovija','BA','RS',44.012,19.345,'open','06:00–22:00','Drina River crossing between Bosnia and Serbia'),
+  bc('Dobrakovo','ME','RS',42.959,19.764,'open','24 hours','Main Montenegro–Serbia motorway crossing'),
+  bc('Evzoni / Gevgelija','GR','MK',41.133,22.582,'open','24 hours','Main E75 highway crossing between Greece and North Macedonia'),
+  bc('Kakavijë / Kakavia','AL','GR',40.090,20.363,'open','24 hours','Primary Albania–Greece road crossing'),
+  bc('Hani i Hotit','AL','ME',42.282,19.487,'open','06:00–22:00','Albania–Montenegro crossing near Lake Shkodër'),
+
+  // ── Turkey borders ────────────────────────────────────────────────────────────
+  bc('Sarp / Sarpi','TR','GE',41.494,41.505,'open','24 hours','Main Turkey–Georgia crossing; Batumi gateway'),
+  bc('Doğukapı / Akyaka','TR','AM',40.036,43.566,'closed','Closed','Closed since 1993; Armenia–Turkey border sealed'),
+  bc('Gürbulak / Razi','TR','IR',39.380,44.414,'open','24 hours','Main Turkey–Iran truck route'),
+  bc('Habur / Ibrahim Khalil','TR','IQ',37.205,42.349,'open','24 hours','Main Turkey–Iraq road crossing'),
+  bc('Cilvegözü / Bab al-Hawa','TR','SY',36.636,36.648,'restricted','Daylight hours','Humanitarian and repatriation traffic only'),
+  bc('Kapitan Andreevo / Kapıkule','TR','BG',41.710,26.342,'open','24 hours','Busiest Turkey–EU road crossing'),
+  bc('Pazarkule / Kastanies','TR','GR',41.669,26.494,'restricted','Variable','Subject to closure due to irregular migration pressure; verify before travel'),
+
+  // ── Middle East / North Africa ────────────────────────────────────────────────
+  bc('Khosravi / Khanaqin','IQ','IR',34.350,45.464,'open','07:00–21:00','Iraq–Iran crossing on the Baghdad–Tehran route'),
+  bc('Trebil / Karameh','IQ','JO',32.680,38.194,'open','08:00–20:00','Trans-desert highway; Jordan–Iraq'),
+  bc('Durra / Haditha','JO','SA',29.533,36.011,'open','08:00–17:00','Jordan–Saudi Arabia; check permit requirements'),
+  bc('Rafah','EG','GZ',31.277,34.261,'closed','Closed','Closed due to crisis; intermittent humanitarian openings only'),
+  bc('Rosh HaNikra / Naqoura','IL','LB',33.084,35.116,'closed','Closed','All Israel–Lebanon crossings closed'),
+  bc('Masnaa / Jdeidat Yabus','LB','SY',33.629,35.997,'open','08:00–20:00','Main Beirut–Damascus road; verify current conditions'),
+  bc('Guerguerat','MA','MR',21.336,-16.996,'open','24 hours','Trans-Sahara route; Mauritania gateway'),
+  bc('Bab el-Assa','DZ','TN',36.654,8.306,'open','06:00–20:00','Main Algeria–Tunisia northern crossing'),
+  bc('Ras Ajdir','TN','LY',33.153,11.515,'open','07:00–19:00','Main Tunisia–Libya crossing; check travel advisories'),
+
+  // ── Sub-Saharan Africa ────────────────────────────────────────────────────────
+  bc('Moyale','ET','KE',3.528,39.057,'open','06:00–18:00','Ethiopia–Kenya; Addis Ababa to Nairobi overland route'),
+  bc('Tunduma / Nakonde','TZ','ZM',-9.300,32.766,'open','06:00–22:00','TAZARA corridor; Tanzania–Zambia'),
+  bc('Chirundu','ZM','ZW',-16.026,28.851,'open','06:00–22:00','Zambia–Zimbabwe crossing on the Zambezi'),
+  bc('Ramokgwebana / Plumtree','BW','ZW',-20.818,27.808,'open','06:00–22:00','Botswana–Zimbabwe; A1 highway crossing'),
+  bc('Ressano Garcia / Komatipoort','MZ','ZA',-25.429,32.017,'open','24 hours','Busiest Mozambique–South Africa crossing'),
+  bc('Forbes / Machipanda','MZ','ZW',-18.993,32.777,'open','06:00–18:00','Beira corridor; Mozambique to Zimbabwe'),
+  bc('Mchinji','MW','ZM',-13.820,32.888,'open','06:00–18:00','Main Malawi–Zambia crossing'),
+  bc('Nimule / Elegu','SS','UG',3.596,32.062,'restricted','06:00–18:00','South Sudan–Uganda; check current security advisories'),
+  bc('Aflao / Kodjoviakopé','GH','TG',6.104,1.190,'open','24 hours','Ghana–Togo; busy west African crossing'),
+  bc('Farafenni','SN','GM',13.567,-15.601,'open','06:00–20:00','Senegal–Gambia; ferry across the Gambia River'),
+  bc('Seme / Kraké','NG','BJ',6.355,2.713,'open','24 hours','Nigeria–Benin; Lagos corridor'),
+  bc('Petite Barrière Goma','CD','RW',-1.678,29.233,'open','06:00–18:00','DRC–Rwanda urban crossing; Goma–Gisenyi'),
+  bc('Metema / Gallabat','SD','ET',12.947,36.205,'restricted','Daylight hours','Armed conflict nearby; check advisories before travel'),
+
+  // ── South Asia ────────────────────────────────────────────────────────────────
+  bc('Wagah / Attari','IN','PK',31.604,74.572,'restricted','09:00–17:00','Ceremonial crossing; advance permit required; limited tourist access'),
+  bc('Sunauli / Bhairahawa','IN','NP',27.508,83.433,'open','24 hours','Main Varanasi–Pokhara overland route'),
+  bc('Raxaul / Birgunj','IN','NP',26.983,84.927,'open','24 hours','Busy Patna–Kathmandu corridor'),
+  bc('Kakarbhitta / Panitanki','IN','NP',26.878,88.126,'open','24 hours','Northeast India gateway to Nepal'),
+  bc('Phuentsholing / Jaigaon','IN','BT',26.851,89.389,'open','09:00–18:00','Most-used India–Bhutan crossing; permit required for Bhutan'),
+  bc('Petrapole / Benapole','IN','BD',23.023,88.588,'open','06:00–20:00','Main India–Bangladesh road crossing'),
+  bc('Akhaura / Agartala','BD','IN',23.875,91.200,'open','06:00–18:00','Secondary India–Bangladesh crossing'),
+  bc('Rasuwagadhi / Gyirong','NP','CN',28.534,85.821,'restricted','09:00–17:00','Tibet permit required; closed to most foreign nationals'),
+  bc('Torkham','PK','AF',34.101,71.103,'restricted','Daylight hours','Volatile; check current conditions before travel'),
+  bc('Chaman / Spin Boldak','PK','AF',30.920,66.457,'restricted','Daylight hours','Volatile; check current conditions before travel'),
+  bc('Taftan / Mirjaveh','PK','IR',28.960,61.596,'restricted','Daylight hours','Security concerns; travel advisories in effect'),
+  bc('Islam Qala','AF','IR',34.685,61.259,'closed','Closed','De facto closed; no regular civilian crossing'),
+  bc('Teknaf','BD','MM',20.864,92.297,'closed','Closed','Sealed due to Rohingya crisis'),
+
+  // ── East Asia / Northeast Asia ────────────────────────────────────────────────
+  bc('Erlian / Zamyn-Üüd','CN','MN',43.646,111.974,'open','09:00–18:00','Trans-Mongolian Railway gateway; main China–Mongolia crossing'),
+  bc('Altai / Bulgan','CN','MN',46.371,90.855,'open','09:00–17:00','Western overland route between China and Mongolia'),
+  bc('Altanbulag / Kyakhta','MN','RU',50.336,106.466,'open','09:00–18:00','Trans-Mongolian Railway gateway; Mongolia–Russia'),
+  bc('Manzhouli / Zabaikalsk','CN','RU',49.572,117.452,'open','09:00–17:00','Main northeast China–Russia land crossing'),
+  bc('Dostyk / Alashankou','KZ','CN',45.282,82.261,'open','09:00–18:00','Silk Road rail and road; Kazakhstan–China'),
+  bc('Khunjerab Pass','PK','CN',36.848,75.467,'open','08:00–17:00','Seasonal May–Nov; CPEC highway at 4,693 m'),
+  bc('Panmunjom / JSA','KP','KR',37.953,126.680,'closed','Closed','DMZ; no public crossing permitted'),
+  bc('Sinuiju / Dandong','KP','CN',40.092,124.396,'closed','Closed','Sealed since 2020; no tourist crossing permitted'),
+  bc('Tumangang / Khasan','KP','RU',42.367,130.619,'closed','Closed','Rare freight only; no tourist crossing'),
+
+  // ── Southeast Asia additions ──────────────────────────────────────────────────
+  bc('Moreh / Tamu','IN','MM',24.237,94.280,'restricted','Daylight hours','Suspended since 2024 due to armed conflict; verify current status'),
+  bc('Trapaeng Kreal / Nong Nok Khiene','KH','LA',13.984,106.002,'open','07:00–17:00','Cambodia–Laos crossing in northeastern Cambodia'),
+  bc('Mota\'ain / Batugade','TL','ID',-8.930,124.972,'open','07:00–17:00','Main Timor-Leste–Indonesia land crossing'),
+  bc('Sungai Tujoh / Kuala Lurah','BN','MY',4.967,114.897,'open','06:00–22:00','Brunei–Malaysia crossing on Borneo'),
+
+  // ── Additional Americas ───────────────────────────────────────────────────────
+  bc('Nogales / Heroica Nogales','US','MX',31.338,-110.934,'open','24 hours','Arizona–Sonora crossing'),
+  bc('Brownsville / Matamoros','US','MX',25.905,-97.498,'open','24 hours','Texas Rio Grande Valley crossing'),
+  bc('Simon Bolivar Bridge — Cucuta','CO','VE',7.897,-72.453,'restricted','Variable','Intermittent; political tensions; verify hours before travel'),
+  bc('Rumichaca Bridge','CO','EC',0.819,-77.671,'open','24 hours','Main Colombia–Ecuador crossing on the Pan-American Highway'),
+  bc('Macará / La Tina','EC','PE',-4.383,-79.940,'open','24 hours','Ecuador–Peru crossing; secondary to the main Pan-American route'),
+  bc('Chacalluta / Santa Rosa','PE','CL',-18.340,-70.120,'open','24 hours','Main Peru–Chile crossing near Arica'),
+  bc('Tambo Quemado / Chungará','BO','CL',-18.472,-69.083,'open','07:00–20:00','High-altitude Bolivia–Chile crossing at 4,600 m'),
+  bc('Fray Bentos','AR','UY',-33.129,-58.298,'open','24 hours','Rail-road bridge over the Uruguay River'),
+  bc('La Quiaca / Villazón','AR','BO',-22.104,-65.595,'open','07:00–21:00','Argentina–Bolivia; Jujuy to Potosí route'),
+  bc('Rivera / Santana do Livramento','BR','UY',-30.889,-55.532,'open','24 hours','Integrated conurbation; open border town'),
+  bc('Puerto Uruguayana / Paso de los Libres','BR','AR',-29.754,-57.082,'open','24 hours','Busy Brazil–Argentina crossing on the Uruguay River'),
+  bc('Paso Canoas','PA','CR',8.532,-82.860,'open','06:00–22:00','Main Panama–Costa Rica road crossing'),
+  bc('Ciudad Hidalgo / Suchiate','MX','GT',14.678,-92.146,'open','06:00–22:00','Busy Mexico–Guatemala crossing on the Suchiate River'),
+  bc('Benque Viejo / Melchor de Mencos','BZ','GT',17.080,-89.143,'open','06:00–20:00','Belize–Guatemala; access to Tikal'),
+
+  // ── Russia / Former Soviet space (non-Ukraine) ────────────────────────────────
+  bc('Storskog / Borisoglebsk','NO','RU',69.596,29.996,'closed','Closed','Closed since February 2024'),
+  bc('Troitsk / Karabutak','RU','KZ',54.088,61.557,'open','07:00–20:00','One of the busiest Russia–Kazakhstan land crossings'),
+
+  // ── Pacific / Oceania ─────────────────────────────────────────────────────────
+  bc('Skouw / Wutung','PG','ID',-2.617,140.975,'restricted','07:00–17:00','PNG–Indonesia; visa-on-arrival available for PNG; check advisories'),
 ];
 
 // ─── Special territories (hardcoded GeoJSON polygons) ─────────────────────────
