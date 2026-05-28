@@ -11,7 +11,8 @@ let map            = null;
 let cityMarkers    = [];
 let borderMarkers    = [];
 let beachMarkers     = [];
-let climateZoneLayer = null;
+let climateZoneLayer  = null;
+let _climateRenderer  = null;
 let geojsonLayer     = null;
 let borderLinesLayer     = null;
 let territoryLayerGroup  = null;
@@ -346,6 +347,15 @@ function getCountryStyle(iso2, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(201,168,76,0.04)', weight: 0.3 };
   }
+  // When a geographic layer is active, climate zones own the fill — suppress country colour
+  // but keep a near-invisible fill so the polygon remains mouse-interactive for tooltips.
+  if (climateZoneLayer && [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk))) {
+    return {
+      fillColor: 'transparent', fillOpacity: 0.001,
+      color: hover ? 'rgba(232,213,163,0.45)' : 'rgba(255,255,255,0.18)',
+      weight: hover ? 1.2 : 0.4,
+    };
+  }
   const r = getCountryRating(iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
   const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
@@ -363,6 +373,14 @@ function getCountryStyle(iso2, hover) {
 function getAdmin1Style(iso2, subCode, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.07)', weight: 0.2 };
+  }
+  // Suppress admin-1 fill when climate zones own the geographic layers
+  if (climateZoneLayer && [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk))) {
+    return {
+      fillColor: 'transparent', fillOpacity: 0.001,
+      color: hover ? 'rgba(232,213,163,0.35)' : 'rgba(255,255,255,0.12)',
+      weight: hover ? 0.7 : 0.25,
+    };
   }
   const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
@@ -836,6 +854,9 @@ function buildBeachTooltip(beach) {
 // ─── Climate Zones ────────────────────────────────────────────────────────────
 function initClimateZones() {
   if (typeof CLIMATE_ZONES === 'undefined' || !CLIMATE_ZONES.length) return;
+  // Dedicated SVG renderer so we can apply CSS blur to climate zones only,
+  // leaving country borders crisp in the shared choroplethPane renderer.
+  _climateRenderer = L.svg({ pane: 'choroplethPane' });
   climateZoneLayer = L.geoJSON(
     {
       type: 'FeatureCollection',
@@ -847,6 +868,7 @@ function initClimateZones() {
     },
     {
       pane: 'choroplethPane',
+      renderer: _climateRenderer,
       style: f => styleClimateZone(f.properties),
       onEachFeature: (f, layer) => {
         layer.on('mouseover', () => showTooltip(buildClimateZoneTooltip(f.properties)));
@@ -864,7 +886,7 @@ function styleClimateZone(props) {
   if (v === null) return { fillOpacity: 0, opacity: 0, weight: 0 };
   return {
     fillColor: RC[Math.min(3, Math.max(0, v))],
-    fillOpacity: 0.76,
+    fillOpacity: 0.50,
     color: 'rgba(0,0,0,0)',
     opacity: 0,
     weight: 0,
@@ -1139,6 +1161,10 @@ function refresh() {
     if (hasGeoLayer) {
       climateZoneLayer.setStyle(f => styleClimateZone(f.properties));
       if (!map.hasLayer(climateZoneLayer)) climateZoneLayer.addTo(map);
+      // Soft-focus blur on the climate renderer only — country borders stay crisp
+      if (_climateRenderer && _climateRenderer._container) {
+        _climateRenderer._container.style.filter = 'blur(3px)';
+      }
     } else {
       if (map.hasLayer(climateZoneLayer)) climateZoneLayer.remove();
     }
