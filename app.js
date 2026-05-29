@@ -109,6 +109,15 @@ function initMap() {
     preferCanvas: false,
   });
 
+  // Prevent zooming out past the point where the full world is visible.
+  // Recalculates on every resize so it works correctly across screen sizes.
+  function lockWorldMinZoom() {
+    const worldBounds = L.latLngBounds([-75, -180], [83, 180]);
+    map.setMinZoom(map.getBoundsZoom(worldBounds));
+  }
+  lockWorldMinZoom();
+  map.on('resize', lockWorldMinZoom);
+
   // climatePane sits BELOW all choropleth panes — climate-zone polygons are
   // a background texture; country/province/county fills render above them.
   map.createPane('climatePane');
