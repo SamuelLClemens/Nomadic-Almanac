@@ -1896,6 +1896,340 @@ const CITIES = [
     remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,1,2,1,0,0,0,0,0,1,1),
     disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,1,2,3,3,2,1,0,0), road:rep(2), vaccines:rep(1)
   }),
+  // ── Thailand expansion ────────────────────────────────────────────────────────
+  mk('Krabi','TH',8.085,98.906,{
+    // Andaman coast; dramatic limestone cliffs; Railay Beach; SW monsoon wipes May–Oct
+    weather:s12(0,0,0,0,1,3,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(2,2,2,2,1,0,0,0,0,0,1,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,2,3,3,3,2,1,0,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Koh Phangan','TH',9.742,100.029,{
+    // Full Moon Party island; Gulf of Thailand; NE monsoon batters Nov–Jan
+    weather:s12(1,0,0,0,1,2,2,2,2,2,3,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(2,2,1,1,1,1,0,0,0,1,2,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,1,2,2,2,2,2,3,1), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Koh Tao','TH',10.099,99.840,{
+    // Premier dive island; Gulf of Thailand; best visibility Feb–Sep
+    weather:s12(1,0,0,0,1,1,1,1,1,2,3,2), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,0,0,0,1,2,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,0,0,0,0,0,1,2,1), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Pattaya','TH',12.927,100.877,{
+    // Beach resort and nightlife city 2h from Bangkok; Gulf coast; year-round but wet Jun–Sep
+    weather:s12(0,0,0,1,1,2,2,2,1,1,0,0), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(2),
+    remote:rep(1), corrupt:rep(3), health:rep(1), crowds:s12(2,2,1,1,1,1,1,1,1,2,2,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,1,1,2,2,2,1,1,0,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Hua Hin','TH',12.570,99.957,{
+    // Royal beach resort; quiet and family-friendly; Gulf coast; drier than central Thailand
+    weather:s12(0,0,0,0,1,2,2,2,2,2,1,0), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(1), health:rep(1), crowds:s12(1,1,1,1,1,1,0,0,0,1,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,1,2,2,2,2,2,1,0), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Chiang Rai','TH',19.908,99.831,{
+    // Golden Triangle; White Temple (Wat Rong Khun); slower than Chiang Mai; cool Nov–Feb
+    weather:s12(0,0,1,2,2,3,2,2,1,1,0,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,0,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Pai','TH',19.357,98.441,{
+    // Northern hippy mountain town; waterfalls; misty and cool Dec–Feb; backpacker scene
+    weather:s12(1,1,1,2,2,3,3,3,2,1,0,1), safety:rep(0), cost:rep(0), family:rep(1), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,0,0,0,0,0,0,0,0,1,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(0), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Ayutthaya','TH',14.357,100.570,{
+    // UNESCO ancient capital; temples and ruins; flood-prone in Oct; 1.5h from Bangkok
+    weather:s12(0,0,0,1,2,3,2,2,1,1,0,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,1,0,0,0,0,1,2,2),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Kanchanaburi','TH',14.022,99.533,{
+    // Bridge on the River Kwai; WWII Death Railway; waterfalls; peaceful riverside guesthouses
+    weather:s12(0,0,0,1,2,3,2,2,2,1,0,0), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Koh Chang','TH',12.086,102.310,{
+    // Mountainous island; less developed; Gulf NE monsoon; best Nov–May
+    weather:s12(0,0,0,0,1,2,2,2,2,2,3,2), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(2,2,1,1,0,0,0,0,0,1,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,1,2,2,2,2,2,3,1), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Koh Lanta','TH',7.630,99.043,{
+    // Family-friendly Andaman island; long calm beaches; SW monsoon closes May–Oct
+    weather:s12(0,0,0,0,1,3,3,3,2,1,0,0), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(2,2,2,2,0,0,0,0,0,0,0,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,2,3,3,3,2,1,0,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Koh Phi Phi','TH',7.740,98.778,{
+    // Iconic twin islands; The Beach film location; massively crowded Nov–Apr; Andaman
+    weather:s12(0,0,0,0,1,3,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(3,3,3,3,1,0,0,0,0,1,2,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,2,3,3,3,2,1,0,0), road:rep(3), vaccines:rep(1)
+  }),
+  mk('Hat Yai','TH',7.009,100.476,{
+    // Major southern transport hub near Malaysia border; Muslim majority; near-equatorial rain
+    weather:s12(1,1,1,1,2,2,2,2,2,2,2,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,0,0,0,0,0,0,0,1,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  // ── Vietnam expansion ────────────────────────────────────────────────────────
+  mk('Hue','VN',16.463,107.590,{
+    // Imperial citadel; UNESCO; rain peaks Oct–Jan; best Feb–Sep; typhoon corridor
+    weather:s12(1,1,1,1,0,0,0,0,1,3,3,2), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,2,2,1,1,1,1,1,2,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:rep(2), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Phu Quoc','VN',10.290,103.984,{
+    // Gulf of Thailand island resort; long beaches; visa-free zone; dry Nov–Apr
+    weather:s12(0,0,0,0,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,2,2,2,1,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:s12(0,0,0,0,2,3,3,3,2,1,0,0), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Ha Long Bay','VN',20.910,107.184,{
+    // UNESCO limestone karsts; cruise destination; misty fog Feb–Mar; typhoon risk Jul–Sep
+    weather:s12(1,2,2,1,1,2,2,2,2,1,0,1), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,2,1,1,1,1,1,2,2),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Sapa','VN',22.336,103.844,{
+    // Northern highlands trekking; Fansipan; rice terraces; hill tribe villages; cool mist
+    weather:s12(2,2,1,1,1,2,2,2,2,1,1,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,1,2,2,1,1,1,1,1,1,0,0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Dalat','VN',11.940,108.458,{
+    // Southern Highlands hill station; French colonial; cool year-round; rain May–Nov
+    weather:s12(0,0,0,1,1,2,2,2,2,1,1,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,1,1,0,0,0,1,2,2),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Mui Ne','VN',10.943,108.285,{
+    // Kitesurfing and windsurfing hub; red and white sand dunes; micro-climate stays dry
+    weather:s12(0,0,0,0,0,1,1,1,1,1,1,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(2,2,2,2,1,0,0,0,0,0,1,2),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:s12(0,0,0,0,0,1,1,1,1,1,1,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Can Tho','VN',10.046,105.748,{
+    // Mekong Delta capital; floating markets; flat waterways; floods May–Nov
+    weather:s12(0,0,0,1,2,2,2,2,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,0,0,0,0,1,1,1),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Ninh Binh','VN',20.252,105.975,{
+    // Inland Halong Bay; Trang An boat tours; limestone karsts amid rice paddies; best Oct–Apr
+    weather:s12(1,1,1,1,1,2,2,2,2,1,1,1), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,3,2,1,1,1,1,1,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  // ── Indonesia expansion ──────────────────────────────────────────────────────
+  mk('Ubud','ID',-8.507,115.263,{
+    // Bali cultural heart; rice terraces; Monkey Forest; inland arts and wellness hub
+    weather:s12(2,2,2,1,1,1,0,0,0,1,2,2), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,2,2,1,1,1,1,2,2),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Seminyak','ID',-8.697,115.165,{
+    // Upscale Bali beach strip; luxury resorts; rooftop bars; sunset surf breaks
+    weather:s12(2,2,2,1,1,1,0,0,0,1,2,2), safety:rep(1), cost:rep(2), family:rep(0), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,2,2,1,1,1,1,2,2),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:s12(0,0,1,0,1,1,0,0,0,0,1,1), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Canggu','ID',-8.647,115.134,{
+    // Bali digital nomad hub; cafes; surf breaks; rice field villas; very fast growth
+    weather:s12(2,2,2,1,1,1,0,0,0,1,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(0),
+    remote:rep(0), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,2,2,1,1,1,1,2,2),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:s12(0,0,1,0,1,1,0,0,0,0,1,1), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Gili Islands','ID',-8.352,116.040,{
+    // Three car-free islands off Lombok; snorkelling; sea turtle encounters; no motorised transport
+    weather:s12(2,2,2,1,1,1,0,0,0,1,2,2), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,2,1,1,1,1,1,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:s12(0,0,1,0,1,1,0,0,0,0,1,1), road:rep(3), vaccines:rep(2)
+  }),
+  mk('Labuan Bajo','ID',-8.496,119.889,{
+    // Gateway to Komodo National Park; komodo dragons; world-class diving; best Apr–Oct
+    weather:s12(3,3,2,1,1,1,0,0,0,1,2,3), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,1,1,2,1,1,1,1,0,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:s12(3,3,2,0,0,1,0,0,0,0,1,2), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Medan','ID',3.591,98.674,{
+    // North Sumatra capital; gateway to Lake Toba and Bukit Lawang orangutans; equatorial
+    weather:rep(2), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(2),
+    remote:rep(1), corrupt:rep(3), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,0,1,1),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(3), vaccines:rep(2)
+  }),
+  mk('Lake Toba','ID',2.606,98.831,{
+    // Massive volcanic caldera lake; Batak culture; Samosir Island; cool plateau altitude
+    weather:s12(1,1,1,1,1,2,1,1,1,1,2,2), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,1,1,1,0,0,0,1,1,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Surabaya','ID',-7.250,112.750,{
+    // East Java metropolis; gateway to Bromo and Ijen volcanoes; Trowulan Majapahit ruins
+    weather:s12(2,2,2,1,1,1,0,0,1,1,2,2), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(1), corrupt:rep(3), health:rep(2), crowds:s12(1,1,1,1,1,0,0,0,0,1,1,1),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Makassar','ID',-5.147,119.432,{
+    // South Sulawesi capital; gateway to Tana Toraja highlands; dry Apr–Nov
+    weather:s12(3,2,2,1,1,1,0,0,0,1,1,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,1,1,1,0,0,0,0,0,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:rep(2), road:rep(2), vaccines:rep(2)
+  }),
+  mk('Raja Ampat','ID',-0.234,130.525,{
+    // Most biodiverse marine ecosystem on earth; remote West Papua; liveaboard dive base
+    weather:s12(0,0,1,2,2,2,1,1,1,1,0,0), safety:rep(0), cost:rep(2), family:rep(1), solo:rep(0),
+    remote:rep(3), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,0,0,0,0,0,0,1,2,2),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:s12(0,0,1,2,2,2,1,1,1,1,0,0), road:rep(3), vaccines:rep(2)
+  }),
+  // ── Philippines expansion ────────────────────────────────────────────────────
+  mk('Boracay','PH',11.968,121.925,{
+    // Famous white-sand beach; rebuilt after 2018 closure; dry Nov–May; typhoon Jun–Oct
+    weather:s12(0,0,0,0,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(2,2,3,3,2,1,0,0,1,1,2,2),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,1,2,3,3,2,1,0,0), road:rep(3), vaccines:rep(1)
+  }),
+  mk('Siargao','PH',9.844,126.046,{
+    // World-class surf (Cloud 9 break); rapidly growing; typhoon corridor Jun–Nov
+    weather:s12(0,0,0,0,0,0,1,1,2,2,2,1), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,2,2,1,1,1,0,0,0,1),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,0,0,1,1,2,2,2,1), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Bohol','PH',9.844,124.144,{
+    // Chocolate Hills; Philippine tarsiers; Alona Beach diving; best Dec–May
+    weather:s12(0,0,0,0,0,1,2,2,2,1,1,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,2,2,1,0,0,0,0,0,1,1),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:s12(0,0,0,0,0,1,2,2,2,1,1,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Coron','PH',12.002,120.202,{
+    // WWII Japanese wreck diving; mountain lakes; dramatic limestone Palawan island; best Dec–May
+    weather:s12(0,0,0,0,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(1,1,2,2,1,0,0,0,0,0,1,1),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:s12(0,0,0,0,1,2,3,3,2,1,0,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Davao','PH',7.073,125.613,{
+    // Safest large Mindanao city; durian capital; gateway to Mt Apo; no distinct dry season
+    weather:s12(0,0,0,0,0,0,1,1,1,0,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:rep(0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Batanes','PH',20.448,121.970,{
+    // Northernmost Philippines; dramatic sea cliffs and rolling hills; Ivatan stone villages
+    weather:s12(1,1,1,2,2,2,3,3,3,2,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0),
+    remote:rep(2), corrupt:rep(1), health:rep(2), crowds:s12(0,0,0,1,1,0,0,0,0,0,0,0),
+    disaster:rep(3), visa:rep(0), lgbtq:rep(1), beaches:rep(2), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Dumaguete','PH',9.307,123.307,{
+    // University city; relaxed expat scene; dive hub (Apo Island nearby); affordable
+    weather:s12(0,0,0,0,0,1,1,2,2,1,1,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,0,0,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:s12(0,0,0,0,0,1,1,2,2,1,1,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Vigan','PH',17.575,120.387,{
+    // UNESCO Spanish colonial town; cobblestone Calle Crisologo; Ilocos; typhoon corridor
+    weather:s12(0,0,0,1,2,2,2,2,2,2,2,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,0,1,1,0,0,0,0,0,0,0),
+    disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  // ── Malaysia expansion ───────────────────────────────────────────────────────
+  mk('Malacca','MY',2.190,102.254,{
+    // UNESCO port city; Portuguese Dutch British colonial layers; street food capital
+    weather:s12(1,1,1,2,1,1,1,1,2,1,1,1), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,2,1,1,2,2,2,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Johor Bahru','MY',1.492,103.740,{
+    // Singapore border city; day-trip shopping and dining; much cheaper than SG
+    weather:rep(2), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
+    remote:rep(0), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,0,0,0,0,1,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Ipoh','MY',4.597,101.091,{
+    // Silver mining heritage; exceptional street food; cave temples; charming old town
+    weather:s12(1,1,1,2,2,2,2,2,2,2,2,1), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,0,0,0,0,1,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Cameron Highlands','MY',4.471,101.374,{
+    // British hill station at 1500m; tea estates; strawberry farms; cool year-round escape
+    weather:s12(1,1,1,1,2,2,2,2,2,2,1,1), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,2,2,1,1,0,0,0,1,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Kuching','MY',1.552,110.345,{
+    // Sarawak Borneo capital; orangutans; proboscis monkeys; colonial waterfront; rainforest
+    weather:rep(2), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,1,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(3), road:rep(1), vaccines:rep(1)
+  }),
+  mk('Miri','MY',4.399,113.984,{
+    // Sarawak oil city; gateway to Gunung Mulu National Park caves and Bario highlands
+    weather:rep(2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(2), health:rep(1), crowds:rep(0),
+    disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(2), road:rep(1), vaccines:rep(1)
+  }),
+  // ── Myanmar expansion ────────────────────────────────────────────────────────
+  mk('Mandalay','MM',21.959,96.083,{
+    // Myanmar 2nd city; temples and pagodas; Irrawaddy; military coup severely impacts safety
+    weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(3), cost:rep(0), family:rep(3), solo:rep(3),
+    remote:rep(3), corrupt:rep(3), health:rep(2), crowds:rep(0),
+    disaster:rep(2), visa:rep(2), lgbtq:rep(3), beaches:rep(3), road:rep(3), vaccines:rep(2)
+  }),
+  // ── Cambodia expansion ───────────────────────────────────────────────────────
+  mk('Kep','KH',10.483,104.315,{
+    // Quiet seaside town; French colonial ruins; famous crab market; pepper plantations
+    weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(0), solo:rep(0),
+    remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,1,2,2),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:s12(0,0,0,0,1,2,2,2,1,1,0,0), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Battambang','KH',13.094,103.202,{
+    // 2nd city; French colonial quarter; bamboo train; Phare Circus; relaxed art scene
+    weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(0),
+    remote:rep(1), corrupt:rep(3), health:rep(2), crowds:s12(0,0,1,1,1,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Sihanoukville','KH',10.627,103.527,{
+    // Former backpacker beach town; massively overdeveloped since 2017; quality sharply degraded
+    weather:s12(0,0,0,0,1,2,3,3,2,1,1,0), safety:rep(2), cost:rep(0), family:rep(3), solo:rep(2),
+    remote:rep(1), corrupt:rep(3), health:rep(2), crowds:s12(0,0,0,0,0,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:s12(0,0,0,0,1,2,3,3,2,1,1,0), road:rep(2), vaccines:rep(1)
+  }),
+  // ── Laos expansion ───────────────────────────────────────────────────────────
+  mk('Pakse','LA',15.122,105.800,{
+    // South Laos gateway; Bolaven Plateau coffee; Wat Phu UNESCO temple; monsoon May–Sep
+    weather:s12(0,0,1,2,2,3,3,3,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(0),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,1,0,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  mk('Don Det','LA',13.932,105.980,{
+    // Si Phan Don (4000 Islands); slow Mekong travel; Irrawaddy dolphin sanctuary
+    weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(0), cost:rep(0), family:rep(1), solo:rep(0),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(0,0,0,1,0,0,0,0,0,0,1,1),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(3), vaccines:rep(1)
+  }),
+  mk('Savannakhet','LA',16.557,104.751,{
+    // Laos second city; French colonial quarter; key overland crossing to Thailand and Vietnam
+    weather:s12(0,0,1,2,2,3,3,3,2,1,0,0), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:rep(0),
+    disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1)
+  }),
+  // ── Brunei ───────────────────────────────────────────────────────────────────
+  mk('Bandar Seri Begawan','BN',4.940,114.948,{
+    // Wealthy sultanate capital; Omar Ali Saifuddien Mosque; Kampong Ayer water village; no alcohol
+    weather:rep(2), safety:rep(0), cost:rep(2), family:rep(1), solo:rep(1),
+    remote:rep(1), corrupt:rep(0), health:rep(0), crowds:rep(0),
+    disaster:rep(0), visa:rep(0), lgbtq:rep(3), beaches:rep(2), road:rep(0), vaccines:rep(1)
+  }),
+  // ── Timor-Leste ──────────────────────────────────────────────────────────────
+  mk('Dili','TL',-8.560,125.574,{
+    // Capital of the world's newest democracy; post-conflict; excellent diving; Portuguese heritage
+    weather:s12(2,2,2,1,0,0,0,0,0,1,2,2), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2),
+    remote:rep(2), corrupt:rep(2), health:rep(2), crowds:rep(0),
+    disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(2)
+  }),
   // ── Pakistan (new) ────────────────────────────────────────────────────────────
   mk('Islamabad','PK',33.729,73.093,{
     // Modern planned capital; gateway to KKH and northern mountains; hot summers with monsoon
@@ -2879,3 +3213,37 @@ const TERRITORIES = [
     ]]]}
   },
 ];
+
+// ─── Admin-2 county/municipality data ─────────────────────────────────────────
+// GeoJSON source: geoBoundaries (https://www.geoboundaries.org) — CC-BY 4.0.
+// Files self-hosted in data/admin2/. See data/admin2/README.md for download
+// instructions and update procedure.
+
+// ISO 3166-1 alpha-2 → alpha-3 mapping.
+// Only countries that have CD_A1 data are included — admin-2 is only loaded
+// for countries where we already have sub-national province data.
+const ISO2_TO_ISO3 = {
+  AR:'ARG', AU:'AUS', BR:'BRA', CA:'CAN', CN:'CHN', CO:'COL',
+  DE:'DEU', EG:'EGY', ES:'ESP', FR:'FRA', GB:'GBR', GR:'GRC',
+  ID:'IDN', IN:'IND', IT:'ITA', JP:'JPN', MA:'MAR', MX:'MEX',
+  NG:'NGA', NZ:'NZL', PE:'PER', PK:'PAK', PT:'PRT', RU:'RUS',
+  TH:'THA', TR:'TUR', US:'USA', VN:'VNM', ZA:'ZAF',
+};
+
+// Maps geoBoundaries shapeID → parent admin-1 ISO 3166-2 code (e.g. 'US-CA').
+// Used at runtime to resolve the three-level fallback: CD_A2 → CD_A1 → CD.
+// GENERATED by scripts/precompute_admin2.js — do not edit manually.
+// Run the script after downloading new GeoJSON files or adding new cities.
+const CD_A2_PARENT = {
+  // Populated by scripts/precompute_admin2.js
+};
+
+// Admin-2 rating overrides keyed by geoBoundaries shapeID.
+// Structure mirrors CD_A1: include only layers that meaningfully differ from
+// the parent admin-1 average. All other layers fall through to CD_A1 → CD.
+// Add entries incrementally as local knowledge warrants.
+const CD_A2 = {
+  // Example (uncomment and adjust as needed):
+  // Cook County, IL (Chicago metro) — higher safety risk than IL state average
+  // 'USA-ADM2-3_0_0-B53': { safety: rep(2) },
+};
