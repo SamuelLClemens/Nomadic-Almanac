@@ -29,12 +29,13 @@ let _coveredByAdmin1 = new Set();   // ISO-2 codes present in admin-1 data
 const TRANSPORT_LAYERS = {
   roads: {
     label: '🛣 Roads',
-    // Stadia/Stamen Toner Lines requires an API key since 2024; replaced with
-    // the free Esri World Transportation reference overlay (transparent PNG tiles).
-    // Note: ArcGIS REST tile order is {z}/{y}/{x} — different from OSM convention.
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
-    opts: { opacity: 0.75, maxZoom: 19, className: 'transport-roads-layer',
-            attribution: 'Roads &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin' },
+    // OpenStreetMap Humanitarian (HOT) tiles — OSM data, strong SE Asia coverage.
+    // mix-blend-mode: multiply on .transport-roads-layer makes the white background
+    // transparent so road lines overlay the satellite basemap cleanly.
+    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    opts: { subdomains: 'abc', opacity: 0.80, maxZoom: 19,
+            className: 'transport-roads-layer',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, HOT style' },
     layer: null, active: false,
   },
   rail: {
@@ -100,6 +101,12 @@ function initMap() {
     worldCopyJump: true,   // snap view back to primary copy when panning past ±180°
     preferCanvas: false,
   });
+
+  // climatePane sits BELOW choroplethPane so climate-zone polygons are always
+  // a background texture — country / admin-1 rating fills render on top.
+  map.createPane('climatePane');
+  map.getPane('climatePane').style.zIndex = '290';
+  map.getPane('climatePane').style.pointerEvents = 'auto';
 
   map.createPane('choroplethPane');
   map.getPane('choroplethPane').style.zIndex = '300';
@@ -347,15 +354,9 @@ function getCountryStyle(iso2, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(201,168,76,0.04)', weight: 0.3 };
   }
-  // When a geographic layer is active, climate zones own the fill — suppress country colour
-  // but keep a near-invisible fill so the polygon remains mouse-interactive for tooltips.
-  if (climateZoneLayer && [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk))) {
-    return {
-      fillColor: 'transparent', fillOpacity: 0.001,
-      color: hover ? 'rgba(232,213,163,0.45)' : 'rgba(255,255,255,0.18)',
-      weight: hover ? 1.2 : 0.4,
-    };
-  }
+  // Climate zones now live in the lower climatePane (z-index 290).
+  // Country/admin-1 fills render above them at choroplethPane (z-index 300).
+  // No suppression needed — both layers are always visible simultaneously.
   const r = getCountryRating(iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
   const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
@@ -374,14 +375,8 @@ function getAdmin1Style(iso2, subCode, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.07)', weight: 0.2 };
   }
-  // Suppress admin-1 fill when climate zones own the geographic layers
-  if (climateZoneLayer && [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk))) {
-    return {
-      fillColor: 'transparent', fillOpacity: 0.001,
-      color: hover ? 'rgba(232,213,163,0.35)' : 'rgba(255,255,255,0.12)',
-      weight: hover ? 0.7 : 0.25,
-    };
-  }
+  // Climate zones are in climatePane (z-290), admin-1 fill renders above them.
+  // No suppression — admin-1 and climate zone fills show simultaneously.
   const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
   const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
@@ -399,11 +394,11 @@ function makeMarkerIcon(city, zoom) {
   const n = la.length;
   if (n === 0) return null;
 
-  // Radius: tiny dots that grow slightly with zoom.
-  // No floor — at low zoom we want the smallest possible mark.
-  const baseR = n > 1 ? 5 : 4;
-  const zScale = zoom >= 8 ? 1.4 : zoom >= 6 ? 1.0 : 0.70;
-  const SZ = Math.max(3, Math.round(baseR * zScale));  // min 3 → 6 px diam
+  // Radius: clearly readable dots that grow with zoom.
+  // Larger base so city markers are visible at world / continental zoom.
+  const baseR = n > 1 ? 9 : 8;
+  const zScale = zoom >= 8 ? 1.5 : zoom >= 6 ? 1.2 : 1.0;
+  const SZ = Math.max(6, Math.round(baseR * zScale));  // min 6 → 12 px diam
   const D = SZ * 2;
   const lw = SZ <= 4 ? 1 : 1.5;  // thinner stroke on small markers
 
@@ -854,9 +849,10 @@ function buildBeachTooltip(beach) {
 // ─── Climate Zones ────────────────────────────────────────────────────────────
 function initClimateZones() {
   if (typeof CLIMATE_ZONES === 'undefined' || !CLIMATE_ZONES.length) return;
-  // Dedicated SVG renderer so we can apply CSS blur to climate zones only,
-  // leaving country borders crisp in the shared choroplethPane renderer.
-  _climateRenderer = L.svg({ pane: 'choroplethPane' });
+  // Dedicated SVG renderer in climatePane (z-index 290) so climate zones render
+  // below the country / admin-1 choropleth (choroplethPane, z-index 300).
+  // CSS blur is applied to the climatePane container only — country borders stay crisp.
+  _climateRenderer = L.svg({ pane: 'climatePane' });
   climateZoneLayer = L.geoJSON(
     {
       type: 'FeatureCollection',
@@ -867,7 +863,7 @@ function initClimateZones() {
       })),
     },
     {
-      pane: 'choroplethPane',
+      pane: 'climatePane',
       renderer: _climateRenderer,
       style: f => styleClimateZone(f.properties),
       onEachFeature: (f, layer) => {
@@ -886,7 +882,8 @@ function styleClimateZone(props) {
   if (v === null) return { fillOpacity: 0, opacity: 0, weight: 0 };
   return {
     fillColor: RC[Math.min(3, Math.max(0, v))],
-    fillOpacity: 0.50,
+    // Lower opacity — climate zones are background texture below choropleth fill
+    fillOpacity: 0.28,
     color: 'rgba(0,0,0,0)',
     opacity: 0,
     weight: 0,
@@ -1161,10 +1158,9 @@ function refresh() {
     if (hasGeoLayer) {
       climateZoneLayer.setStyle(f => styleClimateZone(f.properties));
       if (!map.hasLayer(climateZoneLayer)) climateZoneLayer.addTo(map);
-      // Soft-focus blur on the climate renderer only — country borders stay crisp
-      if (_climateRenderer && _climateRenderer._container) {
-        _climateRenderer._container.style.filter = 'blur(3px)';
-      }
+      // Soft-focus blur on climatePane only — choroplethPane country borders stay crisp
+      const cp = map.getPane('climatePane');
+      if (cp) cp.style.filter = 'blur(4px)';
     } else {
       if (map.hasLayer(climateZoneLayer)) climateZoneLayer.remove();
     }
@@ -1404,9 +1400,9 @@ function initTransportClickHandlers() {
     // Roads layer: show a brief instructional tooltip
     if (activeKeys.includes('roads')) {
       _ttX = cx; _ttY = cy;
-      showTooltip(`<div class="tth"><h3>🛣 Roads</h3><div class="ts">ESRI WORLD TRANSPORTATION</div>
+      showTooltip(`<div class="tth"><h3>🛣 Roads</h3><div class="ts">OPENSTREETMAP HOT</div>
         <div class="tm">Raster tile overlay — no feature data available</div></div>
-        <div class="ttb"><div style="color:var(--dim);font-size:8px">Road names and classifications are rendered in the tile image. Switch to the Rail layer for clickable OSM data.</div></div>`);
+        <div class="ttb"><div style="color:var(--dim);font-size:8px">Road names and classifications rendered in tile image. Strong SE Asia coverage. Switch to Rail for clickable OSM data.</div></div>`);
     }
   });
 
