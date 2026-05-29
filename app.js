@@ -326,11 +326,16 @@ function getCountryRating(iso2) {
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
   if (ratings.length === 0) return null;
-  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
+  // Worst-case aggregation: show the most severe rating across all active layers.
+  // Averaging unrelated metrics (e.g. weather + safety) produces a synthetic number
+  // that masks individual concerns. The fill colour reflects the highest-risk layer;
+  // each layer's individual rating is shown in the hover tooltip.
+  return Math.max(...ratings);
 }
 
 // Like getCountryRating but checks CD_A1[subCode] first for province-specific
 // data, then falls back to CD[parentIso2] for any layer not overridden.
+// Uses worst-case aggregation (Math.max) — same rationale as getCountryRating.
 function getAdmin1Rating(subCode, parentIso2) {
   const d1 = subCode ? CD_A1[subCode] : null;
   const d2 = CD[parentIso2];
@@ -342,7 +347,7 @@ function getAdmin1Rating(subCode, parentIso2) {
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
   if (ratings.length === 0) return null;
-  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
+  return Math.max(...ratings);
 }
 
 // ─── Style ────────────────────────────────────────────────────────────────────
