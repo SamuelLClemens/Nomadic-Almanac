@@ -21,9 +21,16 @@ let countryNames   = {};
 let tooltipVisible = false;
 
 // Admin-1 sub-national choropleth
-let _admin1GeoData   = null;
-let admin1ChoroLayer = null;
-let _coveredByAdmin1 = new Set();   // ISO-2 codes present in admin-1 data
+let _admin1GeoData    = null;
+let admin1ChoroLayer  = null;
+let _coveredByAdmin1  = new Set();   // ISO-2 codes present in admin-1 data
+let _admin1NameCache  = {};          // admin-1 code → display name (for admin-2 tooltips)
+
+// Admin-2 county/municipality choropleth (zoom ≥ 6, on-demand per country)
+// GeoJSON files self-hosted in data/admin2/ (geoBoundaries CC-BY 4.0)
+let _admin2Layers    = {};   // iso2 → L.GeoJSON layer instance
+let _admin2Cache     = {};   // iso2 → FeatureCollection | null (null = in-flight fetch)
+let _coveredByAdmin2 = new Set();  // iso2 codes with admin-2 layer currently on map
 
 // Transport tile layers — config + runtime state bundled per layer
 const TRANSPORT_LAYERS = {
@@ -102,11 +109,17 @@ function initMap() {
     preferCanvas: false,
   });
 
-  // climatePane sits BELOW choroplethPane so climate-zone polygons are always
-  // a background texture — country / admin-1 rating fills render on top.
+  // climatePane sits BELOW all choropleth panes — climate-zone polygons are
+  // a background texture; country/province/county fills render above them.
   map.createPane('climatePane');
   map.getPane('climatePane').style.zIndex = '290';
   map.getPane('climatePane').style.pointerEvents = 'auto';
+
+  // admin2Pane: county/municipality fills sit above climate zones but below
+  // province/country fills so province borders remain visually dominant.
+  map.createPane('admin2Pane');
+  map.getPane('admin2Pane').style.zIndex = '295';
+  map.getPane('admin2Pane').style.pointerEvents = 'auto';
 
   map.createPane('choroplethPane');
   map.getPane('choroplethPane').style.zIndex = '300';
@@ -128,7 +141,7 @@ function initMap() {
   map.getPane('labelPane').style.pointerEvents = 'none';
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri',
+    attribution: 'Tiles &copy; Esri | Admin-2 boundaries: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)',
     maxZoom: 19,
   }).addTo(map);
 
@@ -393,6 +406,41 @@ function getAdmin1Style(iso2, subCode, hover) {
   };
 }
 
+// ─── Admin-2 (county/municipality) rating and style ──────────────────────────
+// Three-level fallback: CD_A2[shapeID] → CD_A1[admin1Code] → CD[iso2].
+// Uses the same worst-case (Math.max) aggregation as admin-1.
+function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
+  const d2 = shapeID ? CD_A2[shapeID] : null;
+  const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
+  const d0 = CD[parentIso2];
+  if (!d2 && !d1 && !d0) return null;
+  const layers = [...activeLayers];
+  if (layers.length === 0) return null;
+  const ratings = layers.map(lk => {
+    const arr = (d2 && d2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
+    return arr != null ? getRating(arr) : null;
+  }).filter(v => v !== null);
+  if (ratings.length === 0) return null;
+  return Math.max(...ratings);
+}
+
+function getAdmin2Style(shapeID, parentAdmin1Code, iso2, hover) {
+  if (activeLayers.size === 0) {
+    return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.05)', weight: 0.15 };
+  }
+  const r = getAdmin2Rating(shapeID, parentAdmin1Code, iso2);
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
+  const fo = r !== null ? (hover ? 0.82 : 0.48) : 0;
+  return {
+    fillColor: fc,
+    fillOpacity: fo,
+    // County borders are lighter/thinner than province borders (0.35/0.9) so
+    // province lines remain visually dominant at intermediate zoom levels.
+    color: hover ? 'rgba(232,213,163,0.30)' : 'rgba(255,255,255,0.12)',
+    weight: hover ? 0.7 : 0.22,
+  };
+}
+
 // ─── Canvas Markers ───────────────────────────────────────────────────────────
 function makeMarkerIcon(city, zoom) {
   const la = [...activeLayers];
@@ -625,6 +673,18 @@ function renderAdmin1Styles() {
   });
 }
 
+function renderAdmin2Styles() {
+  Object.entries(_admin2Layers).forEach(([iso2, layer]) => {
+    if (!layer) return;
+    layer.eachLayer(sublayer => {
+      if (!sublayer.feature) return;
+      const shapeID  = sublayer.feature.properties.shapeID;
+      const parentA1 = CD_A2_PARENT[shapeID] || null;
+      sublayer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
+    });
+  });
+}
+
 // Loads Natural Earth 10 m admin-1 GeoJSON and creates the sub-national choropleth.
 // Runs after initChoropleth so _geoData / geojsonLayer already exist.
 async function initAdmin1Choropleth() {
@@ -644,8 +704,11 @@ async function initAdmin1Choropleth() {
     // actual sub-national data (CN, IN, US, AU, RU, BR, CA, …).
     const cd_a1_countries = new Set(Object.keys(CD_A1).map(k => k.split('-')[0]));
     _admin1GeoData.features.forEach(f => {
-      const iso2 = getAdmin1Iso2(f.properties);
+      const iso2    = getAdmin1Iso2(f.properties);
+      const subCode = getAdmin1Code(f.properties);
       if (iso2 && cd_a1_countries.has(iso2)) _coveredByAdmin1.add(iso2);
+      // Build name lookup used by admin-2 tooltips to show "California" not "US-CA"
+      if (subCode && f.properties.name) _admin1NameCache[subCode] = f.properties.name;
     });
 
     // Filter to only the provinces of countries with CD_A1 data.  This reduces
@@ -691,6 +754,112 @@ async function initAdmin1Choropleth() {
   } catch (e) {
     console.warn('Admin-1 choropleth unavailable — falling back to country level:', e.message);
   }
+}
+
+// ─── Admin-2 Choropleth (county/municipality level) ───────────────────────────
+// Self-hosted GeoJSON files live in data/admin2/{ISO3}_ADM2_simplified.geojson.
+// Files are fetched per-country on demand when the user zooms to level 6+.
+// geoBoundaries CC-BY 4.0 — see data/admin2/README.md for attribution and
+// instructions on downloading/refreshing the source files.
+
+async function loadAdmin2Country(iso2) {
+  if (iso2 in _admin2Cache) return;   // already loaded, loading, or failed
+  _admin2Cache[iso2] = null;          // sentinel: fetch in-flight
+
+  const iso3 = ISO2_TO_ISO3[iso2];
+  if (!iso3) return;
+
+  try {
+    const res = await fetch(`data/admin2/${iso3}_ADM2_simplified.geojson`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const geojson = await res.json();
+    _admin2Cache[iso2] = geojson;
+
+    _admin2Layers[iso2] = L.geoJSON(geojson, {
+      pane: 'admin2Pane',
+      style: feature => {
+        const shapeID  = feature.properties.shapeID;
+        const parentA1 = CD_A2_PARENT[shapeID] || null;
+        return getAdmin2Style(shapeID, parentA1, iso2, false);
+      },
+      onEachFeature: (feature, layer) => {
+        const shapeID  = feature.properties.shapeID;
+        const parentA1 = CD_A2_PARENT[shapeID] || null;
+        const distName = feature.properties.shapeName || '';
+
+        layer.on('mouseover', () => {
+          layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, true));
+          const stateName   = (parentA1 && _admin1NameCache[parentA1]) || parentA1 || '';
+          const countryName = countryNames[iso2] || iso2;
+          const html = buildAdmin2Tooltip(shapeID, parentA1, iso2, distName, stateName, countryName);
+          if (html) showTooltip(html);
+        });
+        layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
+        layer.on('mouseout', () => {
+          layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
+          hideTooltip();
+        });
+      },
+    });
+
+    // Only add to map if the user is still at the triggering zoom level
+    if (map.getZoom() >= 6) {
+      _admin2Layers[iso2].addTo(map);
+      _coveredByAdmin2.add(iso2);
+    }
+  } catch (e) {
+    console.warn(`Admin-2 load failed for ${iso2} (${iso3}):`, e.message);
+    delete _admin2Cache[iso2];  // allow retry on next zoom event
+  }
+}
+
+// Returns a Set of ISO-2 codes for admin-1 countries whose province polygons
+// intersect the current map bounds. Used to decide which admin-2 files to load.
+function getVisibleAdmin1Countries(bounds) {
+  const visible = new Set();
+  if (!admin1ChoroLayer) return visible;
+  admin1ChoroLayer.eachLayer(sublayer => {
+    if (!sublayer.feature) return;
+    const iso2 = getAdmin1Iso2(sublayer.feature.properties);
+    if (!iso2 || !ISO2_TO_ISO3[iso2]) return;
+    try {
+      if (bounds.intersects(sublayer.getBounds())) visible.add(iso2);
+    } catch (_) { /* feature may not have bounds yet */ }
+  });
+  return visible;
+}
+
+function onZoomAdmin2() {
+  const zoom = map.getZoom();
+
+  if (zoom < 6) {
+    // Remove all admin-2 layers from map; keep cached GeoJSON for fast restore
+    Object.entries(_admin2Layers).forEach(([iso2, layer]) => {
+      if (layer && map.hasLayer(layer)) layer.remove();
+    });
+    _coveredByAdmin2.clear();
+    return;
+  }
+
+  const bounds  = map.getBounds();
+  const visible = getVisibleAdmin1Countries(bounds);
+
+  visible.forEach(iso2 => {
+    if (!(iso2 in _admin2Cache)) {
+      loadAdmin2Country(iso2);   // async — adds to map when fetch completes
+    } else if (_admin2Cache[iso2] && _admin2Layers[iso2] && !map.hasLayer(_admin2Layers[iso2])) {
+      _admin2Layers[iso2].addTo(map);
+      _coveredByAdmin2.add(iso2);
+    }
+  });
+
+  // Remove layers for countries panned out of view (bounds memory)
+  Object.keys(_admin2Layers).forEach(iso2 => {
+    if (!visible.has(iso2) && _admin2Layers[iso2] && map.hasLayer(_admin2Layers[iso2])) {
+      _admin2Layers[iso2].remove();
+      _coveredByAdmin2.delete(iso2);
+    }
+  });
 }
 
 // ─── City Markers ─────────────────────────────────────────────────────────────
@@ -1070,6 +1239,25 @@ function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
   <div class="ttb" id="tt-body">${rows}</div>`;
 }
 
+function buildAdmin2Tooltip(shapeID, parentAdmin1Code, iso2, districtName, stateName, countryName) {
+  if (activeLayers.size === 0) return null;
+  const d2 = shapeID ? CD_A2[shapeID] : null;
+  const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
+  const d0 = CD[iso2];
+  // Merge with lowest-granularity data first so admin-2 overrides admin-1 overrides country
+  const merged = Object.assign({}, d0 || {}, d1 || {}, d2 || {});
+  const rows = Object.keys(merged).some(k => Array.isArray(merged[k]))
+    ? buildLayerRows(merged, { iso2 })
+    : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No travel data available for this district.</div>';
+  const sub = [districtName ? (stateName || null) : null, countryName].filter(Boolean).join(' · ');
+  return `<div class="tth">
+    <h3 id="tt-name">${districtName || stateName || countryName}</h3>
+    <div class="ts" id="tt-sub">${sub}</div>
+    <div class="tm" id="tt-period">${periodLabel()}</div>
+  </div>
+  <div class="ttb" id="tt-body">${rows}</div>`;
+}
+
 // ─── Legend ───────────────────────────────────────────────────────────────────
 function updateLegend() {
   const legend = document.getElementById('legend');
@@ -1158,6 +1346,7 @@ function refresh() {
   updateBadge();
   renderChoropleth();
   renderAdmin1Styles();
+  renderAdmin2Styles();
   if (climateZoneLayer) {
     const hasGeoLayer = [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk));
     if (hasGeoLayer) {
@@ -1180,7 +1369,7 @@ function refresh() {
 let _zoomTimer = null;
 function onZoom() {
   clearTimeout(_zoomTimer);
-  _zoomTimer = setTimeout(() => { renderCityMarkers(); renderBorderMarkers(); renderBeachMarkers(); }, 150);
+  _zoomTimer = setTimeout(() => { renderCityMarkers(); renderBorderMarkers(); renderBeachMarkers(); onZoomAdmin2(); }, 150);
 }
 
 // ─── Transport Layer Feature Click ───────────────────────────────────────────
