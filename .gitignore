@@ -5,8 +5,16 @@ index_*.html
 # Word document — not needed on the web
 *.docx
 
-# Local dev tooling
-.claude/
+# Local Claude Code session data — not source-controlled.
+# Ignore everything in .claude/ EXCEPT shared team tooling.
+# Note: git does not un-ignore files in an ignored dir via '!', so we
+# list the ignored subdirs explicitly rather than ignoring the parent.
+.claude/cache/
+.claude/ide/
+.claude/projects/
+.claude/todos/
+.claude/statsig/
+.claude/settings.local.json
 
 # macOS noise
 .DS_Store
