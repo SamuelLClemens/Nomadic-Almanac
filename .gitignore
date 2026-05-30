@@ -19,6 +19,8 @@ index_*.html
 # macOS noise
 .DS_Store
 
-# Generated backups and climate API cache — not source-controlled
+# Generated backups, climate API cache, and script output — not source-controlled
 data.js.bak
 scripts/weather_cache.json
+scripts/simplify_preview.txt
+scripts/simplify_run.txt
