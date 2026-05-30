@@ -203,8 +203,11 @@ def save_cache():
 def get_ratings(lat, lon):
     key = grid_key(lat, lon)
     with _cache_lock:
-        if key in _cache:
-            return _cache[key]
+        cached = _cache.get(key, 'MISSING')
+        # Only treat a non-None list as a valid cache hit.
+        # None means a previous API call failed — retry it on the next run.
+        if cached != 'MISSING' and cached is not None:
+            return cached
 
     time.sleep(API_DELAY)
     ratings = fetch_normals(lat, lon)
