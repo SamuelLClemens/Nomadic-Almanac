@@ -76,10 +76,11 @@ DATA_JS     = PROJECT_DIR / 'data.js'
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 GRID_RES               = 0.5   # degrees — dedup centroids to reduce API calls
-MAX_WORKERS            = 5     # concurrent API requests
-API_DELAY              = 0.15  # seconds between requests per worker
-CONSECUTIVE_FAIL_LIMIT = 10    # abort if this many API calls fail in a row
+MAX_WORKERS            = 2     # concurrent API requests — conservative to avoid 429
+API_DELAY              = 1.0   # seconds between requests per worker (2 req/s total)
+CONSECUTIVE_FAIL_LIMIT = 10    # abort if this many *real* (non-429) errors in a row
 PROGRESS_INTERVAL      = 100   # print progress every N features per country
+RATE_LIMIT_BACKOFF     = 90    # seconds to wait after a 429 Too Many Requests
 
 MONTHS     = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 MONTH_DAYS = [31,   28,   31,   30,   31,   30,   31,   31,   30,   31,   30,   31  ]
@@ -190,7 +191,27 @@ def fetch_normals(lat, lon, retries=3):
 
             return ratings
 
-        except (URLError, HTTPError, json.JSONDecodeError, KeyError, ValueError) as exc:
+        except HTTPError as exc:
+            if exc.code == 429:
+                # Rate-limited — pause the calling thread and retry.
+                # This does NOT count as a consecutive failure; it is
+                # a throttle signal, not a data error.
+                wait = RATE_LIMIT_BACKOFF * (attempt + 1)
+                print(f'    RATE LIMIT (429): waiting {wait}s before retry '
+                      f'({lat:.2f},{lon:.2f}, attempt {attempt+1}/{retries})',
+                      file=sys.stderr)
+                time.sleep(wait)
+                # Do NOT fall through to the failure handler below
+                continue
+            # Other HTTP errors — use standard back-off
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                print(f'    WARN: HTTP {exc.code} ({lat:.2f},{lon:.2f}): {exc}',
+                      file=sys.stderr)
+                return None
+
+        except (URLError, json.JSONDecodeError, KeyError, ValueError) as exc:
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)  # exponential back-off: 1s, 2s
             else:
@@ -199,6 +220,24 @@ def fetch_normals(lat, lon, retries=3):
                 return None
 
     return None
+
+# ── Global rate limiter ────────────────────────────────────────────────────────
+# Enforces a minimum gap between *any* two outgoing API requests, regardless of
+# how many worker threads are running. This is the primary guard against 429s.
+# Even with 2 workers, this ensures we never exceed ~2 requests/second globally.
+
+_rate_lock        = threading.Lock()
+_last_request_at  = 0.0   # epoch seconds of the last request that left the gate
+
+def _acquire_rate_slot():
+    """Block until it is safe to issue the next API request."""
+    global _last_request_at
+    with _rate_lock:
+        now     = time.monotonic()
+        elapsed = now - _last_request_at
+        if elapsed < API_DELAY:
+            time.sleep(API_DELAY - elapsed)
+        _last_request_at = time.monotonic()
 
 # ── Cache ──────────────────────────────────────────────────────────────────────
 
@@ -228,7 +267,9 @@ def get_ratings(lat, lon):
         if cached != 'MISSING' and cached is not None:
             return cached
 
-    time.sleep(API_DELAY)
+    # Acquire a global rate-limit slot — this serialises the inter-request
+    # gap across ALL worker threads (replaces per-worker time.sleep).
+    _acquire_rate_slot()
     ratings = fetch_normals(lat, lon)
 
     with _cache_lock:
