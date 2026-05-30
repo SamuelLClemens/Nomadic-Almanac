@@ -76,11 +76,11 @@ DATA_JS     = PROJECT_DIR / 'data.js'
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 GRID_RES               = 0.5   # degrees — dedup centroids to reduce API calls
-MAX_WORKERS            = 2     # concurrent API requests — conservative to avoid 429
-API_DELAY              = 1.0   # seconds between requests per worker (2 req/s total)
-CONSECUTIVE_FAIL_LIMIT = 10    # abort if this many *real* (non-429) errors in a row
+MAX_WORKERS            = 1     # sequential: one request at a time, no bursting possible
+API_DELAY              = 5.0   # seconds between requests (12 req/min — well under any limit)
+CONSECUTIVE_FAIL_LIMIT = 20    # abort only after 20 genuine non-rate-limit failures in a row
 PROGRESS_INTERVAL      = 100   # print progress every N features per country
-RATE_LIMIT_BACKOFF     = 90    # seconds to wait after a 429 Too Many Requests
+RATE_LIMIT_BACKOFF     = 300   # seconds to wait after a 429 (5 min per retry)
 
 MONTHS     = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 MONTH_DAYS = [31,   28,   31,   30,   31,   30,   31,   31,   30,   31,   30,   31  ]
@@ -150,13 +150,19 @@ def grid_key(lat, lon):
 
 # ── Climate API (NASA POWER) ───────────────────────────────────────────────────
 
+RATE_LIMIT_SENTINEL = 'RATE_LIMITED'  # distinct from None (data error)
+
 def fetch_normals(lat, lon, retries=3):
     """
     Fetch monthly climate normals from NASA POWER Climatology API.
-    Returns a list of 12 weather ratings [jan..dec], or None on failure.
+    Returns:
+      - list[int]  — 12 monthly ratings on success
+      - None       — data / parse error (should NOT be retried indefinitely)
+      - RATE_LIMIT_SENTINEL — 429 throttle exhausted all retries (treat as
+        transient; caller should NOT count toward the consecutive-fail abort)
 
     API: https://power.larc.nasa.gov/api/temporal/climatology/point
-    No API key required. No daily quota.
+    No API key required. No daily quota (but has a request-rate throttle).
     Precipitation is returned in mm/day — converted to mm/month here.
     """
     params = urlencode({
@@ -192,18 +198,17 @@ def fetch_normals(lat, lon, retries=3):
             return ratings
 
         except HTTPError as exc:
-            if exc.code == 429:
-                # Rate-limited — pause the calling thread and retry.
-                # This does NOT count as a consecutive failure; it is
-                # a throttle signal, not a data error.
+            if exc.code in (429, 503, 502):
+                # Rate-limited or server overloaded — pause and retry.
+                # Return RATE_LIMIT_SENTINEL (not None) so the caller
+                # knows NOT to count this toward the consecutive-fail abort.
                 wait = RATE_LIMIT_BACKOFF * (attempt + 1)
-                print(f'    RATE LIMIT (429): waiting {wait}s before retry '
+                print(f'    RATE LIMIT ({exc.code}): waiting {wait}s before retry '
                       f'({lat:.2f},{lon:.2f}, attempt {attempt+1}/{retries})',
                       file=sys.stderr)
                 time.sleep(wait)
-                # Do NOT fall through to the failure handler below
                 continue
-            # Other HTTP errors — use standard back-off
+            # Other HTTP errors (4xx client, 5xx server) — standard back-off
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)
             else:
@@ -219,7 +224,9 @@ def fetch_normals(lat, lon, retries=3):
                       file=sys.stderr)
                 return None
 
-    return None
+    # Exhausted all retries — if every attempt was a rate-limit, return the
+    # sentinel so the caller treats this as a temporary failure.
+    return RATE_LIMIT_SENTINEL
 
 # ── Global rate limiter ────────────────────────────────────────────────────────
 # Enforces a minimum gap between *any* two outgoing API requests, regardless of
@@ -267,15 +274,21 @@ def get_ratings(lat, lon):
         if cached != 'MISSING' and cached is not None:
             return cached
 
-    # Acquire a global rate-limit slot — this serialises the inter-request
-    # gap across ALL worker threads (replaces per-worker time.sleep).
+    # Acquire a global rate-limit slot — serialises the inter-request gap.
     _acquire_rate_slot()
-    ratings = fetch_normals(lat, lon)
+    result = fetch_normals(lat, lon)
 
     with _cache_lock:
-        _cache[key] = ratings   # store None too, but get_ratings will retry it
+        if result is RATE_LIMIT_SENTINEL:
+            # Do NOT cache rate-limit sentinel — it must be retried next time.
+            # (The None-check in the cache read means None is also retried, but
+            # we distinguish sentinel from None to avoid counting against the
+            # consecutive-fail abort. Store None so the key exists but retries.)
+            _cache[key] = None
+        else:
+            _cache[key] = result   # list[int] on success, None on data error
 
-    return ratings
+    return result
 
 # ── Failure watchdog ───────────────────────────────────────────────────────────
 
@@ -332,12 +345,18 @@ def process_country(iso2, iso3):
             return
 
         lat, lon = centroid
-        ratings  = get_ratings(lat, lon)
-        record_result(ratings is not None)
+        result   = get_ratings(lat, lon)
 
-        if ratings and len(ratings) == 12:
+        if result is RATE_LIMIT_SENTINEL:
+            # Transient rate limit — do NOT count as a real failure.
+            # The entry will be retried on next run (None is in cache).
+            return
+
+        record_result(result is not None)  # only count data errors
+
+        if result and len(result) == 12:
             with lock:
-                entries[shape_id] = ratings
+                entries[shape_id] = result
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         futures = [pool.submit(process_one, f) for f in features]
