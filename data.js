@@ -38,6 +38,7 @@ const LAYER_LABELS = {
   cost:     ['Budget','Moderate','Expensive','Very Expensive'],
   safety:   ['Very Safe','Safe','Use Caution','High Risk'],
   internet: ['Excellent','Good','Fair','Poor'],
+  visa:     ['Visa-free','Easy Access','Visa Required','Restricted'],
 };
 // ISO 4217 currency codes per country
 const CURRENCY = {
@@ -81,6 +82,56 @@ const COST_DETAILS = {
   ZA: { hostel:15, meal:5,  transport:4,  coffee:2, beer:3,  note:'Cape Town pricier; well-developed tourist infrastructure' },
 };
 
+// Passport nationalities available in the visa selector
+// Keys must be ISO-2 codes; 'DE' represents all Schengen / EU passports here
+const PASSPORT_NATIONALITIES = {
+  US:'🇺🇸 United States',
+  GB:'🇬🇧 United Kingdom',
+  DE:'🇪🇺 EU / Schengen',
+  AU:'🇦🇺 Australia',
+  CA:'🇨🇦 Canada',
+  JP:'🇯🇵 Japan',
+  NZ:'🇳🇿 New Zealand',
+  ZA:'🇿🇦 South Africa',
+  IN:'🇮🇳 India',
+  CN:'🇨🇳 China',
+  BR:'🇧🇷 Brazil',
+};
+
+// Visa requirements per destination × passport nationality
+// t: 'free'=visa-free  'eta'=electronic auth  'evisa'=online visa  'voa'=on arrival  'req'=embassy required
+// d: max stay in days (0=variable/long-term)   c: approximate cost in USD
+const VISA_DATA = {
+  AR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0} },
+  AU: { US:{t:'eta',d:365,c:13}, GB:{t:'free',d:365,c:0}, DE:{t:'free',d:365,c:0}, CA:{t:'eta',d:365,c:13}, JP:{t:'eta',d:365,c:13}, NZ:{t:'free',d:0,c:0},   ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'eta',d:365,c:13} },
+  CA: { US:{t:'free',d:180,c:0}, GB:{t:'eta',d:180,c:5},  DE:{t:'eta',d:180,c:5},  AU:{t:'eta',d:180,c:5},  JP:{t:'eta',d:180,c:5},  NZ:{t:'eta',d:180,c:5},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'req',d:0,c:0} },
+  CN: { US:{t:'req',d:0,c:185},  GB:{t:'free',d:15,c:0},  DE:{t:'free',d:15,c:0},  AU:{t:'free',d:15,c:0},  CA:{t:'req',d:0,c:185},  JP:{t:'req',d:0,c:185},  NZ:{t:'free',d:15,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   BR:{t:'free',d:15,c:0} },
+  CO: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:90,c:0},  BR:{t:'free',d:90,c:0} },
+  DE: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  EG: { US:{t:'evisa',d:30,c:25},GB:{t:'evisa',d:30,c:25},DE:{t:'evisa',d:30,c:25},AU:{t:'evisa',d:30,c:25},CA:{t:'evisa',d:30,c:25},JP:{t:'evisa',d:30,c:25},NZ:{t:'evisa',d:30,c:25},ZA:{t:'evisa',d:30,c:25},IN:{t:'evisa',d:30,c:25},CN:{t:'free',d:30,c:0},  BR:{t:'evisa',d:30,c:25} },
+  ES: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  FR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  GB: { US:{t:'eta',d:180,c:13}, DE:{t:'eta',d:180,c:13}, AU:{t:'eta',d:180,c:13}, CA:{t:'eta',d:180,c:13}, JP:{t:'eta',d:180,c:13}, NZ:{t:'eta',d:180,c:13}, ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'req',d:0,c:0} },
+  GR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  ID: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  ZA:{t:'free',d:30,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
+  IN: { US:{t:'evisa',d:60,c:25},GB:{t:'evisa',d:60,c:25},DE:{t:'evisa',d:60,c:25},AU:{t:'evisa',d:60,c:25},CA:{t:'evisa',d:60,c:25},JP:{t:'evisa',d:60,c:25},NZ:{t:'evisa',d:60,c:25},ZA:{t:'evisa',d:60,c:25},CN:{t:'req',d:0,c:0},  BR:{t:'evisa',d:60,c:25} },
+  IT: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  JP: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  MA: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:90,c:0},  BR:{t:'free',d:90,c:0} },
+  MX: { US:{t:'free',d:180,c:0}, GB:{t:'free',d:180,c:0}, DE:{t:'free',d:180,c:0}, AU:{t:'free',d:180,c:0}, CA:{t:'free',d:180,c:0}, JP:{t:'free',d:180,c:0}, NZ:{t:'free',d:180,c:0}, ZA:{t:'free',d:180,c:0}, IN:{t:'free',d:180,c:0}, CN:{t:'free',d:180,c:0}, BR:{t:'free',d:180,c:0} },
+  NG: { US:{t:'evisa',d:90,c:100},GB:{t:'evisa',d:90,c:100},DE:{t:'evisa',d:90,c:100},AU:{t:'evisa',d:90,c:100},CA:{t:'evisa',d:90,c:100},JP:{t:'evisa',d:90,c:100},NZ:{t:'evisa',d:90,c:100},ZA:{t:'req',d:0,c:0},IN:{t:'req',d:0,c:0},CN:{t:'free',d:30,c:0},BR:{t:'evisa',d:90,c:100} },
+  NZ: { US:{t:'eta',d:90,c:14},  GB:{t:'eta',d:90,c:14},  DE:{t:'eta',d:90,c:14},  CA:{t:'eta',d:90,c:14},  JP:{t:'eta',d:90,c:14},  AU:{t:'free',d:0,c:0},   ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'req',d:0,c:0} },
+  PE: { US:{t:'free',d:183,c:0}, GB:{t:'free',d:183,c:0}, DE:{t:'free',d:183,c:0}, AU:{t:'free',d:183,c:0}, CA:{t:'free',d:183,c:0}, JP:{t:'free',d:183,c:0}, NZ:{t:'free',d:183,c:0}, ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:90,c:0},  BR:{t:'free',d:183,c:0} },
+  PK: { US:{t:'evisa',d:30,c:75},GB:{t:'evisa',d:30,c:75},DE:{t:'evisa',d:30,c:75},AU:{t:'evisa',d:30,c:75},CA:{t:'evisa',d:30,c:75},JP:{t:'evisa',d:30,c:75},NZ:{t:'evisa',d:30,c:75},ZA:{t:'evisa',d:30,c:75},IN:{t:'req',d:0,c:0},CN:{t:'free',d:90,c:0},BR:{t:'evisa',d:30,c:75} },
+  PT: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  RU: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'evisa',d:30,c:40}, IN:{t:'evisa',d:30,c:40}, CN:{t:'free',d:15,c:0}, BR:{t:'free',d:90,c:0} },
+  TH: { US:{t:'free',d:60,c:0},  GB:{t:'free',d:60,c:0},  DE:{t:'free',d:60,c:0},  AU:{t:'free',d:60,c:0},  CA:{t:'free',d:60,c:0},  JP:{t:'free',d:60,c:0},  NZ:{t:'free',d:60,c:0},  ZA:{t:'free',d:60,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:60,c:0} },
+  TR: { US:{t:'evisa',d:90,c:50},GB:{t:'evisa',d:90,c:32},DE:{t:'free',d:90,c:0},  AU:{t:'evisa',d:90,c:50},CA:{t:'evisa',d:90,c:60},JP:{t:'free',d:90,c:0},  NZ:{t:'evisa',d:90,c:50},ZA:{t:'evisa',d:90,c:50},IN:{t:'evisa',d:90,c:50},CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0} },
+  US: { GB:{t:'eta',d:90,c:21},  DE:{t:'eta',d:90,c:21},  AU:{t:'eta',d:90,c:21},  CA:{t:'free',d:180,c:0}, JP:{t:'eta',d:90,c:21},  NZ:{t:'eta',d:90,c:21},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'eta',d:90,c:21} },
+  VN: { US:{t:'evisa',d:90,c:25},GB:{t:'evisa',d:90,c:25},DE:{t:'evisa',d:90,c:25},AU:{t:'evisa',d:90,c:25},CA:{t:'evisa',d:90,c:25},JP:{t:'evisa',d:90,c:25},NZ:{t:'evisa',d:90,c:25},ZA:{t:'evisa',d:90,c:25},IN:{t:'evisa',d:90,c:25},CN:{t:'evisa',d:90,c:25},BR:{t:'evisa',d:90,c:25} },
+  ZA: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
+};
+
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -96,7 +147,7 @@ const LAYERS = {
   health:   { name:'Health Risk',      emoji:'💊', color:'#D9607A', levels:['Low','Moderate','Elevated','High'] },
   crowds:   { name:'Overtourism',      emoji:'👁', color:'#8878C8', levels:['Uncrowded','Busy','Crowded','Saturated'] },
   disaster: { name:'Natural Disaster', emoji:'🌋', color:'#C06E3E', levels:['Low Risk','Some Risk','Moderate','High Risk'] },
-  visa:     { name:'Visa',             emoji:'🗂', color:'#6898C0', levels:['Visa Free','Easy','Moderate','Difficult'] },
+  visa:     { name:'Visa Access',       emoji:'🛂', color:'#6898C0', levels:['Visa-free','Easy Access','Visa Required','Restricted'] },
   lgbtq:    { name:'LGBTQ+',           emoji:'🏳️‍🌈', color:'#D055A8', levels:['Welcoming','Accepted','Hostile','Dangerous'] },
   beaches:  { name:'Public Beaches',   emoji:'🏖', color:'#2EC4B6', levels:['Excellent','Good','Limited','Poor'] },
   vaccines: { name:'Vaccines',         emoji:'💉', color:'#7888D8', levels:['None','Routine','Required','Extensive'] },
