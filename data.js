@@ -9,6 +9,37 @@ const bch = (name, country, lat, lng, status, season, water, facilities, dressco
 const RC  = ['#43A047','#FDD835','#EF6C00','#C62828'];
 const RC2 = ['#43A047','#FDD835','#EF6C00','#C62828'];
 const RC_NODATA = '#B0BEC5';
+
+// ─── Static Travel Layer Data ─────────────────────────────────────────────────
+// Cost of living index: 0=budget, 1=moderate, 2=expensive, 3=very expensive
+// Source: Numbeo Cost of Living Index / Expatistan (2024–2025)
+const CD_COST = {
+  AR:0, AU:2, CA:2, CN:1, CO:0, DE:2, EG:0, ES:2, FR:2,
+  GB:3, GR:1, ID:0, IN:0, IT:2, JP:2, MA:0, MX:0, NG:0,
+  NZ:2, PE:0, PK:0, PT:1, RU:1, TH:0, TR:0, US:2, VN:0, ZA:1,
+};
+// Safety index: 0=very safe, 1=generally safe, 2=exercise caution, 3=high risk
+// Source: Global Peace Index 2024 / US State Dept advisories
+const CD_SAFETY = {
+  AR:1, AU:0, CA:0, CN:1, CO:2, DE:0, EG:2, ES:0, FR:1,
+  GB:0, GR:0, ID:1, IN:1, IT:0, JP:0, MA:1, MX:2, NG:3,
+  NZ:0, PE:1, PK:2, PT:0, RU:2, TH:1, TR:1, US:1, VN:1, ZA:2,
+};
+// Internet quality: 0=excellent, 1=good, 2=fair, 3=poor
+// Source: Speedtest Global Index / Ookla 2024
+const CD_INTERNET = {
+  AR:1, AU:1, CA:0, CN:1, CO:1, DE:0, EG:2, ES:1, FR:0,
+  GB:0, GR:1, ID:2, IN:1, IT:1, JP:0, MA:2, MX:2, NG:2,
+  NZ:1, PE:2, PK:2, PT:1, RU:1, TH:1, TR:1, US:0, VN:1, ZA:1,
+};
+// Layer display metadata: rating labels for each layer type
+const LAYER_LABELS = {
+  weather:  ['Excellent','Acceptable','Challenging','Harsh'],
+  cost:     ['Budget','Moderate','Expensive','Very Expensive'],
+  safety:   ['Very Safe','Safe','Use Caution','High Risk'],
+  internet: ['Excellent','Good','Fair','Poor'],
+};
+
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -19,6 +50,7 @@ const LAYERS = {
   family:   { name:'Family',           emoji:'👨‍👩‍👧', color:'#B87FC4', levels:['Ideal','Suitable','Limited','Not Recommended'] },
   solo:     { name:'Solo Female',      emoji:'👩', color:'#E87AAF', levels:['Excellent','Good','Take Care','High Risk'] },
   remote:   { name:'Remote Work',      emoji:'💻', color:'#00B4D8', levels:['Excellent','Good','Adequate','Poor'] },
+  internet: { name:'Internet',         emoji:'📶', color:'#29B6F6', levels:['Excellent','Good','Fair','Poor'] },
   corrupt:  { name:'Corruption',       emoji:'🏛', color:'#A07840', levels:['Clean','Minor','Moderate','Severe'] },
   health:   { name:'Health Risk',      emoji:'💊', color:'#D9607A', levels:['Low','Moderate','Elevated','High'] },
   crowds:   { name:'Overtourism',      emoji:'👁', color:'#8878C8', levels:['Uncrowded','Busy','Crowded','Saturated'] },

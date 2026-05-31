@@ -82,6 +82,11 @@
 <!-- Map -->
 <div id="map"></div>
 
+<div id="best-panel" style="display:none">
+  <div id="best-panel-header">Best This Month</div>
+  <ol id="best-panel-list"></ol>
+</div>
+
 <!-- Loading status indicator (shown during async GeoJSON fetches) -->
 <div id="map-status" style="display:none;position:fixed;bottom:18px;left:18px;background:rgba(16,12,5,0.82);color:#e8d5a3;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 10px;border-radius:4px;z-index:1000;pointer-events:none;letter-spacing:0.04em;"></div>
 
@@ -99,6 +104,11 @@
 <div id="legend">
   <h4>FIELD GUIDE</h4>
   <div id="legend-body"></div>
+</div>
+
+<div id="search-wrap">
+  <input id="country-search" type="text" placeholder="Search country…" autocomplete="off" spellcheck="false" />
+  <div id="search-results"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
