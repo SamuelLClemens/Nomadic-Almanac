@@ -2350,17 +2350,27 @@ function buildCostDetailsSection(iso2) {
 
 // ─── URL Deep Linking ─────────────────────────────────────────────────────────
 function initURLState() {
-  // Read initial state from URL hash e.g. #month=6&layer=weather
+  // Read initial state from URL hash e.g. #month=6&layer=weather&nat=US
   const params = new URLSearchParams(window.location.hash.slice(1));
   const m = parseInt(params.get('month'));
   if (!isNaN(m) && m >= 0 && m <= 11) setMonth(m);
   const lyr = params.get('layer');
-  if (lyr) { activeLayers.clear(); activeLayers.add(lyr); }
+  if (lyr && typeof LAYERS !== 'undefined' && lyr in LAYERS) {
+    activeLayers.clear(); activeLayers.add(lyr);
+  }
+  const nat = params.get('nat');
+  if (nat) {
+    selectedNationality = nat;
+    // The select element is populated later by initNationalitySelector();
+    // it reads selectedNationality on init and sets sel.value accordingly.
+  }
 }
 
 function updateURLState() {
-  const lyr = [...activeLayers][0] || 'weather';
-  const hash = 'month=' + activeMonth + '&layer=' + lyr;
+  const lyr = [...activeLayers][0] || '';
+  let hash = 'month=' + activeMonth;
+  if (lyr) hash += '&layer=' + lyr;
+  if (selectedNationality) hash += '&nat=' + selectedNationality;
   history.replaceState(null, '', '#' + hash);
 }
 
