@@ -102,29 +102,9 @@ const getAdmin1Code = p => {
 let _ttX = 0, _ttY = 0;
 
 // ─── Map Init ────────────────────────────────────────────────────────────────
-function fitMapBelowTopbar() {
-  // Measure the topbar's actual rendered height and apply it to #map.
-  // This is more reliable than a hardcoded CSS variable, especially on
-  // mobile viewports where the topbar can wrap to different heights.
-  const tb  = document.getElementById('topbar');
-  const el  = document.getElementById('map');
-  if (!tb || !el) return;
-  const h = tb.offsetHeight;
-  el.style.top = h + 'px';
-  // Also keep Leaflet zoom controls below the topbar
-  document.querySelectorAll('.leaflet-top.leaflet-left').forEach(c => {
-    c.style.top = (h + 8) + 'px';
-  });
-  if (map) map.invalidateSize();
-}
-
 function initMap() {
-  // Position the map container based on the topbar's real height before
-  // Leaflet initialises — prevents a zero-height map on mobile devices.
-  const tb = document.getElementById('topbar');
-  const mapEl = document.getElementById('map');
-  if (tb && mapEl) mapEl.style.top = tb.offsetHeight + 'px';
-
+  // #map is a flex child of <body> — it fills exactly the space below #topbar.
+  // No JS height calculation needed; CSS flexbox handles it automatically.
   map = L.map('map', {
     center: [22, 14],
     zoom: 3,
@@ -174,14 +154,9 @@ function initMap() {
   map.getPane('labelPane').style.zIndex = '450';
   map.getPane('labelPane').style.pointerEvents = 'none';
 
-  // Re-measure topbar and refit map whenever it changes height (font loading,
-  // window resize, viewport rotation on mobile).
-  if (typeof ResizeObserver !== 'undefined') {
-    const ro = new ResizeObserver(() => fitMapBelowTopbar());
-    const tb = document.getElementById('topbar');
-    if (tb) ro.observe(tb);
-  }
-  window.addEventListener('resize', fitMapBelowTopbar, { passive: true });
+  // Invalidate Leaflet's tile cache when the window is resized (orientation
+  // change, panel resize) so tiles fill the new dimensions cleanly.
+  window.addEventListener('resize', () => { if (map) map.invalidateSize(); }, { passive: true });
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri | Admin-2 boundaries: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)',

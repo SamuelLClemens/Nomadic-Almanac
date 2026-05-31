@@ -19,6 +19,8 @@ html, body {
   width: 100%; height: 100%; overflow: hidden;
   background: var(--ink);
   font-family: var(--fm);
+  /* Flex column: topbar takes its natural height, map fills the rest */
+  display: flex; flex-direction: column;
 }
 
 /* ─── Loading Overlay ────────────────────────────────────────────────────── */
@@ -37,13 +39,12 @@ html, body {
 
 /* ─── Top Bar ────────────────────────────────────────────────────────────── */
 #topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+  /* Relative — stays at the top as a flex item; map fills the rest */
+  position: relative; z-index: 1200;
+  flex-shrink: 0;   /* never shrink; map gets whatever is left */
   background: var(--panel);
   border-bottom: 1px solid var(--b2);
   backdrop-filter: blur(20px);
-  /* Promote to own compositor layer — prevents blur recalculation on map pan */
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 /* Row 1: Logo · Months · Search */
@@ -243,10 +244,11 @@ html, body {
 
 /* ─── Map ─────────────────────────────────────────────────────────────────── */
 #map {
-  position: absolute;
-  /* top is set dynamically by fitMapBelowTopbar() in app.js so it always
-     matches the topbar's actual rendered height across all screen sizes. */
-  top: 84px; left: 0; right: 0; bottom: 0;
+  /* Flex item — fills exactly the height remaining below the topbar.
+     No JS needed; no hardcoded top offset; works on every screen size. */
+  position: relative;
+  flex: 1;
+  min-height: 0;    /* required so flex child can shrink below its content */
   background: #060402;
 }
 
@@ -258,8 +260,8 @@ html, body {
   transition: fill-opacity .18s ease, fill .18s ease;
 }
 
-/* Push zoom controls below topbar — precise value set by fitMapBelowTopbar() */
-.leaflet-top.leaflet-left { top: 92px !important; }
+/* Leaflet zoom controls sit inside #map so they are naturally below the topbar */
+.leaflet-top.leaflet-left { top: 10px !important; left: 10px !important; }
 
 /* ─── Tooltip (click-anchored) ───────────────────────────────────────────── */
 #tt {
@@ -470,13 +472,12 @@ html, body {
 
 /* ── Mobile ───────────────────────────────────────── */
 @media (max-width: 720px) {
-  :root { --tb-h: 120px; }
+  /* --tb-h removed: flexbox handles map height automatically on all screens */
   #tb-row1 { flex-wrap: wrap; height: auto; padding: 8px 12px 0; gap: 8px; }
   #months-row { order: 3; width: 100%; padding-bottom: 6px; }
   #search-wrap { width: 140px; }
   #tb-row2 { padding: 0 12px; }
   .mb { padding: 3px 5px; font-size: 8px; }
   .lb, .tb { padding: 3px 7px; font-size: 8px; }
-  #best-panel { bottom: 44px; right: 8px; max-width: 200px; }
   #map-status { bottom: 10px; left: 10px; font-size: 9px; }
 }
