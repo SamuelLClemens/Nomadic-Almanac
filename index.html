@@ -15,6 +15,11 @@
   <!-- Leaflet served locally — eliminates CDN as a failure point -->
   <link rel="stylesheet" href="lib/leaflet.css">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0e0b06">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nomadic Almanac">
 </head>
 <body>
 
@@ -99,7 +104,7 @@
     </div>
 
     <!-- Month selector — always visible -->
-    <div id="months-row">
+    <div id="months-row" title="Click a month or drag to select a range">
       <div id="months"></div>
     </div>
 
@@ -147,6 +152,8 @@
 <!-- Legend + Best This Month widget (integrated) -->
 <div id="legend">
   <h4 id="legend-title">FIELD GUIDE</h4>
+  <div id="legend-zoom-note" style="display:none;font-size:7px;color:rgba(201,168,76,0.5);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(201,168,76,0.08)"></div>
+  <button id="share-url-btn" title="Copy shareable link">🔗</button>
   <div id="legend-body"></div>
   <!-- Best This Month — collapsed by default, expands on click -->
   <div id="best-toggle">
@@ -159,5 +166,13 @@
 <script src="lib/leaflet.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(e => console.warn('SW registration failed:', e));
+    });
+  }
+</script>
 </body>
 </html>

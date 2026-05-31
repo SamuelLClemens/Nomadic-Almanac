@@ -18,6 +18,8 @@ const CD_COST = {
   GB:3, GR:1, ID:0, IN:0, IT:2, JP:2, KR:2, MA:0, MX:0, NG:0,
   NZ:2, PE:0, PH:0, PK:0, PT:1, RU:1, SG:3, TH:0, TR:0, US:2, VN:0,
   AE:3, ZA:1,
+  MY:0, KH:0, LA:0, MM:0, LK:0, NP:0, KE:0, TZ:0, GH:0,
+  CL:1, EC:0, CU:1, CZ:1, PL:1, HU:1,
 };
 // Safety index: 0=very safe, 1=generally safe, 2=exercise caution, 3=high risk
 // Source: Global Peace Index 2024 / US State Dept advisories
@@ -26,6 +28,8 @@ const CD_SAFETY = {
   GB:0, GR:0, ID:1, IN:1, IT:0, JP:0, KR:0, MA:1, MX:2, NG:3,
   NZ:0, PE:1, PH:1, PK:2, PT:0, RU:2, SG:0, TH:1, TR:1, US:1, VN:1,
   AE:0, ZA:2,
+  MY:0, KH:1, LA:0, MM:2, LK:1, NP:1, KE:2, TZ:1, GH:1,
+  CL:1, EC:2, CU:1, CZ:0, PL:0, HU:0,
 };
 // Internet quality: 0=excellent, 1=good, 2=fair, 3=poor
 // Source: Speedtest Global Index / Ookla 2024
@@ -34,6 +38,8 @@ const CD_INTERNET = {
   GB:0, GR:1, ID:2, IN:1, IT:1, JP:0, KR:0, MA:2, MX:2, NG:2,
   NZ:1, PE:2, PH:2, PK:2, PT:1, RU:1, SG:0, TH:1, TR:1, US:0, VN:1,
   AE:0, ZA:1,
+  MY:1, KH:2, LA:2, MM:2, LK:1, NP:2, KE:2, TZ:2, GH:2,
+  CL:1, EC:2, CU:3, CZ:0, PL:0, HU:0,
 };
 // Layer display metadata: rating labels for each layer type
 const LAYER_LABELS = {
@@ -42,6 +48,7 @@ const LAYER_LABELS = {
   safety:   ['Very Safe','Safe','Use Caution','High Risk'],
   internet: ['Excellent','Good','Fair','Poor'],
   visa:     ['Visa-free','Easy Access','Visa Required','Restricted'],
+  strength: ['Open & Sunny','Visa-Free','Accessible','Restricted'],
 };
 // ISO 4217 currency codes per country
 const CURRENCY = {
@@ -51,6 +58,35 @@ const CURRENCY = {
   MA:'MAD', MX:'MXN', NG:'NGN', NZ:'NZD', PE:'PEN', PH:'PHP',
   PK:'PKR', PT:'EUR', RU:'RUB', SG:'SGD', TH:'THB', TR:'TRY',
   US:'USD', VN:'VND', ZA:'ZAR',
+  MY:'MYR', KH:'KHR', LA:'LAK', MM:'MMK', LK:'LKR', NP:'NPR',
+  KE:'KES', TZ:'TZS', GH:'GHS', CL:'CLP', EC:'USD', CU:'CUP',
+  CZ:'CZK', PL:'PLN', HU:'HUF',
+};
+// Pre-computed best travel month per country (0-indexed January=0)
+// Scoring: month with the lowest weather rating across available data
+// Ties broken by earliest month in the year
+const BEST_MONTH_LABEL = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const BEST_TRAVEL_MONTH = {
+  AR:2, AU:9, CA:8, CN:3, CO:11, DE:5, EG:9, ES:4, FR:5, GB:6,
+  GR:5, ID:6, IN:9, IT:4, JP:3, MA:3, MX:9, NG:10, NZ:2, PE:5,
+  PK:9, PT:4, RU:5, TH:10, TR:4, US:8, VN:0, ZA:3,
+  AE:10, BR:6, KR:3, PH:1, SG:1,
+  MY:5, KH:10, LA:10, MM:10, LK:0, NP:9, KE:6, TZ:6, GH:10,
+  CL:11, EC:5, CU:1, CZ:4, PL:4, HU:4,
+};
+// Best range (2-month window centred on best month)
+const BEST_TRAVEL_RANGE = {
+  AR:'Feb-Apr', AU:'Sep-Nov', CA:'Aug-Oct', CN:'Mar-May',
+  CO:'Oct-Jan', DE:'May-Jul', EG:'Sep-Nov', ES:'Apr-Jun',
+  FR:'May-Jul', GB:'Jun-Aug', GR:'May-Jul', ID:'Jun-Sep',
+  IN:'Sep-Nov', IT:'Apr-Jun', JP:'Mar-May', MA:'Mar-May',
+  MX:'Sep-Nov', NG:'Oct-Dec', NZ:'Feb-Apr', PE:'Apr-Jun',
+  PK:'Sep-Nov', PT:'Apr-Jun', RU:'May-Jul', TH:'Oct-Dec',
+  TR:'Apr-Jun', US:'Aug-Oct', VN:'Dec-Feb', ZA:'Mar-May',
+  AE:'Oct-Dec', BR:'Jun-Aug', KR:'Mar-May', PH:'Feb-Apr', SG:'Feb-Mar',
+  MY:'May-Jul', KH:'Oct-Dec', LA:'Oct-Dec', MM:'Oct-Dec', LK:'Dec-Feb',
+  NP:'Sep-Nov', KE:'Jun-Sep', TZ:'Jun-Sep', GH:'Oct-Dec', CL:'Nov-Feb',
+  EC:'May-Jul', CU:'Feb-Apr', CZ:'Apr-Jun', PL:'Apr-Jun', HU:'Apr-Jun',
 };
 // Primary timezone(s) per country — first entry is the main zone, rest are regional
 const COUNTRY_TIMEZONES = {
@@ -82,6 +118,21 @@ const COUNTRY_TIMEZONES = {
   US:['UTC−5 to −10 (6 zones)','EST UTC−5 · New York, Miami','CST UTC−6 · Chicago, Dallas','MST UTC−7 · Denver, Phoenix','PST UTC−8 · LA, Seattle','HST UTC−10 · Hawaii'],
   VN:['UTC+7 (ICT — single national zone)'],
   ZA:['UTC+2 (SAST — no DST)'],
+  MY:['UTC+8 (MYT)'],
+  KH:['UTC+7 (ICT)'],
+  LA:['UTC+7 (ICT)'],
+  MM:['UTC+6:30 (MMT)'],
+  LK:['UTC+5:30 (SLST)'],
+  NP:['UTC+5:45 (NPT)'],
+  KE:['UTC+3 (EAT)'],
+  TZ:['UTC+3 (EAT)'],
+  GH:['UTC+0 (GMT)'],
+  CL:['UTC-3/-4 (CLT/CLST)'],
+  EC:['UTC-5 (ECT)'],
+  CU:['UTC-5/-4 (CST/CDT)'],
+  CZ:['UTC+1/+2 DST (CET)'],
+  PL:['UTC+1/+2 DST (CET)'],
+  HU:['UTC+1/+2 DST (CET)'],
   // New countries
   AE:['UTC+4 (GST — no DST)'],
   BR:['UTC−2 to −5 (multiple)','BRT UTC−3 · São Paulo, Rio de Janeiro','AMT UTC−4 · Manaus','ACT UTC−5 · Acre'],
@@ -89,6 +140,29 @@ const COUNTRY_TIMEZONES = {
   PH:['UTC+8 (PST — single national zone)'],
   SG:['UTC+8 (SGT — single national zone, no DST)'],
 };
+
+const SEASONAL_EVENTS = [
+  { id:'songkran', country:'TH', month:3, name:'Songkran', emoji:'💦', desc:'Thai New Year water festival. Street parties, water fights nationwide. Book 3 months ahead.' },
+  { id:'golden-week-jp', country:'JP', month:4, name:'Golden Week', emoji:'🎏', desc:'Japan national holiday week. Very crowded and expensive. Avoid if possible or book 6 months ahead.' },
+  { id:'carnival-br', country:'BR', month:1, name:'Carnival', emoji:'🎭', desc:'World-famous Rio Carnival. Samba, parades, street parties. Hotels book out a year ahead.' },
+  { id:'diwali', country:'IN', month:9, name:'Diwali', emoji:'🪔', desc:'Festival of Lights. October/November. Spectacular fireworks, sweets, family celebrations.' },
+  { id:'oktoberfest', country:'DE', month:8, name:'Oktoberfest', emoji:'🍺', desc:'Munich beer festival. Late Sept–early Oct. Book accommodation months ahead.' },
+  { id:'cherry-blossom', country:'JP', month:2, name:'Cherry Blossom', emoji:'🌸', desc:'Sakura season March–April. Peak varies by region. Extremely popular — book early.' },
+  { id:'lunar-new-year-cn', country:'CN', month:0, name:'Chinese New Year', emoji:'🧧', desc:'January/February. Domestic travel peaks. Many businesses close 1-2 weeks.' },
+  { id:'ramadan', country:'MA', month:2, name:'Ramadan', emoji:'🌙', desc:'Timing varies by lunar calendar. Daytime restaurant closures; vibrant night markets.' },
+  { id:'hajj-sa', country:'AE', month:5, name:'Peak Travel Season', emoji:'☀️', desc:'Nov–Mar ideal in UAE. Summer (Jun-Sep) extremely hot (45°C+). Avoid unless prepared.' },
+  { id:'monsoon-in', country:'IN', month:5, name:'Monsoon Season', emoji:'🌧', desc:'Jun-Sep heavy rainfall across subcontinent. Kerala and Goa flood. Northern plains extremely hot.' },
+  { id:'dry-season-th', country:'TH', month:10, name:'Best Season', emoji:'🌴', desc:'Nov–Apr dry season. Bangkok, Chiang Mai, islands all ideal. Peak Dec-Jan.' },
+  { id:'wet-season-id', country:'ID', month:10, name:'Dry Season Bali', emoji:'🏝', desc:'May–Sep dry season. Best for beaches and diving. Avoid Dec-Mar for Bali.' },
+  { id:'northern-lights', country:'NO', month:11, name:'Northern Lights', emoji:'🌌', desc:'Oct–Mar in Arctic Norway. Best visibility Dec-Feb above the Arctic Circle.' },
+  { id:'midnight-sun', country:'NO', month:5, name:'Midnight Sun', emoji:'☀️', desc:'June-July in northern Norway. 24-hour daylight above Arctic Circle.' },
+  { id:'inca-trail', country:'PE', month:5, name:'Inca Trail Season', emoji:'🏔', desc:'May–Sep dry season. Best trekking weather. Permit quota — book 6 months ahead.' },
+  { id:'safari-ke', country:'KE', month:6, name:'Great Migration', emoji:'🦁', desc:'Jul-Oct: wildebeest migration in Masai Mara. Peak game viewing season.' },
+  { id:'cherry-kr', country:'KR', month:3, name:'Cherry Blossom', emoji:'🌸', desc:'Late March to mid-April. Jeju Island, Gyeongbokgung Palace. Extremely popular.' },
+  { id:'rainy-vn', country:'VN', month:9, name:'North Vietnam Autumn', emoji:'🍂', desc:'Oct–Dec: best weather in Hanoi and Ha Long Bay. South best Nov-Apr.' },
+  { id:'august-eu', country:'FR', month:7, name:'Summer Peak', emoji:'☀️', desc:'July-August: peak tourist season. Beaches packed. Paris quieter as locals leave.' },
+  { id:'holi', country:'IN', month:2, name:'Holi', emoji:'🎨', desc:'Festival of Colors. March. Vibrant celebration across North India. Be prepared to get colorful.' },
+];
 
 // Budget traveler cost estimates (approximate USD) for cost-of-living tooltip
 // hostel=$/night, meal=$/meal, transport=$/day, coffee=$, beer=$
@@ -121,6 +195,21 @@ const COST_DETAILS = {
   US: { hostel:35, meal:14, transport:10, coffee:5, beer:7,  note:'NYC, SF, and LA rank among the most expensive globally' },
   VN: { hostel:7,  meal:2,  transport:2,  coffee:1, beer:1,  note:'Exceptional budget destination; street food is outstanding' },
   ZA: { hostel:15, meal:5,  transport:4,  coffee:2, beer:3,  note:'Cape Town pricier; well-developed tourist infrastructure' },
+  MY: { hostel:8,  meal:2,  transport:2,  coffee:1, beer:2,  note:'Kuala Lumpur affordable; beach resorts slightly pricier' },
+  KH: { hostel:6,  meal:2,  transport:2,  coffee:1, beer:1,  note:'One of SE Asia cheapest; Siem Reap slightly pricier for tourists' },
+  LA: { hostel:7,  meal:2,  transport:3,  coffee:1, beer:1,  note:'Very affordable; remote areas require extra transport budget' },
+  MM: { hostel:8,  meal:2,  transport:3,  coffee:1, beer:1,  note:'Check travel advisories; cash economy, limited ATMs outside cities' },
+  LK: { hostel:8,  meal:3,  transport:3,  coffee:1, beer:3,  note:'Beautiful island; tourism prices recovering post-2022 crisis' },
+  NP: { hostel:5,  meal:2,  transport:2,  coffee:1, beer:1,  note:'Trekking permits add cost; Kathmandu valley very affordable' },
+  KE: { hostel:12, meal:4,  transport:4,  coffee:2, beer:2,  note:'Safari lodges premium; Nairobi mid-range; coast affordable' },
+  TZ: { hostel:10, meal:4,  transport:4,  coffee:2, beer:2,  note:'Zanzibar pricier; mainland and northern circuit budget-friendly' },
+  GH: { hostel:10, meal:3,  transport:3,  coffee:2, beer:2,  note:'Accra most expensive; one of West Africa more accessible destinations' },
+  CL: { hostel:16, meal:7,  transport:5,  coffee:3, beer:3,  note:'Most expensive in South America; Santiago particularly pricey' },
+  EC: { hostel:10, meal:4,  transport:3,  coffee:2, beer:2,  note:'Uses USD; Galapagos very expensive; mainland excellent value' },
+  CU: { hostel:15, meal:6,  transport:3,  coffee:2, beer:1,  note:'Dual currency system; card payments limited; bring cash' },
+  CZ: { hostel:18, meal:7,  transport:5,  coffee:3, beer:3,  note:'Prague one of more expensive EU cities; regions much cheaper' },
+  PL: { hostel:15, meal:5,  transport:4,  coffee:3, beer:2,  note:'Warsaw and Krakow excellent value by EU standards' },
+  HU: { hostel:14, meal:5,  transport:4,  coffee:3, beer:2,  note:'Budapest one of Europe best value capitals; great thermal baths' },
   // New countries
   AE: { hostel:45, meal:12, transport:6,  coffee:5, beer:12, note:'Alcohol only in licensed venues; Dubai more expensive than Abu Dhabi' },
   BR: { hostel:12, meal:4,  transport:3,  coffee:2, beer:3,  note:'Rio and SP most expensive; Northeast coast very affordable; dynamic exchange rate' },
@@ -178,6 +267,21 @@ const VISA_DATA = {
   US: { GB:{t:'eta',d:90,c:21},  DE:{t:'eta',d:90,c:21},  AU:{t:'eta',d:90,c:21},  CA:{t:'free',d:180,c:0}, JP:{t:'eta',d:90,c:21},  NZ:{t:'eta',d:90,c:21},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'eta',d:90,c:21} },
   VN: { US:{t:'evisa',d:90,c:25},GB:{t:'evisa',d:90,c:25},DE:{t:'evisa',d:90,c:25},AU:{t:'evisa',d:90,c:25},CA:{t:'evisa',d:90,c:25},JP:{t:'evisa',d:90,c:25},NZ:{t:'evisa',d:90,c:25},ZA:{t:'evisa',d:90,c:25},IN:{t:'evisa',d:90,c:25},CN:{t:'evisa',d:90,c:25},BR:{t:'evisa',d:90,c:25} },
   ZA: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
+  MY: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  KH: { US:{t:'evisa',d:30,c:30}, GB:{t:'evisa',d:30,c:30}, DE:{t:'evisa',d:30,c:30}, AU:{t:'evisa',d:30,c:30}, CA:{t:'evisa',d:30,c:30}, JP:{t:'free',d:30,c:0}, NZ:{t:'evisa',d:30,c:30}, ZA:{t:'evisa',d:30,c:30}, IN:{t:'evisa',d:30,c:30}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:30,c:30}, IL:{t:'evisa',d:30,c:30} },
+  LA: { US:{t:'voa',d:30,c:35}, GB:{t:'voa',d:30,c:35}, DE:{t:'voa',d:30,c:35}, AU:{t:'voa',d:30,c:35}, CA:{t:'voa',d:30,c:35}, JP:{t:'free',d:15,c:0}, NZ:{t:'voa',d:30,c:35}, ZA:{t:'voa',d:30,c:35}, IN:{t:'voa',d:30,c:35}, CN:{t:'free',d:15,c:0}, BR:{t:'voa',d:30,c:35}, IL:{t:'voa',d:30,c:35} },
+  MM: { US:{t:'evisa',d:28,c:50}, GB:{t:'evisa',d:28,c:50}, DE:{t:'evisa',d:28,c:50}, AU:{t:'evisa',d:28,c:50}, CA:{t:'evisa',d:28,c:50}, JP:{t:'free',d:30,c:0}, NZ:{t:'evisa',d:28,c:50}, ZA:{t:'evisa',d:28,c:50}, IN:{t:'evisa',d:28,c:50}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:28,c:50}, IL:{t:'evisa',d:28,c:50} },
+  LK: { US:{t:'evisa',d:30,c:20}, GB:{t:'evisa',d:30,c:20}, DE:{t:'evisa',d:30,c:20}, AU:{t:'evisa',d:30,c:20}, CA:{t:'evisa',d:30,c:20}, JP:{t:'evisa',d:30,c:20}, NZ:{t:'evisa',d:30,c:20}, ZA:{t:'evisa',d:30,c:20}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:30,c:20}, IL:{t:'evisa',d:30,c:20} },
+  NP: { US:{t:'voa',d:90,c:30}, GB:{t:'voa',d:90,c:30}, DE:{t:'voa',d:90,c:30}, AU:{t:'voa',d:90,c:30}, CA:{t:'voa',d:90,c:30}, JP:{t:'voa',d:90,c:30}, NZ:{t:'voa',d:90,c:30}, ZA:{t:'voa',d:90,c:30}, IN:{t:'free',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'voa',d:90,c:30}, IL:{t:'voa',d:90,c:30} },
+  KE: { US:{t:'evisa',d:90,c:52}, GB:{t:'evisa',d:90,c:52}, DE:{t:'evisa',d:90,c:52}, AU:{t:'evisa',d:90,c:52}, CA:{t:'evisa',d:90,c:52}, JP:{t:'evisa',d:90,c:52}, NZ:{t:'evisa',d:90,c:52}, ZA:{t:'free',d:90,c:0}, IN:{t:'evisa',d:90,c:52}, CN:{t:'evisa',d:90,c:52}, BR:{t:'evisa',d:90,c:52}, IL:{t:'evisa',d:90,c:52} },
+  TZ: { US:{t:'evisa',d:90,c:50}, GB:{t:'evisa',d:90,c:50}, DE:{t:'evisa',d:90,c:50}, AU:{t:'evisa',d:90,c:50}, CA:{t:'evisa',d:90,c:50}, JP:{t:'evisa',d:90,c:50}, NZ:{t:'evisa',d:90,c:50}, ZA:{t:'free',d:90,c:0}, IN:{t:'evisa',d:90,c:50}, CN:{t:'evisa',d:90,c:50}, BR:{t:'evisa',d:90,c:50}, IL:{t:'evisa',d:90,c:50} },
+  GH: { US:{t:'req',d:0,c:60}, GB:{t:'req',d:0,c:60}, DE:{t:'req',d:0,c:60}, AU:{t:'req',d:0,c:60}, CA:{t:'req',d:0,c:60}, JP:{t:'req',d:0,c:60}, NZ:{t:'req',d:0,c:60}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:60}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:60}, IL:{t:'req',d:0,c:60} },
+  CL: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:90,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  EC: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:90,c:0}, CN:{t:'free',d:90,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  CU: { US:{t:'req',d:0,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'req',d:0,c:0} },
+  CZ: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  PL: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  HU: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
   // New destination countries
   AE: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  ZA:{t:'free',d:30,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
   BR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'req',d:0,c:0},   JP:{t:'free',d:90,c:0},  NZ:{t:'req',d:0,c:0},   ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:90,c:0} },
@@ -202,10 +306,12 @@ const LAYERS = {
   crowds:   { name:'Overtourism',      emoji:'👁', color:'#8878C8', levels:['Uncrowded','Busy','Crowded','Saturated'] },
   disaster: { name:'Natural Disaster', emoji:'🌋', color:'#C06E3E', levels:['Low Risk','Some Risk','Moderate','High Risk'] },
   visa:     { name:'Visa Access',       emoji:'🛂', color:'#6898C0', levels:['Visa-free','Easy Access','Visa Required','Restricted'] },
+  strength: { name:'Passport Strength', emoji:'✈', color:'#22d3ee', levels:['Open & Sunny','Visa-Free','Accessible','Restricted'] },
   lgbtq:    { name:'LGBTQ+',           emoji:'🏳️‍🌈', color:'#D055A8', levels:['Welcoming','Accepted','Hostile','Dangerous'] },
   beaches:  { name:'Public Beaches',   emoji:'🏖', color:'#2EC4B6', levels:['Excellent','Good','Limited','Poor'] },
   vaccines: { name:'Vaccines',         emoji:'💉', color:'#7888D8', levels:['None','Routine','Required','Extensive'] },
   road:     { name:'Road Safety',      emoji:'🛣', color:'#3D8B6E', levels:['Low Risk','Some Hazards','Caution','Dangerous'] },
+  events:   { name:'Seasonal Events',  emoji:'🎪', color:'#f59e0b', levels:['Jan','Feb','Mar','All'] },
 };
 
 const DESCS = {

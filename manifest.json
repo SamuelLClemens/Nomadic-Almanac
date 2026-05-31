@@ -1,0 +1,18 @@
+{
+  "name": "The Nomadic Almanac",
+  "short_name": "Nomadic",
+  "description": "World travel intelligence — weather, safety, cost, visa by month",
+  "start_url": "/Nomadic-Almanac/",
+  "scope": "/Nomadic-Almanac/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0e0b06",
+  "theme_color": "#0e0b06",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["travel", "maps", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
+}

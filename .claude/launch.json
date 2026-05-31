@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "nomadic-almanac",
+      "runtimeExecutable": "/usr/bin/python3",
+      "runtimeArgs": ["/Users/zim/Desktop/Claude Code/serve.py"],
+      "port": 7433
+    }
+  ]
+}
