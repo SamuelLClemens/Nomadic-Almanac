@@ -2211,9 +2211,34 @@ function dismissOverlay() {
   if (lo) { lo.classList.add('fade-out'); setTimeout(() => { if (lo.parentNode) lo.remove(); }, 520); }
 }
 
+// ─── Boot diagnostic overlay ──────────────────────────────────────────────────
+// Shows a visible error panel in the centre of the screen whenever the boot
+// crashes.  Dismisses itself after 12 s so it never permanently blocks the UI.
+function showBootError(msg) {
+  dismissOverlay();
+  const d = document.createElement('div');
+  d.id = 'boot-error';
+  d.style.cssText = [
+    'position:fixed','top:50%','left:50%','transform:translate(-50%,-50%)',
+    'z-index:9990','background:#1a0505','border:2px solid #c62828',
+    'border-radius:10px','padding:24px 28px','max-width:420px','width:90vw',
+    "font-family:'IBM Plex Mono',monospace",'color:#e8d5a3','text-align:center',
+    'box-shadow:0 16px 48px rgba(0,0,0,.9)',
+  ].join(';');
+  d.innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:#ef4444;margin-bottom:10px">⚠ Startup Error</div>
+    <div style="font-size:10px;line-height:1.6;color:#c8a0a0;word-break:break-word">${msg}</div>
+    <div style="font-size:9px;color:#7a6060;margin-top:12px">Press <strong>Ctrl+Shift+R</strong> (Win/Linux) or <strong>Cmd+Shift+R</strong> (Mac) for a hard refresh</div>`;
+  document.body.appendChild(d);
+  setTimeout(() => { if (d.parentNode) d.remove(); }, 12000);
+}
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
   try {
+
+  // Verify Leaflet loaded — most common silent failure point
+  if (typeof L === 'undefined') throw new Error('Leaflet did not load. Check network / ad-blocker.');
 
   loadState();        // restore month, layers, nationality from localStorage
   initURLState();     // URL hash overrides month + layer if present
@@ -2241,16 +2266,7 @@ function dismissOverlay() {
   updateBestPanel();
 
   } catch (err) {
-    // Surface any boot error visibly so it can be diagnosed.
     console.error('[Nomadic Almanac] Boot error:', err);
-    const st = document.getElementById('map-status');
-    if (st) {
-      st.textContent = '⚠ Boot error: ' + err.message + ' — try a hard refresh (Ctrl+Shift+R)';
-      st.style.display = 'block';
-      st.style.left    = '14px';
-      st.style.bottom  = '18px';
-      st.style.zIndex  = '9998';
-    }
-    dismissOverlay();  // always remove overlay even on failure
+    showBootError(err.message || String(err));
   }
 })();
