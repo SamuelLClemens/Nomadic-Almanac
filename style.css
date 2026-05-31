@@ -463,6 +463,12 @@ html, body {
 .cat-btn:hover { background: rgba(201,168,76,0.12); border-color: var(--b2); color: var(--gold); }
 .cat-btn.has-active { background: rgba(201,168,76,0.10); border-color: var(--b2); color: var(--sand); font-weight:700; }
 
+/* Dropdown panels for category buttons and transport.
+ * Display is toggled via inline style (display:flex / display:none).
+ * The CSS baseline of display:none ensures consistent initial state even if
+ * the inline style is absent, and prevents flash-of-visible on load. */
+.cat-dropdown { display: none; }
+
 .more-dropdown-label {
   font-size: 7px; font-weight: 700; letter-spacing: 1.6px;
   color: rgba(201,168,76,0.4); text-transform: uppercase;

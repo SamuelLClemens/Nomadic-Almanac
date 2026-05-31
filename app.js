@@ -71,8 +71,14 @@ const TRANSPORT_LAYERS = {
   },
   wildfires: {
     label: '🔥 Wildfires',
-    url: 'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/2e43e6382e5cd7b5e3adfd5e16e1c23a/?LAYERS=fires_viirs_24&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=true&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&STYLES=&BBOX={bbox-epsg-3857}',
-    opts: { maxZoom: 8, opacity: 0.75, tileSize: 256, attribution: 'FIRMS/NASA near real-time fire data' },
+    // NASA FIRMS WMS endpoint — must use L.tileLayer.wms(), NOT L.tileLayer().
+    // L.tileLayer() does not substitute {bbox-epsg-3857}; it would send a literal
+    // placeholder to the server, returning empty tiles. Flag `wms:true` triggers
+    // the correct L.tileLayer.wms() branch in buildTransportButtons().
+    url: 'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/2e43e6382e5cd7b5e3adfd5e16e1c23a/',
+    wms: true,
+    opts: { layers: 'fires_viirs_24', format: 'image/png', transparent: true,
+            version: '1.3.0', opacity: 0.75, attribution: 'FIRMS/NASA near real-time fire data' },
     layer: null, active: false,
   },
   natparks: {
@@ -134,11 +140,14 @@ function initMap() {
 
   // Prevent zooming out past the point where the full world is visible.
   // Recalculates on every resize so it works correctly across screen sizes.
+  // Deferred via map.whenReady() so Leaflet has performed a layout pass and
+  // map.getSize() returns real pixel dimensions (not {x:0,y:0}).
   function lockWorldMinZoom() {
     const worldBounds = L.latLngBounds([-75, -180], [83, 180]);
-    map.setMinZoom(map.getBoundsZoom(worldBounds));
+    const z = map.getBoundsZoom(worldBounds);
+    if (z > 0) map.setMinZoom(z);   // guard: ignore degenerate zero-size result
   }
-  lockWorldMinZoom();
+  map.whenReady(lockWorldMinZoom);
   map.on('resize', lockWorldMinZoom);
 
   // climatePane sits BELOW all choropleth panes — climate-zone polygons are
@@ -284,7 +293,9 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 const CAT_GROUPS = [
   { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster'] },
   { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids'] },
-  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds','parks'] },
+  // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
+  // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
+  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
   { id:'overlays',      label:'Overlays',        emoji:'🗂', keys:[] },
 ];
 
@@ -500,7 +511,12 @@ function buildTransportButtons() {
       def.active = !def.active;
       btn.classList.toggle('on', def.active);
       if (def.active) {
-        if (!def.layer) def.layer = L.tileLayer(def.url, { pane: 'transportPane', ...def.opts });
+        if (!def.layer) {
+          // WMS layers need L.tileLayer.wms(); standard tile layers use L.tileLayer().
+          def.layer = def.wms
+            ? L.tileLayer.wms(def.url, { pane: 'transportPane', ...def.opts })
+            : L.tileLayer(def.url,     { pane: 'transportPane', ...def.opts });
+        }
         def.layer.addTo(map);
         // Guidance for maritime (only useful when zoomed in to ports)
         if (key === 'maritime') {
@@ -1456,7 +1472,12 @@ function loadState() {
     const m = localStorage.getItem('na_month');
     if (m !== null) { const n = parseInt(m); if (!isNaN(n) && n >= 0 && n <= 11) activeMonth = n; }
     const l = localStorage.getItem('na_layers');
-    if (l) { const arr = JSON.parse(l); if (Array.isArray(arr) && arr.length) activeLayers = new Set(arr); }
+    if (l) {
+      const arr = JSON.parse(l);
+      // Discard any stale keys that no longer exist in LAYERS (e.g. after a rename/removal).
+      const valid = Array.isArray(arr) ? arr.filter(k => typeof LAYERS !== 'undefined' && k in LAYERS) : [];
+      if (valid.length) activeLayers = new Set(valid);
+    }
     const nat = localStorage.getItem('na_nationality');
     if (nat) selectedNationality = nat;
   } catch (_) {}
@@ -2231,8 +2252,10 @@ function initNationalitySelector() {
     }
   }
 
-  // Re-check whenever the visa or strength layer button is toggled
-  document.getElementById('layers').addEventListener('click', e => {
+  // Re-check whenever the visa or strength layer button is toggled.
+  // Listen on document because the visa button lives in #visa-btn-wrap (outside #layers)
+  // after initVisaPassportGroup() moves it at boot.
+  document.addEventListener('click', e => {
     const btn = e.target.closest('.lb');
     if (btn && (btn.dataset.key === 'visa' || btn.dataset.key === 'strength')) setTimeout(syncPassportState, 10);
   });
@@ -2771,7 +2794,7 @@ function showBootError(msg) {
   initMap();
   buildMonthSelector();
   buildLayerButtons();
-  syncMoreButtonState();  // highlight More button if a secondary layer was restored
+  syncCatButtons();       // highlight category buttons for any layers restored from localStorage
   buildTransportButtons();
   updateLegend();
   updateBadge();
