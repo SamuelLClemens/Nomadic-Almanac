@@ -647,13 +647,20 @@ function renderPoliticalLayers() {
 async function initChoropleth() {
   let data;
   try {
-    const res = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
+    // Abort after 15 s so a stalled CDN response never blocks the rest of boot.
+    const ctrl    = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch(
+      'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
+      { signal: ctrl.signal }
+    );
+    clearTimeout(timeout);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
   } catch (e) {
     console.warn('Country GeoJSON unavailable — map will render without choropleth:', e.message);
     const st = document.getElementById('map-status');
-    if (st) { st.textContent = '⚠ Country data unavailable. Check your connection.'; st.style.display = 'block'; }
+    if (st) { st.textContent = '⚠ Country data unavailable — check your connection and reload.'; st.style.display = 'block'; }
     return;
   }
   _geoData = data;  // cache for border-lines layer
@@ -2054,6 +2061,13 @@ function updateBestPanel() {
   panel.style.display = 'block';
 }
 
+// ─── Loading overlay helpers ──────────────────────────────────────────────────
+function dismissOverlay() {
+  clearTimeout(window._loTimer);   // cancel safety timer from index.html
+  const lo = document.getElementById('loading-overlay');
+  if (lo) { lo.classList.add('fade-out'); setTimeout(() => { if (lo.parentNode) lo.remove(); }, 520); }
+}
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
   loadState();        // restore month, layers, nationality from localStorage
@@ -2064,6 +2078,11 @@ function updateBestPanel() {
   buildTransportButtons();
   updateLegend();
   updateBadge();
+
+  // Dismiss overlay as soon as the map container + controls are ready.
+  // Tile basemap appears immediately; choropleth loads in the background below.
+  dismissOverlay();
+
   await initChoropleth();
   initPoliticalLayers();
   initClimateZones();
@@ -2074,8 +2093,4 @@ function updateBestPanel() {
   initSearch();
   initNationalitySelector();
   updateBestPanel();
-
-  // Dismiss the loading overlay once the app is interactive
-  const lo = document.getElementById('loading-overlay');
-  if (lo) { lo.classList.add('fade-out'); setTimeout(() => lo.remove(), 520); }
 })();

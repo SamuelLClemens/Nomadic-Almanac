@@ -17,7 +17,8 @@
 </head>
 <body>
 
-<!-- Loading overlay — dismissed by JS once the map is interactive -->
+<!-- Loading overlay — dismissed by JS as soon as the map is ready.
+     Safety timer guarantees it never blocks the page for more than 6 s. -->
 <div id="loading-overlay">
   <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style="width:64px;height:64px;animation:lo-spin 8s linear infinite">
     <circle cx="28" cy="28" r="25" fill="#100c05" stroke="#c9a84c" stroke-width="1.6"/>
@@ -31,6 +32,17 @@
   <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:#e8d5a3;letter-spacing:4px;margin-top:18px">NOMADIC ALMANAC</div>
   <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#7a8a5a;letter-spacing:2px;margin-top:6px">LOADING WORLD DATA&hellip;</div>
 </div>
+<script>
+  // Hard safety valve: dismiss overlay after 6 s regardless of JS/network state.
+  // app.js will cancel this timer as soon as the map is ready.
+  window._loTimer = setTimeout(function() {
+    var lo = document.getElementById('loading-overlay');
+    if (!lo) return;
+    lo.style.transition = 'opacity 0.5s';
+    lo.style.opacity    = '0';
+    setTimeout(function() { if (lo.parentNode) lo.parentNode.removeChild(lo); }, 520);
+  }, 6000);
+</script>
 
 <!-- ─── Top Bar ──────────────────────────────────────────────────────────────── -->
 <div id="topbar">
