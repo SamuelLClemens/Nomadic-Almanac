@@ -129,11 +129,7 @@
 <!-- Map -->
 <div id="map"></div>
 
-<!-- Best destinations panel -->
-<div id="best-panel" style="display:none">
-  <div id="best-panel-header">Best This Month</div>
-  <ol id="best-panel-list"></ol>
-</div>
+<!-- Best destinations panel now lives inside the legend — see #best-toggle -->
 
 <!-- Loading status indicator (shown during async GeoJSON fetches) -->
 <div id="map-status"></div>
@@ -148,10 +144,16 @@
   <div class="ttb" id="tt-body"></div>
 </div>
 
-<!-- Legend -->
+<!-- Legend + Best This Month widget (integrated) -->
 <div id="legend">
   <h4 id="legend-title">FIELD GUIDE</h4>
   <div id="legend-body"></div>
+  <!-- Best This Month — collapsed by default, expands on click -->
+  <div id="best-toggle">
+    <span id="best-toggle-label">Best This Month</span>
+    <span id="best-toggle-arrow">▾</span>
+  </div>
+  <ol id="best-panel-list"></ol>
 </div>
 
 <script src="lib/leaflet.js"></script>
