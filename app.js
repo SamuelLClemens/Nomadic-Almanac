@@ -354,8 +354,8 @@ function buildLayerButtons() {
   const moreBtn = document.createElement('button');
   moreBtn.id = 'btn-more-layers';
   moreBtn.innerHTML = 'More ▾';
+  container.appendChild(moreBtn);  // must be in DOM before syncMoreButtonState reads it
   syncMoreButtonState();
-  container.appendChild(moreBtn);
 
   // Dropdown is attached to <body> so it isn't clipped by the scrollable row.
   const dropdown = document.createElement('div');
@@ -415,12 +415,23 @@ function buildLayerButtons() {
     }
   });
 
-  document.addEventListener('click', e => {
-    if (!dropdown.contains(e.target) && e.target !== moreBtn) {
-      dropdown.classList.remove('open');
-      moreBtn.innerHTML = 'More ▾';
-    }
-  });
+  // Bug fixes:
+  // 1. Use moreBtn.contains() so clicking a child <span> inside the button
+  //    does not accidentally dismiss the dropdown.
+  // 2. Guard with a flag so the listener is not registered more than once
+  //    if buildLayerButtons() were ever called again.
+  if (!buildLayerButtons._closeListenerAdded) {
+    buildLayerButtons._closeListenerAdded = true;
+    document.addEventListener('click', e => {
+      const dd  = document.getElementById('layers-more-dropdown');
+      const btn = document.getElementById('btn-more-layers');
+      if (!dd || !btn) return;
+      if (!dd.contains(e.target) && !btn.contains(e.target)) {
+        dd.classList.remove('open');
+        btn.innerHTML = 'More ▾';
+      }
+    });
+  }
 }
 
 // ─── Transport Layer Buttons ──────────────────────────────────────────────────
