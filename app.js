@@ -68,7 +68,7 @@ const TRANSPORT_LAYERS = {
   },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -222,6 +222,7 @@ function setMonth(i) {
   selectedMonths = new Set([i]);
   syncMonthButtons();
   refresh();
+  updateURLState();
 }
 
 function syncMonthButtons() {
@@ -269,6 +270,7 @@ function buildLayerButtons() {
       else activeLayers.add(key);
       btn.classList.toggle('on', activeLayers.has(key));
       refresh();
+      updateURLState();
     });
 
     container.appendChild(btn);
@@ -344,7 +346,10 @@ function getCountryRating(iso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
-    const arr = d[lk];
+    if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[iso2]     != null) ? CD_COST[iso2]     : null;
+    if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[iso2]   != null) ? CD_SAFETY[iso2]   : null;
+    if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) ? CD_INTERNET[iso2] : null;
+    const arr = d ? d[lk] : null;
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
   if (ratings.length === 0) return null;
@@ -365,6 +370,9 @@ function getAdmin1Rating(subCode, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
+    if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[parentIso2]     != null) ? CD_COST[parentIso2]     : null;
+    if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
+    if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
@@ -385,13 +393,13 @@ function getCountryStyle(iso2, hover) {
   // Country/admin-1 fills render above them at choroplethPane (z-index 300).
   // No suppression needed — both layers are always visible simultaneously.
   const r = getCountryRating(iso2);
-  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
+  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.25 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
     color: hover ? 'rgba(232,213,163,0.65)' : 'rgba(255,255,255,0.30)',
-    weight: hover ? 1.5 : 0.65,
+    weight: hover ? 2.5 : 0.65,
   };
 }
 
@@ -405,13 +413,13 @@ function getAdmin1Style(iso2, subCode, hover) {
   // Climate zones are in climatePane (z-290), admin-1 fill renders above them.
   // No suppression — admin-1 and climate zone fills show simultaneously.
   const r = getAdmin1Rating(subCode, iso2);
-  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
+  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.20 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
     color: hover ? 'rgba(232,213,163,0.40)' : 'rgba(255,255,255,0.20)',
-    weight: hover ? 0.9 : 0.35,
+    weight: hover ? 2.5 : 0.35,
   };
 }
 
@@ -438,15 +446,15 @@ function getAdmin2Style(shapeID, parentAdmin1Code, iso2, hover) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.05)', weight: 0.15 };
   }
   const r = getAdmin2Rating(shapeID, parentAdmin1Code, iso2);
-  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.82 : 0.48) : 0;
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
+  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.16 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
     // County borders are lighter/thinner than province borders (0.35/0.9) so
     // province lines remain visually dominant at intermediate zoom levels.
     color: hover ? 'rgba(232,213,163,0.30)' : 'rgba(255,255,255,0.12)',
-    weight: hover ? 0.7 : 0.22,
+    weight: hover ? 2.5 : 0.22,
   };
 }
 
@@ -778,11 +786,15 @@ async function loadAdmin2Country(iso2) {
   const iso3 = ISO2_TO_ISO3[iso2];
   if (!iso3) return;
 
+  const statusEl = document.getElementById('map-status');
+  if (statusEl) { statusEl.textContent = 'Loading county data…'; statusEl.style.display = 'block'; }
+
   try {
     const res = await fetch(`data/admin2/${iso3}_ADM2_simplified.geojson`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const geojson = await res.json();
     _admin2Cache[iso2] = geojson;
+    if (statusEl) statusEl.style.display = 'none';
 
     _admin2Layers[iso2] = L.geoJSON(geojson, {
       pane: 'admin2Pane',
@@ -819,6 +831,7 @@ async function loadAdmin2Country(iso2) {
   } catch (e) {
     console.warn(`Admin-2 load failed for ${iso2} (${iso3}):`, e.message);
     delete _admin2Cache[iso2];  // allow retry on next zoom event
+    if (statusEl) statusEl.style.display = 'none';
   }
 }
 
@@ -1160,13 +1173,22 @@ function buildLayerRows(dataObj, context) {
   let html = '';
   activeLayers.forEach(key => {
     const layer = LAYERS[key];
-    const arr = dataObj[key];
-    if (!arr) return;
-    const v = getRating(arr);
+    let arr = dataObj[key];
+    // Scalar layers: look up CD_COST / CD_SAFETY / CD_INTERNET using iso2 from context
+    let scalarVal = null;
+    if (!arr && context && context.iso2) {
+      if (key === 'cost'     && typeof CD_COST     !== 'undefined') scalarVal = CD_COST[context.iso2]     ?? null;
+      if (key === 'safety'   && typeof CD_SAFETY   !== 'undefined') scalarVal = CD_SAFETY[context.iso2]   ?? null;
+      if (key === 'internet' && typeof CD_INTERNET !== 'undefined') scalarVal = CD_INTERNET[context.iso2] ?? null;
+    }
+    if (!arr && scalarVal === null) return;
+    const v = arr ? getRating(arr) : scalarVal;
     if (v === null) return;
     const vc = Math.min(3, Math.max(0, v));
     const color = RC[vc];
-    const label = layer.levels[vc];
+    // Prefer LAYER_LABELS (from data.js) for display text; fall back to layer.levels
+    const lyrLabels = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) || (layer && layer.levels) || ['Excellent','Acceptable','Challenging','Harsh'];
+    const label = lyrLabels[vc] || (layer && layer.levels && layer.levels[vc]) || vc;
     const desc = DESCS[key] ? DESCS[key][vc] : '';
     // Append country-specific crime context when the Safety layer is active.
     const crimeNote = (key === 'safety' && context && context.iso2 && SAFETY_NOTES && SAFETY_NOTES[context.iso2])
@@ -1179,7 +1201,7 @@ function buildLayerRows(dataObj, context) {
         <div class="ttrat" style="color:${color}">${label}</div>
         <div class="ttdesc">${desc}</div>
         ${crimeNote}
-        ${buildSparkline(arr)}
+        ${arr ? buildSparkline(arr) : ''}
       </div>
     </div>`;
   });
@@ -1291,6 +1313,10 @@ function updateLegend() {
         <span class="llabel">${lbl}</span>
       </div>`;
     });
+    html += `<div class="lr">
+        <div class="lsw" style="background:${RC_NODATA};opacity:0.7"></div>
+        <span class="llabel" style="color:#8a8a8a">No data</span>
+      </div>`;
     html += `</div>`;
   });
 
@@ -1372,6 +1398,7 @@ function refresh() {
   renderBorderMarkers();
   renderBeachMarkers();
   renderPoliticalLayers();
+  updateBestPanel();
 }
 
 // Re-render city and border markers on zoom (size and density changes)
@@ -1615,8 +1642,123 @@ function initTransportClickHandlers() {
   });
 }
 
+// ─── URL Deep Linking ─────────────────────────────────────────────────────────
+function initURLState() {
+  // Read initial state from URL hash e.g. #month=6&layer=weather
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const m = parseInt(params.get('month'));
+  if (!isNaN(m) && m >= 0 && m <= 11) setMonth(m);
+  const lyr = params.get('layer');
+  if (lyr) { activeLayers.clear(); activeLayers.add(lyr); }
+}
+
+function updateURLState() {
+  const lyr = [...activeLayers][0] || 'weather';
+  const hash = 'month=' + activeMonth + '&layer=' + lyr;
+  history.replaceState(null, '', '#' + hash);
+}
+
+// ─── Country Search ───────────────────────────────────────────────────────────
+// Country name → ISO-2 lookup for search
+const COUNTRY_NAMES = {
+  AR:'Argentina', AU:'Australia', CA:'Canada', CN:'China', CO:'Colombia',
+  DE:'Germany', EG:'Egypt', ES:'Spain', FR:'France', GB:'United Kingdom',
+  GR:'Greece', ID:'Indonesia', IN:'India', IT:'Italy', JP:'Japan',
+  MA:'Morocco', MX:'Mexico', NG:'Nigeria', NZ:'New Zealand', PE:'Peru',
+  PK:'Pakistan', PT:'Portugal', RU:'Russia', TH:'Thailand', TR:'Turkey',
+  US:'United States', VN:'Vietnam', ZA:'South Africa',
+};
+// Approximate centres for fly-to
+const COUNTRY_CENTERS = {
+  AR:[-38,-65], AU:[-25,134], CA:[60,-96], CN:[35,105], CO:[4,-74],
+  DE:[51,10], EG:[27,30], ES:[40,-4], FR:[46,2], GB:[54,-2],
+  GR:[39,22], ID:[-5,120], IN:[21,79], IT:[43,12], JP:[37,138],
+  MA:[32,-5], MX:[24,-102], NG:[9,8], NZ:[-41,174], PE:[-10,-76],
+  PK:[30,70], PT:[39,-8], RU:[62,99], TH:[15,101], TR:[39,35],
+  US:[38,-97], VN:[16,108], ZA:[-29,25],
+};
+
+function initSearch() {
+  const input  = document.getElementById('country-search');
+  const list   = document.getElementById('search-results');
+  if (!input || !list) return;
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    list.innerHTML = '';
+    if (q.length < 1) { list.style.display = 'none'; return; }
+    const matches = Object.entries(COUNTRY_NAMES)
+      .filter(([iso, name]) => name.toLowerCase().startsWith(q) || iso.toLowerCase() === q)
+      .slice(0, 8);
+    if (!matches.length) { list.style.display = 'none'; return; }
+    matches.forEach(([iso, name]) => {
+      const item = document.createElement('div');
+      item.className = 'sr-item';
+      item.textContent = name;
+      item.addEventListener('click', () => {
+        input.value = '';
+        list.style.display = 'none';
+        const c = COUNTRY_CENTERS[iso];
+        if (c && map) map.flyTo(c, 5, { duration: 1.2 });
+      });
+      list.appendChild(item);
+    });
+    list.style.display = 'block';
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !list.contains(e.target)) {
+      list.style.display = 'none';
+    }
+  });
+}
+
+// ─── Best Destinations Panel ──────────────────────────────────────────────────
+function updateBestPanel() {
+  const panel = document.getElementById('best-panel');
+  const ol    = document.getElementById('best-panel-list');
+  if (!panel || !ol) return;
+
+  // Only show when a geographic layer is active
+  const hasGeo = [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk));
+  if (!hasGeo || activeLayers.size === 0) { panel.style.display = 'none'; return; }
+
+  // Collect all country ratings for current state
+  const ranked = Object.keys(CD_COST && CD_SAFETY ? {...CD_COST, ...CD_SAFETY} : {})
+    .concat(Object.keys(CD || {}))
+    .filter((v, i, a) => a.indexOf(v) === i)  // unique iso2 codes
+    .map(iso2 => ({ iso2, r: getCountryRating(iso2) }))
+    .filter(x => x.r !== null)
+    .sort((a, b) => a.r - b.r)
+    .slice(0, 7);
+
+  if (!ranked.length) { panel.style.display = 'none'; return; }
+
+  ol.innerHTML = '';
+  ranked.forEach(({ iso2, r }) => {
+    const li = document.createElement('li');
+    const swatch = document.createElement('span');
+    swatch.className = 'best-swatch';
+    swatch.style.background = RC[Math.min(3, Math.max(0, r))];
+    const name = document.createTextNode(
+      (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[iso2]) || iso2
+    );
+    li.appendChild(swatch);
+    li.appendChild(name);
+    li.style.cursor = 'pointer';
+    li.addEventListener('click', () => {
+      const c = typeof COUNTRY_CENTERS !== 'undefined' ? COUNTRY_CENTERS[iso2] : null;
+      if (c && map) map.flyTo(c, 5, { duration: 1.2 });
+    });
+    ol.appendChild(li);
+  });
+
+  panel.style.display = 'block';
+}
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
+  initURLState();
   initMap();
   buildMonthSelector();
   buildLayerButtons();
@@ -1630,4 +1772,6 @@ function initTransportClickHandlers() {
   map.on('zoom', onZoom);
   initTransportClickHandlers();
   initAdmin1Choropleth();
+  initSearch();
+  updateBestPanel();
 })();
