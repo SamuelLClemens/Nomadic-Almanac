@@ -18,7 +18,9 @@ let borderLinesLayer     = null;
 let territoryLayerGroup  = null;
 let _geoData       = null;   // cached choropleth GeoJSON for border-lines reuse
 let countryNames   = {};
-let tooltipVisible = false;
+let tooltipVisible   = false;
+let _featureClicked  = false;   // prevents map-click from dismissing tooltip when a feature was just clicked
+let _admin1Visible   = false;   // tracks whether admin-1 layer is currently on the map (zoom ≥ 5)
 
 // Admin-1 sub-national choropleth
 let _admin1GeoData    = null;
@@ -382,8 +384,8 @@ function getAdmin1Rating(subCode, parentIso2) {
 
 // ─── Style ────────────────────────────────────────────────────────────────────
 function getCountryStyle(iso2, hover) {
-  // Hide countries that are fully represented in the admin-1 layer
-  if (_coveredByAdmin1.has(iso2)) {
+  // Hide countries represented in the admin-1 layer ONLY when admin-1 is visible
+  if (_admin1Visible && _coveredByAdmin1.has(iso2)) {
     return { fillColor: 'transparent', fillOpacity: 0, color: 'transparent', weight: 0 };
   }
   if (activeLayers.size === 0) {
@@ -464,11 +466,10 @@ function makeMarkerIcon(city, zoom) {
   const n = la.length;
   if (n === 0) return null;
 
-  // Radius: clearly readable dots that grow with zoom.
-  // Larger base so city markers are visible at world / continental zoom.
-  const baseR = n > 1 ? 9 : 8;
-  const zScale = zoom >= 8 ? 1.5 : zoom >= 6 ? 1.2 : 1.0;
-  const SZ = Math.max(6, Math.round(baseR * zScale));  // min 6 → 12 px diam
+  // Dots shrink as the user zooms in — a city fills a screen at zoom 12+ so
+  // a large dot would obscure it.  At world zoom dots are larger so they are
+  // easy to find and click.  Minimum radius 4 to remain clickable at all times.
+  const SZ = zoom >= 12 ? 4 : zoom >= 10 ? 5 : zoom >= 8 ? 6 : zoom >= 6 ? 7 : 8;
   const D = SZ * 2;
   const lw = SZ <= 4 ? 1 : 1.5;  // thinner stroke on small markers
 
@@ -601,12 +602,15 @@ function initPoliticalLayers() {
       const p = feature.properties;
       layer.on('mouseover', () => {
         layer.setStyle(getTerritoryStyle(p, true));
-        showTooltip(buildTerritoryTooltip(p.id, p.name, p.type, p.adminIso));
       });
-      layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
       layer.on('mouseout', () => {
         layer.setStyle(getTerritoryStyle(p, false));
-        hideTooltip();
+      });
+      layer.on('click', e => {
+        _featureClicked = true;
+        _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+        showTooltip(buildTerritoryTooltip(p.id, p.name, p.type, p.adminIso));
+        setTimeout(() => { _featureClicked = false; }, 10);
       });
     },
   });
@@ -654,17 +658,18 @@ async function initChoropleth() {
       const iso2 = getIso2(feature.properties);
       if (!iso2 || iso2 === '-99') return;
 
-      layer.on('mouseover', e => {
+      layer.on('mouseover', () => {
         layer.setStyle(getCountryStyle(iso2, true));
-        const html = buildCountryTooltip(iso2);
-        if (html) showTooltip(html);
-      });
-      layer.on('mousemove', e => {
-        positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY);
       });
       layer.on('mouseout', () => {
         layer.setStyle(getCountryStyle(iso2, false));
-        hideTooltip();
+      });
+      layer.on('click', e => {
+        _featureClicked = true;
+        _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+        const html = buildCountryTooltip(iso2);
+        if (html) showTooltip(html);
+        setTimeout(() => { _featureClicked = false; }, 10);
       });
     },
   }).addTo(map);
@@ -753,20 +758,24 @@ async function initAdmin1Choropleth() {
 
         layer.on('mouseover', () => {
           layer.setStyle(getAdmin1Style(iso2, subCode, true));
-          const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
-          if (html) showTooltip(html);
         });
-        layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
         layer.on('mouseout', () => {
           layer.setStyle(getAdmin1Style(iso2, subCode, false));
-          hideTooltip();
+        });
+        layer.on('click', e => {
+          _featureClicked = true;
+          _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+          const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
+          if (html) showTooltip(html);
+          setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
     }).addTo(map);
 
-    // Re-render the country layer so that covered countries (CN, IN, US, etc.)
-    // become transparent — their admin-1 provinces are now shown instead.
-    renderChoropleth();
+    // Apply zoom-based visibility for admin-1 before first render.
+    // If we are already at zoom ≥ 5 the layer will show immediately;
+    // otherwise it stays hidden and onZoomAdmin1() enables it on first zoom.
+    onZoomAdmin1();
 
   } catch (e) {
     console.warn('Admin-1 choropleth unavailable — falling back to country level:', e.message);
@@ -810,15 +819,18 @@ async function loadAdmin2Country(iso2) {
 
         layer.on('mouseover', () => {
           layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, true));
+        });
+        layer.on('mouseout', () => {
+          layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
+        });
+        layer.on('click', e => {
+          _featureClicked = true;
+          _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
           const stateName   = (parentA1 && _admin1NameCache[parentA1]) || parentA1 || '';
           const countryName = countryNames[iso2] || iso2;
           const html = buildAdmin2Tooltip(shapeID, parentA1, iso2, distName, stateName, countryName);
           if (html) showTooltip(html);
-        });
-        layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
-        layer.on('mouseout', () => {
-          layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
-          hideTooltip();
+          setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
     });
@@ -909,14 +921,12 @@ function _placeCities(list) {
     if (!icon) return;
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
 
-    marker.on('mouseover', e => {
-      const html = buildCityTooltip(city);
-      showTooltip(html);
+    marker.on('click', e => {
+      _featureClicked = true;
+      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+      showTooltip(buildCityTooltip(city));
+      setTimeout(() => { _featureClicked = false; }, 10);
     });
-    marker.on('mousemove', e => {
-      positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY);
-    });
-    marker.on('mouseout', () => hideTooltip());
 
     marker.addTo(map);
     cityMarkers.push(marker);
@@ -934,9 +944,12 @@ function renderBorderMarkers() {
     const icon = makeBorderIcon(bc, zoom);
     const marker = L.marker([bc.lat, bc.lng], { icon, pane: 'markersPane' });
 
-    marker.on('mouseover', e => showTooltip(buildBorderTooltip(bc)));
-    marker.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
-    marker.on('mouseout', () => hideTooltip());
+    marker.on('click', e => {
+      _featureClicked = true;
+      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+      showTooltip(buildBorderTooltip(bc));
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
 
     marker.addTo(map);
     borderMarkers.push(marker);
@@ -988,9 +1001,12 @@ function renderBeachMarkers() {
   BEACHES.forEach(beach => {
     const icon = makeBeachIcon(beach, zoom);
     const marker = L.marker([beach.lat, beach.lng], { icon, pane: 'markersPane' });
-    marker.on('mouseover', () => showTooltip(buildBeachTooltip(beach)));
-    marker.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
-    marker.on('mouseout', () => hideTooltip());
+    marker.on('click', e => {
+      _featureClicked = true;
+      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+      showTooltip(buildBeachTooltip(beach));
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
     marker.addTo(map);
     beachMarkers.push(marker);
   });
@@ -1063,9 +1079,12 @@ function initClimateZones() {
       renderer: _climateRenderer,
       style: f => styleClimateZone(f.properties),
       onEachFeature: (f, layer) => {
-        layer.on('mouseover', () => showTooltip(buildClimateZoneTooltip(f.properties)));
-        layer.on('mousemove', e => positionTooltip(e.originalEvent.clientX, e.originalEvent.clientY));
-        layer.on('mouseout', () => hideTooltip());
+        layer.on('click', e => {
+          _featureClicked = true;
+          _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+          showTooltip(buildClimateZoneTooltip(f.properties));
+          setTimeout(() => { _featureClicked = false; }, 10);
+        });
       },
     }
   );
@@ -1111,13 +1130,15 @@ function buildClimateZoneTooltip(props) {
 
 // ─── Tooltip ─────────────────────────────────────────────────────────────────
 function positionTooltip(cx, cy) {
-  const tt = document.getElementById('tt');
-  const W = tt.offsetWidth || 260;
-  const H = tt.offsetHeight || 200;
-  let left = cx + 18;
-  let top  = cy - 20;
-  if (left + W > window.innerWidth - 10) left = cx - W - 18;
-  top = Math.max(66, top);
+  const tt  = document.getElementById('tt');
+  const tb  = document.getElementById('topbar');
+  const tbH = tb ? tb.offsetHeight + 6 : 90;
+  const W   = tt.offsetWidth  || 260;
+  const H   = tt.offsetHeight || 200;
+  let left  = cx + 18;
+  let top   = cy - 20;
+  if (left + W > window.innerWidth  - 10) left = cx - W - 18;
+  top = Math.max(tbH, top);
   top = Math.min(window.innerHeight - H - 10, top);
   tt.style.left = left + 'px';
   tt.style.top  = top  + 'px';
@@ -1137,10 +1158,9 @@ function hideTooltip() {
   tooltipVisible = false;
 }
 
-document.addEventListener('mousemove', e => {
-  _ttX = e.clientX; _ttY = e.clientY;
-  if (tooltipVisible) positionTooltip(e.clientX, e.clientY);
-});
+// Track mouse position so positionTooltip() has a fallback coordinate.
+// Tooltip is click-anchored and no longer repositions on mousemove.
+document.addEventListener('mousemove', e => { _ttX = e.clientX; _ttY = e.clientY; });
 
 // ─── Sparkline ────────────────────────────────────────────────────────────────
 const BAR_H = [15, 10, 6, 2];
@@ -1211,13 +1231,15 @@ function buildLayerRows(dataObj, context) {
 function buildCountryTooltip(iso2) {
   if (activeLayers.size === 0) return null;
   const name = countryNames[iso2] || iso2;
+  const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? ` <span style="font-size:9px;color:var(--gold);font-weight:400;letter-spacing:1px">${CURRENCY[iso2]}</span>` : '';
   const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
+  const costSection = buildCostDetailsSection(iso2);
   return `<div class="tth">
-    <h3 id="tt-name">${name}</h3>
+    <h3 id="tt-name">${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
-  <div class="ttb" id="tt-body">${rows}</div>`;
+  <div class="ttb" id="tt-body">${rows}${costSection}</div>`;
 }
 
 function buildCityTooltip(city) {
@@ -1401,11 +1423,17 @@ function refresh() {
   updateBestPanel();
 }
 
-// Re-render city and border markers on zoom (size and density changes)
+// Re-render markers and update layer visibility on every zoom change.
 let _zoomTimer = null;
 function onZoom() {
   clearTimeout(_zoomTimer);
-  _zoomTimer = setTimeout(() => { renderCityMarkers(); renderBorderMarkers(); renderBeachMarkers(); onZoomAdmin2(); }, 150);
+  _zoomTimer = setTimeout(() => {
+    renderCityMarkers();
+    renderBorderMarkers();
+    renderBeachMarkers();
+    onZoomAdmin1();
+    onZoomAdmin2();
+  }, 150);
 }
 
 // ─── Transport Layer Feature Click ───────────────────────────────────────────
@@ -1601,7 +1629,11 @@ function initTransportClickHandlers() {
     const activeKeys = Object.entries(TRANSPORT_LAYERS)
       .filter(([, d]) => d.active)
       .map(([k]) => k);
-    if (activeKeys.length === 0) return;
+    if (activeKeys.length === 0) {
+      // No transport layer — dismiss tooltip on background click
+      if (!_featureClicked) hideTooltip();
+      return;
+    }
 
     const { lat, lng } = e.latlng;
     const cx = e.originalEvent.clientX;
@@ -1636,10 +1668,138 @@ function initTransportClickHandlers() {
     }
   });
 
-  // Dismiss transport tooltip on map mouseout
-  map.on('mouseout', () => {
-    if (tooltipVisible) hideTooltip();
-  });
+}
+// Tooltip is click-anchored — mouseout no longer dismisses it.
+
+// ─── Country Highlight (from UI hover) ───────────────────────────────────────
+// Called when the cursor enters/leaves a country name in the best-panel or
+// search results — highlights / restores the corresponding map polygon.
+function highlightCountry(iso2) {
+  if (geojsonLayer) {
+    geojsonLayer.eachLayer(l => {
+      if (l.feature && getIso2(l.feature.properties) === iso2)
+        l.setStyle(getCountryStyle(iso2, true));
+    });
+  }
+  if (admin1ChoroLayer && _admin1Visible) {
+    admin1ChoroLayer.eachLayer(l => {
+      if (!l.feature) return;
+      const p = l.feature.properties;
+      if (getAdmin1Iso2(p) === iso2)
+        l.setStyle(getAdmin1Style(iso2, getAdmin1Code(p), true));
+    });
+  }
+}
+function unhighlightCountry(iso2) {
+  if (geojsonLayer) {
+    geojsonLayer.eachLayer(l => {
+      if (l.feature && getIso2(l.feature.properties) === iso2)
+        l.setStyle(getCountryStyle(iso2, false));
+    });
+  }
+  if (admin1ChoroLayer && _admin1Visible) {
+    admin1ChoroLayer.eachLayer(l => {
+      if (!l.feature) return;
+      const p = l.feature.properties;
+      if (getAdmin1Iso2(p) === iso2)
+        l.setStyle(getAdmin1Style(iso2, getAdmin1Code(p), false));
+    });
+  }
+}
+
+// ─── Admin-1 Zoom Visibility ──────────────────────────────────────────────────
+// Province / state layer is only shown at zoom ≥ 5.  At lower zoom the
+// country-level choropleth provides all the context needed and province
+// boundaries add visual clutter.
+function onZoomAdmin1() {
+  if (!admin1ChoroLayer) return;
+  const zoom       = map.getZoom();
+  const shouldShow = zoom >= 5;
+  if (shouldShow === _admin1Visible) return;   // no change needed
+  _admin1Visible = shouldShow;
+  if (shouldShow) {
+    if (!map.hasLayer(admin1ChoroLayer)) admin1ChoroLayer.addTo(map);
+  } else {
+    if (map.hasLayer(admin1ChoroLayer)) admin1ChoroLayer.remove();
+  }
+  // Re-render country fills — when admin-1 is hidden, country polygons that
+  // were suppressed by _coveredByAdmin1 must become visible again.
+  renderChoropleth();
+}
+
+// ─── Cost Details Tooltip Section ────────────────────────────────────────────
+// Appended to the country tooltip when the Cost layer is active.
+function buildCostDetailsSection(iso2) {
+  if (!activeLayers.has('cost')) return '';
+  if (typeof COST_DETAILS === 'undefined' || !COST_DETAILS[iso2]) return '';
+  const d    = COST_DETAILS[iso2];
+  const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? CURRENCY[iso2] : '';
+  const $ = n => (n > 0 ? `~$${n}` : 'N/A');
+  return `<div style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:7px">
+      BUDGET COSTS${curr ? ' &middot; ' + curr : ''}
+    </div>
+    <div class="ttr">
+      <div class="ttstrip" style="background:#6a8a5a"></div>
+      <div class="tti">
+        <div class="ttln">ACCOMMODATION</div>
+        <div class="ttrat" style="color:#90c070">Hostel / guesthouse</div>
+        <div class="ttdesc">${$(d.hostel)} per night</div>
+      </div>
+    </div>
+    <div class="ttr">
+      <div class="ttstrip" style="background:#8a7a3a"></div>
+      <div class="tti">
+        <div class="ttln">MEALS</div>
+        <div class="ttrat" style="color:#c8a860">Budget street meal</div>
+        <div class="ttdesc">${$(d.meal)} per meal</div>
+      </div>
+    </div>
+    <div class="ttr">
+      <div class="ttstrip" style="background:#4a6a8a"></div>
+      <div class="tti">
+        <div class="ttln">LOCAL TRANSPORT</div>
+        <div class="ttrat" style="color:#80a8c8">Bus / metro</div>
+        <div class="ttdesc">${$(d.transport)} per day</div>
+      </div>
+    </div>
+    <div class="ttr">
+      <div class="ttstrip" style="background:#6a5a8a"></div>
+      <div class="tti">
+        <div class="ttln">DRINKS</div>
+        <div class="ttrat" style="color:#a090c8">Coffee ${$(d.coffee)} &middot; Beer ${$(d.beer)}</div>
+        ${d.note ? `<div class="ttdesc" style="margin-top:3px">${d.note}</div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// (old initSidebar — removed; topbar requires no JS initialisation)
+function initSidebar() {
+  const sidebar   = document.getElementById('sidebar');
+  const closeBtn  = document.getElementById('sidebar-toggle');
+  const openBtn   = document.getElementById('sidebar-open');
+  if (!sidebar || !closeBtn || !openBtn) return;
+
+  function open() {
+    sidebar.classList.remove('collapsed');
+    openBtn.style.display = 'none';
+    document.body.classList.add('sidebar-open');
+    // Let Leaflet know the container changed size so tiles fill correctly
+    if (map) setTimeout(() => map.invalidateSize(), 280);
+  }
+  function close() {
+    sidebar.classList.add('collapsed');
+    openBtn.style.display = 'flex';
+    document.body.classList.remove('sidebar-open');
+    if (map) setTimeout(() => map.invalidateSize(), 280);
+  }
+
+  closeBtn.addEventListener('click', close);
+  openBtn.addEventListener('click', open);
+
+  // Open by default on load
+  open();
 }
 
 // ─── URL Deep Linking ─────────────────────────────────────────────────────────
@@ -1695,7 +1855,10 @@ function initSearch() {
       const item = document.createElement('div');
       item.className = 'sr-item';
       item.textContent = name;
+      item.addEventListener('mouseenter', () => highlightCountry(iso));
+      item.addEventListener('mouseleave', () => unhighlightCountry(iso));
       item.addEventListener('click', () => {
+        unhighlightCountry(iso);
         input.value = '';
         list.style.display = 'none';
         const c = COUNTRY_CENTERS[iso];
@@ -1723,10 +1886,8 @@ function updateBestPanel() {
   const hasGeo = [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk));
   if (!hasGeo || activeLayers.size === 0) { panel.style.display = 'none'; return; }
 
-  // Collect all country ratings for current state
-  const ranked = Object.keys(CD_COST && CD_SAFETY ? {...CD_COST, ...CD_SAFETY} : {})
-    .concat(Object.keys(CD || {}))
-    .filter((v, i, a) => a.indexOf(v) === i)  // unique iso2 codes
+  // Only rank the 28 countries we have complete data for (COUNTRY_NAMES keys)
+  const ranked = Object.keys(COUNTRY_NAMES)
     .map(iso2 => ({ iso2, r: getCountryRating(iso2) }))
     .filter(x => x.r !== null)
     .sort((a, b) => a.r - b.r)
@@ -1745,7 +1906,8 @@ function updateBestPanel() {
     );
     li.appendChild(swatch);
     li.appendChild(name);
-    li.style.cursor = 'pointer';
+    li.addEventListener('mouseenter', () => highlightCountry(iso2));
+    li.addEventListener('mouseleave', () => unhighlightCountry(iso2));
     li.addEventListener('click', () => {
       const c = typeof COUNTRY_CENTERS !== 'undefined' ? COUNTRY_CENTERS[iso2] : null;
       if (c && map) map.flyTo(c, 5, { duration: 1.2 });

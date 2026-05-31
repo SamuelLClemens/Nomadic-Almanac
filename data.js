@@ -39,6 +39,47 @@ const LAYER_LABELS = {
   safety:   ['Very Safe','Safe','Use Caution','High Risk'],
   internet: ['Excellent','Good','Fair','Poor'],
 };
+// ISO 4217 currency codes per country
+const CURRENCY = {
+  AR:'ARS', AU:'AUD', CA:'CAD', CN:'CNY', CO:'COP',
+  DE:'EUR', EG:'EGP', ES:'EUR', FR:'EUR', GB:'GBP',
+  GR:'EUR', ID:'IDR', IN:'INR', IT:'EUR', JP:'JPY',
+  MA:'MAD', MX:'MXN', NG:'NGN', NZ:'NZD', PE:'PEN',
+  PK:'PKR', PT:'EUR', RU:'RUB', TH:'THB', TR:'TRY',
+  US:'USD', VN:'VND', ZA:'ZAR',
+};
+// Budget traveler cost estimates (approximate USD) for cost-of-living tooltip
+// hostel=$/night, meal=$/meal, transport=$/day, coffee=$, beer=$
+const COST_DETAILS = {
+  AR: { hostel:12, meal:4,  transport:2,  coffee:2, beer:2,  note:'Official + unofficial exchange rates create dual pricing' },
+  AU: { hostel:28, meal:14, transport:6,  coffee:4, beer:8,  note:'Food and accommodation expensive; varies widely by city' },
+  CA: { hostel:30, meal:14, transport:8,  coffee:4, beer:7,  note:'Vancouver and Toronto are among the priciest cities' },
+  CN: { hostel:10, meal:3,  transport:2,  coffee:3, beer:1,  note:'Very affordable; tier-1 cities (Shanghai/Beijing) cost more' },
+  CO: { hostel:10, meal:4,  transport:2,  coffee:1, beer:2,  note:'Excellent value; Bogotá pricier than smaller cities' },
+  DE: { hostel:25, meal:10, transport:9,  coffee:3, beer:4,  note:'Berlin cheaper than Munich; mid-range by European standards' },
+  EG: { hostel:8,  meal:3,  transport:1,  coffee:1, beer:2,  note:'Very affordable; tourist areas may charge inflated prices' },
+  ES: { hostel:20, meal:9,  transport:5,  coffee:2, beer:3,  note:'Affordable by W. European standards; coast peaks in summer' },
+  FR: { hostel:25, meal:13, transport:10, coffee:3, beer:6,  note:'Paris significantly more expensive than rural France' },
+  GB: { hostel:28, meal:12, transport:10, coffee:4, beer:6,  note:'London is among the most expensive European cities' },
+  GR: { hostel:18, meal:9,  transport:4,  coffee:3, beer:4,  note:'Santorini and Mykonos significantly pricier than mainland' },
+  ID: { hostel:7,  meal:2,  transport:2,  coffee:1, beer:3,  note:'Bali tourist areas more expensive; rural Java very affordable' },
+  IN: { hostel:6,  meal:2,  transport:1,  coffee:1, beer:2,  note:'One of the most budget-friendly destinations globally' },
+  IT: { hostel:22, meal:10, transport:7,  coffee:2, beer:4,  note:'Venice and Amalfi Coast substantially above average' },
+  JP: { hostel:18, meal:7,  transport:8,  coffee:4, beer:5,  note:'Surprisingly affordable for food; excellent cheap options' },
+  MA: { hostel:10, meal:4,  transport:2,  coffee:1, beer:3,  note:'Riads offer good value; Marrakech pricier than Fes' },
+  MX: { hostel:12, meal:4,  transport:3,  coffee:2, beer:2,  note:'Resort areas (Cancún, Los Cabos) much more expensive' },
+  NG: { hostel:15, meal:5,  transport:3,  coffee:2, beer:2,  note:'Lagos is most expensive; infrastructure costs add up' },
+  NZ: { hostel:28, meal:14, transport:7,  coffee:4, beer:8,  note:'Remote location keeps prices high for most imported goods' },
+  PE: { hostel:10, meal:4,  transport:2,  coffee:1, beer:2,  note:'Lima is pricier; highlands and Amazon remain very affordable' },
+  PK: { hostel:8,  meal:2,  transport:1,  coffee:1, beer:0,  note:'Alcohol availability limited; extremely budget-friendly' },
+  PT: { hostel:18, meal:8,  transport:4,  coffee:1, beer:2,  note:'Lisbon/Porto have risen sharply; Alentejo more affordable' },
+  RU: { hostel:15, meal:5,  transport:3,  coffee:2, beer:2,  note:'Card payments may be restricted; carry local cash' },
+  TH: { hostel:9,  meal:3,  transport:3,  coffee:2, beer:3,  note:'Bangkok affordable; islands cost more in high season' },
+  TR: { hostel:12, meal:4,  transport:3,  coffee:2, beer:4,  note:'High inflation; USD and EUR go far; prices vary widely' },
+  US: { hostel:35, meal:14, transport:10, coffee:5, beer:7,  note:'NYC, SF, and LA rank among the most expensive globally' },
+  VN: { hostel:7,  meal:2,  transport:2,  coffee:1, beer:1,  note:'Exceptional budget destination; street food is outstanding' },
+  ZA: { hostel:15, meal:5,  transport:4,  coffee:2, beer:3,  note:'Cape Town pricier; well-developed tourist infrastructure' },
+};
 
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
