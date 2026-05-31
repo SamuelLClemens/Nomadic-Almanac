@@ -2173,19 +2173,21 @@ function initLegendCollapsible() {
   if (btWrap) wrap.appendChild(btWrap);
   if (btList) wrap.appendChild(btList);
 
-  // Collapse arrow added to h4 right side
+  // Collapse arrow — clearly visible chevron, changes ▴↔▾ to show open/closed
   const arrow = document.createElement('span');
-  arrow.id = 'legend-collapse-arrow';
+  arrow.id    = 'legend-collapse-arrow';
+  arrow.title = 'Click to collapse';
+  arrow.style.cssText = 'font-size:11px;color:var(--gold);opacity:0.9;transition:transform .2s ease;margin-left:auto;padding:2px 6px;border-radius:3px;background:rgba(201,168,76,0.08)';
   arrow.textContent = '▴';
-  arrow.style.cssText = 'font-size:9px;color:var(--gold);opacity:0.7;transition:transform .18s ease;margin-left:auto;padding-left:8px';
-  h4.style.cssText += ';display:flex;align-items:center;justify-content:space-between;cursor:pointer;';
+  h4.style.cssText += ';display:flex;align-items:center;cursor:pointer;';
   h4.appendChild(arrow);
 
-  // Click the title row to collapse/expand
+  // Click the title row to collapse/expand — arrow glyph changes so state is unambiguous
   h4.addEventListener('click', e => {
     if (e.target.closest('#legend-layer-btn')) return;
-    const isCollapsed = wrap.classList.toggle('collapsed');
-    arrow.style.transform = isCollapsed ? 'rotate(180deg)' : '';
+    const isCollapsed   = wrap.classList.toggle('collapsed');
+    arrow.textContent   = isCollapsed ? '▾' : '▴';
+    arrow.title         = isCollapsed ? 'Click to expand' : 'Click to collapse';
   });
 
   // ── Layer picker: clicking the emoji+name area opens a layer switcher ──────
@@ -2250,6 +2252,17 @@ function initBestPanelToggle() {
     toggle.classList.toggle('open', !isOpen);
   });
 }
+// Expand Best This Month by default on first data load
+let _bestPanelDefaultExpanded = false;
+function autoExpandBestPanel() {
+  if (_bestPanelDefaultExpanded) return;
+  const toggle = document.getElementById('best-toggle');
+  const list   = document.getElementById('best-panel-list');
+  if (!toggle || !list || toggle.style.display === 'none') return;
+  list.classList.add('open');
+  toggle.classList.add('open');
+  _bestPanelDefaultExpanded = true;
+}
 
 function updateBestPanel() {
   const toggle = document.getElementById('best-toggle');
@@ -2274,6 +2287,10 @@ function updateBestPanel() {
     .sort((a, b) => a.r - b.r)
     .slice(0, 7);
 
+  // Update count badge in the toggle label
+  const lbl = document.getElementById('best-toggle-label');
+  if (lbl) lbl.textContent = `Best This Month (${ranked.length})`;
+
   ol.innerHTML = '';
   ranked.forEach(({ iso2, r }) => {
     const li = document.createElement('li');
@@ -2293,6 +2310,9 @@ function updateBestPanel() {
     });
     ol.appendChild(li);
   });
+
+  // Expand automatically on first load so users discover the feature
+  autoExpandBestPanel();
 }
 
 // ─── Loading overlay helpers ──────────────────────────────────────────────────
