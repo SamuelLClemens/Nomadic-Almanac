@@ -1723,10 +1723,8 @@ function updateBestPanel() {
   const hasGeo = [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk));
   if (!hasGeo || activeLayers.size === 0) { panel.style.display = 'none'; return; }
 
-  // Collect all country ratings for current state
-  const ranked = Object.keys(CD_COST && CD_SAFETY ? {...CD_COST, ...CD_SAFETY} : {})
-    .concat(Object.keys(CD || {}))
-    .filter((v, i, a) => a.indexOf(v) === i)  // unique iso2 codes
+  // Only rank the 28 countries we have complete data for (COUNTRY_NAMES keys)
+  const ranked = Object.keys(COUNTRY_NAMES)
     .map(iso2 => ({ iso2, r: getCountryRating(iso2) }))
     .filter(x => x.r !== null)
     .sort((a, b) => a.r - b.r)

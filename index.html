@@ -62,6 +62,12 @@
     </div>
   </div>
 
+  <!-- Country search — right side of logo row via margin-left:auto -->
+  <div id="search-wrap">
+    <input id="country-search" type="text" placeholder="🔍  Search country…" autocomplete="off" spellcheck="false" />
+    <div id="search-results"></div>
+  </div>
+
   <div class="vdiv"></div>
 
   <!-- Month selector -->
@@ -76,6 +82,7 @@
 
   <!-- Transport overlays -->
   <div id="transport"></div>
+
 
 </div>
 
@@ -104,11 +111,6 @@
 <div id="legend">
   <h4>FIELD GUIDE</h4>
   <div id="legend-body"></div>
-</div>
-
-<div id="search-wrap">
-  <input id="country-search" type="text" placeholder="Search country…" autocomplete="off" spellcheck="false" />
-  <div id="search-results"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
