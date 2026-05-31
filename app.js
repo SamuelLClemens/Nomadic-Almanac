@@ -19,8 +19,9 @@ let territoryLayerGroup  = null;
 let _geoData       = null;   // cached choropleth GeoJSON for border-lines reuse
 let countryNames   = {};
 let tooltipVisible   = false;
-let _featureClicked  = false;   // prevents map-click from dismissing tooltip when a feature was just clicked
-let _admin1Visible   = false;   // tracks whether admin-1 layer is currently on the map (zoom ≥ 5)
+let _featureClicked    = false;   // prevents map-click from dismissing tooltip when a feature was just clicked
+let _admin1Visible     = false;   // tracks whether admin-1 layer is currently on the map (zoom ≥ 5)
+let selectedNationality = null;   // ISO-2 passport code chosen in the nationality selector
 
 // Admin-1 sub-national choropleth
 let _admin1GeoData    = null;
@@ -70,7 +71,7 @@ const TRANSPORT_LAYERS = {
   },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -351,14 +352,12 @@ function getCountryRating(iso2) {
     if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[iso2]     != null) ? CD_COST[iso2]     : null;
     if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[iso2]   != null) ? CD_SAFETY[iso2]   : null;
     if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) ? CD_INTERNET[iso2] : null;
+    if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     const arr = d ? d[lk] : null;
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
   if (ratings.length === 0) return null;
   // Worst-case aggregation: show the most severe rating across all active layers.
-  // Averaging unrelated metrics (e.g. weather + safety) produces a synthetic number
-  // that masks individual concerns. The fill colour reflects the highest-risk layer;
-  // each layer's individual rating is shown in the hover tooltip.
   return Math.max(...ratings);
 }
 
@@ -375,6 +374,7 @@ function getAdmin1Rating(subCode, parentIso2) {
     if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[parentIso2]     != null) ? CD_COST[parentIso2]     : null;
     if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
     if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
+    if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
@@ -1234,12 +1234,13 @@ function buildCountryTooltip(iso2) {
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? ` <span style="font-size:9px;color:var(--gold);font-weight:400;letter-spacing:1px">${CURRENCY[iso2]}</span>` : '';
   const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
   const costSection = buildCostDetailsSection(iso2);
+  const visaSection = buildVisaSection(iso2);
   return `<div class="tth">
     <h3 id="tt-name">${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
-  <div class="ttb" id="tt-body">${rows}${costSection}</div>`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}</div>`;
 }
 
 function buildCityTooltip(city) {
@@ -1327,9 +1328,11 @@ function updateLegend() {
   let html = '';
   active.forEach(key => {
     const layer = LAYERS[key];
+    // Use LAYER_LABELS for display text where available
+    const lyrLabels = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) || layer.levels;
     html += `<div class="ll">
-      <div class="ll-name">${layer.name}</div>`;
-    layer.levels.forEach((lbl, i) => {
+      <div class="ll-name">${layer.emoji}&nbsp;${layer.name}</div>`;
+    lyrLabels.forEach((lbl, i) => {
       html += `<div class="lr">
         <div class="lsw" style="background:${RC2[i]}"></div>
         <span class="llabel">${lbl}</span>
@@ -1358,16 +1361,6 @@ function updateLegend() {
       <div class="lr"><div class="lsw-diamond" style="background:#22d3ee"></div><span class="llabel">Open</span></div>
       <div class="lr"><div class="lsw-diamond" style="background:#f59e0b"></div><span class="llabel">Restricted</span></div>
       <div class="lr"><div class="lsw-diamond" style="background:#ef4444"></div><span class="llabel">Closed</span></div>
-    </div>`;
-  }
-
-  if (showPolitical) {
-    html += `<div class="ll">
-      <div class="ll-name">Political Borders</div>
-      <div class="lr"><div class="lsw" style="background:transparent;border:1px solid rgba(255,255,255,0.3)"></div><span class="llabel">Country Borders</span></div>
-      <div class="lr"><div class="lsw" style="background:transparent;border:1px solid rgba(255,255,255,0.1)"></div><span class="llabel">Province / State</span></div>
-      <div class="lr"><div class="lsw" style="background:rgba(201,168,76,0.12);border:1px dashed #c9a84c"></div><span class="llabel">Disputed Territory</span></div>
-      <div class="lr"><div class="lsw" style="background:transparent;border:1px dashed rgba(232,213,163,0.45)"></div><span class="llabel">Administered Territory</span></div>
     </div>`;
   }
 
@@ -1727,6 +1720,134 @@ function onZoomAdmin1() {
   renderChoropleth();
 }
 
+// ─── Visa Rating & Tooltip ───────────────────────────────────────────────────
+// Returns 0–3 for the given destination × passport pair, or null if unknown.
+// 0=visa-free  1=ETA/eVisa/VoA  2=required (obtainable)  3=restricted/closed
+function getVisaRating(destIso2, passport) {
+  if (!passport || !destIso2) return null;
+  // Visiting your own country
+  if (destIso2 === passport) return null;
+  // DE represents all EU/Schengen; treat other Schengen destinations as free for DE holders
+  if (passport === 'DE' && ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY'].includes(destIso2)) return null;
+  const dest = typeof VISA_DATA !== 'undefined' ? VISA_DATA[destIso2] : null;
+  if (!dest) return 2;   // unknown — assume requires a visa
+  const entry = dest[passport];
+  if (!entry) return 2;  // no data for this passport — default to required
+  const t = entry.t;
+  if (t === 'free') return 0;
+  if (t === 'eta' || t === 'evisa' || t === 'voa') return 1;
+  return 2;              // 'req'
+}
+
+// Builds the visa detail section appended to the country tooltip.
+function buildVisaSection(iso2) {
+  if (!activeLayers.has('visa') && !selectedNationality) return '';
+  const sel = document.getElementById('passport-select');
+  const natName = sel && sel.value
+    ? (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : sel.value)
+    : null;
+
+  if (!selectedNationality) {
+    // Visa layer active but no passport chosen — prompt
+    return activeLayers.has('visa')
+      ? `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10);font-size:7.5px;color:rgba(201,168,76,0.6)">
+           🛂 Select your passport in the menu to see visa requirements.
+         </div>`
+      : '';
+  }
+
+  const dest = typeof VISA_DATA !== 'undefined' ? VISA_DATA[iso2] : null;
+  if (!dest) return '';
+
+  const entry = dest[selectedNationality];
+  const isSelf = iso2 === selectedNationality ||
+    (selectedNationality === 'DE' && ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY'].includes(iso2));
+
+  const TYPE_META = {
+    free:  { col:'#43A047', icon:'✅', label:'Visa-free',       desc:'No visa required. Present your passport on arrival.' },
+    eta:   { col:'#8BC34A', icon:'📱', label:'ETA / Pre-reg.',  desc:'Quick online registration required before travel. Usually approved in minutes.' },
+    evisa: { col:'#FDD835', icon:'💻', label:'E-Visa',          desc:'Online visa application. Processing typically 3–10 business days.' },
+    voa:   { col:'#FDD835', icon:'🏛', label:'Visa on Arrival', desc:'Obtain a visa stamp at the airport on arrival. Have cash and photos ready.' },
+    req:   { col:'#EF6C00', icon:'📋', label:'Visa Required',   desc:'Apply at the embassy or consulate before departure. Allow 2–6 weeks.' },
+  };
+
+  if (isSelf) {
+    return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:5px">VISA &middot; ${natName}</div>
+      <div style="font-size:9px;color:#90c070">🏠 You are a citizen or resident of this country.</div>
+    </div>`;
+  }
+
+  if (!entry) {
+    return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:5px">VISA &middot; ${natName}</div>
+      <div style="font-size:9px;color:#c89060">📋 Visa likely required — check your country's embassy for current requirements.</div>
+    </div>`;
+  }
+
+  const m = TYPE_META[entry.t] || TYPE_META.req;
+  const cost = entry.c > 0 ? `&nbsp;&middot;&nbsp;<span style="color:#c9a84c">~$${entry.c} USD</span>` : `&nbsp;&middot;&nbsp;<span style="color:#43A047">Free</span>`;
+  const days = entry.d > 0 ? `&nbsp;&middot;&nbsp;Up to <strong>${entry.d} days</strong>` : '';
+  return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">VISA &middot; ${natName}</div>
+    <div class="ttr" style="margin-bottom:0">
+      <div class="ttstrip" style="background:${m.col}"></div>
+      <div class="tti">
+        <div class="ttln">ENTRY REQUIREMENT</div>
+        <div class="ttrat" style="color:${m.col}">${m.icon} ${m.label}</div>
+        <div class="ttdesc">${m.desc}</div>
+        <div class="ttdesc" style="margin-top:3px;color:#7a8a5a">${days ? days.trim() : ''}${cost}</div>
+        <div class="ttdesc" style="margin-top:4px;color:#4a3a18">Always verify with your country's official government travel site before booking.</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─── Nationality Selector ─────────────────────────────────────────────────────
+function initNationalitySelector() {
+  const sel = document.getElementById('passport-select');
+  if (!sel) return;
+  if (typeof PASSPORT_NATIONALITIES === 'undefined') return;
+
+  Object.entries(PASSPORT_NATIONALITIES).forEach(([code, label]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  });
+
+  sel.addEventListener('change', () => {
+    selectedNationality = sel.value || null;
+
+    // Auto-enable visa layer when a nationality is chosen
+    if (selectedNationality && !activeLayers.has('visa')) {
+      activeLayers.add('visa');
+      document.querySelectorAll('.lb[data-key="visa"]').forEach(b => b.classList.add('on'));
+    }
+
+    // Remove pulse ring once a selection is made
+    sel.classList.remove('needs-passport');
+
+    refresh();
+    updateURLState();
+  });
+
+  // Helper: add pulse ring if visa layer is on but no nationality selected
+  function syncPassportState() {
+    if (activeLayers.has('visa') && !selectedNationality) {
+      sel.classList.add('needs-passport');
+    } else {
+      sel.classList.remove('needs-passport');
+    }
+  }
+
+  // Re-check whenever the visa layer button is toggled (intercept click events on .lb)
+  document.getElementById('layers').addEventListener('click', e => {
+    const btn = e.target.closest('.lb');
+    if (btn && btn.dataset.key === 'visa') setTimeout(syncPassportState, 10);
+  });
+}
+
 // ─── Cost Details Tooltip Section ────────────────────────────────────────────
 // Appended to the country tooltip when the Cost layer is active.
 function buildCostDetailsSection(iso2) {
@@ -1935,5 +2056,6 @@ function updateBestPanel() {
   initTransportClickHandlers();
   initAdmin1Choropleth();
   initSearch();
+  initNationalitySelector();
   updateBestPanel();
 })();
