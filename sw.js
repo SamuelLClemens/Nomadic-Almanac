@@ -1,6 +1,9 @@
-const CACHE = 'nomadic-v1';
+// Increment this version string whenever app.js, data.js, or style.css change.
+// The activate handler deletes all caches whose name does not match CACHE,
+// forcing clients to re-fetch the latest files and clearing any stale state.
+const CACHE = 'nomadic-v3';
 const CORE = [
-  './', './index.html', './app.js', './style.css',
+  './', './index.html', './app.js', './data.js', './style.css',
   './lib/leaflet.js', './lib/leaflet.css',
 ];
 
