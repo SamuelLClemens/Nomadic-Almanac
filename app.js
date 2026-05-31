@@ -101,6 +101,9 @@ const getAdmin1Code = p => {
 
 let _ttX = 0, _ttY = 0;
 
+// ─── Comparison panel state ───────────────────────────────────────────────────
+let pinnedCountries = [];   // ordered list of ISO-2 codes pinned to comparison
+
 // ─── Map Init ────────────────────────────────────────────────────────────────
 function initMap() {
   // #map is a flex child of <body> — it fills exactly the space below #topbar.
@@ -1272,7 +1275,9 @@ function positionTooltip(cx, cy) {
 
 function showTooltip(html) {
   const tt = document.getElementById('tt');
-  tt.innerHTML = html;
+  // Close button injected at the top so users can dismiss and copy text freely
+  const closeBtn = '<button id="tt-close" title="Close" onclick="hideTooltip()">&#x2715;</button>';
+  tt.innerHTML = closeBtn + html;
   tt.style.display = 'block';
   tooltipVisible = true;
   positionTooltip(_ttX, _ttY);
@@ -1381,12 +1386,17 @@ function buildCountryTooltip(iso2) {
   const costSection = buildCostDetailsSection(iso2);
   const visaSection = buildVisaSection(iso2);
   const tzSection   = buildTimezoneSection(iso2);
+  const isPinned    = pinnedCountries.includes(iso2);
+  const pinLabel    = isPinned ? '&#x2665; Pinned' : '&#x2661; Compare';
+  const pinSection  = `<div style="padding:6px 14px 10px">
+    <button class="tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" onclick="togglePinCountry('${iso2}')">${pinLabel}</button>
+  </div>`;
   return `<div class="tth">
     <h3 id="tt-name">${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}</div>`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}</div>${pinSection}`;
 }
 
 function buildCityTooltip(city) {
@@ -1559,6 +1569,7 @@ function updateBadge() {
 function refresh() {
   updateLegend();
   updateBadge();
+  if (pinnedCountries.length > 0) renderComparePanel();
   renderChoropleth();
   renderAdmin1Styles();
   renderAdmin2Styles();
@@ -2099,20 +2110,21 @@ function updateURLState() {
 // ─── Country Search ───────────────────────────────────────────────────────────
 // Country name → ISO-2 lookup for search
 const COUNTRY_NAMES = {
-  AR:'Argentina', AU:'Australia', CA:'Canada', CN:'China', CO:'Colombia',
+  AE:'UAE / Dubai', AR:'Argentina', AU:'Australia', BR:'Brazil',
+  CA:'Canada', CN:'China', CO:'Colombia',
   DE:'Germany', EG:'Egypt', ES:'Spain', FR:'France', GB:'United Kingdom',
-  GR:'Greece', ID:'Indonesia', IN:'India', IT:'Italy', JP:'Japan',
-  MA:'Morocco', MX:'Mexico', NG:'Nigeria', NZ:'New Zealand', PE:'Peru',
-  PK:'Pakistan', PT:'Portugal', RU:'Russia', TH:'Thailand', TR:'Turkey',
+  GR:'Greece', ID:'Indonesia', IN:'India', IT:'Italy', JP:'Japan', KR:'South Korea',
+  MA:'Morocco', MX:'Mexico', NG:'Nigeria', NZ:'New Zealand', PE:'Peru', PH:'Philippines',
+  PK:'Pakistan', PT:'Portugal', RU:'Russia', SG:'Singapore', TH:'Thailand', TR:'Turkey',
   US:'United States', VN:'Vietnam', ZA:'South Africa',
 };
 // Approximate centres for fly-to
 const COUNTRY_CENTERS = {
-  AR:[-38,-65], AU:[-25,134], CA:[60,-96], CN:[35,105], CO:[4,-74],
+  AE:[24,54], AR:[-38,-65], AU:[-25,134], BR:[-10,-53], CA:[60,-96], CN:[35,105], CO:[4,-74],
   DE:[51,10], EG:[27,30], ES:[40,-4], FR:[46,2], GB:[54,-2],
-  GR:[39,22], ID:[-5,120], IN:[21,79], IT:[43,12], JP:[37,138],
-  MA:[32,-5], MX:[24,-102], NG:[9,8], NZ:[-41,174], PE:[-10,-76],
-  PK:[30,70], PT:[39,-8], RU:[62,99], TH:[15,101], TR:[39,35],
+  GR:[39,22], ID:[-5,120], IN:[21,79], IT:[43,12], JP:[37,138], KR:[37,128],
+  MA:[32,-5], MX:[24,-102], NG:[9,8], NZ:[-41,174], PE:[-10,-76], PH:[13,122],
+  PK:[30,70], PT:[39,-8], RU:[62,99], SG:[1.3,104], TH:[15,101], TR:[39,35],
   US:[38,-97], VN:[16,108], ZA:[-29,25],
 };
 
@@ -2315,6 +2327,131 @@ function updateBestPanel() {
   autoExpandBestPanel();
 }
 
+// ─── Onboarding Hint ─────────────────────────────────────────────────────────
+// Displayed once on first visit for 4 seconds, then never again.
+function showOnboardingHint() {
+  try { if (localStorage.getItem('na_hint_seen')) return; } catch (_) {}
+  const el = document.createElement('div');
+  el.id = 'onboarding-hint';
+  el.innerHTML = `
+    <p>Click any country &nbsp;&middot;&nbsp; Switch months &nbsp;&middot;&nbsp; Select a passport for visa data</p>
+    <p class="hint-sub">Zoom to level&nbsp;5+ for province&nbsp;detail &nbsp;&middot;&nbsp; Level&nbsp;6+ for county&nbsp;detail</p>`;
+  document.body.appendChild(el);
+  // Remove element after animation completes (4 s) and mark as seen
+  setTimeout(() => {
+    if (el.parentNode) el.remove();
+    try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
+  }, 4200);
+}
+
+// ─── Comparison Panel ─────────────────────────────────────────────────────────
+// Up to 10 countries can be pinned; panel slides in from the right.
+
+const MAX_PINNED = 10;
+
+function togglePinCountry(iso2) {
+  const idx = pinnedCountries.indexOf(iso2);
+  if (idx === -1) {
+    if (pinnedCountries.length >= MAX_PINNED) pinnedCountries.shift();
+    pinnedCountries.push(iso2);
+  } else {
+    pinnedCountries.splice(idx, 1);
+  }
+  renderComparePanel();
+  // Refresh the currently visible tooltip pin button state if it matches
+  const ttName = document.getElementById('tt-name');
+  if (ttName) {
+    const btn = document.querySelector('.tt-pin-btn');
+    if (btn && btn.dataset.iso2 === iso2) {
+      const pinned = pinnedCountries.includes(iso2);
+      btn.classList.toggle('pinned', pinned);
+      btn.textContent = pinned ? '♡ Pinned' : '♡ Compare';
+    }
+  }
+}
+
+function renderComparePanel() {
+  let panel = document.getElementById('compare-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'compare-panel';
+    panel.innerHTML = `
+      <div id="compare-header">
+        <span id="compare-title">Compare (${pinnedCountries.length})</span>
+        <span id="compare-close-btn" onclick="closeComparePanel()" title="Close panel">&#x2715;</span>
+      </div>
+      <div id="compare-list"></div>`;
+    document.body.appendChild(panel);
+  }
+
+  const titleEl = panel.querySelector('#compare-title');
+  if (titleEl) titleEl.textContent = `Compare (${pinnedCountries.length})`;
+
+  const list = panel.querySelector('#compare-list');
+  if (!list) return;
+
+  if (pinnedCountries.length === 0) {
+    list.innerHTML = '<div id="compare-empty">Pin countries using the ♡ button in each country tooltip.<br><br>Up to 10 countries can be compared side by side.</div>';
+    panel.classList.remove('open');
+    return;
+  }
+
+  panel.classList.add('open');
+
+  list.innerHTML = '';
+  pinnedCountries.forEach(iso2 => {
+    const name = (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[iso2]) ||
+                  countryNames[iso2] || iso2;
+    const item = document.createElement('div');
+    item.className = 'cp-item';
+
+    // Build score chips for active geographic layers
+    let scoreHtml = '';
+    const dataObj = (typeof CD !== 'undefined' && CD[iso2]) || null;
+    const geoKeys = [...activeLayers].filter(k => typeof GEOGRAPHIC_LAYERS !== 'undefined' && GEOGRAPHIC_LAYERS.has(k));
+    geoKeys.forEach(key => {
+      let v = null;
+      if (dataObj && dataObj[key]) {
+        v = typeof getRating === 'function' ? getRating(dataObj[key]) : null;
+      } else if (key === 'cost'     && typeof CD_COST     !== 'undefined') v = CD_COST[iso2]     ?? null;
+      else if (key === 'safety'   && typeof CD_SAFETY   !== 'undefined') v = CD_SAFETY[iso2]   ?? null;
+      else if (key === 'internet' && typeof CD_INTERNET !== 'undefined') v = CD_INTERNET[iso2] ?? null;
+      if (v === null) return;
+      const vc  = Math.min(3, Math.max(0, v));
+      const col = RC[vc];
+      const lbl = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) ||
+                  (typeof LAYERS !== 'undefined' && LAYERS[key] && LAYERS[key].levels) ||
+                  ['0','1','2','3'];
+      scoreHtml += `<span class="cp-score" style="color:${col};border-color:${col}22">${lbl[vc]}</span>`;
+    });
+
+    item.innerHTML = `
+      <div class="cp-name">
+        <span>${name}</span>
+        <span class="cp-remove" data-iso2="${iso2}" title="Remove">&#x2715;</span>
+      </div>
+      <div class="cp-scores">${scoreHtml || '<span class="cp-score">—</span>'}</div>`;
+
+    item.addEventListener('click', e => {
+      if (e.target.classList.contains('cp-remove')) {
+        togglePinCountry(e.target.dataset.iso2);
+        return;
+      }
+      const c = typeof COUNTRY_CENTERS !== 'undefined' ? COUNTRY_CENTERS[iso2] : null;
+      if (c && map) map.flyTo(c, 5, { duration: 1.2 });
+    });
+    item.addEventListener('mouseenter', () => highlightCountry(iso2));
+    item.addEventListener('mouseleave', () => unhighlightCountry(iso2));
+
+    list.appendChild(item);
+  });
+}
+
+function closeComparePanel() {
+  const panel = document.getElementById('compare-panel');
+  if (panel) panel.classList.remove('open');
+}
+
 // ─── Loading overlay helpers ──────────────────────────────────────────────────
 function dismissOverlay() {
   clearTimeout(window._loTimer);   // cancel safety timer from index.html
@@ -2377,6 +2514,8 @@ function showBootError(msg) {
   initLegendCollapsible();
   initBestPanelToggle();
   updateBestPanel();
+  showOnboardingHint();
+  renderComparePanel();
 
   } catch (err) {
     console.error('[Nomadic Almanac] Boot error:', err);

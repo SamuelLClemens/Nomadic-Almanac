@@ -14,23 +14,26 @@ const RC_NODATA = '#B0BEC5';
 // Cost of living index: 0=budget, 1=moderate, 2=expensive, 3=very expensive
 // Source: Numbeo Cost of Living Index / Expatistan (2024–2025)
 const CD_COST = {
-  AR:0, AU:2, CA:2, CN:1, CO:0, DE:2, EG:0, ES:2, FR:2,
-  GB:3, GR:1, ID:0, IN:0, IT:2, JP:2, MA:0, MX:0, NG:0,
-  NZ:2, PE:0, PK:0, PT:1, RU:1, TH:0, TR:0, US:2, VN:0, ZA:1,
+  AR:0, AU:2, BR:1, CA:2, CN:1, CO:0, DE:2, EG:0, ES:2, FR:2,
+  GB:3, GR:1, ID:0, IN:0, IT:2, JP:2, KR:2, MA:0, MX:0, NG:0,
+  NZ:2, PE:0, PH:0, PK:0, PT:1, RU:1, SG:3, TH:0, TR:0, US:2, VN:0,
+  AE:3, ZA:1,
 };
 // Safety index: 0=very safe, 1=generally safe, 2=exercise caution, 3=high risk
 // Source: Global Peace Index 2024 / US State Dept advisories
 const CD_SAFETY = {
-  AR:1, AU:0, CA:0, CN:1, CO:2, DE:0, EG:2, ES:0, FR:1,
-  GB:0, GR:0, ID:1, IN:1, IT:0, JP:0, MA:1, MX:2, NG:3,
-  NZ:0, PE:1, PK:2, PT:0, RU:2, TH:1, TR:1, US:1, VN:1, ZA:2,
+  AR:1, AU:0, BR:2, CA:0, CN:1, CO:2, DE:0, EG:2, ES:0, FR:1,
+  GB:0, GR:0, ID:1, IN:1, IT:0, JP:0, KR:0, MA:1, MX:2, NG:3,
+  NZ:0, PE:1, PH:1, PK:2, PT:0, RU:2, SG:0, TH:1, TR:1, US:1, VN:1,
+  AE:0, ZA:2,
 };
 // Internet quality: 0=excellent, 1=good, 2=fair, 3=poor
 // Source: Speedtest Global Index / Ookla 2024
 const CD_INTERNET = {
-  AR:1, AU:1, CA:0, CN:1, CO:1, DE:0, EG:2, ES:1, FR:0,
-  GB:0, GR:1, ID:2, IN:1, IT:1, JP:0, MA:2, MX:2, NG:2,
-  NZ:1, PE:2, PK:2, PT:1, RU:1, TH:1, TR:1, US:0, VN:1, ZA:1,
+  AR:1, AU:1, BR:1, CA:0, CN:1, CO:1, DE:0, EG:2, ES:1, FR:0,
+  GB:0, GR:1, ID:2, IN:1, IT:1, JP:0, KR:0, MA:2, MX:2, NG:2,
+  NZ:1, PE:2, PH:2, PK:2, PT:1, RU:1, SG:0, TH:1, TR:1, US:0, VN:1,
+  AE:0, ZA:1,
 };
 // Layer display metadata: rating labels for each layer type
 const LAYER_LABELS = {
@@ -42,11 +45,11 @@ const LAYER_LABELS = {
 };
 // ISO 4217 currency codes per country
 const CURRENCY = {
-  AR:'ARS', AU:'AUD', CA:'CAD', CN:'CNY', CO:'COP',
+  AE:'AED', AR:'ARS', AU:'AUD', BR:'BRL', CA:'CAD', CN:'CNY', CO:'COP',
   DE:'EUR', EG:'EGP', ES:'EUR', FR:'EUR', GB:'GBP',
-  GR:'EUR', ID:'IDR', IN:'INR', IT:'EUR', JP:'JPY',
-  MA:'MAD', MX:'MXN', NG:'NGN', NZ:'NZD', PE:'PEN',
-  PK:'PKR', PT:'EUR', RU:'RUB', TH:'THB', TR:'TRY',
+  GR:'EUR', ID:'IDR', IN:'INR', IT:'EUR', JP:'JPY', KR:'KRW',
+  MA:'MAD', MX:'MXN', NG:'NGN', NZ:'NZD', PE:'PEN', PH:'PHP',
+  PK:'PKR', PT:'EUR', RU:'RUB', SG:'SGD', TH:'THB', TR:'TRY',
   US:'USD', VN:'VND', ZA:'ZAR',
 };
 // Primary timezone(s) per country — first entry is the main zone, rest are regional
@@ -79,6 +82,12 @@ const COUNTRY_TIMEZONES = {
   US:['UTC−5 to −10 (6 zones)','EST UTC−5 · New York, Miami','CST UTC−6 · Chicago, Dallas','MST UTC−7 · Denver, Phoenix','PST UTC−8 · LA, Seattle','HST UTC−10 · Hawaii'],
   VN:['UTC+7 (ICT — single national zone)'],
   ZA:['UTC+2 (SAST — no DST)'],
+  // New countries
+  AE:['UTC+4 (GST — no DST)'],
+  BR:['UTC−2 to −5 (multiple)','BRT UTC−3 · São Paulo, Rio de Janeiro','AMT UTC−4 · Manaus','ACT UTC−5 · Acre'],
+  KR:['UTC+9 (KST — single national zone, no DST)'],
+  PH:['UTC+8 (PST — single national zone)'],
+  SG:['UTC+8 (SGT — single national zone, no DST)'],
 };
 
 // Budget traveler cost estimates (approximate USD) for cost-of-living tooltip
@@ -112,6 +121,12 @@ const COST_DETAILS = {
   US: { hostel:35, meal:14, transport:10, coffee:5, beer:7,  note:'NYC, SF, and LA rank among the most expensive globally' },
   VN: { hostel:7,  meal:2,  transport:2,  coffee:1, beer:1,  note:'Exceptional budget destination; street food is outstanding' },
   ZA: { hostel:15, meal:5,  transport:4,  coffee:2, beer:3,  note:'Cape Town pricier; well-developed tourist infrastructure' },
+  // New countries
+  AE: { hostel:45, meal:12, transport:6,  coffee:5, beer:12, note:'Alcohol only in licensed venues; Dubai more expensive than Abu Dhabi' },
+  BR: { hostel:12, meal:4,  transport:3,  coffee:2, beer:3,  note:'Rio and SP most expensive; Northeast coast very affordable; dynamic exchange rate' },
+  KR: { hostel:22, meal:6,  transport:3,  coffee:5, beer:4,  note:'Seoul pricier; excellent subway system keeps transport cheap; street food outstanding value' },
+  PH: { hostel:8,  meal:2,  transport:2,  coffee:2, beer:1,  note:'Islands cost more due to ferry/flight hopping; Manila mid-range; Palawan budget-friendly' },
+  SG: { hostel:30, meal:8,  transport:3,  coffee:5, beer:10, note:'One of Asia\'s most expensive cities; excellent MRT keeps transport affordable' },
 };
 
 // Passport nationalities available in the visa selector
@@ -163,6 +178,12 @@ const VISA_DATA = {
   US: { GB:{t:'eta',d:90,c:21},  DE:{t:'eta',d:90,c:21},  AU:{t:'eta',d:90,c:21},  CA:{t:'free',d:180,c:0}, JP:{t:'eta',d:90,c:21},  NZ:{t:'eta',d:90,c:21},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'eta',d:90,c:21} },
   VN: { US:{t:'evisa',d:90,c:25},GB:{t:'evisa',d:90,c:25},DE:{t:'evisa',d:90,c:25},AU:{t:'evisa',d:90,c:25},CA:{t:'evisa',d:90,c:25},JP:{t:'evisa',d:90,c:25},NZ:{t:'evisa',d:90,c:25},ZA:{t:'evisa',d:90,c:25},IN:{t:'evisa',d:90,c:25},CN:{t:'evisa',d:90,c:25},BR:{t:'evisa',d:90,c:25} },
   ZA: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
+  // New destination countries
+  AE: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  ZA:{t:'free',d:30,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
+  BR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'req',d:0,c:0},   JP:{t:'free',d:90,c:0},  NZ:{t:'req',d:0,c:0},   ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:90,c:0} },
+  KR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:180,c:0}, JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'evisa',d:30,c:0}, CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
+  PH: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  ZA:{t:'free',d:30,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
+  SG: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0} },
 };
 
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
