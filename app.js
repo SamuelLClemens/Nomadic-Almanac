@@ -75,9 +75,17 @@ const TRANSPORT_LAYERS = {
     opts: { maxZoom: 8, opacity: 0.75, tileSize: 256, attribution: 'FIRMS/NASA near real-time fire data' },
     layer: null, active: false,
   },
+  natparks: {
+    label: '🌲 Parks',
+    // OpenStreetMap Humanitarian tiles — parks and nature reserves shown in green
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
+    opts: { maxZoom: 16, opacity: 0.55,
+            attribution: 'National Geographic &copy; Esri | parks & protected areas visible in green' },
+    layer: null, active: false,
+  },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -273,9 +281,9 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 
 // Category groups — each becomes a dropdown button in the topbar row.
 const CAT_GROUPS = [
-  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','road','corrupt','disaster'] },
-  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','vaccines'] },
-  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
+  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster'] },
+  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids'] },
+  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds','parks'] },
   { id:'overlays',      label:'Overlays',        emoji:'🗂', keys:[] },
 ];
 
@@ -315,6 +323,15 @@ function syncCatButtons() {
     const anyOn = group.keys.some(k => activeLayers.has(k)) || (group.id === 'overlays' && showBorders);
     btn.classList.toggle('has-active', anyOn);
   });
+}
+
+function initVisaPassportGroup() {
+  // Move the Visa Access layer button out of the primary layers row
+  // and into the dedicated Visa & Passport group for visual clarity.
+  const wrap = document.getElementById('visa-btn-wrap');
+  if (!wrap) return;
+  const visaBtn = document.querySelector('.lb[data-key="visa"]');
+  if (visaBtn) wrap.appendChild(visaBtn);
 }
 
 function buildLayerButtons() {
@@ -465,6 +482,7 @@ function getCountryRating(iso2) {
     if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[iso2]     != null) ? CD_COST[iso2]     : null;
     if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[iso2]   != null) ? CD_SAFETY[iso2]   : null;
     if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) ? CD_INTERNET[iso2] : null;
+    if (lk === 'kids')     return (typeof CD_KIDS     !== 'undefined' && CD_KIDS[iso2]     != null) ? CD_KIDS[iso2]     : null;
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -1429,6 +1447,7 @@ function buildCountryTooltip(iso2) {
   const costSection = buildCostDetailsSection(iso2);
   const visaSection = buildVisaSection(iso2);
   const tzSection   = buildTimezoneSection(iso2);
+  const holSection  = buildHolidaysSection(iso2);
   const isPinned    = pinnedCountries.includes(iso2);
   const pinLabel    = isPinned ? '&#x2665; Pinned' : '&#x2661; Compare';
   const pinSection  = `<div style="padding:6px 14px 10px">
@@ -1443,7 +1462,7 @@ function buildCountryTooltip(iso2) {
     <div class="tm" id="tt-period">${periodLabel()}</div>
     ${bestTimeLine}
   </div>
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}</div>${pinSection}`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}</div>${pinSection}`;
 }
 
 function buildCityTooltip(city) {
@@ -2123,6 +2142,32 @@ function initNationalitySelector() {
   });
 }
 
+// ─── Holidays Tooltip Section ────────────────────────────────────────────────
+function buildHolidaysSection(iso2) {
+  if (typeof COUNTRY_HOLIDAYS === 'undefined') return '';
+  const countryHols = COUNTRY_HOLIDAYS[iso2];
+  if (!countryHols) return '';
+  // Show holidays for the active month(s)
+  const months = yearMode ? Object.keys(countryHols).map(Number) : [...selectedMonths];
+  const hols = [];
+  months.forEach(m => {
+    const list = countryHols[m];
+    if (list && list.length) {
+      if (months.length > 1) {
+        const mName = MONTHS_F[m];
+        list.forEach(h => hols.push(`<span style="color:rgba(201,168,76,0.6);font-size:7px">${mName}</span> ${h}`));
+      } else {
+        list.forEach(h => hols.push(h));
+      }
+    }
+  });
+  if (!hols.length) return '';
+  return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:5px">🗓 PUBLIC HOLIDAYS — ${yearMode ? 'THIS YEAR' : MONTHS_F[activeMonth].toUpperCase()}</div>
+    ${hols.map(h => `<div style="font-size:8.5px;color:var(--sand);padding:2px 0;border-bottom:1px solid rgba(201,168,76,0.05)">${h}</div>`).join('')}
+  </div>`;
+}
+
 // ─── Timezone Tooltip Section ────────────────────────────────────────────────
 function buildTimezoneSection(iso2) {
   if (typeof COUNTRY_TIMEZONES === 'undefined' || !COUNTRY_TIMEZONES[iso2]) return '';
@@ -2302,13 +2347,16 @@ function initLegendCollapsible() {
   });
 
   // ── Layer picker: clicking the emoji+name area opens a layer switcher ──────
+  // ── Layer name area: click = open picker dropdown ─────────────────────────
   const pickerBtn = document.createElement('span');
   pickerBtn.id = 'legend-layer-btn';
-  pickerBtn.title = 'Change layer';
-  pickerBtn.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:5px;flex:1;min-width:0;padding-right:4px';
-  // Move existing text into the picker button area
+  pickerBtn.title = 'Click to change layer';
+  pickerBtn.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:5px;flex:1;min-width:0;padding-right:4px;border-radius:4px;padding:3px 5px;transition:background .12s';
+  pickerBtn.onmouseenter = () => { pickerBtn.style.background = 'rgba(201,168,76,0.10)'; };
+  pickerBtn.onmouseleave = () => { pickerBtn.style.background = ''; };
   h4.prepend(pickerBtn);
 
+  // Dropdown picker — shows all geographic layers
   const picker = document.createElement('div');
   picker.id = 'legend-layer-picker';
   document.body.appendChild(picker);
@@ -2318,9 +2366,9 @@ function initLegendCollapsible() {
     const item = document.createElement('div');
     item.className = 'llp-item';
     item.dataset.key = key;
-    item.innerHTML = `<span style="font-size:12px">${layer.emoji}</span><span>${layer.name}</span>`;
-    item.addEventListener('click', () => {
-      // Activate this layer exclusively (clear other geo layers first)
+    item.innerHTML = `<span style="font-size:13px">${layer.emoji}</span><span>${layer.name}</span>`;
+    item.addEventListener('click', e => {
+      e.stopPropagation();
       geoEntries.forEach(([k]) => activeLayers.delete(k));
       activeLayers.add(key);
       document.querySelectorAll('.lb[data-key]').forEach(b => b.classList.toggle('on', activeLayers.has(b.dataset.key)));
@@ -2335,7 +2383,6 @@ function initLegendCollapsible() {
     const isOpen = picker.classList.contains('open');
     picker.classList.toggle('open', !isOpen);
     if (!isOpen) {
-      // Update active state on items
       picker.querySelectorAll('.llp-item').forEach(item => {
         item.classList.toggle('active', activeLayers.has(item.dataset.key));
       });
@@ -2646,6 +2693,7 @@ function showBootError(msg) {
   initAdmin1Choropleth();
   initSearch();
   initNationalitySelector();
+  initVisaPassportGroup();
   initLegendCollapsible();
   initShareButton();
   initBestPanelToggle();
