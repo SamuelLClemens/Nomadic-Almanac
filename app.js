@@ -282,52 +282,65 @@ function syncMonthButtons() {
 }
 
 // ─── Layer Buttons ────────────────────────────────────────────────────────────
+// Layers that always appear in the topbar row.
+const PRIMARY_LAYER_KEYS = ['weather','safety','cost','internet','visa'];
+// Layers that live inside the "More ▾" dropdown.
+const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowds','corrupt','disaster','lgbtq','vaccines','road'];
+
+// Groups shown inside the More dropdown with section headings.
+const MORE_GROUPS = [
+  { label: 'Health & Safety',  keys: ['health','road','corrupt','disaster'] },
+  { label: 'Lifestyle',        keys: ['solo','lgbtq','family','remote','vaccines'] },
+  { label: 'Environment',      keys: ['beaches','crowds'] },
+];
+
+function makeLbButton(key, layer) {
+  const btn = document.createElement('button');
+  btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
+  btn.dataset.key = key;
+  if (layer.color) btn.style.setProperty('--lb-color', layer.color);
+  const emoji = document.createElement('span');
+  emoji.className = 'lb-emoji';
+  emoji.textContent = layer.emoji;
+  const name  = document.createElement('span');
+  name.className = 'lb-name';
+  name.textContent = layer.name;
+  btn.appendChild(emoji);
+  btn.appendChild(name);
+  btn.addEventListener('click', () => {
+    if (activeLayers.has(key)) activeLayers.delete(key);
+    else activeLayers.add(key);
+    btn.classList.toggle('on', activeLayers.has(key));
+    syncMoreButtonState();
+    refresh();
+    updateURLState();
+    saveState();
+  });
+  return btn;
+}
+
+function syncMoreButtonState() {
+  const moreBtn = document.getElementById('btn-more-layers');
+  if (!moreBtn) return;
+  const anySecondaryOn = SECONDARY_LAYER_KEYS.some(k => activeLayers.has(k));
+  moreBtn.classList.toggle('has-active', anySecondaryOn);
+}
+
 function buildLayerButtons() {
   const container = document.getElementById('layers');
 
-  Object.entries(LAYERS).forEach(([key, layer]) => {
-    const btn = document.createElement('button');
-    btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
-    btn.dataset.key = key;
-
-    if (layer.color) btn.style.setProperty('--lb-color', layer.color);
-
-    const emojiSpan = document.createElement('span');
-    emojiSpan.className = 'lb-emoji';
-    emojiSpan.textContent = layer.emoji;
-    btn.appendChild(emojiSpan);
-
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'lb-name';
-    nameSpan.textContent = layer.name;
-    btn.appendChild(nameSpan);
-
-    btn.addEventListener('click', () => {
-      if (activeLayers.has(key)) activeLayers.delete(key);
-      else activeLayers.add(key);
-      btn.classList.toggle('on', activeLayers.has(key));
-      refresh();
-      updateURLState();
-      saveState();
-    });
-
-    container.appendChild(btn);
+  // ── Primary layer buttons ──────────────────────────────────────────────────
+  PRIMARY_LAYER_KEYS.forEach(key => {
+    const layer = LAYERS[key];
+    if (!layer) return;
+    container.appendChild(makeLbButton(key, layer));
   });
 
-  const borderBtn = document.createElement('button');
-  borderBtn.id = 'btn-borders';
-  borderBtn.innerHTML = '🛂 Borders';
-  borderBtn.addEventListener('click', () => {
-    showBorders = !showBorders;
-    borderBtn.classList.toggle('on', showBorders);
-    renderBorderMarkers();
-    updateLegend();
-  });
-  container.appendChild(borderBtn);
-
+  // ── 🗺 Political (always-on control) ──────────────────────────────────────
   const politicalBtn = document.createElement('button');
   politicalBtn.id = 'btn-political';
-  politicalBtn.innerHTML = '🗺 Political';
+  politicalBtn.className = 'lb';
+  politicalBtn.innerHTML = '<span class="lb-emoji">🗺</span><span class="lb-name">Political</span>';
   politicalBtn.classList.toggle('on', showPolitical);
   politicalBtn.addEventListener('click', () => {
     showPolitical = !showPolitical;
@@ -336,6 +349,89 @@ function buildLayerButtons() {
     updateLegend();
   });
   container.appendChild(politicalBtn);
+
+  // ── More ▾ button + dropdown ───────────────────────────────────────────────
+  const moreBtn = document.createElement('button');
+  moreBtn.id = 'btn-more-layers';
+  moreBtn.innerHTML = 'More ▾';
+  container.appendChild(moreBtn);  // must be in DOM before syncMoreButtonState reads it
+  syncMoreButtonState();
+
+  // Dropdown is attached to <body> so it isn't clipped by the scrollable row.
+  const dropdown = document.createElement('div');
+  dropdown.id = 'layers-more-dropdown';
+  document.body.appendChild(dropdown);
+
+  // ── Dropdown groups ────────────────────────────────────────────────────────
+  MORE_GROUPS.forEach(group => {
+    const label = document.createElement('div');
+    label.className = 'more-dropdown-label';
+    label.textContent = group.label;
+    dropdown.appendChild(label);
+
+    const groupWrap = document.createElement('div');
+    groupWrap.className = 'more-dropdown-group';
+    group.keys.forEach(key => {
+      const layer = LAYERS[key];
+      if (!layer) return;
+      groupWrap.appendChild(makeLbButton(key, layer));
+    });
+    dropdown.appendChild(groupWrap);
+  });
+
+  // ── Borders button (inside More dropdown) ─────────────────────────────────
+  const bordersLabel = document.createElement('div');
+  bordersLabel.className = 'more-dropdown-label';
+  bordersLabel.textContent = 'Overlays';
+  dropdown.appendChild(bordersLabel);
+
+  const bordersGroup = document.createElement('div');
+  bordersGroup.className = 'more-dropdown-group';
+  const borderBtn = document.createElement('button');
+  borderBtn.id = 'btn-borders';
+  borderBtn.className = 'lb';
+  borderBtn.innerHTML = '<span class="lb-emoji">🛂</span><span class="lb-name">Borders</span>';
+  borderBtn.classList.toggle('on', showBorders);
+  borderBtn.addEventListener('click', () => {
+    showBorders = !showBorders;
+    borderBtn.classList.toggle('on', showBorders);
+    renderBorderMarkers();
+    updateLegend();
+  });
+  bordersGroup.appendChild(borderBtn);
+  dropdown.appendChild(bordersGroup);
+
+  // ── More button toggle ─────────────────────────────────────────────────────
+  moreBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = dropdown.classList.contains('open');
+    dropdown.classList.toggle('open', !isOpen);
+    moreBtn.innerHTML = isOpen ? 'More ▾' : 'Less ▲';
+    if (!isOpen) {
+      // Position dropdown flush below the More button
+      const r = moreBtn.getBoundingClientRect();
+      dropdown.style.top  = (r.bottom + 5) + 'px';
+      dropdown.style.left = Math.min(r.left, window.innerWidth - 330) + 'px';
+    }
+  });
+
+  // Bug fixes:
+  // 1. Use moreBtn.contains() so clicking a child <span> inside the button
+  //    does not accidentally dismiss the dropdown.
+  // 2. Guard with a flag so the listener is not registered more than once
+  //    if buildLayerButtons() were ever called again.
+  if (!buildLayerButtons._closeListenerAdded) {
+    buildLayerButtons._closeListenerAdded = true;
+    document.addEventListener('click', e => {
+      const dd  = document.getElementById('layers-more-dropdown');
+      const btn = document.getElementById('btn-more-layers');
+      if (!dd || !btn) return;
+      if (!dd.contains(e.target) && !btn.contains(e.target)) {
+        dd.classList.remove('open');
+        btn.innerHTML = 'More ▾';
+      }
+    });
+  }
 }
 
 // ─── Transport Layer Buttons ──────────────────────────────────────────────────
@@ -1401,6 +1497,20 @@ function updateLegend() {
   }
   legend.style.display = 'block';
 
+  // Update legend title to reflect the active layer(s)
+  const legendTitle = document.getElementById('legend-title');
+  if (legendTitle) {
+    const geoLayers = active.filter(k => LAYERS[k] && GEOGRAPHIC_LAYERS.has(k));
+    if (geoLayers.length === 1) {
+      const l = LAYERS[geoLayers[0]];
+      legendTitle.textContent = l.emoji + ' ' + l.name.toUpperCase();
+    } else if (geoLayers.length > 1) {
+      legendTitle.textContent = '⊕ COMBINED VIEW';
+    } else {
+      legendTitle.textContent = 'FIELD GUIDE';
+    }
+  }
+
   let html = '';
   active.forEach(key => {
     const layer = LAYERS[key];
@@ -2110,6 +2220,7 @@ function dismissOverlay() {
   initMap();
   buildMonthSelector();
   buildLayerButtons();
+  syncMoreButtonState();  // highlight More button if a secondary layer was restored
   buildTransportButtons();
   updateLegend();
   updateBadge();
