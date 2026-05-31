@@ -102,7 +102,29 @@ const getAdmin1Code = p => {
 let _ttX = 0, _ttY = 0;
 
 // ─── Map Init ────────────────────────────────────────────────────────────────
+function fitMapBelowTopbar() {
+  // Measure the topbar's actual rendered height and apply it to #map.
+  // This is more reliable than a hardcoded CSS variable, especially on
+  // mobile viewports where the topbar can wrap to different heights.
+  const tb  = document.getElementById('topbar');
+  const el  = document.getElementById('map');
+  if (!tb || !el) return;
+  const h = tb.offsetHeight;
+  el.style.top = h + 'px';
+  // Also keep Leaflet zoom controls below the topbar
+  document.querySelectorAll('.leaflet-top.leaflet-left').forEach(c => {
+    c.style.top = (h + 8) + 'px';
+  });
+  if (map) map.invalidateSize();
+}
+
 function initMap() {
+  // Position the map container based on the topbar's real height before
+  // Leaflet initialises — prevents a zero-height map on mobile devices.
+  const tb = document.getElementById('topbar');
+  const mapEl = document.getElementById('map');
+  if (tb && mapEl) mapEl.style.top = tb.offsetHeight + 'px';
+
   map = L.map('map', {
     center: [22, 14],
     zoom: 3,
@@ -152,9 +174,20 @@ function initMap() {
   map.getPane('labelPane').style.zIndex = '450';
   map.getPane('labelPane').style.pointerEvents = 'none';
 
+  // Re-measure topbar and refit map whenever it changes height (font loading,
+  // window resize, viewport rotation on mobile).
+  if (typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(() => fitMapBelowTopbar());
+    const tb = document.getElementById('topbar');
+    if (tb) ro.observe(tb);
+  }
+  window.addEventListener('resize', fitMapBelowTopbar, { passive: true });
+
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri | Admin-2 boundaries: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)',
     maxZoom: 19,
+    // Fallback: if Esri tiles fail to load, error events are silent (best effort)
+    errorTileUrl: '',
   }).addTo(map);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
@@ -2070,6 +2103,8 @@ function dismissOverlay() {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
+  try {
+
   loadState();        // restore month, layers, nationality from localStorage
   initURLState();     // URL hash overrides month + layer if present
   initMap();
@@ -2093,4 +2128,18 @@ function dismissOverlay() {
   initSearch();
   initNationalitySelector();
   updateBestPanel();
+
+  } catch (err) {
+    // Surface any boot error visibly so it can be diagnosed.
+    console.error('[Nomadic Almanac] Boot error:', err);
+    const st = document.getElementById('map-status');
+    if (st) {
+      st.textContent = '⚠ Boot error: ' + err.message + ' — try a hard refresh (Ctrl+Shift+R)';
+      st.style.display = 'block';
+      st.style.left    = '14px';
+      st.style.bottom  = '18px';
+      st.style.zIndex  = '9998';
+    }
+    dismissOverlay();  // always remove overlay even on failure
+  }
 })();

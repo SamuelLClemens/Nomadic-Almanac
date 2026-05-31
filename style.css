@@ -244,7 +244,9 @@ html, body {
 /* ─── Map ─────────────────────────────────────────────────────────────────── */
 #map {
   position: absolute;
-  top: var(--tb-h); left: 0; right: 0; bottom: 0;
+  /* top is set dynamically by fitMapBelowTopbar() in app.js so it always
+     matches the topbar's actual rendered height across all screen sizes. */
+  top: 84px; left: 0; right: 0; bottom: 0;
   background: #060402;
 }
 
@@ -256,8 +258,8 @@ html, body {
   transition: fill-opacity .18s ease, fill .18s ease;
 }
 
-/* Push zoom controls below topbar */
-.leaflet-top.leaflet-left { top: calc(var(--tb-h) + 8px) !important; }
+/* Push zoom controls below topbar — precise value set by fitMapBelowTopbar() */
+.leaflet-top.leaflet-left { top: 92px !important; }
 
 /* ─── Tooltip (click-anchored) ───────────────────────────────────────────── */
 #tt {
