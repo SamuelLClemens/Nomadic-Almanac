@@ -21,12 +21,29 @@ html, body {
   font-family: var(--fm);
 }
 
+/* ─── Loading Overlay ────────────────────────────────────────────────────── */
+#loading-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  transition: opacity 0.5s ease;
+}
+#loading-overlay.fade-out { opacity: 0; pointer-events: none; }
+@keyframes lo-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* ─── Top Bar ────────────────────────────────────────────────────────────── */
 #topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
   background: var(--panel);
   border-bottom: 1px solid var(--b2);
   backdrop-filter: blur(20px);
+  /* Promote to own compositor layer — prevents blur recalculation on map pan */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Row 1: Logo · Months · Search */
@@ -43,8 +60,11 @@ html, body {
   padding: 0 16px;
   height: 36px;
   overflow-x: auto; scrollbar-width: none;
+  /* Avoid layout thrash on narrow viewports: don't shrink children */
+  flex-wrap: nowrap;
 }
 #tb-row2::-webkit-scrollbar { display: none; }
+#tb-row2 > * { flex-shrink: 0; }
 
 /* Vertical divider between groups in row 2 */
 .tb-div {
@@ -228,9 +248,13 @@ html, body {
   background: #060402;
 }
 
-/* Smooth transitions on choropleth */
+/* Smooth transitions on choropleth only — scoped to avoid 4000+ simultaneous
+   CSS transitions across all SVG paths at high zoom levels */
 .leaflet-choroplethPane-pane { transition: opacity .2s ease; }
-.leaflet-interactive { transition: fill-opacity .25s ease, fill .25s ease; }
+.leaflet-pane.leaflet-choroplethPane-pane .leaflet-interactive,
+.leaflet-pane.leaflet-admin2Pane-pane .leaflet-interactive {
+  transition: fill-opacity .18s ease, fill .18s ease;
+}
 
 /* Push zoom controls below topbar */
 .leaflet-top.leaflet-left { top: calc(var(--tb-h) + 8px) !important; }

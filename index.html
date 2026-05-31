@@ -4,12 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Nomadic Almanac — World Travel Intelligence</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Resource hints — resolve DNS / open sockets before scripts run -->
+  <link rel="preconnect"    href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect"    href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect"    href="https://unpkg.com" crossorigin>
+  <link rel="dns-prefetch"  href="https://server.arcgisonline.com">
+  <link rel="dns-prefetch"  href="https://basemaps.cartocdn.com">
+  <link rel="dns-prefetch"  href="https://raw.githubusercontent.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- Loading overlay — dismissed by JS once the map is interactive -->
+<div id="loading-overlay">
+  <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style="width:64px;height:64px;animation:lo-spin 8s linear infinite">
+    <circle cx="28" cy="28" r="25" fill="#100c05" stroke="#c9a84c" stroke-width="1.6"/>
+    <polygon points="28,3 31.5,21 28,18 24.5,21" fill="#e8d5a3"/>
+    <polygon points="28,3 29.5,13 28,15 26.5,13" fill="#9b1c2e"/>
+    <polygon points="53,28 36,31 39,28 36,25" fill="#c9a84c" opacity="0.55"/>
+    <polygon points="3,28 20,31 17,28 20,25" fill="#c9a84c" opacity="0.55"/>
+    <circle cx="28" cy="28" r="5" fill="#100c05" stroke="#c9a84c" stroke-width="1.4"/>
+    <circle cx="28" cy="28" r="1.5" fill="#c9a84c"/>
+  </svg>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:#e8d5a3;letter-spacing:4px;margin-top:18px">NOMADIC ALMANAC</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#7a8a5a;letter-spacing:2px;margin-top:6px">LOADING WORLD DATA&hellip;</div>
+</div>
 
 <!-- ─── Top Bar ──────────────────────────────────────────────────────────────── -->
 <div id="topbar">

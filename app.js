@@ -226,6 +226,7 @@ function setMonth(i) {
   syncMonthButtons();
   refresh();
   updateURLState();
+  saveState();
 }
 
 function syncMonthButtons() {
@@ -274,6 +275,7 @@ function buildLayerButtons() {
       btn.classList.toggle('on', activeLayers.has(key));
       refresh();
       updateURLState();
+      saveState();
     });
 
     container.appendChild(btn);
@@ -436,6 +438,11 @@ function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
+    // Scalar / nationality-dependent layers: fall back to country-level value
+    if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[parentIso2]     != null) ? CD_COST[parentIso2]     : null;
+    if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
+    if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
+    if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     const arr = (d2 && d2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
@@ -638,8 +645,17 @@ function renderPoliticalLayers() {
 
 // ─── Choropleth ───────────────────────────────────────────────────────────────
 async function initChoropleth() {
-  const res = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
-  const data = await res.json();
+  let data;
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    data = await res.json();
+  } catch (e) {
+    console.warn('Country GeoJSON unavailable — map will render without choropleth:', e.message);
+    const st = document.getElementById('map-status');
+    if (st) { st.textContent = '⚠ Country data unavailable. Check your connection.'; st.style.display = 'block'; }
+    return;
+  }
   _geoData = data;  // cache for border-lines layer
 
   data.features.forEach(f => {
@@ -1161,6 +1177,26 @@ function hideTooltip() {
 // Track mouse position so positionTooltip() has a fallback coordinate.
 // Tooltip is click-anchored and no longer repositions on mousemove.
 document.addEventListener('mousemove', e => { _ttX = e.clientX; _ttY = e.clientY; });
+
+// ─── Persistence helpers ──────────────────────────────────────────────────────
+// Silently no-ops if localStorage is unavailable (private browsing, quota full).
+function saveState() {
+  try {
+    localStorage.setItem('na_month',       String(activeMonth));
+    localStorage.setItem('na_layers',      JSON.stringify([...activeLayers]));
+    localStorage.setItem('na_nationality', selectedNationality || '');
+  } catch (_) {}
+}
+function loadState() {
+  try {
+    const m = localStorage.getItem('na_month');
+    if (m !== null) { const n = parseInt(m); if (!isNaN(n) && n >= 0 && n <= 11) activeMonth = n; }
+    const l = localStorage.getItem('na_layers');
+    if (l) { const arr = JSON.parse(l); if (Array.isArray(arr) && arr.length) activeLayers = new Set(arr); }
+    const nat = localStorage.getItem('na_nationality');
+    if (nat) selectedNationality = nat;
+  } catch (_) {}
+}
 
 // ─── Sparkline ────────────────────────────────────────────────────────────────
 const BAR_H = [15, 10, 6, 2];
@@ -1830,7 +1866,13 @@ function initNationalitySelector() {
 
     refresh();
     updateURLState();
+    saveState();
   });
+
+  // Restore persisted nationality selection
+  if (selectedNationality) {
+    sel.value = selectedNationality;
+  }
 
   // Helper: add pulse ring if visa layer is on but no nationality selected
   function syncPassportState() {
@@ -1895,33 +1937,6 @@ function buildCostDetailsSection(iso2) {
   </div>`;
 }
 
-// (old initSidebar — removed; topbar requires no JS initialisation)
-function initSidebar() {
-  const sidebar   = document.getElementById('sidebar');
-  const closeBtn  = document.getElementById('sidebar-toggle');
-  const openBtn   = document.getElementById('sidebar-open');
-  if (!sidebar || !closeBtn || !openBtn) return;
-
-  function open() {
-    sidebar.classList.remove('collapsed');
-    openBtn.style.display = 'none';
-    document.body.classList.add('sidebar-open');
-    // Let Leaflet know the container changed size so tiles fill correctly
-    if (map) setTimeout(() => map.invalidateSize(), 280);
-  }
-  function close() {
-    sidebar.classList.add('collapsed');
-    openBtn.style.display = 'flex';
-    document.body.classList.remove('sidebar-open');
-    if (map) setTimeout(() => map.invalidateSize(), 280);
-  }
-
-  closeBtn.addEventListener('click', close);
-  openBtn.addEventListener('click', open);
-
-  // Open by default on load
-  open();
-}
 
 // ─── URL Deep Linking ─────────────────────────────────────────────────────────
 function initURLState() {
@@ -2041,7 +2056,8 @@ function updateBestPanel() {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
-  initURLState();
+  loadState();        // restore month, layers, nationality from localStorage
+  initURLState();     // URL hash overrides month + layer if present
   initMap();
   buildMonthSelector();
   buildLayerButtons();
@@ -2058,4 +2074,8 @@ function updateBestPanel() {
   initSearch();
   initNationalitySelector();
   updateBestPanel();
+
+  // Dismiss the loading overlay once the app is interactive
+  const lo = document.getElementById('loading-overlay');
+  if (lo) { lo.classList.add('fade-out'); setTimeout(() => lo.remove(), 520); }
 })();
