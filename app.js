@@ -2163,23 +2163,41 @@ function initSearch() {
 }
 
 // ─── Best Destinations Panel ──────────────────────────────────────────────────
+// The widget lives inside #legend.  #best-toggle is always visible when the
+// legend is open; clicking it expands/collapses #best-panel-list.
+function initBestPanelToggle() {
+  const toggle = document.getElementById('best-toggle');
+  const list   = document.getElementById('best-panel-list');
+  if (!toggle || !list) return;
+  toggle.addEventListener('click', () => {
+    const isOpen = list.classList.contains('open');
+    list.classList.toggle('open', !isOpen);
+    toggle.classList.toggle('open', !isOpen);
+  });
+}
+
 function updateBestPanel() {
-  const panel = document.getElementById('best-panel');
-  const ol    = document.getElementById('best-panel-list');
-  if (!panel || !ol) return;
+  const toggle = document.getElementById('best-toggle');
+  const ol     = document.getElementById('best-panel-list');
+  if (!toggle || !ol) return;
 
-  // Only show when a geographic layer is active
+  // Show the toggle only when a geographic layer is active
   const hasGeo = [...activeLayers].some(lk => GEOGRAPHIC_LAYERS.has(lk));
-  if (!hasGeo || activeLayers.size === 0) { panel.style.display = 'none'; return; }
+  toggle.style.display = (hasGeo && activeLayers.size > 0) ? 'flex' : 'none';
 
-  // Only rank the 28 countries we have complete data for (COUNTRY_NAMES keys)
+  if (!hasGeo || activeLayers.size === 0) {
+    ol.innerHTML = '';
+    ol.classList.remove('open');
+    toggle.classList.remove('open');
+    return;
+  }
+
+  // Rank the 28 countries we have complete data for
   const ranked = Object.keys(COUNTRY_NAMES)
     .map(iso2 => ({ iso2, r: getCountryRating(iso2) }))
     .filter(x => x.r !== null)
     .sort((a, b) => a.r - b.r)
     .slice(0, 7);
-
-  if (!ranked.length) { panel.style.display = 'none'; return; }
 
   ol.innerHTML = '';
   ranked.forEach(({ iso2, r }) => {
@@ -2200,8 +2218,6 @@ function updateBestPanel() {
     });
     ol.appendChild(li);
   });
-
-  panel.style.display = 'block';
 }
 
 // ─── Loading overlay helpers ──────────────────────────────────────────────────
@@ -2263,6 +2279,7 @@ function showBootError(msg) {
   initAdmin1Choropleth();
   initSearch();
   initNationalitySelector();
+  initBestPanelToggle();
   updateBestPanel();
 
   } catch (err) {

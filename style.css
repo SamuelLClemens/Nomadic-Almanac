@@ -353,45 +353,52 @@ html, body {
 }
 .leaflet-control-attribution a { color: #5a4020 !important; }
 
-/* ── Best destinations panel ──────────────────────── */
-#best-panel {
-  position: fixed;
-  bottom: 54px; right: 14px; z-index: 1050;
-  background: rgba(16,12,5,0.90);
-  border: 1px solid rgba(232,213,163,0.22);
-  border-radius: 10px; padding: 10px 14px;
-  min-width: 190px; max-width: 240px;
-  font-family: var(--fm);
-  backdrop-filter: blur(14px);
+/* ── Best This Month widget (inside legend) ───────── */
+#best-toggle {
+  display: none; /* shown by JS when a geographic layer is active */
+  align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--b1);
+  cursor: pointer; user-select: none;
+  border-radius: 4px; padding: 6px 4px;
+  transition: background .12s;
 }
-#best-panel-header {
-  font-size: 8px; letter-spacing: 0.14em;
-  color: rgba(232,213,163,0.45); text-transform: uppercase;
-  margin-bottom: 7px;
-  padding-bottom: 6px; border-bottom: 1px solid rgba(201,168,76,0.08);
+#best-toggle:hover { background: rgba(201,168,76,0.06); }
+#best-toggle-label {
+  font-size: 7.5px; font-weight: 700;
+  color: var(--gold); letter-spacing: 1.8px; text-transform: uppercase;
 }
+#best-toggle-arrow {
+  font-size: 9px; color: var(--gold); opacity: 0.7;
+  transition: transform .18s ease;
+}
+#best-toggle.open #best-toggle-arrow { transform: rotate(180deg); }
+
 #best-panel-list {
-  margin: 0; padding: 0; list-style: none;
+  margin: 4px 0 0; padding: 0; list-style: none;
   counter-reset: best-counter;
+  max-height: 0; overflow: hidden;
+  transition: max-height .25s ease, opacity .2s ease;
+  opacity: 0;
+}
+#best-panel-list.open {
+  max-height: 240px;   /* enough for 7 items */
+  opacity: 1;
 }
 #best-panel-list li {
   counter-increment: best-counter;
   display: flex; align-items: center; gap: 7px;
-  padding: 4px 0; font-size: 10px; color: var(--sand);
+  padding: 4px 4px; font-size: 10px; color: var(--sand);
   border-bottom: 1px solid rgba(232,213,163,0.07);
-  cursor: pointer; transition: background .1s;
-  border-radius: 3px; padding-left: 2px;
+  cursor: pointer; transition: background .1s; border-radius: 3px;
 }
 #best-panel-list li:last-child { border-bottom: none; }
 #best-panel-list li:hover { background: rgba(232,213,163,0.05); }
 #best-panel-list li::before {
   content: counter(best-counter);
-  font-size: 8px; color: rgba(232,213,163,0.35);
-  min-width: 10px;
+  font-size: 8px; color: rgba(232,213,163,0.35); min-width: 10px;
 }
-.best-swatch {
-  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
-}
+.best-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 
 /* ── "More layers" button & dropdown ─────────────── */
 #btn-more-layers {
