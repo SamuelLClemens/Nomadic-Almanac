@@ -1,7 +1,7 @@
 // Increment this version string whenever app.js, data.js, or style.css change.
 // The activate handler deletes all caches whose name does not match CACHE,
 // forcing clients to re-fetch the latest files and clearing any stale state.
-const CACHE = 'nomadic-v3';
+const CACHE = 'nomadic-v4';
 const CORE = [
   './', './index.html', './app.js', './data.js', './style.css',
   './lib/leaflet.js', './lib/leaflet.css',
@@ -23,7 +23,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // Cache tile images for offline map browsing
+
+  // Map tiles: cache-first. Tiles are immutable and large, so serving a cached
+  // copy is correct and enables offline browsing.
   if (url.hostname.includes('arcgisonline') || url.hostname.includes('cartocdn')) {
     e.respondWith(
       caches.open('nomadic-tiles').then(cache =>
@@ -38,8 +40,20 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  // Core files: cache-first
+
+  // App shell and core files (index.html, app.js, data.js, style.css, lib/*):
+  // NETWORK-FIRST. A cache-first shell pins returning users to whatever HTML was
+  // cached on a prior visit, so a deploy that changes how Leaflet is loaded never
+  // reaches them — the root cause of the "Leaflet did not load" boot failure.
+  // Network-first always fetches the current files when online and falls back to
+  // the cache only when the network is unavailable.
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request).then(res => {
+      if (res.ok) {
+        const clone = res.clone();
+        caches.open(CACHE).then(cache => cache.put(e.request, clone));
+      }
+      return res;
+    }).catch(() => caches.match(e.request))
   );
 });

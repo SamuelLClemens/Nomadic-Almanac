@@ -177,6 +177,65 @@ const CD_KIDS = {
   CL:1, EC:2, CU:1, CZ:0, PL:0, HU:0,
 };
 
+// CD_TIMEZONE: ISO-2 → integer UTC offset (capital / dominant zone; half-hour
+// offsets rounded to nearest integer; multi-timezone countries use the most-
+// populated zone, e.g. US→Eastern, RU→Moscow, AU→AEST, CN→Beijing).
+const CD_TIMEZONE = {
+  // UTC -11
+  NU:-11, AS:-11,
+  // UTC -10
+  CK:-10, PF:-10,
+  // UTC -6
+  MX:-6, GT:-6, BZ:-6, SV:-6, HN:-6, NI:-6, CR:-6,
+  // UTC -5
+  US:-5, CA:-5, EC:-5, PE:-5, CO:-5, PA:-5, CU:-5, JM:-5, HT:-5, BS:-5, TC:-5,
+  // UTC -4
+  DO:-4, BB:-4, TT:-4, GY:-4, SR:-4, BO:-4, PY:-4, VE:-4,
+  AG:-4, DM:-4, GD:-4, KN:-4, LC:-4, VC:-4,
+  // UTC -3
+  BR:-3, AR:-3, UY:-3, CL:-3, FK:-3, GF:-3,
+  // UTC -1
+  CV:-1,
+  // UTC +0
+  GB:0, IE:0, PT:0, IS:0, GL:0,
+  SN:0, GM:0, GW:0, GN:0, SL:0, LR:0, CI:0, GH:0, BF:0, ML:0, MR:0, TG:0, BJ:0, ST:0,
+  // UTC +1
+  FR:1, ES:1, DE:1, IT:1, BE:1, NL:1, LU:1, AT:1, CH:1, LI:1,
+  DK:1, NO:1, SE:1, PL:1, CZ:1, SK:1, HU:1, SI:1, HR:1, BA:1,
+  RS:1, ME:1, MK:1, AL:1, XK:1, MC:1, SM:1, VA:1, AD:1,
+  NG:1, CM:1, CF:1, GA:1, CG:1, CD:1, AO:1, NA:1, ZM:1, MW:1,
+  TN:1, DZ:1, MA:1, LY:1, NE:1, TD:1, GQ:1,
+  // UTC +2
+  FI:2, EE:2, LV:2, LT:2, BY:2, UA:2, MD:2, RO:2, BG:2, GR:2,
+  CY:2, TR:2, LB:2, IL:2, PS:2, JO:2, SY:2,
+  EG:2, SD:2, ZA:2, LS:2, SZ:2, BW:2, ZW:2, MZ:2, BI:2, RW:2,
+  // UTC +3
+  RU:3, SA:3, IQ:3, KW:3, YE:3, QA:3, BH:3, OM:3,
+  ET:3, KE:3, TZ:3, UG:3, SO:3, DJ:3, ER:3, SS:3, MG:3, KM:3,
+  // UTC +4
+  AE:4, GE:4, AM:4, AZ:4, SC:4, MU:4,
+  // UTC +5  (IN = UTC+5:30 → 5;  LK = UTC+5:30 → 5)
+  PK:5, UZ:5, TJ:5, TM:5, MV:5, IN:5, LK:5,
+  // UTC +6  (NP = UTC+5:45 → 6;  MM = UTC+6:30 → 6)
+  NP:6, BD:6, BT:6, KZ:6, KG:6, MM:6,
+  // UTC +7  (ID = Jakarta / WIB, most-populated zone)
+  TH:7, VN:7, LA:7, KH:7, ID:7, MN:7,
+  // UTC +8
+  CN:8, MY:8, SG:8, PH:8, BN:8, TW:8,
+  // UTC +9
+  JP:9, KR:9, KP:9, TL:9, PW:9,
+  // UTC +10  (AU = Sydney/AEST, most-populated zone)
+  AU:10, PG:10,
+  // UTC +11
+  SB:11, VU:11, NR:11, FM:11,
+  // UTC +12
+  NZ:12, FJ:12, TV:12, TO:12,
+  // UTC +13  (WS switched east of IDL in 2011)
+  WS:13,
+  // UTC +14  (Kiribati Line Islands — Kiritimati)
+  KI:14,
+};
+
 // ── Major public holidays by country and month (0=Jan … 11=Dec) ─────────────
 const COUNTRY_HOLIDAYS = {
   AR:{ 0:['New Year\'s Day'],1:['Carnival (Feb)'],2:[],3:['Easter','Holy Thursday','Good Friday','Malvinas Veterans Day (Apr 2)'],4:['Labour Day (May 1)','May Revolution (May 25)'],5:['Sovereignty Flag Day (Jun 20)'],6:['Independence Day (Jul 9)'],7:['Death of San Martín (Aug 17)'],8:[],9:['Columbus Day (Oct 12)'],10:[],11:['Immaculate Conception (Dec 8)','Christmas (Dec 25)'] },

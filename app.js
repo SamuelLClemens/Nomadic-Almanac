@@ -11,6 +11,9 @@ let map            = null;
 let cityMarkers    = [];
 let borderMarkers    = [];
 let beachMarkers     = [];
+let _beachPoiMarkers = [];    // live Overpass beach circleMarkers (zoom ≥ 7)
+let _beachPoiCache   = {};    // bboxKey → OSM elements array (avoids re-querying)
+let _beachDebounce   = null;
 let climateZoneLayer  = null;
 let _climateRenderer  = null;
 let geojsonLayer     = null;
@@ -91,11 +94,31 @@ const TRANSPORT_LAYERS = {
   },
 };
 
+// POI layers — Overpass-queried point markers; separate from TRANSPORT_LAYERS
+// (which are tile-based) because POI layers re-query on every map moveend.
+const POI_LAYERS = {
+  camping: {
+    label: '⛺ Camping',
+    active: false, minZoom: 8, markers: [], bboxCache: {}, debounce: null,
+  },
+  parks: {
+    label: '🏞 Parks & Forests',
+    active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null,
+  },
+};
+
 const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
 const getIso2 = p => (p && (p.ISO_A2 || p.iso_a2 || p['ISO3166-1-Alpha-2'])) || '';
+
+// Rounds map bounds to 2 dp (~1 km precision) and returns a cache key string.
+// Used by POI layers to avoid re-querying Overpass on tiny pans.
+function _bboxKey(b) {
+  return [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()]
+    .map(v => Math.round(v * 100) / 100).join(',');
+}
 
 // Returns parent-country ISO-2 for a Natural Earth admin-1 feature.
 // iso_a2 is the direct field; iso_3166_2 split is the fallback.
@@ -446,21 +469,53 @@ function buildLayerButtons() {
 }
 
 // ─── Transport Layer Buttons (single dropdown) ────────────────────────────────
-let timezoneLayer = null;   // holds the UTC stripe overlay
+let timezoneLayer     = null;   // UTC meridian line labels overlay
+let timezoneChoroLayer = null;  // country choropleth colored by UTC offset
+let _tzActive          = false; // module-scope flag; read by updateLegend / syncTransportBtn
+
+// Maps UTC offset [-12, +14] to a distinct HSL hue.
+// UTC-12 → hue 0° (warm red), UTC+14 → hue 260° (blue-violet).
+function tzOffsetColor(offset) {
+  if (offset === null || offset === undefined) return '#1a1a28';
+  const t   = (offset + 12) / 26;   // normalise to [0, 1]
+  const hue = Math.round(t * 260);  // 0° → 260°
+  return `hsl(${hue}, 60%, 38%)`;
+}
 
 function toggleTimezoneLayer(active) {
+  _tzActive = active;
+
+  // ── Country choropleth: color each country by its UTC offset ──────────────
+  if (timezoneChoroLayer) { timezoneChoroLayer.remove(); timezoneChoroLayer = null; }
+  if (active && _geoData) {
+    timezoneChoroLayer = L.geoJSON(_geoData, {
+      pane: 'choroplethPane',
+      interactive: false,   // clicks pass through to geojsonLayer below
+      style: feature => {
+        const iso2   = getIso2(feature.properties);
+        const offset = (typeof CD_TIMEZONE !== 'undefined' && CD_TIMEZONE[iso2] !== undefined)
+                       ? CD_TIMEZONE[iso2] : null;
+        return {
+          fillColor:   tzOffsetColor(offset),
+          fillOpacity: 0.75,
+          color:       'rgba(255,255,255,0.15)',
+          weight:      0.4,
+        };
+      },
+    }).addTo(map);
+  }
+
+  // ── UTC meridian lines + labels (subtle, on labelPane) ───────────────────
   if (timezoneLayer) { timezoneLayer.remove(); timezoneLayer = null; }
-  if (!active || !map) return;
+  if (!active || !map) { updateLegend(); return; }
   const g = L.layerGroup();
   for (let lng = -165; lng <= 180; lng += 15) {
-    const h = Math.round(lng / 15);
+    const h   = Math.round(lng / 15);
     const lbl = h === 0 ? 'UTC' : `UTC${h > 0 ? '+' : ''}${h}`;
-    // Subtle dashed vertical line
     L.polyline([[-80, lng], [83, lng]], {
       color: 'rgba(201,168,76,0.18)', weight: 1,
       dashArray: '4,8', interactive: false, pane: 'labelPane',
     }).addTo(g);
-    // UTC label near the top of the map
     L.marker([76, lng - 7.5], {
       icon: L.divIcon({
         html: `<div style="color:rgba(201,168,76,0.55);font-size:7.5px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;transform:translateX(-50%);text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none">${lbl}</div>`,
@@ -471,12 +526,15 @@ function toggleTimezoneLayer(active) {
   }
   g.addTo(map);
   timezoneLayer = g;
+  updateLegend();
 }
 
 function syncTransportBtn() {
   const btn = document.getElementById('btn-transport-menu');
   if (!btn) return;
-  const anyOn = Object.values(TRANSPORT_LAYERS).some(d => d.active);
+  const anyOn = Object.values(TRANSPORT_LAYERS).some(d => d.active)
+             || _tzActive
+             || Object.values(POI_LAYERS).some(d => d.active);
   btn.classList.toggle('has-active', anyOn);
 }
 
@@ -539,18 +597,40 @@ function buildTransportButtons() {
   tzSep.textContent = 'Map Overlays';
   transpDd.appendChild(tzSep);
 
-  let tzActive = false;
   const tzBtn = document.createElement('button');
   tzBtn.id = 'btn-timezone-overlay';
   tzBtn.className = 'lb';
   tzBtn.innerHTML = '<span class="lb-emoji">🕐</span><span class="lb-name">Timezones</span>';
   tzBtn.addEventListener('click', () => {
-    tzActive = !tzActive;
-    tzBtn.classList.toggle('on', tzActive);
-    toggleTimezoneLayer(tzActive);
+    toggleTimezoneLayer(!_tzActive);   // toggleTimezoneLayer sets _tzActive internally
+    tzBtn.classList.toggle('on', _tzActive);
     syncTransportBtn();
   });
   transpDd.appendChild(tzBtn);
+
+  // ── Explore: Overpass POI layers ──────────────────────────────────────────
+  const exploreSep = document.createElement('div');
+  exploreSep.className = 'more-dropdown-label';
+  exploreSep.style.marginTop = '6px';
+  exploreSep.textContent = 'Explore';
+  transpDd.appendChild(exploreSep);
+
+  Object.entries(POI_LAYERS).forEach(([key, def]) => {
+    const pbtn = document.createElement('button');
+    pbtn.id = `btn-poi-${key}`;
+    pbtn.className = 'lb';
+    pbtn.innerHTML = `<span class="lb-emoji">${[...def.label][0]}</span><span class="lb-name">${def.label.replace(/^\S+\s*/u, '')}</span>`;
+    pbtn.classList.toggle('on', def.active);
+    pbtn.addEventListener('click', () => {
+      def.active = !def.active;
+      pbtn.classList.toggle('on', def.active);
+      if (def.active) _fetchAndRenderPOI(key);
+      else _clearPOIMarkers(key);
+      syncTransportBtn();
+      updateLegend();
+    });
+    transpDd.appendChild(pbtn);
+  });
 
   // Toggle dropdown on button click
   transpBtn.addEventListener('click', e => {
@@ -1253,11 +1333,24 @@ function makeBeachIcon(beach, zoom) {
 }
 
 function renderBeachMarkers() {
+  // Always clear live POI markers; they will be re-fetched below if needed.
+  _beachPoiMarkers.forEach(m => m.remove());
+  _beachPoiMarkers = [];
+  // Clear static curated markers.
   beachMarkers.forEach(m => m.remove());
   beachMarkers = [];
-  if (!activeLayers.has('beaches')) return;
-  if (!map) return;
+
+  if (!activeLayers.has('beaches') || !map) return;
+
   const zoom = map.getZoom();
+
+  if (zoom >= 7) {
+    // Zoom ≥ 7: query Overpass for real beach locations in the visible viewport.
+    _fetchAndRenderBeaches();
+    return;
+  }
+
+  // Zoom < 7: show hand-curated static beach icons for world-zoom overview.
   if (zoom < 3) return;
   BEACHES.forEach(beach => {
     const icon = makeBeachIcon(beach, zoom);
@@ -1348,6 +1441,201 @@ function buildBeachTooltip(beach) {
       </div>
     </div>
   </div>`;
+}
+
+// ─── Live Overpass Beach Markers ─────────────────────────────────────────────
+async function _fetchAndRenderBeaches() {
+  if (!map || !activeLayers.has('beaches')) return;
+  const zoom = map.getZoom();
+  if (zoom < 7) return;
+
+  const bounds = map.getBounds();
+  const key    = _bboxKey(bounds);
+
+  if (_beachPoiCache[key]) { _renderBeachCircles(_beachPoiCache[key]); return; }
+
+  const st = document.getElementById('map-status');
+  if (st) { st.textContent = '🏖 Loading beach data…'; st.style.display = 'block'; }
+
+  const s = bounds.getSouth().toFixed(4), w = bounds.getWest().toFixed(4);
+  const n = bounds.getNorth().toFixed(4), e = bounds.getEast().toFixed(4);
+  const bbox  = `${s},${w},${n},${e}`;
+  const query = `[out:json][timeout:20];(node["natural"="beach"]["access"!="private"](${bbox});node["leisure"="beach_resort"]["access"!="private"](${bbox});way["natural"="beach"]["access"!="private"](${bbox}););out center 300;`;
+
+  try {
+    const res      = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    if (res.status === 429) throw new Error('Rate limit');
+    const data     = await res.json();
+    const elements = (data.elements || []).filter(el =>
+      (el.lat && el.lon) || (el.center && el.center.lat)
+    ).slice(0, 300);
+    _beachPoiCache[key] = elements;
+    if (activeLayers.has('beaches') && map.getZoom() >= 7) _renderBeachCircles(elements);
+    if (st) st.style.display = 'none';
+  } catch(err) {
+    const msg = err.message === 'Rate limit' ? '⚠ Rate limit — wait a moment and pan to retry' : '⚠ Beach data unavailable';
+    if (st) { st.textContent = msg; st.style.display = 'block'; setTimeout(() => { st.style.display = 'none'; }, 4000); }
+  }
+}
+
+function _renderBeachCircles(elements) {
+  _beachPoiMarkers.forEach(m => m.remove());
+  _beachPoiMarkers = [];
+  const SURF_COL = { sand:'#F4D03F', pebble:'#A9A9A9', gravel:'#A9A9A9', rock:'#808080', shingle:'#A9A9A9' };
+  elements.forEach(el => {
+    const lat = el.lat || (el.center && el.center.lat);
+    const lon = el.lon  || (el.center && el.center.lon);
+    if (!lat || !lon) return;
+    const t   = el.tags || {};
+    const col = SURF_COL[t.surface] || '#2EC4B6';
+    const m   = L.circleMarker([lat, lon], {
+      pane: 'markersPane', radius: 5, color: '#fff', weight: 0.8,
+      fillColor: col, fillOpacity: 0.88,
+    });
+    m.on('click', ev => {
+      _featureClicked = true;
+      _ttX = ev.originalEvent.clientX; _ttY = ev.originalEvent.clientY;
+      showTooltip(_buildOsmBeachTooltip(t));
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    m.addTo(map);
+    _beachPoiMarkers.push(m);
+  });
+}
+
+function _buildOsmBeachTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#2EC4B6">Open</a>` : '';
+  const fields = [
+    row('Surface',        t.surface       || ''),
+    row('Lifeguard',      t.lifeguard     || ''),
+    row('Lifeguard Hours',t['lifeguard:hours'] || ''),
+    row('Opening Hours',  t.opening_hours || ''),
+    row('Shower',         t.shower        || ''),
+    row('Toilets',        t.toilets       || ''),
+    row('Fee',            t.fee           || ''),
+    row('Charge',         t.charge        || ''),
+    row('Access',         t.access        || ''),
+    row('Swimming',       t.swimming      || ''),
+    row('Website',        link(t.website || t['contact:website'])),
+  ].join('');
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Beach'}</h3>
+    <div class="ts" id="tt-sub">${t['addr:country'] || ''}</div>
+    <div class="tm" id="tt-period">PUBLIC BEACH — OSM</div>
+  </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this beach.</div>'}</div>`;
+}
+
+// ─── Generic Overpass POI Layer (Camping + Parks) ─────────────────────────────
+function _clearPOIMarkers(key) {
+  const def = POI_LAYERS[key];
+  if (!def) return;
+  def.markers.forEach(m => m.remove());
+  def.markers = [];
+}
+
+async function _fetchAndRenderPOI(key) {
+  const def = POI_LAYERS[key];
+  if (!def || !def.active || !map) return;
+  const zoom = map.getZoom();
+  if (zoom < def.minZoom) { _clearPOIMarkers(key); return; }
+
+  const bounds   = map.getBounds();
+  const bboxKey  = _bboxKey(bounds);
+  if (def.bboxCache[bboxKey]) { _renderPOICircles(key, def.bboxCache[bboxKey]); return; }
+
+  const st = document.getElementById('map-status');
+  if (st) { st.textContent = `${[...def.label][0]} Loading…`; st.style.display = 'block'; }
+
+  const s = bounds.getSouth().toFixed(4), w = bounds.getWest().toFixed(4);
+  const n = bounds.getNorth().toFixed(4), e = bounds.getEast().toFixed(4);
+  const bbox = `${s},${w},${n},${e}`;
+
+  const query = key === 'camping'
+    ? `[out:json][timeout:20];(node["tourism"="camp_site"](${bbox});way["tourism"="camp_site"](${bbox}););out center 200;`
+    : `[out:json][timeout:25];(node["boundary"="national_park"](${bbox});way["boundary"="national_park"](${bbox});relation["boundary"="national_park"](${bbox});node["leisure"="nature_reserve"](${bbox});way["leisure"="nature_reserve"](${bbox});relation["leisure"="nature_reserve"](${bbox});node["landuse"="forest"]["name"](${bbox});way["landuse"="forest"]["name"](${bbox}););out center 250;`;
+
+  try {
+    const res  = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    if (res.status === 429) throw new Error('Rate limit');
+    const data = await res.json();
+    const elements = (data.elements || []).filter(el =>
+      (el.lat && el.lon) || (el.center && el.center.lat)
+    );
+    def.bboxCache[bboxKey] = elements;
+    if (def.active && map.getZoom() >= def.minZoom) _renderPOICircles(key, elements);
+    if (st) st.style.display = 'none';
+  } catch(err) {
+    const msg = err.message === 'Rate limit' ? `⚠ Rate limit — wait and pan to retry` : `⚠ ${def.label} data unavailable`;
+    if (st) { st.textContent = msg; st.style.display = 'block'; setTimeout(() => { st.style.display = 'none'; }, 4000); }
+  }
+}
+
+function _renderPOICircles(key, elements) {
+  _clearPOIMarkers(key);
+  const def    = POI_LAYERS[key];
+  const color  = key === 'camping' ? '#22c55e' : '#15803d';
+  elements.forEach(el => {
+    const lat = el.lat || (el.center && el.center.lat);
+    const lon = el.lon  || (el.center && el.center.lon);
+    if (!lat || !lon) return;
+    const t = el.tags || {};
+    const m = L.circleMarker([lat, lon], {
+      pane: 'markersPane', radius: 6, color: '#fff', weight: 0.8,
+      fillColor: color, fillOpacity: 0.88,
+    });
+    m.on('click', ev => {
+      _featureClicked = true;
+      _ttX = ev.originalEvent.clientX; _ttY = ev.originalEvent.clientY;
+      showTooltip(key === 'camping' ? _buildCampingTooltip(t) : _buildParkTooltip(t));
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    m.addTo(map);
+    def.markers.push(m);
+  });
+}
+
+function _buildCampingTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#22c55e">Open</a>` : '';
+  const fields = [
+    row('Fee',           t.fee            || ''),
+    row('Charge',        t.charge         || ''),
+    row('Opening Hours', t.opening_hours  || ''),
+    row('Capacity',      t.capacity       || ''),
+    row('Tents',         t.tents          || ''),
+    row('Caravans',      t.caravans       || ''),
+    row('Cabins',        t.cabins         || ''),
+    row('Electricity',   t.electricity    || ''),
+    row('Shower',        t.shower         || ''),
+    row('Toilets',       t.toilets        || ''),
+    row('Dogs',          t.dog || t.dogs  || ''),
+    row('Website',       link(t.website || t['contact:website'])),
+  ].join('');
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Camp Site'}</h3>
+    <div class="ts" id="tt-sub">${t.operator || ''}</div>
+    <div class="tm" id="tt-period">CAMPING — OSM</div>
+  </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this campsite.</div>'}</div>`;
+}
+
+function _buildParkTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#15803d">Open</a>` : '';
+  const kind = t['boundary'] === 'national_park' ? 'National Park'
+             : t['leisure']  === 'nature_reserve' ? 'Nature Reserve' : 'Forest / Protected Area';
+  const fields = [
+    row('Type',             t.protection_title || kind),
+    row('Protect Class',    t.protect_class     || ''),
+    row('Operator',         t.operator          || ''),
+    row('IUCN Category',    t['iucn_level']     || ''),
+    row('Website',          link(t.website || t['contact:website'])),
+  ].join('');
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Protected Area'}</h3>
+    <div class="ts" id="tt-sub">${t.operator || ''}</div>
+    <div class="tm" id="tt-period">${kind.toUpperCase()} — OSM</div>
+  </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this area.</div>'}</div>`;
 }
 
 // ─── Climate Zones ────────────────────────────────────────────────────────────
@@ -1652,7 +1940,8 @@ function updateLegend() {
   const active = [...activeLayers];
   const anyTransport = Object.values(TRANSPORT_LAYERS).some(d => d.active);
 
-  if (active.length === 0 && !showBorders && !anyTransport) {
+  const anyPOI = Object.values(POI_LAYERS).some(d => d.active);
+  if (active.length === 0 && !showBorders && !anyTransport && !_tzActive && !anyPOI) {
     legend.style.display = 'none';
     return;
   }
@@ -1697,14 +1986,28 @@ function updateLegend() {
     html += `</div>`;
   });
 
-  if (activeLayers.has('beaches') && typeof BEACHES !== 'undefined' && BEACHES.length) {
-    html += `<div class="ll">
-      <div class="ll-name">Beach Markers</div>
-      <div class="lr"><div class="lsw" style="background:#06b6d4;border-radius:50%"></div><span class="llabel">Open / Year-round</span></div>
-      <div class="lr"><div class="lsw" style="background:#f59e0b;border-radius:50%"></div><span class="llabel">Seasonal</span></div>
-      <div class="lr"><div class="lsw" style="background:#8b5cf6;border-radius:50%"></div><span class="llabel">Restricted</span></div>
-      <div class="lr"><div class="lsw" style="background:#ef4444;border-radius:50%"></div><span class="llabel">Closed</span></div>
-    </div>`;
+  if (activeLayers.has('beaches')) {
+    const beachZoom = map ? map.getZoom() : 0;
+    if (beachZoom >= 7) {
+      // Live Overpass beach markers — colored by sand/pebble/rock surface
+      html += `<div class="ll">
+        <div class="ll-name">Beach Locations (Live OSM)</div>
+        <div class="lr"><div class="lsw" style="background:#F4D03F;border-radius:50%"></div><span class="llabel">Sandy beach</span></div>
+        <div class="lr"><div class="lsw" style="background:#A9A9A9;border-radius:50%"></div><span class="llabel">Pebble / Gravel / Shingle</span></div>
+        <div class="lr"><div class="lsw" style="background:#808080;border-radius:50%"></div><span class="llabel">Rock</span></div>
+        <div class="lr"><div class="lsw" style="background:#2EC4B6;border-radius:50%"></div><span class="llabel">Other / Unknown surface</span></div>
+      </div>`;
+    } else if (typeof BEACHES !== 'undefined' && BEACHES.length) {
+      // Static curated beach icons for world-zoom overview
+      html += `<div class="ll">
+        <div class="ll-name">Beach Markers</div>
+        <div class="lr"><div class="lsw" style="background:#06b6d4;border-radius:50%"></div><span class="llabel">Open / Year-round</span></div>
+        <div class="lr"><div class="lsw" style="background:#f59e0b;border-radius:50%"></div><span class="llabel">Seasonal</span></div>
+        <div class="lr"><div class="lsw" style="background:#8b5cf6;border-radius:50%"></div><span class="llabel">Restricted</span></div>
+        <div class="lr"><div class="lsw" style="background:#ef4444;border-radius:50%"></div><span class="llabel">Closed</span></div>
+        <div style="font-size:7px;color:var(--dim);margin-top:4px">Zoom in for live worldwide beach data</div>
+      </div>`;
+    }
   }
 
   if (showBorders) {
@@ -1718,15 +2021,18 @@ function updateLegend() {
 
   if (anyTransport) {
     const TSWATCH = {
-      roads:    { color: '#aaaaaa', label: 'Roads & Paths', note: 'all classes' },
-      rail:     { color: '#4466cc', label: 'Rail & Transit', note: 'train · metro · tram · cable car' },
-      trails:   { color: '#44aa66', label: 'Hiking Trails', note: 'marked routes' },
-      maritime: { color: '#22aabb', label: 'Maritime', note: 'ferries · sea routes' },
+      roads:    { color: '#aaaaaa', label: 'Roads & Paths',    note: 'all classes' },
+      rail:     { color: '#4466cc', label: 'Rail & Transit',   note: 'train · metro · tram · cable car' },
+      trails:   { color: '#44aa66', label: 'Hiking Trails',    note: 'marked routes' },
+      maritime: { color: '#22aabb', label: 'Maritime',         note: 'ferries · sea routes' },
+      wildfires:{ color: '#ef4444', label: 'Active Wildfires', note: 'NASA FIRMS near-real-time' },
+      natparks: { color: '#52b788', label: 'Parks Overlay',    note: 'National Geographic tile' },
     };
     html += `<div class="ll"><div class="ll-name">Transport Layers</div>`;
     Object.entries(TRANSPORT_LAYERS).forEach(([key, def]) => {
       if (!def.active) return;
       const s = TSWATCH[key];
+      if (!s) return;
       html += `<div class="lr">
         <div class="lsw-line" style="background:${s.color}"></div>
         <div><span class="llabel">${s.label}</span><span class="llabel-note">${s.note}</span></div>
@@ -1734,6 +2040,39 @@ function updateLegend() {
     });
     html += `</div>`;
   }
+
+  // ── Timezone choropleth legend ─────────────────────────────────────────────
+  if (_tzActive) {
+    let stops = '';
+    for (let o = -12; o <= 14; o += 2) {
+      const pct = Math.round(((o + 12) / 26) * 100);
+      stops += `,${tzOffsetColor(o)} ${pct}%`;
+    }
+    html += `<div class="ll">
+      <div class="ll-name">Timezones</div>
+      <div style="height:8px;border-radius:3px;margin:4px 0;background:linear-gradient(to right${stops})"></div>
+      <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--dim);margin-top:2px">
+        <span>UTC−12</span><span>UTC 0</span><span>UTC+14</span>
+      </div>
+    </div>`;
+  }
+
+  // ── POI layer legend entries ────────────────────────────────────────────────
+  const POI_META = {
+    camping: { color:'#22c55e', label:'Camp Sites',        note:'OSM tourism=camp_site' },
+    parks:   { color:'#15803d', label:'Parks & Forests',   note:'OSM national_park · nature_reserve · forest' },
+  };
+  Object.entries(POI_LAYERS).forEach(([key, def]) => {
+    if (!def.active) return;
+    const m = POI_META[key]; if (!m) return;
+    html += `<div class="ll">
+      <div class="ll-name">${m.label}</div>
+      <div class="lr">
+        <div class="lsw" style="background:${m.color};border-radius:50%"></div>
+        <div><span class="llabel">${m.label}</span><span class="llabel-note">${m.note}</span></div>
+      </div>
+    </div>`;
+  });
 
   body.innerHTML = html;
 }
@@ -1802,6 +2141,15 @@ function onZoom() {
     onZoomAdmin1();
     onZoomAdmin2();
     updateZoomAnnotation();
+    // Re-evaluate POI layer visibility thresholds on zoom change.
+    Object.keys(POI_LAYERS).forEach(key => {
+      const def = POI_LAYERS[key];
+      if (!def.active) return;
+      if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key);
+      else _clearPOIMarkers(key);
+    });
+    // Update beach legend when crossing the zoom-7 threshold.
+    if (activeLayers.has('beaches')) updateLegend();
   }, 150);
 }
 
@@ -2774,6 +3122,34 @@ function dismissOverlay() {
   if (lo) { lo.classList.add('fade-out'); setTimeout(() => { if (lo.parentNode) lo.remove(); }, 520); }
 }
 
+// ─── POI Layer Init ───────────────────────────────────────────────────────────
+// Registers map moveend handlers for live Overpass POI layers.
+// Must be called after initMap() creates the Leaflet map instance.
+function initPOILayers() {
+  // Beach markers: re-query on pan when zoom ≥ 7; revert to static at zoom < 7.
+  map.on('moveend', () => {
+    clearTimeout(_beachDebounce);
+    _beachDebounce = setTimeout(() => {
+      if (!activeLayers.has('beaches')) return;
+      if (map.getZoom() >= 7) _fetchAndRenderBeaches();
+      else renderBeachMarkers();   // reverts to curated static icons
+    }, 300);
+  });
+
+  // Generic POI layers: re-query on pan when active and zoom ≥ minZoom.
+  Object.keys(POI_LAYERS).forEach(key => {
+    const def = POI_LAYERS[key];
+    map.on('moveend', () => {
+      clearTimeout(def.debounce);
+      def.debounce = setTimeout(() => {
+        if (!def.active) return;
+        if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key);
+        else _clearPOIMarkers(key);
+      }, 300);
+    });
+  });
+}
+
 // ─── Boot diagnostic overlay ──────────────────────────────────────────────────
 // Shows a visible error panel in the centre of the screen whenever the boot
 // crashes.  Dismisses itself after 12 s so it never permanently blocks the UI.
@@ -2818,11 +3194,14 @@ function showBootError(msg) {
   dismissOverlay();
 
   await initChoropleth();
+  // If the timezone choropleth was toggled before _geoData arrived, rebuild it now.
+  if (_tzActive) toggleTimezoneLayer(true);
   initPoliticalLayers();
   initClimateZones();
   refresh();
   map.on('zoom', onZoom);
   initTransportClickHandlers();
+  initPOILayers();
   initAdmin1Choropleth();
   initSearch();
   initNationalitySelector();
