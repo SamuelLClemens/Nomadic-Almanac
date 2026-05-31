@@ -69,9 +69,15 @@ const TRANSPORT_LAYERS = {
             attribution: '&copy; <a href="https://openseamap.org">OpenSeaMap</a>' },
     layer: null, active: false,
   },
+  wildfires: {
+    label: '🔥 Wildfires',
+    url: 'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/2e43e6382e5cd7b5e3adfd5e16e1c23a/?LAYERS=fires_viirs_24&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=true&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&STYLES=&BBOX={bbox-epsg-3857}',
+    opts: { maxZoom: 8, opacity: 0.75, tileSize: 256, attribution: 'FIRMS/NASA near real-time fire data' },
+    layer: null, active: false,
+  },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -100,6 +106,9 @@ const getAdmin1Code = p => {
 };
 
 let _ttX = 0, _ttY = 0;
+
+// ─── Comparison panel state ───────────────────────────────────────────────────
+let pinnedCountries = [];   // ordered list of ISO-2 codes pinned to comparison
 
 // ─── Map Init ────────────────────────────────────────────────────────────────
 function initMap() {
@@ -457,6 +466,7 @@ function getCountryRating(iso2) {
     if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[iso2]   != null) ? CD_SAFETY[iso2]   : null;
     if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) ? CD_INTERNET[iso2] : null;
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
+    if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
@@ -479,6 +489,7 @@ function getAdmin1Rating(subCode, parentIso2) {
     if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
     if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
+    if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
@@ -545,6 +556,7 @@ function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
     if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
     if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
+    if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d2 && d2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
@@ -1137,6 +1149,37 @@ function renderBeachMarkers() {
   });
 }
 
+// ─── Seasonal Event Markers ───────────────────────────────────────────────────
+let eventMarkers = [];
+function renderEventMarkers() {
+  eventMarkers.forEach(m => m.remove());
+  eventMarkers = [];
+  if (typeof SEASONAL_EVENTS === 'undefined') return;
+  const zoom = map ? map.getZoom() : 0;
+  if (zoom < 2) return;
+  SEASONAL_EVENTS.forEach(ev => {
+    if (!selectedMonths.has(ev.month) && !yearMode) return;
+    const center = COUNTRY_CENTERS[ev.country];
+    if (!center) return;
+    // Offset slightly so multiple events in same country don't overlap
+    const offset = eventMarkers.filter(m => m._eventCountry === ev.country).length * 0.8;
+    const icon = L.divIcon({
+      html: `<div style="font-size:${zoom >= 5 ? 18 : 14}px;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))">${ev.emoji}</div>`,
+      className: '', iconSize: [24, 24], iconAnchor: [12, 12]
+    });
+    const marker = L.marker([center[0] + offset, center[1]], { icon, pane: 'markersPane', zIndexOffset: 100 });
+    marker._eventCountry = ev.country;
+    marker.on('click', e => {
+      _featureClicked = true;
+      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
+      showTooltip(`<div class="tth"><h3>${ev.emoji} ${ev.name}</h3><div class="ts">SEASONAL EVENT</div><div class="tm">${MONTHS_F[ev.month]}</div></div><div class="ttb"><div class="ttdesc" style="font-size:9px;line-height:1.6;color:var(--sand)">${ev.desc}</div></div>`);
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    marker.addTo(map);
+    eventMarkers.push(marker);
+  });
+}
+
 function buildBeachTooltip(beach) {
   const cname = countryNames[beach.country] || beach.country;
   const scol = BEACH_STATUS_COL[beach.status] || '#06b6d4';
@@ -1272,7 +1315,10 @@ function positionTooltip(cx, cy) {
 
 function showTooltip(html) {
   const tt = document.getElementById('tt');
-  tt.innerHTML = html;
+  // Close button injected at the top so users can dismiss and copy text freely
+  const closeBtn = '<button id="tt-close" title="Close" aria-label="Close tooltip" onclick="hideTooltip()">&#x2715;</button>';
+  tt.scrollTop = 0;
+  tt.innerHTML = closeBtn + html;
   tt.style.display = 'block';
   tooltipVisible = true;
   positionTooltip(_ttX, _ttY);
@@ -1286,6 +1332,8 @@ function hideTooltip() {
 // Track mouse position so positionTooltip() has a fallback coordinate.
 // Tooltip is click-anchored and no longer repositions on mousemove.
 document.addEventListener('mousemove', e => { _ttX = e.clientX; _ttY = e.clientY; });
+// Allow keyboard users to dismiss an open tooltip with the Escape key.
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); });
 
 // ─── Persistence helpers ──────────────────────────────────────────────────────
 // Silently no-ops if localStorage is unavailable (private browsing, quota full).
@@ -1381,12 +1429,21 @@ function buildCountryTooltip(iso2) {
   const costSection = buildCostDetailsSection(iso2);
   const visaSection = buildVisaSection(iso2);
   const tzSection   = buildTimezoneSection(iso2);
+  const isPinned    = pinnedCountries.includes(iso2);
+  const pinLabel    = isPinned ? '&#x2665; Pinned' : '&#x2661; Compare';
+  const pinSection  = `<div style="padding:6px 14px 10px">
+    <button class="tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" onclick="togglePinCountry('${iso2}')">${pinLabel}</button>
+  </div>`;
+  const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
+    ? `<div class="tm" style="color:#43A047;margin-top:2px">&#x2708; Best time: ${BEST_TRAVEL_RANGE[iso2]}</div>`
+    : '';
   return `<div class="tth">
     <h3 id="tt-name">${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
+    ${bestTimeLine}
   </div>
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}</div>`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}</div>${pinSection}`;
 }
 
 function buildCityTooltip(city) {
@@ -1559,6 +1616,7 @@ function updateBadge() {
 function refresh() {
   updateLegend();
   updateBadge();
+  if (pinnedCountries.length > 0) renderComparePanel();
   renderChoropleth();
   renderAdmin1Styles();
   renderAdmin2Styles();
@@ -1579,6 +1637,24 @@ function refresh() {
   renderBeachMarkers();
   renderPoliticalLayers();
   updateBestPanel();
+  renderEventMarkers();
+}
+
+// Update the legend zoom annotation note based on the current zoom level and
+// which sub-national layers are active.
+function updateZoomAnnotation() {
+  const note = document.getElementById('legend-zoom-note');
+  if (!note) return;
+  const z = map ? map.getZoom() : 0;
+  if (z >= 6 && _coveredByAdmin2.size > 0) {
+    note.textContent = 'Showing county-level data';
+    note.style.display = 'block';
+  } else if (z >= 5 && admin1ChoroLayer && _admin1Visible) {
+    note.textContent = 'Showing province-level data';
+    note.style.display = 'block';
+  } else {
+    note.style.display = 'none';
+  }
 }
 
 // Re-render markers and update layer visibility on every zoom change.
@@ -1589,8 +1665,10 @@ function onZoom() {
     renderCityMarkers();
     renderBorderMarkers();
     renderBeachMarkers();
+    renderEventMarkers();
     onZoomAdmin1();
     onZoomAdmin2();
+    updateZoomAnnotation();
   }, 150);
 }
 
@@ -1789,7 +1867,7 @@ function initTransportClickHandlers() {
       .map(([k]) => k);
     if (activeKeys.length === 0) {
       // No transport layer — dismiss tooltip on background click
-      if (!_featureClicked) hideTooltip();
+      if (!_featureClicked && !document.getElementById('tt')?.contains(e.originalEvent.target)) hideTooltip();
       return;
     }
 
@@ -1883,6 +1961,7 @@ function onZoomAdmin1() {
   // Re-render country fills — when admin-1 is hidden, country polygons that
   // were suppressed by _coveredByAdmin1 must become visible again.
   renderChoropleth();
+  updateZoomAnnotation();
 }
 
 // ─── Visa Rating & Tooltip ───────────────────────────────────────────────────
@@ -1904,19 +1983,44 @@ function getVisaRating(destIso2, passport) {
   return 2;              // 'req'
 }
 
+// Combines visa access and current-month weather into a single 0–3 score.
+// 0 = Open & Sunny (visa-free + excellent/good weather)
+// 1 = Visa-Free (visa-free but weather not ideal)
+// 2 = Accessible (ETA / eVisa / VoA)
+// 3 = Restricted (embassy visa required or entry closed)
+function getStrengthRating(iso2) {
+  if (!selectedNationality) return null;
+  // Own country — no rating applicable
+  if (iso2 === selectedNationality) return null;
+
+  const visaR = getVisaRating(iso2, selectedNationality);
+  if (visaR === null) return null;
+
+  // Get the weather rating for the currently selected month
+  const cdEntry = CD[iso2];
+  const wxArr   = cdEntry && cdEntry.weather;
+  const weather = wxArr ? getRating(wxArr) : null;
+
+  if (visaR === 0 && weather !== null && weather <= 1) return 0; // Open & Sunny
+  if (visaR === 0) return 1;          // Visa-free but weather not ideal
+  if (visaR === 1) return 2;          // Easy access (ETA/eVisa)
+  return 3;                           // Visa required
+}
+
 // Builds the visa detail section appended to the country tooltip.
 function buildVisaSection(iso2) {
-  if (!activeLayers.has('visa') && !selectedNationality) return '';
+  const needsPassport = activeLayers.has('visa') || activeLayers.has('strength');
+  if (!needsPassport && !selectedNationality) return '';
   const sel = document.getElementById('passport-select');
   const natName = sel && sel.value
     ? (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : sel.value)
     : null;
 
   if (!selectedNationality) {
-    // Visa layer active but no passport chosen — prompt
-    return activeLayers.has('visa')
+    // Visa or strength layer active but no passport chosen — prompt
+    return needsPassport
       ? `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10);font-size:7.5px;color:rgba(201,168,76,0.6)">
-           🛂 Select your passport in the menu to see visa requirements.
+           ✈ Select your passport in the menu to see passport strength &amp; visa requirements.
          </div>`
       : '';
   }
@@ -2003,19 +2107,19 @@ function initNationalitySelector() {
     sel.value = selectedNationality;
   }
 
-  // Helper: add pulse ring if visa layer is on but no nationality selected
+  // Helper: add pulse ring if visa or strength layer is on but no nationality selected
   function syncPassportState() {
-    if (activeLayers.has('visa') && !selectedNationality) {
+    if ((activeLayers.has('visa') || activeLayers.has('strength')) && !selectedNationality) {
       sel.classList.add('needs-passport');
     } else {
       sel.classList.remove('needs-passport');
     }
   }
 
-  // Re-check whenever the visa layer button is toggled (intercept click events on .lb)
+  // Re-check whenever the visa or strength layer button is toggled
   document.getElementById('layers').addEventListener('click', e => {
     const btn = e.target.closest('.lb');
-    if (btn && btn.dataset.key === 'visa') setTimeout(syncPassportState, 10);
+    if (btn && (btn.dataset.key === 'visa' || btn.dataset.key === 'strength')) setTimeout(syncPassportState, 10);
   });
 }
 
@@ -2099,21 +2203,28 @@ function updateURLState() {
 // ─── Country Search ───────────────────────────────────────────────────────────
 // Country name → ISO-2 lookup for search
 const COUNTRY_NAMES = {
-  AR:'Argentina', AU:'Australia', CA:'Canada', CN:'China', CO:'Colombia',
+  AE:'UAE / Dubai', AR:'Argentina', AU:'Australia', BR:'Brazil',
+  CA:'Canada', CN:'China', CO:'Colombia',
   DE:'Germany', EG:'Egypt', ES:'Spain', FR:'France', GB:'United Kingdom',
-  GR:'Greece', ID:'Indonesia', IN:'India', IT:'Italy', JP:'Japan',
-  MA:'Morocco', MX:'Mexico', NG:'Nigeria', NZ:'New Zealand', PE:'Peru',
-  PK:'Pakistan', PT:'Portugal', RU:'Russia', TH:'Thailand', TR:'Turkey',
+  GR:'Greece', ID:'Indonesia', IN:'India', IT:'Italy', JP:'Japan', KR:'South Korea',
+  MA:'Morocco', MX:'Mexico', NG:'Nigeria', NZ:'New Zealand', PE:'Peru', PH:'Philippines',
+  PK:'Pakistan', PT:'Portugal', RU:'Russia', SG:'Singapore', TH:'Thailand', TR:'Turkey',
   US:'United States', VN:'Vietnam', ZA:'South Africa',
+  MY:'Malaysia', KH:'Cambodia', LA:'Laos', MM:'Myanmar', LK:'Sri Lanka',
+  NP:'Nepal', KE:'Kenya', TZ:'Tanzania', GH:'Ghana', CL:'Chile',
+  EC:'Ecuador', CU:'Cuba', CZ:'Czech Republic', PL:'Poland', HU:'Hungary',
 };
 // Approximate centres for fly-to
 const COUNTRY_CENTERS = {
-  AR:[-38,-65], AU:[-25,134], CA:[60,-96], CN:[35,105], CO:[4,-74],
+  AE:[24,54], AR:[-38,-65], AU:[-25,134], BR:[-10,-53], CA:[60,-96], CN:[35,105], CO:[4,-74],
   DE:[51,10], EG:[27,30], ES:[40,-4], FR:[46,2], GB:[54,-2],
-  GR:[39,22], ID:[-5,120], IN:[21,79], IT:[43,12], JP:[37,138],
-  MA:[32,-5], MX:[24,-102], NG:[9,8], NZ:[-41,174], PE:[-10,-76],
-  PK:[30,70], PT:[39,-8], RU:[62,99], TH:[15,101], TR:[39,35],
+  GR:[39,22], ID:[-5,120], IN:[21,79], IT:[43,12], JP:[37,138], KR:[37,128],
+  MA:[32,-5], MX:[24,-102], NG:[9,8], NZ:[-41,174], PE:[-10,-76], PH:[13,122],
+  PK:[30,70], PT:[39,-8], RU:[62,99], SG:[1.3,104], TH:[15,101], TR:[39,35],
   US:[38,-97], VN:[16,108], ZA:[-29,25],
+  MY:[4,108], KH:[13,105], LA:[18,103], MM:[17,96], LK:[8,81], NP:[28,84],
+  KE:[-1,38], TZ:[-6,35], GH:[8,-2], CL:[-35,-71], EC:[-2,-78], CU:[22,-80],
+  CZ:[50,16], PL:[52,20], HU:[47,19],
 };
 
 function initSearch() {
@@ -2241,6 +2352,42 @@ function initLegendCollapsible() {
   });
 }
 
+// ─── Share URL button ─────────────────────────────────────────────────────────
+function initShareButton() {
+  const btn = document.getElementById('share-url-btn');
+  if (!btn) return;
+  btn.setAttribute('aria-label', 'Copy shareable link');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const url = window.location.origin + window.location.pathname + window.location.search;
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓';
+      btn.classList.add('copied');
+      btn.title = 'Link copied!';
+      btn.setAttribute('aria-label', 'Link copied!');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+        btn.title = 'Copy shareable link';
+        btn.setAttribute('aria-label', 'Copy shareable link');
+      }, 2000);
+    }).catch(() => {
+      // Fallback for browsers without clipboard API
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      btn.textContent = '✓'; btn.classList.add('copied');
+      btn.setAttribute('aria-label', 'Link copied!');
+      setTimeout(() => {
+        btn.textContent = '🔗'; btn.classList.remove('copied');
+        btn.setAttribute('aria-label', 'Copy shareable link');
+      }, 2000);
+    });
+  });
+}
+
 // ─── Best This Month toggle ───────────────────────────────────────────────────
 function initBestPanelToggle() {
   const toggle = document.getElementById('best-toggle');
@@ -2315,6 +2462,131 @@ function updateBestPanel() {
   autoExpandBestPanel();
 }
 
+// ─── Onboarding Hint ─────────────────────────────────────────────────────────
+// Displayed once on first visit for 4 seconds, then never again.
+function showOnboardingHint() {
+  try { if (localStorage.getItem('na_hint_seen')) return; } catch (_) {}
+  const el = document.createElement('div');
+  el.id = 'onboarding-hint';
+  el.innerHTML = `
+    <p>Click any country &nbsp;&middot;&nbsp; Switch months &nbsp;&middot;&nbsp; Select a passport for visa data</p>
+    <p class="hint-sub">Zoom to level&nbsp;5+ for province&nbsp;detail &nbsp;&middot;&nbsp; Level&nbsp;6+ for county&nbsp;detail</p>`;
+  document.body.appendChild(el);
+  // Remove element after animation completes (4 s) and mark as seen
+  setTimeout(() => {
+    if (el.parentNode) el.remove();
+    try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
+  }, 4200);
+}
+
+// ─── Comparison Panel ─────────────────────────────────────────────────────────
+// Up to 10 countries can be pinned; panel slides in from the right.
+
+const MAX_PINNED = 10;
+
+function togglePinCountry(iso2) {
+  const idx = pinnedCountries.indexOf(iso2);
+  if (idx === -1) {
+    if (pinnedCountries.length >= MAX_PINNED) pinnedCountries.shift();
+    pinnedCountries.push(iso2);
+  } else {
+    pinnedCountries.splice(idx, 1);
+  }
+  renderComparePanel();
+  // Refresh the currently visible tooltip pin button state if it matches
+  const ttName = document.getElementById('tt-name');
+  if (ttName) {
+    const btn = document.querySelector('.tt-pin-btn');
+    if (btn && btn.dataset.iso2 === iso2) {
+      const pinned = pinnedCountries.includes(iso2);
+      btn.classList.toggle('pinned', pinned);
+      btn.textContent = pinned ? '♡ Pinned' : '♡ Compare';
+    }
+  }
+}
+
+function renderComparePanel() {
+  let panel = document.getElementById('compare-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'compare-panel';
+    panel.innerHTML = `
+      <div id="compare-header">
+        <span id="compare-title">Compare (${pinnedCountries.length})</span>
+        <span id="compare-close-btn" onclick="closeComparePanel()" title="Close panel">&#x2715;</span>
+      </div>
+      <div id="compare-list"></div>`;
+    document.body.appendChild(panel);
+  }
+
+  const titleEl = panel.querySelector('#compare-title');
+  if (titleEl) titleEl.textContent = `Compare (${pinnedCountries.length})`;
+
+  const list = panel.querySelector('#compare-list');
+  if (!list) return;
+
+  if (pinnedCountries.length === 0) {
+    list.innerHTML = '<div id="compare-empty">Pin countries using the ♡ button in each country tooltip.<br><br>Up to 10 countries can be compared side by side.</div>';
+    panel.classList.remove('open');
+    return;
+  }
+
+  panel.classList.add('open');
+
+  list.innerHTML = '';
+  pinnedCountries.forEach(iso2 => {
+    const name = (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[iso2]) ||
+                  countryNames[iso2] || iso2;
+    const item = document.createElement('div');
+    item.className = 'cp-item';
+
+    // Build score chips for active geographic layers
+    let scoreHtml = '';
+    const dataObj = (typeof CD !== 'undefined' && CD[iso2]) || null;
+    const geoKeys = [...activeLayers].filter(k => typeof GEOGRAPHIC_LAYERS !== 'undefined' && GEOGRAPHIC_LAYERS.has(k));
+    geoKeys.forEach(key => {
+      let v = null;
+      if (dataObj && dataObj[key]) {
+        v = typeof getRating === 'function' ? getRating(dataObj[key]) : null;
+      } else if (key === 'cost'     && typeof CD_COST     !== 'undefined') v = CD_COST[iso2]     ?? null;
+      else if (key === 'safety'   && typeof CD_SAFETY   !== 'undefined') v = CD_SAFETY[iso2]   ?? null;
+      else if (key === 'internet' && typeof CD_INTERNET !== 'undefined') v = CD_INTERNET[iso2] ?? null;
+      if (v === null) return;
+      const vc  = Math.min(3, Math.max(0, v));
+      const col = RC[vc];
+      const lbl = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) ||
+                  (typeof LAYERS !== 'undefined' && LAYERS[key] && LAYERS[key].levels) ||
+                  ['0','1','2','3'];
+      scoreHtml += `<span class="cp-score" style="color:${col};border-color:${col}22">${lbl[vc]}</span>`;
+    });
+
+    item.innerHTML = `
+      <div class="cp-name">
+        <span>${name}</span>
+        <span class="cp-remove" data-iso2="${iso2}" title="Remove">&#x2715;</span>
+      </div>
+      <div class="cp-scores">${scoreHtml || '<span class="cp-score">—</span>'}</div>`;
+
+    item.addEventListener('click', e => {
+      if (e.target.classList.contains('cp-remove')) {
+        togglePinCountry(e.target.dataset.iso2);
+        return;
+      }
+      const c = typeof COUNTRY_CENTERS !== 'undefined' ? COUNTRY_CENTERS[iso2] : null;
+      if (c && map) map.flyTo(c, 5, { duration: 1.2 });
+    });
+    item.addEventListener('mouseenter', () => highlightCountry(iso2));
+    item.addEventListener('mouseleave', () => unhighlightCountry(iso2));
+
+    list.appendChild(item);
+  });
+}
+
+function closeComparePanel() {
+  const panel = document.getElementById('compare-panel');
+  if (panel) panel.classList.remove('open');
+}
+
 // ─── Loading overlay helpers ──────────────────────────────────────────────────
 function dismissOverlay() {
   clearTimeout(window._loTimer);   // cancel safety timer from index.html
@@ -2375,8 +2647,12 @@ function showBootError(msg) {
   initSearch();
   initNationalitySelector();
   initLegendCollapsible();
+  initShareButton();
   initBestPanelToggle();
   updateBestPanel();
+  showOnboardingHint();
+  renderComparePanel();
+  updateZoomAnnotation();
 
   } catch (err) {
     console.error('[Nomadic Almanac] Boot error:', err);
