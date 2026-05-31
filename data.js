@@ -49,6 +49,38 @@ const CURRENCY = {
   PK:'PKR', PT:'EUR', RU:'RUB', TH:'THB', TR:'TRY',
   US:'USD', VN:'VND', ZA:'ZAR',
 };
+// Primary timezone(s) per country — first entry is the main zone, rest are regional
+const COUNTRY_TIMEZONES = {
+  AR:['UTC−3 (ART)'],
+  AU:['UTC+8–11 (multiple)','AEST UTC+10 · Sydney, Melbourne','AWST UTC+8 · Perth','ACST UTC+9:30 · Adelaide'],
+  CA:['UTC−3:30 to −8 (multiple)','EST UTC−5 · Toronto','CST UTC−6 · Winnipeg','MST UTC−7 · Calgary','PST UTC−8 · Vancouver'],
+  CN:['UTC+8 (CST — single national zone)'],
+  CO:['UTC−5 (COT)'],
+  DE:['UTC+1 / UTC+2 DST (CET/CEST)'],
+  EG:['UTC+2 (EET)'],
+  ES:['UTC+1 / UTC+2 DST (CET/CEST)'],
+  FR:['UTC+1 / UTC+2 DST (CET/CEST)'],
+  GB:['UTC+0 / UTC+1 BST (GMT/BST)'],
+  GR:['UTC+2 / UTC+3 DST (EET/EEST)'],
+  ID:['UTC+7–9 (multiple)','WIB UTC+7 · Jakarta, Bali','WITA UTC+8 · Lombok','WIT UTC+9 · Papua'],
+  IN:['UTC+5:30 (IST — single national zone)'],
+  IT:['UTC+1 / UTC+2 DST (CET/CEST)'],
+  JP:['UTC+9 (JST — single national zone)'],
+  MA:['UTC+1 (WET)'],
+  MX:['UTC−6 to −8 (multiple)','CST UTC−6 · Mexico City','MST UTC−7 · Chihuahua','PST UTC−8 · Tijuana'],
+  NG:['UTC+1 (WAT)'],
+  NZ:['UTC+12 / UTC+13 DST (NZST/NZDT)'],
+  PE:['UTC−5 (PET)'],
+  PK:['UTC+5 (PKT)'],
+  PT:['UTC+0 / UTC+1 BST (WET/WEST)'],
+  RU:['UTC+2–12 (11 zones)','MSK UTC+3 · Moscow','YEKT UTC+5 · Yekaterinburg','IRKT UTC+8 · Irkutsk','VLAT UTC+10 · Vladivostok'],
+  TH:['UTC+7 (ICT)'],
+  TR:['UTC+3 (TRT — no DST since 2016)'],
+  US:['UTC−5 to −10 (6 zones)','EST UTC−5 · New York, Miami','CST UTC−6 · Chicago, Dallas','MST UTC−7 · Denver, Phoenix','PST UTC−8 · LA, Seattle','HST UTC−10 · Hawaii'],
+  VN:['UTC+7 (ICT — single national zone)'],
+  ZA:['UTC+2 (SAST — no DST)'],
+};
+
 // Budget traveler cost estimates (approximate USD) for cost-of-living tooltip
 // hostel=$/night, meal=$/meal, transport=$/day, coffee=$, beer=$
 const COST_DETAILS = {
@@ -96,6 +128,7 @@ const PASSPORT_NATIONALITIES = {
   IN:'🇮🇳 India',
   CN:'🇨🇳 China',
   BR:'🇧🇷 Brazil',
+  IL:'🇮🇱 Israel',
 };
 
 // Visa requirements per destination × passport nationality
