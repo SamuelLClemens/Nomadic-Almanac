@@ -385,13 +385,13 @@ function getCountryStyle(iso2, hover) {
   // Country/admin-1 fills render above them at choroplethPane (z-index 300).
   // No suppression needed — both layers are always visible simultaneously.
   const r = getCountryRating(iso2);
-  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
+  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.25 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
     color: hover ? 'rgba(232,213,163,0.65)' : 'rgba(255,255,255,0.30)',
-    weight: hover ? 1.5 : 0.65,
+    weight: hover ? 2.5 : 0.65,
   };
 }
 
@@ -405,13 +405,13 @@ function getAdmin1Style(iso2, subCode, hover) {
   // Climate zones are in climatePane (z-290), admin-1 fill renders above them.
   // No suppression — admin-1 and climate zone fills show simultaneously.
   const r = getAdmin1Rating(subCode, iso2);
-  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.86 : 0.52) : 0;
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
+  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.20 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
     color: hover ? 'rgba(232,213,163,0.40)' : 'rgba(255,255,255,0.20)',
-    weight: hover ? 0.9 : 0.35,
+    weight: hover ? 2.5 : 0.35,
   };
 }
 
@@ -438,15 +438,15 @@ function getAdmin2Style(shapeID, parentAdmin1Code, iso2, hover) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.05)', weight: 0.15 };
   }
   const r = getAdmin2Rating(shapeID, parentAdmin1Code, iso2);
-  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : 'transparent';
-  const fo = r !== null ? (hover ? 0.82 : 0.48) : 0;
+  const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
+  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.16 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
     // County borders are lighter/thinner than province borders (0.35/0.9) so
     // province lines remain visually dominant at intermediate zoom levels.
     color: hover ? 'rgba(232,213,163,0.30)' : 'rgba(255,255,255,0.12)',
-    weight: hover ? 0.7 : 0.22,
+    weight: hover ? 2.5 : 0.22,
   };
 }
 
@@ -778,11 +778,15 @@ async function loadAdmin2Country(iso2) {
   const iso3 = ISO2_TO_ISO3[iso2];
   if (!iso3) return;
 
+  const statusEl = document.getElementById('map-status');
+  if (statusEl) { statusEl.textContent = 'Loading county data…'; statusEl.style.display = 'block'; }
+
   try {
     const res = await fetch(`data/admin2/${iso3}_ADM2_simplified.geojson`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const geojson = await res.json();
     _admin2Cache[iso2] = geojson;
+    if (statusEl) statusEl.style.display = 'none';
 
     _admin2Layers[iso2] = L.geoJSON(geojson, {
       pane: 'admin2Pane',
@@ -819,6 +823,7 @@ async function loadAdmin2Country(iso2) {
   } catch (e) {
     console.warn(`Admin-2 load failed for ${iso2} (${iso3}):`, e.message);
     delete _admin2Cache[iso2];  // allow retry on next zoom event
+    if (statusEl) statusEl.style.display = 'none';
   }
 }
 
@@ -1291,6 +1296,10 @@ function updateLegend() {
         <span class="llabel">${lbl}</span>
       </div>`;
     });
+    html += `<div class="lr">
+        <div class="lsw" style="background:${RC_NODATA};opacity:0.7"></div>
+        <span class="llabel" style="color:#8a8a8a">No data</span>
+      </div>`;
     html += `</div>`;
   });
 

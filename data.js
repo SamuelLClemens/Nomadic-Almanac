@@ -6,8 +6,9 @@ const bc  = (name, from, to, lat, lng, status, hours, note) => ({ name, from, to
 const bch = (name, country, lat, lng, status, season, water, facilities, dresscode, note) =>
   ({ name, country, lat, lng, status, season, water, facilities, dresscode, note });
 
-const RC  = ['#4ade80','#facc15','#fb923c','#f87171'];
-const RC2 = ['#22c55e','#eab308','#f97316','#ef4444'];
+const RC  = ['#43A047','#FDD835','#EF6C00','#C62828'];
+const RC2 = ['#43A047','#FDD835','#EF6C00','#C62828'];
+const RC_NODATA = '#B0BEC5';
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_F = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
