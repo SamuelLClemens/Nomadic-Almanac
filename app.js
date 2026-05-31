@@ -14,6 +14,20 @@ let beachMarkers     = [];
 let _beachPoiMarkers = [];    // live Overpass beach circleMarkers (zoom ≥ 7)
 let _beachPoiCache   = {};    // bboxKey → OSM elements array (avoids re-querying)
 let _beachDebounce   = null;
+
+// Rail stop markers (rendered when rail layer is active at zoom ≥ 7)
+let _railStopMarkers  = [];
+let _railStopCache    = {};
+let _railStopDebounce = null;
+
+// Park border polylines (vector rendering replacing the NatGeo tile for natparks)
+let _parkBorderLines    = [];
+let _parkBorderCache    = {};
+let _parkBorderDebounce = null;
+
+// Click-toggle tooltip: tracks which feature's popup is currently open.
+// Clicking the same feature again closes the tooltip (toggle behavior).
+let _activeTooltipKey = null;
 let climateZoneLayer  = null;
 let _climateRenderer  = null;
 let geojsonLayer     = null;
@@ -86,10 +100,11 @@ const TRANSPORT_LAYERS = {
   },
   natparks: {
     label: '🌲 Parks',
-    // OpenStreetMap Humanitarian tiles — parks and nature reserves shown in green
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
-    opts: { maxZoom: 16, opacity: 0.55,
-            attribution: 'National Geographic &copy; Esri | parks & protected areas visible in green' },
+    // Vector rendering: green polygon borders fetched from Overpass (boundary=national_park
+    // + leisure=nature_reserve). The NatGeo tile overlay has been replaced so the basemap
+    // satellite imagery remains visible — only the park boundaries are drawn on top.
+    vector: true,   // signals _fetchAndRenderParkBorders() instead of L.tileLayer()
+    url: null, opts: {},
     layer: null, active: false,
   },
 };
@@ -199,6 +214,12 @@ function initMap() {
   map.createPane('transportPane');
   map.getPane('transportPane').style.zIndex = '310';
   map.getPane('transportPane').style.pointerEvents = 'none';
+
+  // parkPane: green vector park borders sit above the transport tile overlay but
+  // below markers so they are interactive without blocking city / border markers.
+  map.createPane('parkPane');
+  map.getPane('parkPane').style.zIndex = '320';
+  map.getPane('parkPane').style.pointerEvents = 'auto';
 
   map.createPane('labelPane');
   map.getPane('labelPane').style.zIndex = '450';
@@ -569,20 +590,38 @@ function buildTransportButtons() {
       def.active = !def.active;
       btn.classList.toggle('on', def.active);
       if (def.active) {
-        if (!def.layer) {
-          // WMS layers need L.tileLayer.wms(); standard tile layers use L.tileLayer().
-          def.layer = def.wms
-            ? L.tileLayer.wms(def.url, { pane: 'transportPane', ...def.opts })
-            : L.tileLayer(def.url,     { pane: 'transportPane', ...def.opts });
+        if (def.vector) {
+          // natparks: vector polygon border rendering via Overpass (not a tile layer)
+          _fetchAndRenderParkBorders();
+        } else {
+          if (!def.layer) {
+            // WMS layers need L.tileLayer.wms(); standard tile layers use L.tileLayer().
+            def.layer = def.wms
+              ? L.tileLayer.wms(def.url, { pane: 'transportPane', ...def.opts })
+              : L.tileLayer(def.url,     { pane: 'transportPane', ...def.opts });
+          }
+          def.layer.addTo(map);
         }
-        def.layer.addTo(map);
         // Guidance for maritime (only useful when zoomed in to ports)
         if (key === 'maritime') {
           const st = document.getElementById('map-status');
           if (st) { st.textContent = '⚓ Maritime: zoom into port areas to see navigation marks and click for ferry/harbour data.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},6000); }
         }
-      } else if (def.layer) {
-        def.layer.remove();
+        // Rail: render stop marker dots when layer is activated
+        if (key === 'rail') _fetchAndRenderRailStops();
+        // Trails: auto-show camping when hiking overlay is on
+        if (key === 'trails') _refreshLinkedCamping();
+      } else {
+        if (def.vector) {
+          // natparks vector off: remove drawn park borders
+          _clearParkBorders();
+        } else if (def.layer) {
+          def.layer.remove();
+        }
+        // Rail off: remove stop dots and clear cache
+        if (key === 'rail') { _clearRailStops(); _railStopCache = {}; }
+        // Trails off: remove linked camping markers if camping button is not independently on
+        if (key === 'trails') _refreshLinkedCamping();
       }
       syncTransportBtn();
       updateLegend();
@@ -624,8 +663,15 @@ function buildTransportButtons() {
     pbtn.addEventListener('click', () => {
       def.active = !def.active;
       pbtn.classList.toggle('on', def.active);
-      if (def.active) _fetchAndRenderPOI(key);
-      else _clearPOIMarkers(key);
+      if (def.active) {
+        _fetchAndRenderPOI(key);
+        // Parks POI: also show camping sites automatically
+        if (key === 'parks') _refreshLinkedCamping();
+      } else {
+        _clearPOIMarkers(key);
+        // Parks POI off: remove linked camping markers if camping is not independently on
+        if (key === 'parks') _refreshLinkedCamping();
+      }
       syncTransportBtn();
       updateLegend();
     });
@@ -932,8 +978,7 @@ function initPoliticalLayers() {
       });
       layer.on('click', e => {
         _featureClicked = true;
-        _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
-        showTooltip(buildTerritoryTooltip(p.id, p.name, p.type, p.adminIso));
+        toggleTooltip('territory:' + p.id, buildTerritoryTooltip(p.id, p.name, p.type, p.adminIso), e.originalEvent.clientX, e.originalEvent.clientY);
         setTimeout(() => { _featureClicked = false; }, 10);
       });
     },
@@ -1006,9 +1051,8 @@ async function initChoropleth() {
       });
       layer.on('click', e => {
         _featureClicked = true;
-        _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
         const html = buildCountryTooltip(iso2);
-        if (html) showTooltip(html);
+        if (html) toggleTooltip('country:' + iso2, html, e.originalEvent.clientX, e.originalEvent.clientY);
         setTimeout(() => { _featureClicked = false; }, 10);
       });
     },
@@ -1104,9 +1148,8 @@ async function initAdmin1Choropleth() {
         });
         layer.on('click', e => {
           _featureClicked = true;
-          _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
           const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
-          if (html) showTooltip(html);
+          if (html) toggleTooltip('admin1:' + subCode, html, e.originalEvent.clientX, e.originalEvent.clientY);
           setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
@@ -1165,11 +1208,10 @@ async function loadAdmin2Country(iso2) {
         });
         layer.on('click', e => {
           _featureClicked = true;
-          _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
           const stateName   = (parentA1 && _admin1NameCache[parentA1]) || parentA1 || '';
           const countryName = countryNames[iso2] || iso2;
           const html = buildAdmin2Tooltip(shapeID, parentA1, iso2, distName, stateName, countryName);
-          if (html) showTooltip(html);
+          if (html) toggleTooltip('admin2:' + shapeID, html, e.originalEvent.clientX, e.originalEvent.clientY);
           setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
@@ -1263,8 +1305,7 @@ function _placeCities(list) {
 
     marker.on('click', e => {
       _featureClicked = true;
-      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
-      showTooltip(buildCityTooltip(city));
+      toggleTooltip('city:' + city.name + ':' + city.lat, buildCityTooltip(city), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
 
@@ -1286,8 +1327,7 @@ function renderBorderMarkers() {
 
     marker.on('click', e => {
       _featureClicked = true;
-      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
-      showTooltip(buildBorderTooltip(bc));
+      toggleTooltip('border:' + (bc.id || (bc.lat + ':' + bc.lng)), buildBorderTooltip(bc), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
 
@@ -1357,8 +1397,7 @@ function renderBeachMarkers() {
     const marker = L.marker([beach.lat, beach.lng], { icon, pane: 'markersPane' });
     marker.on('click', e => {
       _featureClicked = true;
-      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
-      showTooltip(buildBeachTooltip(beach));
+      toggleTooltip('beach:' + (beach.name || beach.lat + ':' + beach.lng), buildBeachTooltip(beach), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
     marker.addTo(map);
@@ -1388,8 +1427,9 @@ function renderEventMarkers() {
     marker._eventCountry = ev.country;
     marker.on('click', e => {
       _featureClicked = true;
-      _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
-      showTooltip(`<div class="tth"><h3>${ev.emoji} ${ev.name}</h3><div class="ts">SEASONAL EVENT</div><div class="tm">${MONTHS_F[ev.month]}</div></div><div class="ttb"><div class="ttdesc" style="font-size:9px;line-height:1.6;color:var(--sand)">${ev.desc}</div></div>`);
+      toggleTooltip('event:' + ev.country + ':' + ev.month + ':' + ev.name,
+        `<div class="tth"><h3>${ev.emoji} ${ev.name}</h3><div class="ts">SEASONAL EVENT</div><div class="tm">${MONTHS_F[ev.month]}</div></div><div class="ttb"><div class="ttdesc" style="font-size:10px;line-height:1.7;color:#333">${ev.desc}</div></div>`,
+        e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
     marker.addTo(map);
@@ -1494,8 +1534,7 @@ function _renderBeachCircles(elements) {
     });
     m.on('click', ev => {
       _featureClicked = true;
-      _ttX = ev.originalEvent.clientX; _ttY = ev.originalEvent.clientY;
-      showTooltip(_buildOsmBeachTooltip(t));
+      toggleTooltip('osmbeach:' + (el.id || (lat + ':' + lon)), _buildOsmBeachTooltip(t), ev.originalEvent.clientX, ev.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
     m.addTo(map);
@@ -1534,9 +1573,25 @@ function _clearPOIMarkers(key) {
   def.markers = [];
 }
 
-async function _fetchAndRenderPOI(key) {
+// Called when trails tile or parks POI changes state. Shows camping markers
+// automatically when trails or parks are active; clears them when neither is
+// active and the camping button is not independently on.
+function _refreshLinkedCamping() {
+  const linked = TRANSPORT_LAYERS.trails.active || POI_LAYERS.parks.active;
+  if (linked) {
+    // Fetch camping data without requiring the camping button to be toggled on.
+    _fetchAndRenderPOI('camping', true);
+  } else if (!POI_LAYERS.camping.active) {
+    // Neither linked source is on and user has not turned camping on explicitly.
+    _clearPOIMarkers('camping');
+  }
+}
+
+async function _fetchAndRenderPOI(key, forceRender) {
   const def = POI_LAYERS[key];
-  if (!def || !def.active || !map) return;
+  // forceRender bypasses the active check — used when a linked layer (trails/parks)
+  // auto-activates camping without the camping button being toggled on.
+  if (!def || (!def.active && !forceRender) || !map) return;
   const zoom = map.getZoom();
   if (zoom < def.minZoom) { _clearPOIMarkers(key); return; }
 
@@ -1586,8 +1641,8 @@ function _renderPOICircles(key, elements) {
     });
     m.on('click', ev => {
       _featureClicked = true;
-      _ttX = ev.originalEvent.clientX; _ttY = ev.originalEvent.clientY;
-      showTooltip(key === 'camping' ? _buildCampingTooltip(t) : _buildParkTooltip(t));
+      const ttKey = key + ':' + (el.id || (lat + ':' + lon));
+      toggleTooltip(ttKey, key === 'camping' ? _buildCampingTooltip(t) : _buildParkTooltip(t), ev.originalEvent.clientX, ev.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
     m.addTo(map);
@@ -1638,6 +1693,202 @@ function _buildParkTooltip(t) {
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this area.</div>'}</div>`;
 }
 
+// ─── Rail Stop Markers ────────────────────────────────────────────────────────
+// Renders individual station/halt/stop dots when the Rail layer is active.
+// Visible at zoom ≥ 7; cleared when rail is deactivated or zoom drops below 7.
+
+function _clearRailStops() {
+  _railStopMarkers.forEach(m => m.remove());
+  _railStopMarkers = [];
+}
+
+async function _fetchAndRenderRailStops() {
+  if (!TRANSPORT_LAYERS.rail.active || !map) return;
+  const zoom = map.getZoom();
+  if (zoom < 7) { _clearRailStops(); return; }
+
+  const bounds  = map.getBounds();
+  const bboxKey = _bboxKey(bounds);
+  if (_railStopCache[bboxKey]) { _renderRailStopDots(_railStopCache[bboxKey]); return; }
+
+  const s = bounds.getSouth().toFixed(4), w = bounds.getWest().toFixed(4);
+  const n = bounds.getNorth().toFixed(4), e = bounds.getEast().toFixed(4);
+  const query = `[out:json][timeout:15];node["railway"~"station|halt|stop"]["name"](${s},${w},${n},${e});out body 250;`;
+
+  try {
+    const res = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const els = data.elements || [];
+    _railStopCache[bboxKey] = els;
+    if (TRANSPORT_LAYERS.rail.active && map.getZoom() >= 7) _renderRailStopDots(els);
+  } catch (err) {
+    console.warn('Rail stop fetch error:', err.message);
+  }
+}
+
+function _renderRailStopDots(elements) {
+  _clearRailStops();
+  elements.forEach(el => {
+    if (!el.lat || !el.lon) return;
+    const t   = el.tags || {};
+    const rw  = t.railway || 'stop';
+    const r   = rw === 'station' ? 7 : rw === 'halt' ? 5 : 4;
+    const col = rw === 'station' ? '#3b82f6' : rw === 'halt' ? '#60a5fa' : '#93c5fd';
+    const m   = L.circleMarker([el.lat, el.lon], {
+      pane: 'markersPane', radius: r,
+      color: '#fff', weight: 1.5,
+      fillColor: col, fillOpacity: 0.92,
+    });
+    m.on('click', ev => {
+      _featureClicked = true;
+      _ttX = ev.originalEvent.clientX; _ttY = ev.originalEvent.clientY;
+      toggleTooltip('railstop:' + el.id, _buildRailStopTooltip(t), _ttX, _ttY);
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    m.addTo(map);
+    _railStopMarkers.push(m);
+  });
+}
+
+function _buildRailStopTooltip(t) {
+  const row  = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const type = (t.railway || 'stop').replace(/_/g, ' ');
+  const fields = [
+    row('Type',       type),
+    row('Operator',   t.operator   || ''),
+    row('Lines',      t.line       || ''),
+    row('Network',    t.network    || ''),
+    row('Platforms',  t.platforms  || ''),
+    row('Wheelchair', t.wheelchair || ''),
+    row('Ref',        t.ref        || ''),
+    row('Note',       t.note       || ''),
+  ].join('');
+  return `<div class="tth">
+    <h3>🚉 ${t.name || t['name:en'] || 'Station'}</h3>
+    <div class="ts">${type.toUpperCase()}</div>
+    <div class="tm">RAIL STOP — OSM</div>
+  </div><div class="ttb">${fields || '<div style="color:#888;font-size:9px;padding:4px 0">No additional data for this stop.</div>'}</div>`;
+}
+
+// ─── Park Border Vectors ──────────────────────────────────────────────────────
+// Fetches national park and nature reserve boundaries from Overpass and renders
+// them as green polylines on the satellite basemap. Replaces the NatGeo tile.
+
+function _clearParkBorders() {
+  _parkBorderLines.forEach(l => l.remove());
+  _parkBorderLines = [];
+}
+
+async function _fetchAndRenderParkBorders() {
+  if (!TRANSPORT_LAYERS.natparks.active || !map) return;
+  const zoom = map.getZoom();
+  if (zoom < 5) { _clearParkBorders(); return; }
+
+  const bounds  = map.getBounds();
+  const bboxKey = _bboxKey(bounds);
+  if (_parkBorderCache[bboxKey]) { _renderParkBorderVectors(_parkBorderCache[bboxKey]); return; }
+
+  const st = document.getElementById('map-status');
+  if (st) { st.textContent = '🌲 Loading park boundaries…'; st.style.display = 'block'; }
+
+  const s = bounds.getSouth().toFixed(4), w = bounds.getWest().toFixed(4);
+  const n = bounds.getNorth().toFixed(4), e = bounds.getEast().toFixed(4);
+  // Query ways only (lighter than relations) — sufficient to draw visible borders.
+  const query = `[out:json][timeout:30];(way["boundary"="national_park"](${s},${w},${n},${e});way["leisure"="nature_reserve"](${s},${w},${n},${e});way["protect_class"~"^(1|2|3|4|5|6)"](${s},${w},${n},${e}););out geom qt 80;`;
+
+  try {
+    const res  = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    if (res.status === 429) throw new Error('Rate limit');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const els  = (data.elements || []).filter(el => el.geometry && el.geometry.length > 1);
+    _parkBorderCache[bboxKey] = els;
+    if (TRANSPORT_LAYERS.natparks.active) _renderParkBorderVectors(els);
+    if (st) st.style.display = 'none';
+  } catch (err) {
+    const msg = err.message === 'Rate limit' ? '⚠ Rate limit — wait and pan to retry' : '⚠ Park boundary data unavailable';
+    if (st) { st.textContent = msg; st.style.display = 'block'; setTimeout(() => { st.style.display = 'none'; }, 4000); }
+  }
+}
+
+function _renderParkBorderVectors(elements) {
+  _clearParkBorders();
+  elements.forEach(el => {
+    if (!el.geometry || el.geometry.length < 2) return;
+    const coords = el.geometry.map(pt => [pt.lat, pt.lon]);
+    const t      = el.tags || {};
+    const kind   = t['boundary'] === 'national_park' ? 'National Park'
+                 : t['leisure']  === 'nature_reserve' ? 'Nature Reserve' : 'Protected Area';
+    const l = L.polyline(coords, {
+      pane:      'parkPane',
+      color:     '#22c55e',
+      weight:    2.2,
+      opacity:   0.85,
+      dashArray: null,
+    });
+    l.on('click', ev => {
+      _featureClicked = true;
+      _ttX = ev.originalEvent.clientX; _ttY = ev.originalEvent.clientY;
+      toggleTooltip('parkborder:' + el.id, _buildParkTooltip(t), _ttX, _ttY);
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    l.addTo(map);
+    _parkBorderLines.push(l);
+  });
+}
+
+// ─── Road Click Info ──────────────────────────────────────────────────────────
+// Queries Overpass for named roads and highway refs near the click point.
+// Called when the Roads tile layer is active and the user clicks the map.
+
+async function fetchRoadInfo(lat, lng) {
+  try {
+    const query = `[out:json][timeout:10];(way["highway"~"motorway|trunk|primary|secondary|tertiary|residential|service|unclassified"]["name"](around:250,${lat},${lng});way["highway"~"motorway|trunk|primary|secondary"]["ref"](around:600,${lat},${lng}););out body 20;`;
+    const res  = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const ways = (data.elements || []);
+
+    if (ways.length === 0) {
+      return `<div class="tth"><h3>🛣 No Road Found</h3><div class="ts">ROADS — OSM</div><div class="tm">Try clicking on a highlighted road</div></div>
+        <div class="ttb"><div style="color:#888;font-size:9px">No named road within 250 m. The overlay shows all road classes — click directly on a coloured road line for data.</div></div>`;
+    }
+
+    const HW_COLOR = {
+      motorway:'#e11d48', trunk:'#dc2626', primary:'#ea580c',
+      secondary:'#d97706', tertiary:'#ca8a04', residential:'#6b7280',
+      service:'#9ca3af', unclassified:'#9ca3af',
+    };
+    const rows = ways.slice(0, 5).map(w => {
+      const t    = w.tags || {};
+      const hw   = t.highway || '';
+      const name = t.name || t['name:en'] || t.ref || `(${hw.replace(/_/g, ' ')})`;
+      const ref  = t.ref  ? ` · ${t.ref}` : '';
+      const spd  = t.maxspeed ? ` · ${t.maxspeed}` : '';
+      const surf = t.surface ? ` · ${t.surface}` : '';
+      const col  = HW_COLOR[hw] || '#9ca3af';
+      return `<div class="ttr">
+        <div class="ttstrip" style="background:${col}"></div>
+        <div class="tti">
+          <div class="ttln">${hw.replace(/_/g, ' ').toUpperCase()}</div>
+          <div class="ttrat" style="color:#1a1a1a">${name}</div>
+          <div class="ttdesc">${ref}${spd}${surf}</div>
+        </div></div>`;
+    }).join('');
+
+    return `<div class="tth">
+      <h3>🛣 Roads</h3>
+      <div class="ts">ROADS — OSM</div>
+      <div class="tm">Within 250 m of click point</div>
+    </div><div class="ttb">${rows}</div>`;
+
+  } catch (e) {
+    return `<div class="tth"><h3>🛣 Roads</h3><div class="ts">CONNECTION ERROR</div></div>
+      <div class="ttb"><div style="color:#888;font-size:9px">Could not load road data. Check your connection.</div></div>`;
+  }
+}
+
 // ─── Climate Zones ────────────────────────────────────────────────────────────
 function initClimateZones() {
   if (typeof CLIMATE_ZONES === 'undefined' || !CLIMATE_ZONES.length) return;
@@ -1661,8 +1912,7 @@ function initClimateZones() {
       onEachFeature: (f, layer) => {
         layer.on('click', e => {
           _featureClicked = true;
-          _ttX = e.originalEvent.clientX; _ttY = e.originalEvent.clientY;
-          showTooltip(buildClimateZoneTooltip(f.properties));
+          toggleTooltip('climate:' + f.properties.id, buildClimateZoneTooltip(f.properties), e.originalEvent.clientX, e.originalEvent.clientY);
           setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
@@ -1739,6 +1989,21 @@ function showTooltip(html) {
 function hideTooltip() {
   document.getElementById('tt').style.display = 'none';
   tooltipVisible = false;
+  _activeTooltipKey = null;
+}
+
+// Clicking the same map feature twice toggles the tooltip off (dismiss).
+// key: unique string identifying the feature (e.g. 'country:FR', 'city:Paris').
+// If the feature's tooltip is already open, the tooltip is hidden.
+// If a different feature is clicked, the tooltip is replaced.
+function toggleTooltip(key, html, cx, cy) {
+  if (_activeTooltipKey === key && tooltipVisible) {
+    hideTooltip();
+    return;
+  }
+  _activeTooltipKey = key;
+  _ttX = cx; _ttY = cy;
+  showTooltip(html);
 }
 
 // Track mouse position so positionTooltip() has a fallback coordinate.
@@ -2026,17 +2291,32 @@ function updateLegend() {
       trails:   { color: '#44aa66', label: 'Hiking Trails',    note: 'marked routes' },
       maritime: { color: '#22aabb', label: 'Maritime',         note: 'ferries · sea routes' },
       wildfires:{ color: '#ef4444', label: 'Active Wildfires', note: 'NASA FIRMS near-real-time' },
-      natparks: { color: '#52b788', label: 'Parks Overlay',    note: 'National Geographic tile' },
+      natparks: { color: '#22c55e', label: 'National Parks / Reserves', note: 'green border polygons · OSM' },
     };
     html += `<div class="ll"><div class="ll-name">Transport Layers</div>`;
     Object.entries(TRANSPORT_LAYERS).forEach(([key, def]) => {
       if (!def.active) return;
       const s = TSWATCH[key];
       if (!s) return;
-      html += `<div class="lr">
-        <div class="lsw-line" style="background:${s.color}"></div>
-        <div><span class="llabel">${s.label}</span><span class="llabel-note">${s.note}</span></div>
-      </div>`;
+      if (def.vector) {
+        // natparks: show a line swatch (polygon border)
+        html += `<div class="lr">
+          <div class="lsw-line" style="background:${s.color}"></div>
+          <div><span class="llabel">${s.label}</span><span class="llabel-note">${s.note}</span></div>
+        </div>`;
+      } else {
+        html += `<div class="lr">
+          <div class="lsw-line" style="background:${s.color}"></div>
+          <div><span class="llabel">${s.label}</span><span class="llabel-note">${s.note}</span></div>
+        </div>`;
+      }
+      // Rail: show stop dot legend entry when zoom ≥ 7
+      if (key === 'rail' && map && map.getZoom() >= 7) {
+        html += `<div class="lr">
+          <div class="lsw" style="background:#3b82f6;border-radius:50%"></div>
+          <span class="llabel">Station / stop dots</span>
+        </div>`;
+      }
     });
     html += `</div>`;
   }
@@ -2144,10 +2424,21 @@ function onZoom() {
     // Re-evaluate POI layer visibility thresholds on zoom change.
     Object.keys(POI_LAYERS).forEach(key => {
       const def = POI_LAYERS[key];
-      if (!def.active) return;
-      if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key);
+      const linkedActive = key === 'camping' && (TRANSPORT_LAYERS.trails.active || POI_LAYERS.parks.active);
+      if (!def.active && !linkedActive) return;
+      if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key, linkedActive);
       else _clearPOIMarkers(key);
     });
+    // Rail stop dots: re-evaluate on zoom change.
+    if (TRANSPORT_LAYERS.rail.active) {
+      if (map.getZoom() >= 7) _fetchAndRenderRailStops();
+      else _clearRailStops();
+    }
+    // Park border vectors: re-evaluate on zoom change.
+    if (TRANSPORT_LAYERS.natparks.active) {
+      if (map.getZoom() >= 5) _fetchAndRenderParkBorders();
+      else _clearParkBorders();
+    }
     // Update beach legend when crossing the zoom-7 threshold.
     if (activeLayers.has('beaches')) updateLegend();
   }, 150);
@@ -2254,10 +2545,10 @@ async function fetchRailInfo(lat, lng) {
       const rw   = (t.railway || 'station').replace(/_/g, ' ');
       const op   = t.operator ? ` · ${t.operator}` : '';
       return `<div class="ttr">
-        <div class="ttstrip" style="background:#4466cc"></div>
+        <div class="ttstrip" style="background:#3b82f6"></div>
         <div class="tti">
           <div class="ttln">${rw.toUpperCase()}</div>
-          <div class="ttrat" style="color:#b0bce8">${name}</div>
+          <div class="ttrat">${name}</div>
           <div class="ttdesc">${op}</div>
         </div></div>`;
     }).join('');
@@ -2271,10 +2562,10 @@ async function fetchRailInfo(lat, lng) {
       const via   = (from && to) ? `${from} → ${to}` : '';
       const op    = t.operator ? ` · ${t.operator}` : '';
       return `<div class="ttr">
-        <div class="ttstrip" style="background:#2244aa"></div>
+        <div class="ttstrip" style="background:#2563eb"></div>
         <div class="tti">
           <div class="ttln">${route} ROUTE</div>
-          <div class="ttrat" style="color:#b0bce8">${name}</div>
+          <div class="ttrat">${name}</div>
           <div class="ttdesc">${via}${op}</div>
         </div></div>`;
     }).join('');
@@ -2312,10 +2603,10 @@ async function fetchMaritimeInfo(lat, lng) {
       const type = (t['seamark:type'] || 'harbour').replace(/_/g, ' ');
       const cat  = t['seamark:harbour:category'] || t.description || '';
       return `<div class="ttr">
-        <div class="ttstrip" style="background:#22aabb"></div>
+        <div class="ttstrip" style="background:#0e7490"></div>
         <div class="tti">
           <div class="ttln">${type.toUpperCase()}</div>
-          <div class="ttrat" style="color:#80d8e0">${name}</div>
+          <div class="ttrat">${name}</div>
           <div class="ttdesc">${cat}</div>
         </div></div>`;
     }).join('');
@@ -2331,7 +2622,7 @@ async function fetchMaritimeInfo(lat, lng) {
         <div class="ttstrip" style="background:#009ab0"></div>
         <div class="tti">
           <div class="ttln">FERRY ROUTE</div>
-          <div class="ttrat" style="color:#80d8e0">${name}</div>
+          <div class="ttrat">${name}</div>
           <div class="ttdesc">${via}${op}</div>
         </div></div>`;
     }).join('');
@@ -2350,21 +2641,26 @@ async function fetchMaritimeInfo(lat, lng) {
 
 function initTransportClickHandlers() {
   map.on('click', async e => {
-    const activeKeys = Object.entries(TRANSPORT_LAYERS)
-      .filter(([, d]) => d.active)
-      .map(([k]) => k);
-    if (activeKeys.length === 0) {
-      // No transport layer — dismiss tooltip on background click
-      if (!_featureClicked && !document.getElementById('tt')?.contains(e.originalEvent.target)) hideTooltip();
-      return;
+    // Background click (non-feature): always dismiss tooltip.
+    // _featureClicked is true for the ~10 ms after a feature's own click handler
+    // fires, preventing double-dismiss when Leaflet bubbles the event to the map.
+    if (!_featureClicked && !document.getElementById('tt')?.contains(e.originalEvent.target)) {
+      hideTooltip();
     }
+
+    const activeKeys = Object.entries(TRANSPORT_LAYERS)
+      .filter(([, d]) => d.active && !d.vector)   // vector (natparks) has its own click handlers
+      .map(([k]) => k);
+    if (activeKeys.length === 0) return;
+
+    if (_featureClicked) return;   // a non-transport feature already handled this click
 
     const { lat, lng } = e.latlng;
     const cx = e.originalEvent.clientX;
     const cy = e.originalEvent.clientY;
     _ttX = cx; _ttY = cy;
 
-    // Priority: trails > rail > maritime > roads (roads have no queryable feature API)
+    // Priority: trails > rail > maritime > roads
     if (activeKeys.includes('trails')) {
       showTooltip(buildTransportWaitTooltip('Hiking Trails', '🥾'));
       const html = await fetchTrailInfo(lat, lng);
@@ -2383,12 +2679,11 @@ function initTransportClickHandlers() {
       if (tooltipVisible) { showTooltip(html); positionTooltip(cx, cy); }
       return;
     }
-    // Roads layer: show a brief instructional tooltip
+    // Roads: query Overpass for road name/type near click point
     if (activeKeys.includes('roads')) {
-      _ttX = cx; _ttY = cy;
-      showTooltip(`<div class="tth"><h3>🛣 Roads</h3><div class="ts">OPENSTREETMAP HOT</div>
-        <div class="tm">Raster tile overlay — no feature data available</div></div>
-        <div class="ttb"><div style="color:var(--dim);font-size:8px">Road names and classifications rendered in tile image. Strong SE Asia coverage. Switch to Rail for clickable OSM data.</div></div>`);
+      showTooltip(buildTransportWaitTooltip('Roads', '🛣'));
+      const html = await fetchRoadInfo(lat, lng);
+      if (tooltipVisible) { showTooltip(html); positionTooltip(cx, cy); }
     }
   });
 
@@ -3137,16 +3432,70 @@ function initPOILayers() {
   });
 
   // Generic POI layers: re-query on pan when active and zoom ≥ minZoom.
+  // Camping is also re-queried when linked (trails or parks POI active).
   Object.keys(POI_LAYERS).forEach(key => {
     const def = POI_LAYERS[key];
     map.on('moveend', () => {
       clearTimeout(def.debounce);
       def.debounce = setTimeout(() => {
-        if (!def.active) return;
-        if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key);
+        const linked = key === 'camping' && (TRANSPORT_LAYERS.trails.active || POI_LAYERS.parks.active);
+        if (!def.active && !linked) return;
+        if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key, linked);
         else _clearPOIMarkers(key);
       }, 300);
     });
+  });
+
+  // Rail stop dots: re-query on pan when rail layer is active at zoom ≥ 7.
+  map.on('moveend', () => {
+    clearTimeout(_railStopDebounce);
+    _railStopDebounce = setTimeout(() => {
+      if (!TRANSPORT_LAYERS.rail.active) return;
+      if (map.getZoom() >= 7) _fetchAndRenderRailStops();
+      else _clearRailStops();
+    }, 300);
+  });
+
+  // Park border vectors: re-query on pan when natparks layer is active.
+  map.on('moveend', () => {
+    clearTimeout(_parkBorderDebounce);
+    _parkBorderDebounce = setTimeout(() => {
+      if (!TRANSPORT_LAYERS.natparks.active) return;
+      if (map.getZoom() >= 5) _fetchAndRenderParkBorders();
+      else _clearParkBorders();
+    }, 350);
+  });
+}
+
+// ─── Topbar hamburger toggle ──────────────────────────────────────────────────
+// On narrow screens (< 540 px) the hamburger button collapses or expands the
+// month selector, search box, and layer buttons so the map fills the screen.
+function initTopbarToggle() {
+  const btn    = document.getElementById('topbar-hamburger');
+  const topbar = document.getElementById('topbar');
+  if (!btn || !topbar) return;
+
+  // On narrow screens start collapsed (CSS sets months/row2 to display:none).
+  // On wider screens the button is invisible and state doesn't matter.
+  let expanded = false;
+
+  btn.addEventListener('click', () => {
+    expanded = !expanded;
+    topbar.classList.toggle('tb-expanded', expanded);
+    btn.setAttribute('aria-expanded', String(expanded));
+    btn.innerHTML = expanded ? '&#x2715;' : '&#9776;';
+    // Leaflet needs a size hint after topbar height changes.
+    if (map) setTimeout(() => map.invalidateSize(), 50);
+  });
+
+  // Collapse on map click so the keyboard / tap user isn't blocked by the topbar.
+  document.addEventListener('click', e => {
+    if (!expanded) return;
+    if (topbar.contains(e.target)) return;
+    expanded = false;
+    topbar.classList.remove('tb-expanded');
+    btn.innerHTML = '&#9776;';
+    if (map) setTimeout(() => map.invalidateSize(), 50);
   });
 }
 
@@ -3213,6 +3562,7 @@ function showBootError(msg) {
   showOnboardingHint();
   renderComparePanel();
   updateZoomAnnotation();
+  initTopbarToggle();
 
   } catch (err) {
     console.error('[Nomadic Almanac] Boot error:', err);

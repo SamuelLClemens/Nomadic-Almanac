@@ -263,53 +263,81 @@ html, body {
 /* Leaflet zoom controls sit inside #map so they are naturally below the topbar */
 .leaflet-top.leaflet-left { top: 10px !important; left: 10px !important; }
 
-/* ─── Tooltip (click-anchored) ───────────────────────────────────────────── */
+/* ─── Tooltip (click-anchored, light mode) ───────────────────────────────── */
 #tt {
+  /* Override dark-theme CSS variables so inline styles inside tooltip content
+     (which use var(--dim), var(--sand), var(--gold)) render correctly against
+     the light background without touching every builder function. */
+  --dim:  #777;
+  --sand: #1e1e1e;
+  --gold: #a07820;
   position: fixed; z-index: 2000; pointer-events: auto;
-  background: var(--panel2); border: 1px solid var(--b2);
-  border-top: 2px solid var(--crimson); border-radius: 8px;
-  max-width: 320px; min-width: 238px; display: none; overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0,0,0,.88);
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-top: 3px solid var(--gold);
+  border-radius: 10px;
+  max-width: 340px; min-width: 250px; display: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
   font-family: var(--fm);
-  max-height: 70vh; overflow-y: auto;
+  max-height: 72vh; overflow-y: auto;
+  color: #1e1e1e;
 }
 /* Close button inside tooltip */
 #tt-close {
-  position: absolute; top: 7px; right: 8px;
-  width: 20px; height: 20px; cursor: pointer;
-  background: rgba(201,168,76,0.10); border: 1px solid rgba(201,168,76,0.22);
-  border-radius: 4px; color: var(--gold);
+  position: absolute; top: 8px; right: 9px;
+  width: 22px; height: 22px; cursor: pointer;
+  background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 5px; color: #555;
   font-size: 11px; font-family: var(--fm);
   display: flex; align-items: center; justify-content: center;
   line-height: 1; user-select: none; z-index: 2001;
   transition: background .12s;
 }
-#tt-close:hover { background: rgba(201,168,76,0.22); }
+#tt-close:hover { background: rgba(0,0,0,0.12); color: #111; }
 .tth {
-  padding: 10px 14px 8px;
-  border-bottom: 1px solid var(--b1);
-  background: rgba(0,0,0,.22);
+  padding: 12px 36px 10px 14px;  /* right padding clears the close button */
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  background: #f8f7f4;
+  border-radius: 9px 9px 0 0;
 }
-.tth h3 { font-size: 14px; font-weight: 700; color: var(--sand); line-height: 1.2; }
-.tth .ts { font-size: 7px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
-.tth .tm { font-size: 7px; color: var(--dim); letter-spacing: 1.5px; margin-top: 2px; }
-.ttb { padding: 8px 14px 11px; }
-.ttr { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 7px; padding-bottom: 7px; border-bottom: 1px solid rgba(201,168,76,0.05); }
+.tth h3 {
+  font-size: 15px; font-weight: 700; color: #1a1a1a; line-height: 1.25;
+  margin-right: 4px;  /* clear close btn */
+}
+.tth .ts {
+  font-size: 8px; color: var(--gold); letter-spacing: 2px;
+  text-transform: uppercase; margin-top: 3px; font-weight: 600;
+}
+.tth .tm {
+  font-size: 8px; color: #888; letter-spacing: 1.2px; margin-top: 2px;
+}
+.ttb { padding: 10px 14px 13px; }
+.ttr {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 8px; padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
 .ttr:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-.ttstrip { width: 3px; border-radius: 1px; flex-shrink: 0; align-self: stretch; min-height: 32px; }
+.ttstrip { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 32px; }
 .tti { flex: 1; min-width: 0; }
-.ttln { font-size: 7px; color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 2px; }
-.ttrat { font-size: 10px; font-weight: 700; line-height: 1.1; margin-bottom: 2px; }
-.ttdesc { font-size: 7px; color: #5a4a20; line-height: 1.65; }
+.ttln {
+  font-size: 8px; color: #999; text-transform: uppercase;
+  letter-spacing: 1.2px; margin-bottom: 3px;
+}
+.ttrat {
+  font-size: 12px; font-weight: 700; color: #1a1a1a;
+  line-height: 1.2; margin-bottom: 2px;
+}
+.ttdesc { font-size: 9px; color: #555; line-height: 1.7; }
 .spark { display: flex; align-items: flex-end; gap: 1.5px; height: 16px; margin-top: 5px; }
 .spark-bar { flex: 1; border-radius: 1px 1px 0 0; }
 .spark-labels { display: flex; justify-content: space-between; margin-top: 2px; }
-.spark-label { font-size: 5.5px; color: var(--dim); letter-spacing: .3px; }
+.spark-label { font-size: 5.5px; color: #aaa; letter-spacing: .3px; }
 
 /* Border tooltip status */
-.tt-status-open       { color: #22d3ee; }
-.tt-status-restricted { color: #f59e0b; }
-.tt-status-closed     { color: #ef4444; }
+.tt-status-open       { color: #0891b2; }
+.tt-status-restricted { color: #d97706; }
+.tt-status-closed     { color: #dc2626; }
 
 /* ─── Map Status ─────────────────────────────────────────────────────────── */
 #map-status {
@@ -620,6 +648,30 @@ html, body {
 .tt-pin-btn:hover { background: rgba(201,168,76,0.16); color: var(--gold); }
 .tt-pin-btn.pinned { background: rgba(201,168,76,0.16); color: var(--gold); border-color: var(--b2); }
 
+/* ─── Topbar hamburger toggle ─────────────────────────────────────────────── */
+#topbar-hamburger {
+  display: none;   /* hidden on desktop; JS shows it at narrow widths */
+  flex-shrink: 0;
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.22);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 16px;
+  width: 34px; height: 34px;
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  transition: background .12s;
+  user-select: none;
+  order: 10;   /* push to right of logo */
+}
+#topbar-hamburger:hover { background: rgba(201,168,76,0.16); }
+/* Collapsed state: hide months-row, search-wrap, and tb-row2 */
+#topbar.tb-collapsed #months-row,
+#topbar.tb-collapsed #search-wrap,
+#topbar.tb-collapsed #tb-row2 {
+  display: none !important;
+}
+
 /* ── Mobile ───────────────────────────────────────── */
 @media (max-width: 720px) {
   /* --tb-h removed: flexbox handles map height automatically on all screens */
@@ -633,4 +685,23 @@ html, body {
   /* iOS Safari zooms viewport on focus if input font-size < 16px.
      Override to 16px on mobile so the map stays in frame. */
   #country-search, #passport-select { font-size: 16px !important; }
+}
+
+/* Narrow screens: show hamburger and default to collapsed */
+@media (max-width: 540px) {
+  #topbar-hamburger { display: flex; }
+  /* Start collapsed so the map is fully visible by default on small screens */
+  #tb-row1 { flex-wrap: nowrap; height: auto; padding: 6px 10px; }
+  #months-row { display: none; }
+  #search-wrap { display: none; }
+  #tb-row2 { display: none; }
+  /* When JS adds .tb-expanded, restore visibility */
+  #topbar.tb-expanded #months-row,
+  #topbar.tb-expanded #search-wrap {
+    display: flex !important;
+  }
+  #topbar.tb-expanded #tb-row2 { display: flex !important; }
+  /* Expanded topbar stacks rows vertically on very small screens */
+  #topbar.tb-expanded #tb-row1 { flex-wrap: wrap; padding-bottom: 2px; }
+  #topbar.tb-expanded #months-row { order: 3; width: 100%; padding-bottom: 4px; }
 }
