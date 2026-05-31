@@ -257,16 +257,17 @@ function syncMonthButtons() {
 }
 
 // ─── Layer Buttons ────────────────────────────────────────────────────────────
-// Layers that always appear in the topbar row.
+// Primary layers always visible in the topbar row.
 const PRIMARY_LAYER_KEYS = ['weather','safety','cost','internet','visa'];
-// Layers that live inside the "More ▾" dropdown.
+// All secondary layer keys (kept for reference / legacy functions).
 const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowds','corrupt','disaster','lgbtq','vaccines','road'];
 
-// Groups shown inside the More dropdown with section headings.
-const MORE_GROUPS = [
-  { label: 'Health & Safety',  keys: ['health','road','corrupt','disaster'] },
-  { label: 'Lifestyle',        keys: ['solo','lgbtq','family','remote','vaccines'] },
-  { label: 'Environment',      keys: ['beaches','crowds'] },
+// Category groups — each becomes a dropdown button in the topbar row.
+const CAT_GROUPS = [
+  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','road','corrupt','disaster'] },
+  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','vaccines'] },
+  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
+  { id:'overlays',      label:'Overlays',        emoji:'🗂', keys:[] },
 ];
 
 function makeLbButton(key, layer) {
@@ -295,10 +296,16 @@ function makeLbButton(key, layer) {
 }
 
 function syncMoreButtonState() {
-  const moreBtn = document.getElementById('btn-more-layers');
-  if (!moreBtn) return;
-  const anySecondaryOn = SECONDARY_LAYER_KEYS.some(k => activeLayers.has(k));
-  moreBtn.classList.toggle('has-active', anySecondaryOn);
+  // Legacy stub — kept so any saved references don't throw.
+  // Category buttons now handle their own active state.
+}
+function syncCatButtons() {
+  CAT_GROUPS.forEach(group => {
+    const btn = document.getElementById('cat-btn-' + group.id);
+    if (!btn) return;
+    const anyOn = group.keys.some(k => activeLayers.has(k)) || (group.id === 'overlays' && showBorders);
+    btn.classList.toggle('has-active', anyOn);
+  });
 }
 
 function buildLayerButtons() {
@@ -325,85 +332,76 @@ function buildLayerButtons() {
   });
   container.appendChild(politicalBtn);
 
-  // ── More ▾ button + dropdown ───────────────────────────────────────────────
-  const moreBtn = document.createElement('button');
-  moreBtn.id = 'btn-more-layers';
-  moreBtn.innerHTML = 'More ▾';
-  container.appendChild(moreBtn);  // must be in DOM before syncMoreButtonState reads it
-  syncMoreButtonState();
+  // ── Category dropdown buttons (one per group, replaces single More ▾) ──────
+  CAT_GROUPS.forEach(group => {
+    const catBtn = document.createElement('button');
+    catBtn.id = 'cat-btn-' + group.id;
+    catBtn.className = 'cat-btn';
+    catBtn.innerHTML = `<span>${group.emoji}</span><span>${group.label}</span><span style="font-size:7px;opacity:0.6">▾</span>`;
+    const anyOn = group.keys.some(k => activeLayers.has(k)) || (group.id === 'overlays' && showBorders);
+    catBtn.classList.toggle('has-active', anyOn);
 
-  // Dropdown is attached to <body> so it isn't clipped by the scrollable row.
-  const dropdown = document.createElement('div');
-  dropdown.id = 'layers-more-dropdown';
-  document.body.appendChild(dropdown);
+    const catDd = document.createElement('div');
+    catDd.id = 'cat-dd-' + group.id;
+    catDd.className = 'cat-dropdown';
+    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px)';
+    document.body.appendChild(catDd);
 
-  // ── Dropdown groups ────────────────────────────────────────────────────────
-  MORE_GROUPS.forEach(group => {
-    const label = document.createElement('div');
-    label.className = 'more-dropdown-label';
-    label.textContent = group.label;
-    dropdown.appendChild(label);
+    // Add a group header label
+    const lbl = document.createElement('div');
+    lbl.className = 'more-dropdown-label';
+    lbl.textContent = group.label;
+    catDd.appendChild(lbl);
 
-    const groupWrap = document.createElement('div');
-    groupWrap.className = 'more-dropdown-group';
+    // Layer buttons for this group
     group.keys.forEach(key => {
       const layer = LAYERS[key];
       if (!layer) return;
-      groupWrap.appendChild(makeLbButton(key, layer));
+      const lb = makeLbButton(key, layer);
+      // Override click so category button active state also updates
+      lb.addEventListener('click', () => syncCatButtons());
+      catDd.appendChild(lb);
     });
-    dropdown.appendChild(groupWrap);
-  });
 
-  // ── Borders button (inside More dropdown) ─────────────────────────────────
-  const bordersLabel = document.createElement('div');
-  bordersLabel.className = 'more-dropdown-label';
-  bordersLabel.textContent = 'Overlays';
-  dropdown.appendChild(bordersLabel);
-
-  const bordersGroup = document.createElement('div');
-  bordersGroup.className = 'more-dropdown-group';
-  const borderBtn = document.createElement('button');
-  borderBtn.id = 'btn-borders';
-  borderBtn.className = 'lb';
-  borderBtn.innerHTML = '<span class="lb-emoji">🛂</span><span class="lb-name">Borders</span>';
-  borderBtn.classList.toggle('on', showBorders);
-  borderBtn.addEventListener('click', () => {
-    showBorders = !showBorders;
-    borderBtn.classList.toggle('on', showBorders);
-    renderBorderMarkers();
-    updateLegend();
-  });
-  bordersGroup.appendChild(borderBtn);
-  dropdown.appendChild(bordersGroup);
-
-  // ── More button toggle ─────────────────────────────────────────────────────
-  moreBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const isOpen = dropdown.classList.contains('open');
-    dropdown.classList.toggle('open', !isOpen);
-    moreBtn.innerHTML = isOpen ? 'More ▾' : 'Less ▲';
-    if (!isOpen) {
-      // Position dropdown flush below the More button
-      const r = moreBtn.getBoundingClientRect();
-      dropdown.style.top  = (r.bottom + 5) + 'px';
-      dropdown.style.left = Math.min(r.left, window.innerWidth - 330) + 'px';
+    // Borders button for Overlays category
+    if (group.id === 'overlays') {
+      const borderBtn = document.createElement('button');
+      borderBtn.id = 'btn-borders';
+      borderBtn.className = 'lb';
+      borderBtn.innerHTML = '<span class="lb-emoji">🛂</span><span class="lb-name">Borders</span>';
+      borderBtn.classList.toggle('on', showBorders);
+      borderBtn.addEventListener('click', () => {
+        showBorders = !showBorders;
+        borderBtn.classList.toggle('on', showBorders);
+        renderBorderMarkers();
+        updateLegend();
+        syncCatButtons();
+      });
+      catDd.appendChild(borderBtn);
     }
+
+    catBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = catDd.style.display === 'flex';
+      // Close all other category dropdowns
+      document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display = 'none'; });
+      if (!isOpen) {
+        catDd.style.display = 'flex';
+        const r = catBtn.getBoundingClientRect();
+        catDd.style.top  = (r.bottom + 5) + 'px';
+        catDd.style.left = Math.min(r.left, window.innerWidth - 200) + 'px';
+      }
+    });
+
+    container.appendChild(catBtn);
   });
 
-  // Bug fixes:
-  // 1. Use moreBtn.contains() so clicking a child <span> inside the button
-  //    does not accidentally dismiss the dropdown.
-  // 2. Guard with a flag so the listener is not registered more than once
-  //    if buildLayerButtons() were ever called again.
-  if (!buildLayerButtons._closeListenerAdded) {
-    buildLayerButtons._closeListenerAdded = true;
+  // Close all category dropdowns when clicking outside any of them
+  if (!buildLayerButtons._catCloseAdded) {
+    buildLayerButtons._catCloseAdded = true;
     document.addEventListener('click', e => {
-      const dd  = document.getElementById('layers-more-dropdown');
-      const btn = document.getElementById('btn-more-layers');
-      if (!dd || !btn) return;
-      if (!dd.contains(e.target) && !btn.contains(e.target)) {
-        dd.classList.remove('open');
-        btn.innerHTML = 'More ▾';
+      if (!e.target.closest('.cat-dropdown') && !e.target.closest('.cat-btn')) {
+        document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display = 'none'; });
       }
     });
   }
@@ -1382,12 +1380,13 @@ function buildCountryTooltip(iso2) {
   const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
   const costSection = buildCostDetailsSection(iso2);
   const visaSection = buildVisaSection(iso2);
+  const tzSection   = buildTimezoneSection(iso2);
   return `<div class="tth">
     <h3 id="tt-name">${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}</div>`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}</div>`;
 }
 
 function buildCityTooltip(city) {
@@ -1472,27 +1471,32 @@ function updateLegend() {
   }
   legend.style.display = 'block';
 
-  // Update legend title to reflect the active layer(s)
-  const legendTitle = document.getElementById('legend-title');
-  if (legendTitle) {
-    const geoLayers = active.filter(k => LAYERS[k] && GEOGRAPHIC_LAYERS.has(k));
-    if (geoLayers.length === 1) {
-      const l = LAYERS[geoLayers[0]];
-      legendTitle.textContent = l.emoji + ' ' + l.name.toUpperCase();
-    } else if (geoLayers.length > 1) {
-      legendTitle.textContent = '⊕ COMBINED VIEW';
-    } else {
-      legendTitle.textContent = 'FIELD GUIDE';
-    }
+  // Update legend title + sync layer picker + sync category buttons
+  const geoLayers = active.filter(k => LAYERS[k] && GEOGRAPHIC_LAYERS.has(k));
+  const layerBtn  = document.getElementById('legend-layer-btn');
+  const h4        = document.getElementById('legend-title');
+  const titleText = geoLayers.length === 1
+    ? LAYERS[geoLayers[0]].emoji + '  ' + LAYERS[geoLayers[0]].name.toUpperCase()
+    : geoLayers.length > 1 ? '⊕  COMBINED VIEW' : 'FIELD GUIDE';
+
+  if (layerBtn) {
+    layerBtn.textContent = titleText;
+  } else if (h4) {
+    const firstText = [...h4.childNodes].find(n => n.nodeType === 3);
+    if (firstText) firstText.textContent = titleText;
+    else h4.insertBefore(document.createTextNode(titleText), h4.firstChild);
   }
+  document.querySelectorAll('.llp-item').forEach(item => {
+    item.classList.toggle('active', activeLayers.has(item.dataset.key));
+  });
+  syncCatButtons();
 
   let html = '';
   active.forEach(key => {
     const layer = LAYERS[key];
     // Use LAYER_LABELS for display text where available
     const lyrLabels = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) || layer.levels;
-    html += `<div class="ll">
-      <div class="ll-name">${layer.emoji}&nbsp;${layer.name}</div>`;
+    html += `<div class="ll">`;
     lyrLabels.forEach((lbl, i) => {
       html += `<div class="lr">
         <div class="lsw" style="background:${RC2[i]}"></div>
@@ -2015,6 +2019,19 @@ function initNationalitySelector() {
   });
 }
 
+// ─── Timezone Tooltip Section ────────────────────────────────────────────────
+function buildTimezoneSection(iso2) {
+  if (typeof COUNTRY_TIMEZONES === 'undefined' || !COUNTRY_TIMEZONES[iso2]) return '';
+  const zones   = COUNTRY_TIMEZONES[iso2];
+  const primary = zones[0];
+  const others  = zones.slice(1);
+  return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:4px">🕐 TIMEZONE</div>
+    <div style="font-size:9px;color:var(--sand);font-weight:600">${primary}</div>
+    ${others.length ? `<div style="font-size:7.5px;color:var(--dim);margin-top:3px;line-height:1.6">${others.join('<br>')}</div>` : ''}
+  </div>`;
+}
+
 // ─── Cost Details Tooltip Section ────────────────────────────────────────────
 // Appended to the country tooltip when the Cost layer is active.
 function buildCostDetailsSection(iso2) {
@@ -2140,6 +2157,89 @@ function initSearch() {
 // ─── Best Destinations Panel ──────────────────────────────────────────────────
 // The widget lives inside #legend.  #best-toggle is always visible when the
 // legend is open; clicking it expands/collapses #best-panel-list.
+// ─── Legend collapsible + layer picker ───────────────────────────────────────
+function initLegendCollapsible() {
+  const h4     = document.getElementById('legend-title');
+  const body   = document.getElementById('legend-body');
+  const btWrap = document.getElementById('best-toggle');
+  const btList = document.getElementById('best-panel-list');
+  if (!h4 || !body) return;
+
+  // Wrap the color rows and Best This Month in a collapsible div
+  const wrap = document.createElement('div');
+  wrap.id = 'legend-body-wrap';
+  body.parentNode.insertBefore(wrap, body);
+  wrap.appendChild(body);
+  if (btWrap) wrap.appendChild(btWrap);
+  if (btList) wrap.appendChild(btList);
+
+  // Collapse arrow added to h4 right side
+  const arrow = document.createElement('span');
+  arrow.id = 'legend-collapse-arrow';
+  arrow.textContent = '▴';
+  arrow.style.cssText = 'font-size:9px;color:var(--gold);opacity:0.7;transition:transform .18s ease;margin-left:auto;padding-left:8px';
+  h4.style.cssText += ';display:flex;align-items:center;justify-content:space-between;cursor:pointer;';
+  h4.appendChild(arrow);
+
+  // Click the title row to collapse/expand
+  h4.addEventListener('click', e => {
+    if (e.target.closest('#legend-layer-btn')) return;
+    const isCollapsed = wrap.classList.toggle('collapsed');
+    arrow.style.transform = isCollapsed ? 'rotate(180deg)' : '';
+  });
+
+  // ── Layer picker: clicking the emoji+name area opens a layer switcher ──────
+  const pickerBtn = document.createElement('span');
+  pickerBtn.id = 'legend-layer-btn';
+  pickerBtn.title = 'Change layer';
+  pickerBtn.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:5px;flex:1;min-width:0;padding-right:4px';
+  // Move existing text into the picker button area
+  h4.prepend(pickerBtn);
+
+  const picker = document.createElement('div');
+  picker.id = 'legend-layer-picker';
+  document.body.appendChild(picker);
+
+  const geoEntries = Object.entries(LAYERS).filter(([k]) => GEOGRAPHIC_LAYERS.has(k));
+  geoEntries.forEach(([key, layer]) => {
+    const item = document.createElement('div');
+    item.className = 'llp-item';
+    item.dataset.key = key;
+    item.innerHTML = `<span style="font-size:12px">${layer.emoji}</span><span>${layer.name}</span>`;
+    item.addEventListener('click', () => {
+      // Activate this layer exclusively (clear other geo layers first)
+      geoEntries.forEach(([k]) => activeLayers.delete(k));
+      activeLayers.add(key);
+      document.querySelectorAll('.lb[data-key]').forEach(b => b.classList.toggle('on', activeLayers.has(b.dataset.key)));
+      picker.classList.remove('open');
+      refresh(); updateURLState(); saveState();
+    });
+    picker.appendChild(item);
+  });
+
+  pickerBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = picker.classList.contains('open');
+    picker.classList.toggle('open', !isOpen);
+    if (!isOpen) {
+      // Update active state on items
+      picker.querySelectorAll('.llp-item').forEach(item => {
+        item.classList.toggle('active', activeLayers.has(item.dataset.key));
+      });
+      const r = pickerBtn.getBoundingClientRect();
+      picker.style.top  = (r.bottom + 6) + 'px';
+      picker.style.left = r.left + 'px';
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!picker.contains(e.target) && !pickerBtn.contains(e.target)) {
+      picker.classList.remove('open');
+    }
+  });
+}
+
+// ─── Best This Month toggle ───────────────────────────────────────────────────
 function initBestPanelToggle() {
   const toggle = document.getElementById('best-toggle');
   const list   = document.getElementById('best-panel-list');
@@ -2254,6 +2354,7 @@ function showBootError(msg) {
   initAdmin1Choropleth();
   initSearch();
   initNationalitySelector();
+  initLegendCollapsible();
   initBestPanelToggle();
   updateBestPanel();
 
