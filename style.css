@@ -49,17 +49,17 @@ html, body {
 
 /* Row 1: Logo · Months · Search */
 #tb-row1 {
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 16px;
-  height: 48px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 18px;
+  height: 58px;
   border-bottom: 1px solid rgba(201,168,76,0.07);
 }
 
 /* Row 2: Layers · Divider · Transport */
 #tb-row2 {
-  display: flex; align-items: center; gap: 4px;
-  padding: 0 16px;
-  height: 36px;
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 18px;
+  height: 42px;
   overflow-x: auto; scrollbar-width: none;
   /* Avoid layout thrash on narrow viewports: don't shrink children */
   flex-wrap: nowrap;
@@ -80,23 +80,23 @@ html, body {
   flex-shrink: 0; padding: 0;
   text-decoration: none;
 }
-#logo-icon { width: 36px; height: 36px; flex-shrink: 0; }
+#logo-icon { width: 46px; height: 46px; flex-shrink: 0; }
 #logo-text  { display: flex; flex-direction: column; line-height: 1; }
 
 #logo-wordmark {
   display: flex; align-items: baseline; gap: 4px;
 }
 #logo-nomadic {
-  font-family: var(--fm); font-size: 14px; font-weight: 700;
-  color: var(--sand); letter-spacing: 2.5px; line-height: 1;
+  font-family: var(--fm); font-size: 18px; font-weight: 700;
+  color: var(--sand); letter-spacing: 3px; line-height: 1;
 }
 #logo-almanac {
-  font-family: var(--fm); font-size: 14px; font-weight: 400;
-  color: var(--gold); letter-spacing: 2.5px; line-height: 1;
+  font-family: var(--fm); font-size: 18px; font-weight: 400;
+  color: var(--gold); letter-spacing: 3px; line-height: 1;
 }
 #logo-sub {
-  font-family: var(--fm); font-size: 5.5px; font-weight: 400;
-  color: var(--dim); letter-spacing: 2px; margin-top: 3px;
+  font-family: var(--fm); font-size: 6.5px; font-weight: 400;
+  color: var(--dim); letter-spacing: 2px; margin-top: 4px;
   white-space: nowrap;
 }
 
@@ -113,8 +113,8 @@ html, body {
 }
 
 .mb {
-  font-family: var(--fm); font-size: 9px; font-weight: 500;
-  padding: 4px 7px; cursor: pointer; border-radius: 6px;
+  font-family: var(--fm); font-size: 11px; font-weight: 500;
+  padding: 5px 9px; cursor: pointer; border-radius: 6px;
   background: rgba(201,168,76,0.04); border: 1px solid var(--b1);
   color: var(--dim); transition: all .12s; letter-spacing: .5px;
   white-space: nowrap; user-select: none; flex-shrink: 0;
@@ -140,8 +140,8 @@ html, body {
 }
 
 .lb {
-  font-family: var(--fm); font-size: 8.5px; font-weight: 500;
-  padding: 4px 9px; cursor: pointer; border-radius: 6px;
+  font-family: var(--fm); font-size: 10.5px; font-weight: 500;
+  padding: 5px 11px; cursor: pointer; border-radius: 6px;
   background: rgba(201,168,76,0.04); border: 1px solid var(--b1);
   color: var(--dim); transition: all .12s;
   display: flex; align-items: center; gap: 5px; white-space: nowrap;
@@ -194,8 +194,8 @@ html, body {
 }
 
 .tb {
-  font-family: var(--fm); font-size: 8.5px; font-weight: 500;
-  padding: 4px 9px; cursor: pointer; border-radius: 6px;
+  font-family: var(--fm); font-size: 10.5px; font-weight: 500;
+  padding: 5px 11px; cursor: pointer; border-radius: 6px;
   background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.22);
   color: #7a8aaa; transition: all .12s;
   display: flex; align-items: center; gap: 5px; white-space: nowrap;
@@ -453,8 +453,8 @@ html, body {
 
 /* ── Category dropdown buttons (replace single More ▾) ── */
 .cat-btn {
-  font-family: var(--fm); font-size: 8px; font-weight: 600;
-  padding: 4px 9px; cursor: pointer; border-radius: 6px;
+  font-family: var(--fm); font-size: 10px; font-weight: 600;
+  padding: 5px 10px; cursor: pointer; border-radius: 6px;
   background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.18);
   color: rgba(201,168,76,0.6); transition: all .12s;
   display: flex; align-items: center; gap: 4px; white-space: nowrap;
@@ -470,6 +470,23 @@ html, body {
   width: 100%;
 }
 
+/* ── Visa & Passport grouped section ─────────────── */
+#visa-passport-group {
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+  padding: 3px 8px 3px 10px;
+  background: rgba(104,152,192,0.06);
+  border: 1px solid rgba(104,152,192,0.18);
+  border-radius: 8px;
+  position: relative;
+}
+#visa-passport-label {
+  position: absolute; top: -8px; left: 8px;
+  font-size: 7px; font-weight: 700; letter-spacing: 1.4px;
+  color: rgba(104,152,192,0.6); text-transform: uppercase;
+  background: var(--panel); padding: 0 3px;
+  pointer-events: none;
+}
+#visa-btn-wrap { display: flex; align-items: center; }
 /* ── Passport / Nationality Selector ─────────────── */
 #passport-wrap { flex-shrink: 0; display: flex; align-items: center; }
 #passport-select {
