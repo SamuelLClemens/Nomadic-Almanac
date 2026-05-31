@@ -4,7 +4,7 @@
 let activeMonth    = new Date().getMonth();
 let selectedMonths = new Set([new Date().getMonth()]);
 let yearMode       = false;
-let activeLayers   = new Set(['weather']);
+let activeLayers   = new Set();   // default: clean map — user activates layers themselves
 let showBorders    = false;
 let showPolitical  = true;   // country borders + territory overlays on by default
 let map            = null;
@@ -127,7 +127,8 @@ function initMap() {
     zoom: 3,
     minZoom: 2,
     maxZoom: 18,
-    worldCopyJump: true,   // snap view back to primary copy when panning past ±180°
+    worldCopyJump: true,        // snap back to primary copy when panning past ±180°
+    maxBoundsViscosity: 0.85,   // resist panning into blank polar/edge areas
     preferCanvas: false,
   });
 
@@ -433,34 +434,122 @@ function buildLayerButtons() {
   }
 }
 
-// ─── Transport Layer Buttons ──────────────────────────────────────────────────
+// ─── Transport Layer Buttons (single dropdown) ────────────────────────────────
+let timezoneLayer = null;   // holds the UTC stripe overlay
+
+function toggleTimezoneLayer(active) {
+  if (timezoneLayer) { timezoneLayer.remove(); timezoneLayer = null; }
+  if (!active || !map) return;
+  const g = L.layerGroup();
+  for (let lng = -165; lng <= 180; lng += 15) {
+    const h = Math.round(lng / 15);
+    const lbl = h === 0 ? 'UTC' : `UTC${h > 0 ? '+' : ''}${h}`;
+    // Subtle dashed vertical line
+    L.polyline([[-80, lng], [83, lng]], {
+      color: 'rgba(201,168,76,0.18)', weight: 1,
+      dashArray: '4,8', interactive: false, pane: 'labelPane',
+    }).addTo(g);
+    // UTC label near the top of the map
+    L.marker([76, lng - 7.5], {
+      icon: L.divIcon({
+        html: `<div style="color:rgba(201,168,76,0.55);font-size:7.5px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;transform:translateX(-50%);text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none">${lbl}</div>`,
+        className: '', iconAnchor: [0, 0],
+      }),
+      interactive: false, pane: 'labelPane',
+    }).addTo(g);
+  }
+  g.addTo(map);
+  timezoneLayer = g;
+}
+
+function syncTransportBtn() {
+  const btn = document.getElementById('btn-transport-menu');
+  if (!btn) return;
+  const anyOn = Object.values(TRANSPORT_LAYERS).some(d => d.active);
+  btn.classList.toggle('has-active', anyOn);
+}
+
 function buildTransportButtons() {
   const container = document.getElementById('transport');
 
+  // Single dropdown button for ALL transport + overlays
+  const transpBtn = document.createElement('button');
+  transpBtn.id = 'btn-transport-menu';
+  transpBtn.className = 'cat-btn';
+  transpBtn.innerHTML = '<span>🚗</span><span>Transport</span><span style="font-size:7px;opacity:0.6">▾</span>';
+
+  const transpDd = document.createElement('div');
+  transpDd.id = 'transport-dropdown';
+  transpDd.className = 'cat-dropdown';
+  transpDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:200px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px)';
+  document.body.appendChild(transpDd);
+
+  const transpLabel = document.createElement('div');
+  transpLabel.className = 'more-dropdown-label';
+  transpLabel.textContent = 'Transport & Overlays';
+  transpDd.appendChild(transpLabel);
+
+  // Transport tile layers
   Object.entries(TRANSPORT_LAYERS).forEach(([key, def]) => {
     const btn = document.createElement('button');
     btn.id = `btn-t-${key}`;
-    btn.className = 'tb';
-    btn.textContent = def.label;
-
+    btn.className = 'lb';
+    btn.innerHTML = `<span class="lb-emoji">${def.label.match(/^./u)[0]}</span><span class="lb-name">${def.label.replace(/^.\s*/u,'')}</span>`;
+    btn.classList.toggle('on', def.active);
     btn.addEventListener('click', () => {
       def.active = !def.active;
       btn.classList.toggle('on', def.active);
-
       if (def.active) {
-        if (!def.layer) {
-          def.layer = L.tileLayer(def.url, { pane: 'transportPane', ...def.opts });
-        }
+        if (!def.layer) def.layer = L.tileLayer(def.url, { pane: 'transportPane', ...def.opts });
         def.layer.addTo(map);
+        // Guidance for maritime (only useful when zoomed in to ports)
+        if (key === 'maritime') {
+          const st = document.getElementById('map-status');
+          if (st) { st.textContent = '⚓ Maritime: zoom into port areas to see navigation marks and click for ferry/harbour data.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},6000); }
+        }
       } else if (def.layer) {
         def.layer.remove();
       }
-
+      syncTransportBtn();
       updateLegend();
     });
-
-    container.appendChild(btn);
+    transpDd.appendChild(btn);
   });
+
+  // Timezone overlay toggle (no tile, client-side)
+  const tzSep = document.createElement('div');
+  tzSep.className = 'more-dropdown-label';
+  tzSep.style.marginTop = '6px';
+  tzSep.textContent = 'Map Overlays';
+  transpDd.appendChild(tzSep);
+
+  let tzActive = false;
+  const tzBtn = document.createElement('button');
+  tzBtn.id = 'btn-timezone-overlay';
+  tzBtn.className = 'lb';
+  tzBtn.innerHTML = '<span class="lb-emoji">🕐</span><span class="lb-name">Timezones</span>';
+  tzBtn.addEventListener('click', () => {
+    tzActive = !tzActive;
+    tzBtn.classList.toggle('on', tzActive);
+    toggleTimezoneLayer(tzActive);
+    syncTransportBtn();
+  });
+  transpDd.appendChild(tzBtn);
+
+  // Toggle dropdown on button click
+  transpBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = transpDd.style.display === 'flex';
+    document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display='none'; });
+    if (!isOpen) {
+      transpDd.style.display = 'flex';
+      const r = transpBtn.getBoundingClientRect();
+      transpDd.style.top  = (r.bottom + 5) + 'px';
+      transpDd.style.left = Math.min(r.left, window.innerWidth - 220) + 'px';
+    }
+  });
+
+  container.appendChild(transpBtn);
 }
 
 // ─── Rating Helpers ───────────────────────────────────────────────────────────
@@ -1721,19 +1810,26 @@ async function fetchTrailInfo(lat, lng) {
     }
 
     const routeRows = routes.slice(0, 4).map(r => {
-      const t = r.tags || {};
-      const name  = t.name || t.ref || 'Unnamed Route';
-      const dist  = t.distance ? `${parseFloat(t.distance).toFixed(0)} km` : '';
+      const t    = r.tags || {};
+      const name = t.name || t.ref || 'Unnamed Route';
+      // Distance: OSM stores in km; convert + compute walking time at avg 4 km/h
+      const rawKm  = parseFloat(t.distance || t.length || 0);
+      const distKm = rawKm > 0 ? rawKm : null;
+      const distMi = distKm ? (distKm * 0.621371).toFixed(1) : null;
+      const walkMin = distKm ? Math.round((distKm / 4) * 60) : null;  // 4 km/h average
+      const walkHr  = walkMin ? (walkMin >= 60 ? `${Math.floor(walkMin/60)}h ${walkMin%60}m` : `${walkMin} min`) : null;
+      const distStr = distKm ? `${distKm.toFixed(1)} km (${distMi} mi) · ~${walkHr} walking` : '';
       const diff  = t['sac_scale'] ? t['sac_scale'].replace(/_/g, ' ') : '';
       const net   = t.network ? t.network.toUpperCase() : '';
-      const surf  = t.surface || '';
-      const parts = [dist && `${dist}`, diff, surf, net].filter(Boolean).join(' · ');
+      const elev  = t['ascent'] ? `↑${t.ascent}m` : (t.ele ? `${t.ele}m` : '');
+      const grade = t['trail_visibility'] ? t['trail_visibility'].replace(/_/g, ' ') : '';
+      const parts = [distStr, diff, grade, elev, net].filter(Boolean).join(' · ');
       return `<div class="ttr">
         <div class="ttstrip" style="background:#44aa66"></div>
         <div class="tti">
           <div class="ttln">HIKING ROUTE</div>
           <div class="ttrat" style="color:#4ade80">${name}</div>
-          <div class="ttdesc">${parts || 'Named OSM route — click Waymarked Trails for full details.'}</div>
+          <div class="ttdesc">${parts || 'Named OSM route — zoom in and click directly on the trail for full details.'}</div>
         </div></div>`;
     }).join('');
 
