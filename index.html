@@ -11,90 +11,94 @@
 </head>
 <body>
 
-<div id="sidebar">
+<!-- ─── Top Bar ──────────────────────────────────────────────────────────────── -->
+<div id="topbar">
 
-  <button id="sidebar-toggle" title="Collapse sidebar">✕</button>
+  <!-- Row 1: Logo · Months · Search -->
+  <div id="tb-row1">
 
-  <!-- Logo -->
-  <div id="logo">
-    <svg id="logo-icon" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="28" cy="28" r="27" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.2"/>
-      <line x1="28" y1="1"  x2="28" y2="7"  stroke="#c9a84c" stroke-width="1.4"/>
-      <line x1="28" y1="49" x2="28" y2="55" stroke="#c9a84c" stroke-width="1.4"/>
-      <line x1="1"  y1="28" x2="7"  y2="28" stroke="#c9a84c" stroke-width="1.4"/>
-      <line x1="49" y1="28" x2="55" y2="28" stroke="#c9a84c" stroke-width="1.4"/>
-      <line x1="8.1"  y1="8.1"  x2="11.9" y2="11.9" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
-      <line x1="47.9" y1="8.1"  x2="44.1" y2="11.9" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
-      <line x1="8.1"  y1="47.9" x2="11.9" y2="44.1" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
-      <line x1="47.9" y1="47.9" x2="44.1" y2="44.1" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
-      <circle cx="28" cy="28" r="25" fill="#100c05" stroke="#c9a84c" stroke-width="1.6"/>
-      <circle cx="28" cy="28" r="20" fill="none" stroke="#c9a84c" stroke-width="0.4" opacity="0.3"/>
-      <circle cx="28" cy="28" r="13" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.28"/>
-      <circle cx="28" cy="28" r="6"  fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.35"/>
-      <polygon points="28,3 31.5,21 28,18 24.5,21" fill="#e8d5a3"/>
-      <polygon points="28,3 29.5,13 28,15 26.5,13" fill="#9b1c2e"/>
-      <polygon points="28,53 31,36 28,39 25,36" fill="#c9a84c" opacity="0.45"/>
-      <polygon points="53,28 36,31 39,28 36,25" fill="#c9a84c" opacity="0.55"/>
-      <polygon points="3,28 20,31 17,28 20,25" fill="#c9a84c" opacity="0.55"/>
-      <polygon points="47,9  35,22 31,18" fill="#e8d5a3" opacity="0.5"/>
-      <polygon points="9,9   21,22 25,18" fill="#e8d5a3" opacity="0.5"/>
-      <polygon points="47,47 35,34 31,38" fill="#c9a84c" opacity="0.32"/>
-      <polygon points="9,47  21,34 25,38" fill="#c9a84c" opacity="0.32"/>
-      <polygon points="19,6  15,14 13,11" fill="#c9a84c" opacity="0.26"/>
-      <polygon points="37,6  41,14 43,11" fill="#c9a84c" opacity="0.26"/>
-      <polygon points="50,19 42,23 43,20" fill="#c9a84c" opacity="0.26"/>
-      <polygon points="50,37 42,33 43,36" fill="#c9a84c" opacity="0.22"/>
-      <polygon points="37,50 41,42 43,45" fill="#c9a84c" opacity="0.22"/>
-      <polygon points="19,50 15,42 13,45" fill="#c9a84c" opacity="0.22"/>
-      <polygon points="6,37  14,33 11,36" fill="#c9a84c" opacity="0.22"/>
-      <polygon points="6,19  14,23 11,20" fill="#c9a84c" opacity="0.26"/>
-      <text x="28" y="19" text-anchor="middle" dominant-baseline="middle"
-        font-family="IBM Plex Mono,monospace" font-size="5.5" font-weight="700"
-        fill="#e8d5a3" opacity="0.85">N</text>
-      <circle cx="28" cy="28" r="5"   fill="#100c05" stroke="#c9a84c" stroke-width="1.4"/>
-      <circle cx="28" cy="28" r="2.8" fill="none"   stroke="#c9a84c" stroke-width="0.5" opacity="0.5"/>
-      <circle cx="28" cy="28" r="1.5" fill="#c9a84c"/>
-    </svg>
-    <div id="logo-text">
-      <div id="logo-the">── THE ──</div>
-      <div id="logo-nomadic">NOMADIC</div>
-      <div id="logo-almanac">ALMANAC</div>
-      <div id="logo-rule"></div>
-      <div id="logo-sub">WORLD TRAVEL INTELLIGENCE &middot; EST. 2025</div>
+    <div id="logo">
+      <svg id="logo-icon" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="27" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.2"/>
+        <line x1="28" y1="1"  x2="28" y2="7"  stroke="#c9a84c" stroke-width="1.4"/>
+        <line x1="28" y1="49" x2="28" y2="55" stroke="#c9a84c" stroke-width="1.4"/>
+        <line x1="1"  y1="28" x2="7"  y2="28" stroke="#c9a84c" stroke-width="1.4"/>
+        <line x1="49" y1="28" x2="55" y2="28" stroke="#c9a84c" stroke-width="1.4"/>
+        <line x1="8.1"  y1="8.1"  x2="11.9" y2="11.9" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
+        <line x1="47.9" y1="8.1"  x2="44.1" y2="11.9" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
+        <line x1="8.1"  y1="47.9" x2="11.9" y2="44.1" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
+        <line x1="47.9" y1="47.9" x2="44.1" y2="44.1" stroke="#c9a84c" stroke-width="0.9" opacity="0.7"/>
+        <circle cx="28" cy="28" r="25" fill="#100c05" stroke="#c9a84c" stroke-width="1.6"/>
+        <circle cx="28" cy="28" r="20" fill="none" stroke="#c9a84c" stroke-width="0.4" opacity="0.3"/>
+        <circle cx="28" cy="28" r="13" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.28"/>
+        <circle cx="28" cy="28" r="6"  fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.35"/>
+        <polygon points="28,3 31.5,21 28,18 24.5,21" fill="#e8d5a3"/>
+        <polygon points="28,3 29.5,13 28,15 26.5,13" fill="#9b1c2e"/>
+        <polygon points="28,53 31,36 28,39 25,36" fill="#c9a84c" opacity="0.45"/>
+        <polygon points="53,28 36,31 39,28 36,25" fill="#c9a84c" opacity="0.55"/>
+        <polygon points="3,28 20,31 17,28 20,25" fill="#c9a84c" opacity="0.55"/>
+        <polygon points="47,9  35,22 31,18" fill="#e8d5a3" opacity="0.5"/>
+        <polygon points="9,9   21,22 25,18" fill="#e8d5a3" opacity="0.5"/>
+        <polygon points="47,47 35,34 31,38" fill="#c9a84c" opacity="0.32"/>
+        <polygon points="9,47  21,34 25,38" fill="#c9a84c" opacity="0.32"/>
+        <polygon points="19,6  15,14 13,11" fill="#c9a84c" opacity="0.26"/>
+        <polygon points="37,6  41,14 43,11" fill="#c9a84c" opacity="0.26"/>
+        <polygon points="50,19 42,23 43,20" fill="#c9a84c" opacity="0.26"/>
+        <polygon points="50,37 42,33 43,36" fill="#c9a84c" opacity="0.22"/>
+        <polygon points="37,50 41,42 43,45" fill="#c9a84c" opacity="0.22"/>
+        <polygon points="19,50 15,42 13,45" fill="#c9a84c" opacity="0.22"/>
+        <polygon points="6,37  14,33 11,36" fill="#c9a84c" opacity="0.22"/>
+        <polygon points="6,19  14,23 11,20" fill="#c9a84c" opacity="0.26"/>
+        <text x="28" y="19" text-anchor="middle" dominant-baseline="middle"
+          font-family="IBM Plex Mono,monospace" font-size="5.5" font-weight="700"
+          fill="#e8d5a3" opacity="0.85">N</text>
+        <circle cx="28" cy="28" r="5"   fill="#100c05" stroke="#c9a84c" stroke-width="1.4"/>
+        <circle cx="28" cy="28" r="2.8" fill="none"   stroke="#c9a84c" stroke-width="0.5" opacity="0.5"/>
+        <circle cx="28" cy="28" r="1.5" fill="#c9a84c"/>
+      </svg>
+      <div id="logo-text">
+        <div id="logo-wordmark">
+          <span id="logo-nomadic">NOMADIC</span><span id="logo-almanac">ALMANAC</span>
+        </div>
+        <div id="logo-sub">WORLD TRAVEL INTELLIGENCE &middot; EST.&nbsp;2025</div>
+      </div>
     </div>
-  </div>
 
-  <!-- Country search -->
-  <div id="search-wrap">
-    <input id="country-search" type="text" placeholder="&#128269;&#160; Search country&#8230;" autocomplete="off" spellcheck="false" />
-    <div id="search-results"></div>
-  </div>
+    <!-- Month selector — always visible -->
+    <div id="months-row">
+      <div id="months"></div>
+    </div>
 
-  <div class="sbl">Month</div>
-  <div id="months"></div>
+    <!-- Inline search -->
+    <div id="search-wrap">
+      <input id="country-search" type="text" placeholder="&#128269; Search&hellip;" autocomplete="off" spellcheck="false" />
+      <div id="search-results"></div>
+    </div>
 
-  <div class="sbl">Data Layers</div>
-  <div id="layers"></div>
+  </div><!-- /tb-row1 -->
 
-  <div class="sbl">Transport</div>
-  <div id="transport"></div>
+  <!-- Row 2: Data layers · Political/Borders · Transport -->
+  <div id="tb-row2">
+    <div id="layers"></div>
+    <div class="tb-div"></div>
+    <div id="transport"></div>
+  </div><!-- /tb-row2 -->
 
-</div>
-
-<button id="sidebar-open">&#9776; MENU</button>
+</div><!-- /topbar -->
 
 <!-- Map -->
 <div id="map"></div>
 
+<!-- Best destinations panel -->
 <div id="best-panel" style="display:none">
   <div id="best-panel-header">Best This Month</div>
   <ol id="best-panel-list"></ol>
 </div>
 
 <!-- Loading status indicator (shown during async GeoJSON fetches) -->
-<div id="map-status" style="display:none;position:fixed;bottom:18px;left:18px;background:rgba(16,12,5,0.82);color:#e8d5a3;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 10px;border-radius:4px;z-index:1000;pointer-events:none;letter-spacing:0.04em;"></div>
+<div id="map-status"></div>
 
-<!-- Tooltip -->
+<!-- Info tooltip (shown on click) -->
 <div id="tt">
   <div class="tth">
     <h3 id="tt-name"></h3>
