@@ -1256,6 +1256,7 @@ function renderBeachMarkers() {
   beachMarkers.forEach(m => m.remove());
   beachMarkers = [];
   if (!activeLayers.has('beaches')) return;
+  if (!map) return;
   const zoom = map.getZoom();
   if (zoom < 3) return;
   BEACHES.forEach(beach => {
@@ -1743,6 +1744,9 @@ function updateBadge() {
 
 // ─── Refresh ──────────────────────────────────────────────────────────────────
 function refresh() {
+  // Guard: called from setMonth() which runs before initMap() in the boot
+  // sequence. All rendering functions below require a live Leaflet map instance.
+  if (!map) return;
   updateLegend();
   updateBadge();
   if (pinnedCountries.length > 0) renderComparePanel();
