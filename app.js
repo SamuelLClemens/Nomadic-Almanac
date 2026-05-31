@@ -1642,6 +1642,34 @@ function initTransportClickHandlers() {
   });
 }
 
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+function initSidebar() {
+  const sidebar   = document.getElementById('sidebar');
+  const closeBtn  = document.getElementById('sidebar-toggle');
+  const openBtn   = document.getElementById('sidebar-open');
+  if (!sidebar || !closeBtn || !openBtn) return;
+
+  function open() {
+    sidebar.classList.remove('collapsed');
+    openBtn.style.display = 'none';
+    document.body.classList.add('sidebar-open');
+    // Let Leaflet know the container changed size so tiles fill correctly
+    if (map) setTimeout(() => map.invalidateSize(), 280);
+  }
+  function close() {
+    sidebar.classList.add('collapsed');
+    openBtn.style.display = 'flex';
+    document.body.classList.remove('sidebar-open');
+    if (map) setTimeout(() => map.invalidateSize(), 280);
+  }
+
+  closeBtn.addEventListener('click', close);
+  openBtn.addEventListener('click', open);
+
+  // Open by default on load
+  open();
+}
+
 // ─── URL Deep Linking ─────────────────────────────────────────────────────────
 function initURLState() {
   // Read initial state from URL hash e.g. #month=6&layer=weather
@@ -1756,6 +1784,7 @@ function updateBestPanel() {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
+  initSidebar();
   initURLState();
   initMap();
   buildMonthSelector();

@@ -11,7 +11,9 @@
 </head>
 <body>
 
-<div id="topbar">
+<div id="sidebar">
+
+  <button id="sidebar-toggle" title="Collapse sidebar">✕</button>
 
   <!-- Logo -->
   <div id="logo">
@@ -62,29 +64,24 @@
     </div>
   </div>
 
-  <!-- Country search — right side of logo row via margin-left:auto -->
+  <!-- Country search -->
   <div id="search-wrap">
-    <input id="country-search" type="text" placeholder="🔍  Search country…" autocomplete="off" spellcheck="false" />
+    <input id="country-search" type="text" placeholder="&#128269;&#160; Search country&#8230;" autocomplete="off" spellcheck="false" />
     <div id="search-results"></div>
   </div>
 
-  <div class="vdiv"></div>
-
-  <!-- Month selector -->
+  <div class="sbl">Month</div>
   <div id="months"></div>
 
-  <div class="vdiv"></div>
-
-  <!-- Layer toggles -->
+  <div class="sbl">Data Layers</div>
   <div id="layers"></div>
 
-  <div class="vdiv"></div>
-
-  <!-- Transport overlays -->
+  <div class="sbl">Transport</div>
   <div id="transport"></div>
 
-
 </div>
+
+<button id="sidebar-open">&#9776; MENU</button>
 
 <!-- Map -->
 <div id="map"></div>

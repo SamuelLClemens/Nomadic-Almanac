@@ -20,20 +20,55 @@ html, body {
   font-family: var(--fm);
 }
 
-/* ─── Topbar ─────────────────────────────────────────────────────────────── */
-#topbar {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
-  display: flex; align-items: center; gap: 10px; padding: 0 16px;
-  min-height: 58px; flex-wrap: wrap;
+/* ─── Sidebar ────────────────────────────────────────────────────────────── */
+#sidebar {
+  position: fixed; top: 0; left: 0;
+  width: 272px; height: 100vh; z-index: 1200;
   background: var(--panel);
-  border-bottom: 1px solid var(--b2);
+  border-right: 1px solid var(--b2);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  transition: transform 0.26s ease;
+  padding: 16px 14px 32px;
   backdrop-filter: blur(20px);
 }
+#sidebar.collapsed { transform: translateX(-272px); }
 
-.vdiv {
-  width: 1px; height: 32px; flex-shrink: 0;
-  background: rgba(201,168,76,0.12);
+/* Close button — top-right corner of sidebar */
+#sidebar-toggle {
+  position: absolute; top: 14px; right: 12px;
+  background: none; border: 1px solid var(--b1); border-radius: 3px;
+  color: var(--dim); font-family: var(--fm); font-size: 9px;
+  padding: 3px 7px; cursor: pointer; letter-spacing: 0.08em;
+  transition: all .12s;
 }
+#sidebar-toggle:hover { border-color: var(--b2); color: var(--sand); }
+
+/* Open button — floating on map when sidebar is closed */
+#sidebar-open {
+  display: none; position: fixed; top: 16px; left: 16px; z-index: 1300;
+  background: var(--panel); border: 1px solid var(--b2); border-radius: 4px;
+  color: var(--gold); font-family: var(--fm); font-size: 9px; font-weight: 700;
+  padding: 7px 12px; cursor: pointer; letter-spacing: 0.1em;
+  transition: all .12s; backdrop-filter: blur(12px);
+}
+#sidebar-open:hover { background: rgba(201,168,76,0.1); }
+
+/* Section labels inside sidebar */
+.sbl {
+  font-size: 7.5px; font-weight: 700; letter-spacing: 0.14em;
+  color: rgba(201,168,76,0.4); text-transform: uppercase;
+  margin: 16px 0 7px; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  flex-shrink: 0;
+}
+
+/* Slide legend / status / zoom controls when sidebar opens/closes */
+#legend, #map-status { transition: left 0.26s ease; }
+body.sidebar-open #legend   { left: 286px; }
+body.sidebar-open #map-status { left: 286px; }
+body.sidebar-open .leaflet-top.leaflet-left { left: 286px; }
+.leaflet-top.leaflet-left { transition: left 0.26s ease; }
 
 /* ─── Logo ───────────────────────────────────────────────────────────────── */
 #logo { display: flex; align-items: center; gap: 13px; flex-shrink: 0; padding: 8px 0; }
@@ -91,7 +126,6 @@ html, body {
 /* ─── Layer Buttons ──────────────────────────────────────────────────────── */
 #layers {
   display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
-  margin-left: auto;
 }
 
 .lb {
@@ -253,13 +287,12 @@ html, body {
 }
 .leaflet-control-attribution a { color: #5a4020 !important; }
 
-/* ── Search box ───────────────────────────────────── */
+/* ── Search box (inside sidebar) ─────────────────── */
 #search-wrap {
-  margin-left: auto;
-  flex-shrink: 0;
-  width: 220px;
+  width: 100%;
   position: relative;
-  align-self: center;
+  flex-shrink: 0;
+  margin-bottom: 2px;
 }
 #country-search {
   width: 100%;
@@ -348,17 +381,13 @@ html, body {
 
 /* ── Mobile ───────────────────────────────────────── */
 @media (max-width: 600px) {
-  #menu {
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 6px 8px;
-    font-size: 9px;
-  }
-  #months { gap: 2px; }
+  #sidebar { width: 100vw; }
+  #sidebar.collapsed { transform: translateX(-100vw); }
   .mb { min-width: 22px; padding: 4px 3px; font-size: 8px; }
-  #layers, #transport { gap: 3px; }
   .lb, .tb { padding: 4px 6px; font-size: 9px; }
   #best-panel { bottom: 44px; right: 8px; max-width: 200px; }
-  #search-wrap { width: 100%; }
   #map-status { bottom: 10px; left: 10px; font-size: 9px; }
+  body.sidebar-open #legend { left: 14px; }
+  body.sidebar-open #map-status { left: 14px; }
+  body.sidebar-open .leaflet-top.leaflet-left { left: 14px; }
 }
