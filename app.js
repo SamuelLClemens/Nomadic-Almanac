@@ -25,6 +25,9 @@ let _parkBorderLines    = [];
 let _parkBorderCache    = {};
 let _parkBorderDebounce = null;
 
+// Holiday markers (rendered from static COUNTRY_HOLIDAYS data)
+let _holidayMarkers = [];
+
 // Click-toggle tooltip: tracks which feature's popup is currently open.
 // Clicking the same feature again closes the tooltip (toggle behavior).
 let _activeTooltipKey = null;
@@ -120,6 +123,15 @@ const POI_LAYERS = {
     label: '🏞 Parks & Forests',
     active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null,
   },
+  holidays: {
+    label: '🎉 Holidays',
+    active: false, minZoom: 2,
+    markers: [], bboxCache: {}, debounce: null,
+  },
+  viewpoints: {
+    label: '📷 Viewpoints',
+    active: false, minZoom: 9, markers: [], bboxCache: {}, debounce: null,
+  },
 };
 
 const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids']);
@@ -156,6 +168,21 @@ const getAdmin1Code = p => {
   const s = p.iso_3166_2 || '';
   return (s && s !== '-99' && s !== '-1') ? s : '';
 };
+
+let _visitedSet = new Set(JSON.parse((() => { try { return localStorage.getItem('na_visited') || '[]'; } catch (_) { return '[]'; } })()));
+
+function markVisited(iso2) {
+  if (!iso2 || iso2 === '-99') return;
+  _visitedSet.add(iso2);
+  try {
+    localStorage.setItem('na_visited', JSON.stringify([..._visitedSet]));
+  } catch (_) { /* quota or private mode — silently ignore */ }
+  updateLegend();
+}
+
+function isVisited(iso2) {
+  return _visitedSet.has(iso2);
+}
 
 let _ttX = 0, _ttY = 0;
 
@@ -304,6 +331,7 @@ function setMonth(i) {
   selectedMonths = new Set([i]);
   syncMonthButtons();
   refresh();
+  if (POI_LAYERS.holidays && POI_LAYERS.holidays.active) _renderHolidayMarkers();
   updateURLState();
   saveState();
 }
@@ -663,6 +691,14 @@ function buildTransportButtons() {
     pbtn.addEventListener('click', () => {
       def.active = !def.active;
       pbtn.classList.toggle('on', def.active);
+      // Holidays layer: static data, no Overpass query needed
+      if (key === 'holidays') {
+        if (def.active) _renderHolidayMarkers();
+        else _clearHolidayMarkers();
+        syncTransportBtn();
+        updateLegend();
+        return;
+      }
       if (def.active) {
         _fetchAndRenderPOI(key);
         // Parks POI: also show camping sites automatically
@@ -1608,6 +1644,8 @@ async function _fetchAndRenderPOI(key, forceRender) {
 
   const query = key === 'camping'
     ? `[out:json][timeout:20];(node["tourism"="camp_site"](${bbox});way["tourism"="camp_site"](${bbox}););out center 200;`
+    : key === 'viewpoints'
+    ? `[out:json][timeout:20];node["tourism"="viewpoint"]["name"](${bbox});out body 200;`
     : `[out:json][timeout:25];(node["boundary"="national_park"](${bbox});way["boundary"="national_park"](${bbox});relation["boundary"="national_park"](${bbox});node["leisure"="nature_reserve"](${bbox});way["leisure"="nature_reserve"](${bbox});relation["leisure"="nature_reserve"](${bbox});node["landuse"="forest"]["name"](${bbox});way["landuse"="forest"]["name"](${bbox}););out center 250;`;
 
   try {
@@ -1628,21 +1666,31 @@ async function _fetchAndRenderPOI(key, forceRender) {
 
 function _renderPOICircles(key, elements) {
   _clearPOIMarkers(key);
-  const def    = POI_LAYERS[key];
-  const color  = key === 'camping' ? '#22c55e' : '#15803d';
+  const def = POI_LAYERS[key];
+  const style = key === 'camping'
+    ? { color: '#fff', fillColor: '#22c55e', weight: 0.8 }
+    : key === 'viewpoints'
+    ? { color: '#c4b5fd', fillColor: '#a855f7', weight: 1.5 }
+    : { color: '#fff', fillColor: '#15803d', weight: 0.8 };
+  const radius = key === 'viewpoints' ? 5 : 6;
+  const fillOpacity = key === 'viewpoints' ? 0.85 : 0.88;
   elements.forEach(el => {
     const lat = el.lat || (el.center && el.center.lat);
     const lon = el.lon  || (el.center && el.center.lon);
     if (!lat || !lon) return;
     const t = el.tags || {};
     const m = L.circleMarker([lat, lon], {
-      pane: 'markersPane', radius: 6, color: '#fff', weight: 0.8,
-      fillColor: color, fillOpacity: 0.88,
+      pane: 'markersPane', radius, fillOpacity, ...style,
     });
     m.on('click', ev => {
       _featureClicked = true;
       const ttKey = key + ':' + (el.id || (lat + ':' + lon));
-      toggleTooltip(ttKey, key === 'camping' ? _buildCampingTooltip(t) : _buildParkTooltip(t), ev.originalEvent.clientX, ev.originalEvent.clientY);
+      const html = key === 'camping'
+        ? _buildCampingTooltip(t)
+        : key === 'viewpoints'
+        ? _buildViewpointTooltip(t)
+        : _buildParkTooltip(t);
+      toggleTooltip(ttKey, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
     m.addTo(map);
@@ -1691,6 +1739,49 @@ function _buildParkTooltip(t) {
     <div class="ts" id="tt-sub">${t.operator || ''}</div>
     <div class="tm" id="tt-period">${kind.toUpperCase()} — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this area.</div>'}</div>`;
+}
+
+function _buildViewpointTooltip(t) {
+  const row = (lbl, val) =>
+    val
+      ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>`
+      : '';
+  const link = url =>
+    url
+      ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#a855f7">Open</a>`
+      : '';
+
+  const elevLabel = t.ele ? `${parseFloat(t.ele).toLocaleString()} m` : '';
+
+  let dirLabel = '';
+  if (t.direction) {
+    const deg = parseFloat(t.direction);
+    if (!isNaN(deg)) {
+      const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+      dirLabel = dirs[Math.round(deg / 45) % 8] + ` (${Math.round(deg)}°)`;
+    } else {
+      dirLabel = t.direction;
+    }
+  }
+
+  const fields = [
+    row('Description', t.description        || t['description:en'] || ''),
+    row('Elevation',   elevLabel),
+    row('Direction',   dirLabel),
+    row('Surface',     t.surface            || ''),
+    row('Access',      t.access             || ''),
+    row('Operator',    t.operator           || ''),
+    row('Website',     link(t.website || t['contact:website'])),
+  ].join('');
+
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Viewpoint'}</h3>
+    <div class="ts" id="tt-sub">${t['addr:city'] || t.loc_name || ''}</div>
+    <div class="tm" id="tt-period">VIEWPOINT — OSM</div>
+  </div>
+  <div class="ttb" id="tt-body">
+    ${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this viewpoint.</div>'}
+  </div>`;
 }
 
 // ─── Rail Stop Markers ────────────────────────────────────────────────────────
@@ -1992,6 +2083,75 @@ function hideTooltip() {
   _activeTooltipKey = null;
 }
 
+// ─── Holiday Markers ──────────────────────────────────────────────────────────
+function _clearHolidayMarkers() {
+  _holidayMarkers.forEach(m => m.remove());
+  _holidayMarkers = [];
+}
+
+function _buildHolidayTooltip(iso2, month, holidays) {
+  const mName = ['January','February','March','April','May','June','July','August','September','October','November','December'][month];
+  const cName = (typeof countryNames !== 'undefined' && countryNames[iso2]) || iso2;
+  const holHtml = holidays.map(h =>
+    `<div style="font-size:9px;color:#1a1a1a;padding:3px 0;border-bottom:1px solid rgba(0,0,0,0.06)">${h}</div>`
+  ).join('');
+  return `<div class="tth"><h3 id="tt-name">${cName}</h3>
+    <div class="ts" id="tt-sub">🗓 PUBLIC HOLIDAYS</div>
+    <div class="tm" id="tt-period">${mName.toUpperCase()}</div></div>
+    <div class="ttb" id="tt-body">
+      <div class="ttln">HOLIDAYS THIS MONTH</div>
+      ${holHtml}
+    </div>`;
+}
+
+function _renderHolidayMarkers() {
+  _clearHolidayMarkers();
+  if (!POI_LAYERS.holidays || !POI_LAYERS.holidays.active) return;
+  if (typeof COUNTRY_HOLIDAYS === 'undefined') return;
+  const months = [...selectedMonths];
+  // For each country with holiday data, find a representative lat/lng from GeoJSON.
+  // Use the choropleth GeoJSON layer (_geoData) to get country centroids.
+  if (!_geoData || !_geoData.features) return;
+  _geoData.features.forEach(f => {
+    const iso2 = getIso2(f.properties);
+    if (!iso2 || !COUNTRY_HOLIDAYS[iso2]) return;
+    const hols = [];
+    months.forEach(m => {
+      const list = COUNTRY_HOLIDAYS[iso2][m];
+      if (list && list.length) hols.push(...list.map(h => h));
+    });
+    if (!hols.length) return;
+    // Get centroid from bounding box
+    let lat = 0, lng = 0;
+    try {
+      const bounds = L.geoJSON(f).getBounds();
+      lat = (bounds.getSouth() + bounds.getNorth()) / 2;
+      lng = (bounds.getWest() + bounds.getEast()) / 2;
+    } catch(e) { return; }
+    if (!isFinite(lat) || !isFinite(lng)) return;
+    const marker = L.circleMarker([lat, lng], {
+      pane: 'markersPane',
+      radius: 7,
+      color: '#ffffff',
+      weight: 1.5,
+      fillColor: '#f59e0b',
+      fillOpacity: 0.88,
+    });
+    marker.on('click', ev => {
+      _featureClicked = true;
+      const activeM = months[0] !== undefined ? months[0] : activeMonth;
+      toggleTooltip(
+        'holiday:' + iso2 + ':' + activeM,
+        _buildHolidayTooltip(iso2, activeM, hols),
+        ev.originalEvent.clientX, ev.originalEvent.clientY
+      );
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    marker.addTo(map);
+    _holidayMarkers.push(marker);
+  });
+}
+
 // Clicking the same map feature twice toggles the tooltip off (dismiss).
 // key: unique string identifying the feature (e.g. 'country:FR', 'city:Paris').
 // If the feature's tooltip is already open, the tooltip is hidden.
@@ -2056,6 +2216,28 @@ function buildSparkline(arr) {
 }
 
 // ─── Tooltip Content ──────────────────────────────────────────────────────────
+
+// Returns a string key representing the primary active context for tooltip
+// content decisions.  Transport layers take priority over geographic choropleth
+// layers; within each group the priority order matches the order of the keys.
+function getActiveContext() {
+  // Transport layers take priority when active
+  if (TRANSPORT_LAYERS.roads.active)    return 'roads';
+  if (TRANSPORT_LAYERS.rail.active)     return 'rail';
+  if (TRANSPORT_LAYERS.trails.active)   return 'trails';
+  if (TRANSPORT_LAYERS.maritime.active) return 'maritime';
+  if (TRANSPORT_LAYERS.natparks.active) return 'natparks';
+  // Geographic choropleth layers
+  if (activeLayers.has('weather'))  return 'weather';
+  if (activeLayers.has('cost'))     return 'cost';
+  if (activeLayers.has('safety'))   return 'safety';
+  if (activeLayers.has('visa'))     return 'visa';
+  if (activeLayers.has('internet')) return 'internet';
+  // Any other active layer
+  for (const k of activeLayers) return k;
+  return 'default';
+}
+
 function periodLabel() {
   if (yearMode) return 'ANNUAL AVERAGE';
   if (selectedMonths.size === 1) return MONTHS_F[activeMonth].toUpperCase();
@@ -2065,7 +2247,17 @@ function periodLabel() {
 
 // context is optional: { iso2 } — used to append country-specific safety notes.
 function buildLayerRows(dataObj, context) {
-  let html = '';
+  const layerCtx = getActiveContext();
+  const _monthLabel = (typeof MONTHS_F !== 'undefined' && MONTHS_F[activeMonth])
+    ? MONTHS_F[activeMonth].toUpperCase() : '';
+  const layerHeader = {
+    weather:  `<div class="ttln">WEATHER CONDITIONS — ${_monthLabel}</div>`,
+    cost:     `<div class="ttln">COST OF LIVING</div>`,
+    safety:   `<div class="ttln">SAFETY INDEX</div>`,
+    visa:     `<div class="ttln">VISA REQUIREMENTS</div>`,
+    internet: `<div class="ttln">CONNECTIVITY INDEX</div>`,
+  };
+  let html = layerHeader[layerCtx] || '';
   activeLayers.forEach(key => {
     const layer = LAYERS[key];
     let arr = dataObj[key];
@@ -2120,13 +2312,31 @@ function buildCountryTooltip(iso2) {
   const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
     ? `<div class="tm" style="color:#43A047;margin-top:2px">&#x2708; Best time: ${BEST_TRAVEL_RANGE[iso2]}</div>`
     : '';
+  const ctx = getActiveContext();
+  const ctxLabels = {
+    roads:    '🛣 Roads Active — click roads for details',
+    rail:     '🚆 Rail Active — click stations for details',
+    trails:   '🥾 Trails Active — click trail for info',
+    natparks: '🌲 Parks Active — click border for info',
+    weather:  '🌤 Weather data shown below',
+    cost:     '💰 Cost of living data below',
+    safety:   '🛡 Safety index below',
+    visa:     '🛂 Visa requirements below',
+    internet: '📶 Connectivity data below',
+  };
+  const ctxBand = ctxLabels[ctx]
+    ? `<div style="background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.12);padding:4px 14px;font-size:7.5px;color:rgba(201,168,76,0.7);letter-spacing:1px">${ctxLabels[ctx]}</div>`
+    : '';
+  const visitedBtn = isVisited(iso2)
+    ? `<div style="font-size:8px;color:#22c55e;padding:6px 0;text-align:center;opacity:0.8">&#x2713; VISITED</div>`
+    : `<button onclick="markVisited('${iso2}');this.outerHTML='<div style=\\'font-size:8px;color:#22c55e;padding:6px 0;text-align:center\\'>&#x2713; MARKED AS VISITED</div>';" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">+ MARK AS VISITED</button>`;
   return `<div class="tth">
     <h3 id="tt-name">${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
     ${bestTimeLine}
-  </div>
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}</div>${pinSection}`;
+  </div>${ctxBand}
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${visitedBtn}</div>${pinSection}`;
 }
 
 function buildCityTooltip(city) {
@@ -2339,8 +2549,9 @@ function updateLegend() {
 
   // ── POI layer legend entries ────────────────────────────────────────────────
   const POI_META = {
-    camping: { color:'#22c55e', label:'Camp Sites',        note:'OSM tourism=camp_site' },
-    parks:   { color:'#15803d', label:'Parks & Forests',   note:'OSM national_park · nature_reserve · forest' },
+    camping:    { color:'#22c55e', label:'Camp Sites',               note:'OSM tourism=camp_site' },
+    parks:      { color:'#15803d', label:'Parks & Forests',          note:'OSM national_park · nature_reserve · forest' },
+    viewpoints: { color:'#a855f7', label:'Viewpoints / Photo Spots', note:'OSM tourism=viewpoint' },
   };
   Object.entries(POI_LAYERS).forEach(([key, def]) => {
     if (!def.active) return;
@@ -2353,6 +2564,19 @@ function updateLegend() {
       </div>
     </div>`;
   });
+  if (POI_LAYERS.holidays && POI_LAYERS.holidays.active) {
+    html += `<div class="ll">
+      <div class="ll-name">Holidays</div>
+      <div class="lr"><div class="lsw" style="background:#f59e0b;border-radius:50%"></div><span class="llabel">Holiday markers (active month)</span></div>
+    </div>`;
+  }
+
+  if (_visitedSet.size > 0) {
+    const vc = _visitedSet.size;
+    html += `<div class="ll" style="text-align:center;padding-top:4px;border-top:1px solid rgba(34,197,94,0.15)">
+      <span style="font-size:7px;color:#4ade80;letter-spacing:1px">&#x2713; ${vc} COUNTR${vc === 1 ? 'Y' : 'IES'} VISITED</span>
+    </div>`;
+  }
 
   body.innerHTML = html;
 }
