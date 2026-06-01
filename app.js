@@ -2228,6 +2228,50 @@ function buildSparkline(arr) {
 
 // ─── Tooltip Content ──────────────────────────────────────────────────────────
 
+// Returns a two-character flag emoji for the given ISO-2 code.
+// Uses Unicode Regional Indicator symbols (U+1F1E6–U+1F1FF).
+function getFlag(iso2) {
+  if (!iso2 || iso2.length !== 2) return '';
+  try {
+    return iso2.toUpperCase().split('').map(c =>
+      String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)
+    ).join('');
+  } catch(_) { return ''; }
+}
+
+// Renders a 4-segment horizontal bar where filled segments reflect quality.
+// rating 0 (best) → 4 filled bars; rating 3 (worst) → 1 filled bar.
+function buildRatingBar(rating, color) {
+  const count = 4 - Math.round(Math.min(3, Math.max(0, rating)));
+  const seg = (on) => `<span style="display:inline-block;width:9px;height:6px;border-radius:2px;margin-right:3px;background:${on ? color : 'rgba(255,255,255,0.10)'}"></span>`;
+  return `<div style="margin-top:5px;line-height:1">${[0,1,2,3].map(i => seg(i < count)).join('')}</div>`;
+}
+
+// Builds a composite travel-score chip (0–100, higher = better) from all
+// currently active layers.  Returns an empty string when nothing is active.
+function buildCompositeScore(dataObj, iso2) {
+  if (!dataObj || activeLayers.size === 0) return '';
+  const ratings = [];
+  activeLayers.forEach(key => {
+    let r = null;
+    if (key === 'cost'     && typeof CD_COST     !== 'undefined') r = CD_COST[iso2]     ?? null;
+    else if (key === 'safety'   && typeof CD_SAFETY   !== 'undefined') r = CD_SAFETY[iso2]   ?? null;
+    else if (key === 'internet' && typeof CD_INTERNET !== 'undefined') r = CD_INTERNET[iso2] ?? null;
+    else if (key === 'visa') r = selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
+    else if (dataObj[key] != null) r = getRating(dataObj[key]);
+    if (r !== null) ratings.push(r);
+  });
+  if (!ratings.length) return '';
+  const avg   = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+  const score = Math.round(100 - (avg / 3) * 100);
+  const col   = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
+  const lbl   = score >= 75 ? 'Great time to visit' : score >= 50 ? 'Decent conditions' : 'Check advisories';
+  return `<div style="display:inline-flex;align-items:center;gap:7px;margin-top:7px;padding:4px 10px 4px 6px;background:rgba(${score>=75?'34,197,94':score>=50?'245,158,11':'239,68,68'},0.10);border:1px solid rgba(${score>=75?'34,197,94':score>=50?'245,158,11':'239,68,68'},0.30);border-radius:20px">
+    <span style="width:22px;height:22px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">${score}</span>
+    <span style="font-size:8px;color:rgba(232,213,163,0.8);letter-spacing:1px;text-transform:uppercase;font-weight:600">${lbl}</span>
+  </div>`;
+}
+
 // Returns a string key representing the primary active context for tooltip
 // content decisions.  Transport layers take priority over geographic choropleth
 // layers; within each group the priority order matches the order of the keys.
@@ -2297,6 +2341,7 @@ function buildLayerRows(dataObj, context) {
       <div class="tti">
         <div class="ttln">${layer.name}</div>
         <div class="ttrat" style="color:${color}">${label}</div>
+        ${buildRatingBar(vc, color)}
         <div class="ttdesc">${desc}</div>
         ${crimeNote}
         ${arr ? buildSparkline(arr) : ''}
@@ -2341,10 +2386,13 @@ function buildCountryTooltip(iso2) {
   const visitedBtn = isVisited(iso2)
     ? `<div style="font-size:8px;color:#22c55e;padding:6px 0;text-align:center;opacity:0.8">&#x2713; VISITED</div>`
     : `<button onclick="markVisited('${iso2}');this.outerHTML='<div style=\\'font-size:8px;color:#22c55e;padding:6px 0;text-align:center\\'>&#x2713; MARKED AS VISITED</div>';" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">+ MARK AS VISITED</button>`;
+  const flag = getFlag(iso2);
+  const scoreChip = buildCompositeScore(CD[iso2] || {}, iso2);
   return `<div class="tth">
-    <h3 id="tt-name">${name}${curr}</h3>
+    <h3 id="tt-name">${flag ? flag + ' ' : ''}${name}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
+    ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
   <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${visitedBtn}</div>${pinSection}`;
@@ -2392,8 +2440,9 @@ function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
   const rows = merged
     ? buildLayerRows(merged, {iso2})
     : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No travel data available for this region.</div>';
+  const _a1Flag = getFlag(iso2);
   return `<div class="tth">
-    <h3 id="tt-name">${stateName || countryName}</h3>
+    <h3 id="tt-name">${_a1Flag ? _a1Flag + ' ' : ''}${stateName || countryName}</h3>
     <div class="ts" id="tt-sub">${stateName ? countryName : iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
@@ -2411,8 +2460,9 @@ function buildAdmin2Tooltip(shapeID, parentAdmin1Code, iso2, districtName, state
     ? buildLayerRows(merged, { iso2 })
     : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No travel data available for this district.</div>';
   const sub = [districtName ? (stateName || null) : null, countryName].filter(Boolean).join(' · ');
+  const _a2Flag = getFlag(iso2);
   return `<div class="tth">
-    <h3 id="tt-name">${districtName || stateName || countryName}</h3>
+    <h3 id="tt-name">${_a2Flag ? _a2Flag + ' ' : ''}${districtName || stateName || countryName}</h3>
     <div class="ts" id="tt-sub">${sub}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>

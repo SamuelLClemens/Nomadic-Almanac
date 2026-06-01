@@ -331,80 +331,127 @@ html, body {
 /* Leaflet zoom controls sit inside #map so they are naturally below the topbar */
 .leaflet-top.leaflet-left { top: 10px !important; left: 10px !important; }
 
-/* ─── Tooltip (click-anchored, light mode) ───────────────────────────────── */
+/* ─── Tooltip: dark-glass theme ─────────────────────────────────────────── */
 #tt {
-  --dim:  #777;
-  --sand: #1e1e1e;
-  --gold: #a07820;
   position: fixed; z-index: 2000; pointer-events: auto;
-  background: #faf8f4;
-  background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px);
-  background-size: 12px 12px;
-  border: 1px solid rgba(0,0,0,0.12);
-  border-top: 3px solid var(--gold);
-  border-radius: 10px;
-  max-width: 340px; min-width: 250px; display: none;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  background: rgba(14,11,6,0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-top: 3px solid #c9a84c;
+  border-radius: 12px;
+  max-width: 340px; min-width: 260px;
+  display: none;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.08);
   font-family: var(--fm);
-  max-height: 72vh; overflow-y: auto;
-  color: #1e1e1e;
+  max-height: 75vh; overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,168,76,0.3) transparent;
 }
-/* Close button inside tooltip */
+#tt::-webkit-scrollbar { width: 4px; }
+#tt::-webkit-scrollbar-track { background: transparent; }
+#tt::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
 #tt-close {
   position: absolute; top: 8px; right: 9px;
   width: 22px; height: 22px; cursor: pointer;
-  background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 5px; color: #555;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 5px;
+  color: var(--gold);
   font-size: 11px; font-family: var(--fm);
   display: flex; align-items: center; justify-content: center;
   line-height: 1; user-select: none; z-index: 2001;
   transition: background .12s;
 }
-#tt-close:hover { background: rgba(0,0,0,0.12); color: #111; }
+#tt-close:hover { background: rgba(201,168,76,0.18); color: var(--sand); }
+
 .tth {
-  padding: 12px 36px 10px 14px;  /* right padding clears the close button */
-  border-bottom: 1px solid rgba(0,0,0,0.07);
-  background: #f8f7f4;
-  border-radius: 9px 9px 0 0;
+  padding: 14px 40px 12px 16px;
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+  background: rgba(201,168,76,0.06);
+  border-radius: 11px 11px 0 0;
 }
+
 .tth h3 {
-  font-size: 15px; font-weight: 700; color: #1a1a1a; line-height: 1.25;
-  margin-right: 4px;  /* clear close btn */
+  font-size: 17px; font-weight: 700;
+  color: var(--sand); line-height: 1.2;
+  margin-right: 4px;
 }
+
 .tth .ts {
-  font-size: 8px; color: var(--gold); letter-spacing: 2px;
-  text-transform: uppercase; margin-top: 3px; font-weight: 600;
+  font-size: 9px; color: var(--gold);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-top: 4px; font-weight: 600;
 }
+
 .tth .tm {
-  font-size: 8px; color: #888; letter-spacing: 1.2px; margin-top: 2px;
+  font-size: 8px; color: rgba(201,168,76,0.55);
+  letter-spacing: 1.5px; margin-top: 3px;
 }
-.ttb { padding: 10px 14px 13px; }
+
+.ttb { padding: 12px 16px 16px; }
+
 .ttr {
   display: flex; align-items: flex-start; gap: 10px;
   margin-bottom: 8px; padding-bottom: 8px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(201,168,76,0.08);
 }
 .ttr:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-.ttstrip { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 32px; }
+
+.ttstrip {
+  width: 3px; border-radius: 2px;
+  flex-shrink: 0; align-self: stretch; min-height: 38px;
+}
+
 .tti { flex: 1; min-width: 0; }
+
 .ttln {
-  font-size: 8px; color: #999; text-transform: uppercase;
-  letter-spacing: 1.2px; margin-bottom: 3px;
+  font-size: 8px; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 1.8px;
+  margin-bottom: 4px; font-weight: 600;
 }
+
 .ttrat {
-  font-size: 12px; font-weight: 700; color: #1a1a1a;
-  line-height: 1.2; margin-bottom: 2px;
+  font-size: 13px; font-weight: 700;
+  color: var(--sand); line-height: 1.2; margin-bottom: 2px;
 }
-.ttdesc { font-size: 9px; color: #555; line-height: 1.7; }
+
+.ttdesc {
+  font-size: 10px; color: rgba(232,213,163,0.65);
+  line-height: 1.65; margin-top: 3px;
+}
+
 .spark { display: flex; align-items: flex-end; gap: 1.5px; height: 16px; margin-top: 5px; }
 .spark-bar { flex: 1; border-radius: 1px 1px 0 0; }
 .spark-labels { display: flex; justify-content: space-between; margin-top: 2px; }
-.spark-label { font-size: 5.5px; color: #aaa; letter-spacing: .3px; }
+.spark-label { font-size: 5.5px; color: rgba(201,168,76,0.4); letter-spacing: .3px; }
 
-/* Border tooltip status */
-.tt-status-open       { color: #0891b2; }
-.tt-status-restricted { color: #d97706; }
-.tt-status-closed     { color: #dc2626; }
+/* Border status chips — dark-theme pill badges */
+.tt-status-open {
+  display: inline-block; padding: 1px 7px; border-radius: 20px;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(8,145,178,0.15);
+  border: 1px solid rgba(8,145,178,0.35);
+  color: #38bdf8;
+}
+.tt-status-restricted {
+  display: inline-block; padding: 1px 7px; border-radius: 20px;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(217,119,6,0.15);
+  border: 1px solid rgba(217,119,6,0.35);
+  color: #fbbf24;
+}
+.tt-status-closed {
+  display: inline-block; padding: 1px 7px; border-radius: 20px;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(220,38,38,0.15);
+  border: 1px solid rgba(220,38,38,0.35);
+  color: #f87171;
+}
 
 /* ─── Map Status ─────────────────────────────────────────────────────────── */
 #map-status {
@@ -476,13 +523,32 @@ html, body {
 .llp-item.active { background: rgba(201,168,76,0.08); color: var(--gold); font-weight: 700; }
 .ll { margin-bottom: 10px; }
 .ll:last-child { margin-bottom: 0; }
-.ll-name { font-size: 8px; font-weight: 700; color: var(--sand); margin-bottom: 4px; letter-spacing: 1px; text-align: center; text-transform: uppercase; }
-.lr { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
-.lsw { width: 9px; height: 9px; border-radius: 4px; flex-shrink: 0; }
+.ll-name {
+  font-size: 10px; font-weight: 700;
+  color: var(--gold); letter-spacing: 1.5px;
+  text-align: center; text-transform: uppercase;
+  margin-bottom: 6px; padding-bottom: 4px;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.lr {
+  display: flex; align-items: center;
+  gap: 7px; margin-bottom: 5px;
+}
+.lsw {
+  width: 10px; height: 10px;
+  border-radius: 4px; flex-shrink: 0;
+}
 .lsw-diamond { width: 9px; height: 9px; flex-shrink: 0; transform: rotate(45deg); border-radius: 1px; }
-.lsw-line { width: 22px; height: 2px; border-radius: 1px; flex-shrink: 0; margin: 3px 0; opacity: 0.8; }
-.llabel { font-size: 7.5px; color: var(--dim); }
-.llabel-note { font-size: 6.5px; color: #3a2a10; letter-spacing: .3px; margin-left: 5px; }
+.lsw-line {
+  width: 24px; height: 2.5px;
+  border-radius: 1px; flex-shrink: 0;
+  margin: 3px 0; opacity: 0.8;
+}
+.llabel { font-size: 9px; color: var(--sand); line-height: 1.5; }
+.llabel-note {
+  font-size: 8px; color: rgba(201,168,76,0.5);
+  letter-spacing: .5px; margin-left: 6px;
+}
 
 /* ─── Leaflet overrides ───────────────────────────────────────────────────── */
 .leaflet-control-zoom {
@@ -711,16 +777,18 @@ html, body {
   font-size: 9px; color: var(--dim); letter-spacing: 0.05em; line-height: 1.8;
 }
 
-/* Pin button inside tooltip */
+/* Pin button — dark theme */
 .tt-pin-btn {
   display: inline-flex; align-items: center; gap: 4px;
   margin-top: 8px; padding: 4px 9px; cursor: pointer;
   font-size: 8px; font-family: var(--fm); letter-spacing: 0.8px;
-  border-radius: 5px; border: 1px solid rgba(201,168,76,0.22);
-  background: rgba(201,168,76,0.06); color: rgba(201,168,76,0.7);
+  border-radius: 5px;
+  border: 1px solid rgba(201,168,76,0.22);
+  background: rgba(201,168,76,0.06);
+  color: var(--gold);
   transition: all .12s; user-select: none;
 }
-.tt-pin-btn:hover { background: rgba(201,168,76,0.16); color: var(--gold); }
+.tt-pin-btn:hover { background: rgba(201,168,76,0.18); color: var(--sand); border-color: rgba(201,168,76,0.4); }
 .tt-pin-btn.pinned { background: rgba(201,168,76,0.16); color: var(--gold); border-color: var(--b2); }
 
 /* ─── Topbar hamburger toggle ─────────────────────────────────────────────── */
