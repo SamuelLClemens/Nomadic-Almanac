@@ -2522,6 +2522,21 @@ function updateLegend() {
     html += `</div>`;
   });
 
+  if (activeLayers.has('visa') || activeLayers.has('strength')) {
+    const nat = selectedNationality || '';
+    const opts = (typeof PASSPORT_NATIONALITIES !== 'undefined')
+      ? Object.entries(PASSPORT_NATIONALITIES).map(([c, l]) =>
+          '<option value="' + c + '"' + (c === nat ? ' selected' : '') + '>' + l + '</option>')
+        .join('')
+      : '';
+    html += '<div class="ll" id="legend-nat-wrap">'
+      + '<div class="ll-name">YOUR PASSPORT</div>'
+      + '<select id="legend-passport-sel" style="width:100%;margin-top:4px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.22);border-radius:5px;color:var(--gold);font-family:var(--fm);font-size:9px;padding:4px 6px;cursor:pointer;outline:none">'
+      + '<option value="">Select nationality…</option>'
+      + opts
+      + '</select></div>';
+  }
+
   if (activeLayers.has('beaches')) {
     const beachZoom = map ? map.getZoom() : 0;
     if (beachZoom >= 7) {
@@ -2640,6 +2655,20 @@ function updateLegend() {
   }
 
   body.innerHTML = html;
+
+  const legendSel = document.getElementById('legend-passport-sel');
+  if (legendSel) {
+    legendSel.addEventListener('change', () => {
+      selectedNationality = legendSel.value || null;
+      if (selectedNationality && !activeLayers.has('visa')) {
+        activeLayers.add('visa');
+        document.querySelectorAll('.lb[data-key="visa"]').forEach(b => b.classList.add('on'));
+      }
+      const topSel = document.getElementById('passport-select');
+      if (topSel) topSel.value = selectedNationality || '';
+      refresh(); updateURLState(); saveState();
+    });
+  }
 }
 
 function updateBadge() {
@@ -3432,15 +3461,15 @@ function initLegendCollapsible() {
   picker.id = 'legend-layer-picker';
   document.body.appendChild(picker);
 
-  const geoEntries = Object.entries(LAYERS).filter(([k]) => GEOGRAPHIC_LAYERS.has(k));
-  geoEntries.forEach(([key, layer]) => {
+  const allEntries = Object.entries(LAYERS);
+  allEntries.forEach(([key, layer]) => {
     const item = document.createElement('div');
     item.className = 'llp-item';
     item.dataset.key = key;
     item.innerHTML = `<span style="font-size:13px">${layer.emoji}</span><span>${layer.name}</span>`;
     item.addEventListener('click', e => {
       e.stopPropagation();
-      geoEntries.forEach(([k]) => activeLayers.delete(k));
+      allEntries.forEach(([k]) => activeLayers.delete(k));
       activeLayers.add(key);
       document.querySelectorAll('.lb[data-key]').forEach(b => b.classList.toggle('on', activeLayers.has(b.dataset.key)));
       picker.classList.remove('open');
