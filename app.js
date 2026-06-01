@@ -28,6 +28,11 @@ let _parkBorderLines    = [];
 let _parkBorderCache    = {};
 let _parkBorderDebounce = null;
 
+// Road vector polylines (Overpass-fetched, replaces HOT tile overlay)
+let _roadLines    = [];
+let _roadCache    = {};
+let _roadDebounce = null;
+
 // Holiday markers (rendered from static COUNTRY_HOLIDAYS data)
 let _holidayMarkers = [];
 
@@ -63,13 +68,11 @@ let _coveredByAdmin2 = new Set();  // iso2 codes with admin-2 layer currently on
 const TRANSPORT_LAYERS = {
   roads: {
     label: '🛣 Roads',
-    // OpenStreetMap Humanitarian (HOT) tiles — OSM data, strong SE Asia coverage.
-    // mix-blend-mode: multiply on .transport-roads-layer makes the white background
-    // transparent so road lines overlay the satellite basemap cleanly.
-    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    opts: { subdomains: 'abc', opacity: 0.80, maxZoom: 19,
-            className: 'transport-roads-layer',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, HOT style' },
+    // Vector overlay: road geometries fetched from Overpass, rendered as colored
+    // L.polylines on transportPane.  No tile download — fully transparent, every
+    // segment is individually clickable.  Requires zoom ≥ 9.
+    vector: true,
+    url: null, opts: {},
     layer: null, active: false,
   },
   rail: {
@@ -88,21 +91,23 @@ const TRANSPORT_LAYERS = {
   },
   maritime: {
     label: '⚓ Maritime',
-    url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
-    opts: { maxZoom: 18, opacity: 0.80,
+    url: 'https://t{s}.openseamap.org/seamark/{z}/{x}/{y}.png',
+    opts: { subdomains: '123', maxZoom: 18, opacity: 0.85,
             attribution: '&copy; <a href="https://openseamap.org">OpenSeaMap</a>' },
     layer: null, active: false,
   },
   wildfires: {
     label: '🔥 Wildfires',
-    // NASA FIRMS WMS endpoint — must use L.tileLayer.wms(), NOT L.tileLayer().
-    // L.tileLayer() does not substitute {bbox-epsg-3857}; it would send a literal
-    // placeholder to the server, returning empty tiles. Flag `wms:true` triggers
-    // the correct L.tileLayer.wms() branch in buildTransportButtons().
-    url: 'https://firms.modaps.eosdis.nasa.gov/mapserver/wms/fires/2e43e6382e5cd7b5e3adfd5e16e1c23a/',
-    wms: true,
-    opts: { layers: 'fires_viirs_24', format: 'image/png', transparent: true,
-            version: '1.3.0', opacity: 0.75, attribution: 'FIRMS/NASA near real-time fire data' },
+    // NASA GIBS WMTS — public endpoint, no API key required.
+    // VIIRS_SNPP_Fires_375m: Near-real-time fire detections from the Suomi NPP satellite.
+    // The tile URL includes a date token that is computed at activation time by
+    // buildTransportButtons() using the current UTC date (yesterday for full coverage).
+    // Standard L.tileLayer — GIBS WMTS uses GoogleMapsCompatible tile matrix (EPSG:3857)
+    // which is natively compatible with Leaflet's {z}/{x}/{y} template.
+    url: null,   // computed at activation; see buildTransportButtons()
+    wms: false,
+    opts: { maxZoom: 8, opacity: 0.85, attribution: 'NASA GIBS · VIIRS SNPP Fires 375m',
+            maxNativeZoom: 8 },
     layer: null, active: false,
   },
   natparks: {
@@ -121,7 +126,7 @@ const TRANSPORT_LAYERS = {
 const POI_LAYERS = {
   camping: {
     label: '⛺ Camping',
-    active: false, minZoom: 8, markers: [], bboxCache: {}, debounce: null,
+    active: false, minZoom: 7, markers: [], bboxCache: {}, debounce: null,
   },
   parks: {
     label: '🏞 Parks & Forests',
@@ -134,7 +139,7 @@ const POI_LAYERS = {
   },
   viewpoints: {
     label: '📷 Viewpoints',
-    active: false, minZoom: 9, markers: [], bboxCache: {}, debounce: null,
+    active: false, minZoom: 7, markers: [], bboxCache: {}, debounce: null,
   },
 };
 
@@ -522,12 +527,25 @@ let timezoneChoroLayer = null;  // country choropleth colored by UTC offset
 let _tzActive          = false; // module-scope flag; read by updateLegend / syncTransportBtn
 
 // Maps UTC offset [-12, +14] to a distinct HSL hue.
-// UTC-12 → hue 0° (warm red), UTC+14 → hue 260° (blue-violet).
+// 9 highly saturated, perceptually distinct base colors.
+// Adjacent UTC offsets (±1h) always fall in different palette slots because
+// (offset+12) % 9 steps by 1 each hour — the cycle length (9) is > 1.
+// This guarantees no two neighboring zones share the same hue.
+const TZ_PALETTE = [
+  '#ef4444', // 0  vivid red
+  '#f97316', // 1  orange
+  '#eab308', // 2  amber
+  '#22c55e', // 3  green
+  '#06b6d4', // 4  cyan
+  '#3b82f6', // 5  blue
+  '#a855f7', // 6  purple
+  '#ec4899', // 7  pink/magenta
+  '#84cc16', // 8  lime
+];
 function tzOffsetColor(offset) {
-  if (offset === null || offset === undefined) return '#1a1a28';
-  const t   = (offset + 12) / 26;   // normalise to [0, 1]
-  const hue = Math.round(t * 260);  // 0° → 260°
-  return `hsl(${hue}, 60%, 38%)`;
+  if (offset === null || offset === undefined) return '#1e1b14';
+  const idx = ((Math.round(offset) + 12) % 9 + 9) % 9;
+  return TZ_PALETTE[idx];
 }
 
 function toggleTimezoneLayer(active) {
@@ -617,15 +635,21 @@ function buildTransportButtons() {
       def.active = !def.active;
       btn.classList.toggle('on', def.active);
       if (def.active) {
-        if (def.vector) {
-          // natparks: vector polygon border rendering via Overpass (not a tile layer)
+        if (key === 'roads') {
+          // Roads: vector overlay via Overpass (not a tile layer)
+          _fetchAndRenderRoads();
+        } else if (def.vector) {
+          // natparks: vector polygon border rendering via Overpass
           _fetchAndRenderParkBorders();
         } else {
           if (!def.layer) {
-            // WMS layers need L.tileLayer.wms(); standard tile layers use L.tileLayer().
-            def.layer = def.wms
-              ? L.tileLayer.wms(def.url, { pane: 'transportPane', ...def.opts })
-              : L.tileLayer(def.url,     { pane: 'transportPane', ...def.opts });
+            if (key === 'wildfires') {
+              // NASA GIBS WMTS — build the URL with yesterday's date for full tile coverage
+              const d  = new Date(); d.setUTCDate(d.getUTCDate() - 1);
+              const ds = d.toISOString().slice(0, 10);  // YYYY-MM-DD
+              def.url  = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_Fires_375m/default/${ds}/GoogleMapsCompatible/{z}/{y}/{x}.png`;
+            }
+            def.layer = L.tileLayer(def.url, { pane: 'transportPane', ...def.opts });
           }
           def.layer.addTo(map);
         }
@@ -639,7 +663,9 @@ function buildTransportButtons() {
         // Trails: auto-show camping when hiking overlay is on
         if (key === 'trails') _refreshLinkedCamping();
       } else {
-        if (def.vector) {
+        if (key === 'roads') {
+          _clearRoads();
+        } else if (def.vector) {
           // natparks vector off: remove drawn park borders
           _clearParkBorders();
         } else if (def.layer) {
@@ -1771,7 +1797,7 @@ async function _fetchAndRenderPOI(key, forceRender) {
   const query = key === 'camping'
     ? `[out:json][timeout:20];(node["tourism"="camp_site"](${bbox});way["tourism"="camp_site"](${bbox}););out center 200;`
     : key === 'viewpoints'
-    ? `[out:json][timeout:20];node["tourism"="viewpoint"]["name"](${bbox});out body 200;`
+    ? `[out:json][timeout:20];node["tourism"="viewpoint"](${bbox});out body 300;`
     : `[out:json][timeout:25];(node["boundary"="national_park"](${bbox});way["boundary"="national_park"](${bbox});relation["boundary"="national_park"](${bbox});node["leisure"="nature_reserve"](${bbox});way["leisure"="nature_reserve"](${bbox});relation["leisure"="nature_reserve"](${bbox});node["landuse"="forest"]["name"](${bbox});way["landuse"="forest"]["name"](${bbox}););out center 250;`;
 
   try {
@@ -2011,8 +2037,10 @@ async function _fetchAndRenderParkBorders() {
 
   const s = bounds.getSouth().toFixed(4), w = bounds.getWest().toFixed(4);
   const n = bounds.getNorth().toFixed(4), e = bounds.getEast().toFixed(4);
-  // Query ways only (lighter than relations) — sufficient to draw visible borders.
-  const query = `[out:json][timeout:30];(way["boundary"="national_park"](${s},${w},${n},${e});way["leisure"="nature_reserve"](${s},${w},${n},${e});way["protect_class"~"^(1|2|3|4|5|6)"](${s},${w},${n},${e}););out geom qt 80;`;
+  // National parks in OSM are primarily relations (multipolygon boundary).
+  // "(._;>;)" recursively expands relations → member ways → nodes so Overpass
+  // returns full geometry.  We then filter to way elements which carry coordinates.
+  const query = `[out:json][timeout:35];(relation["boundary"="national_park"](${s},${w},${n},${e});relation["leisure"="nature_reserve"](${s},${w},${n},${e});way["boundary"="national_park"](${s},${w},${n},${e});way["leisure"="nature_reserve"](${s},${w},${n},${e}););(._;>;);out geom qt 300;`;
 
   try {
     const res  = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
@@ -2055,9 +2083,117 @@ function _renderParkBorderVectors(elements) {
   });
 }
 
-// ─── Road Click Info ──────────────────────────────────────────────────────────
+// ─── Vector Road Overlay ──────────────────────────────────────────────────────
+// Roads are fetched from Overpass and rendered as colored polylines.
+// Highway type determines color; every segment is clickable.
+
+const HW_COLOR = {
+  motorway:'#ef4444', trunk:'#f97316', primary:'#eab308',
+  secondary:'#84cc16', tertiary:'#22c55e',
+  residential:'#94a3b8', service:'#64748b', unclassified:'#94a3b8',
+  living_street:'#64748b', cycleway:'#38bdf8', pedestrian:'#c084fc',
+};
+
+function _clearRoads() {
+  _roadLines.forEach(l => l.remove());
+  _roadLines = [];
+}
+
+async function _fetchAndRenderRoads() {
+  if (!TRANSPORT_LAYERS.roads.active || !map) return;
+  const zoom = map.getZoom();
+  if (zoom < 9) {
+    _clearRoads();
+    const st = document.getElementById('map-status');
+    if (st) {
+      st.textContent = '🛣 Zoom in further (level 9+) to render road vectors';
+      st.style.display = 'block';
+      setTimeout(() => { st.style.display = 'none'; }, 5000);
+    }
+    return;
+  }
+
+  if (_roadDebounce) clearTimeout(_roadDebounce);
+  _roadDebounce = setTimeout(async () => {
+    if (!TRANSPORT_LAYERS.roads.active || !map) return;
+    const bounds  = map.getBounds();
+    const bboxKey = _bboxKey(bounds);
+    if (_roadCache[bboxKey]) { _renderRoadVectors(_roadCache[bboxKey]); return; }
+
+    const st = document.getElementById('map-status');
+    if (st) { st.textContent = '🛣 Loading roads…'; st.style.display = 'block'; }
+
+    const s = bounds.getSouth().toFixed(4), w = bounds.getWest().toFixed(4);
+    const n = bounds.getNorth().toFixed(4), e = bounds.getEast().toFixed(4);
+    // At lower zoom show only major roads; at higher zoom add residential/service.
+    const hwFilter = zoom >= 13
+      ? '"highway"~"motorway|trunk|primary|secondary|tertiary|residential|living_street|pedestrian|cycleway"'
+      : '"highway"~"motorway|trunk|primary|secondary|tertiary"';
+    const query = `[out:json][timeout:30];way[${hwFilter}](${s},${w},${n},${e});out geom qt 500;`;
+    try {
+      const res  = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
+      if (res.status === 429) throw new Error('Rate limit');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const ways = (data.elements || []).filter(el => el.geometry && el.geometry.length > 1);
+      _roadCache[bboxKey] = ways;
+      if (TRANSPORT_LAYERS.roads.active) _renderRoadVectors(ways);
+      if (st) st.style.display = 'none';
+    } catch (err) {
+      const msg = err.message === 'Rate limit' ? '⚠ Rate limit — wait a moment and pan' : '⚠ Roads data unavailable';
+      if (st) { st.textContent = msg; st.style.display = 'block'; setTimeout(() => { st.style.display = 'none'; }, 4000); }
+    }
+  }, 350);
+}
+
+function _renderRoadVectors(ways) {
+  _clearRoads();
+  if (!TRANSPORT_LAYERS.roads.active || !map) return;
+  ways.forEach(el => {
+    if (!el.geometry || el.geometry.length < 2) return;
+    const t     = el.tags || {};
+    const hw    = t.highway || 'unclassified';
+    const color = HW_COLOR[hw] || '#94a3b8';
+    const weight = hw === 'motorway' ? 4 : hw === 'trunk' ? 3.5 : hw === 'primary' ? 3
+                 : hw === 'secondary' ? 2.5 : hw === 'tertiary' ? 2 : 1.5;
+    const coords = el.geometry.map(pt => [pt.lat, pt.lon]);
+    const l = L.polyline(coords, {
+      pane:    'transportPane',
+      color,
+      weight,
+      opacity: 0.85,
+      smoothFactor: 1.2,
+    });
+    l.on('click', ev => {
+      _featureClicked = true;
+      const name  = t.name || t['name:en'] || t.ref || hw.replace(/_/g, ' ');
+      const ref   = t.ref   ? ` · Ref: ${t.ref}` : '';
+      const spd   = t.maxspeed ? ` · Max ${t.maxspeed}` : '';
+      const surf  = t.surface ? ` · ${t.surface}` : '';
+      const lanes = t.lanes  ? ` · ${t.lanes} lanes` : '';
+      const from  = t.from || (coords[0] ? `${coords[0][0].toFixed(4)}, ${coords[0][1].toFixed(4)}` : '');
+      const to    = t.to   || (coords[coords.length-1] ? `${coords[coords.length-1][0].toFixed(4)}, ${coords[coords.length-1][1].toFixed(4)}` : '');
+      const html  = `<div class="tth">
+        <h3 id="tt-name">${name}</h3>
+        <div class="ts" id="tt-sub">${hw.replace(/_/g,' ').toUpperCase()}${ref}</div>
+        <div class="tm" id="tt-period">ROAD — OSM</div>
+      </div><div class="ttb" id="tt-body">
+        <div class="ttr"><div class="ttstrip" style="background:${color}"></div><div class="tti">
+          <div class="ttln">ROUTE</div>
+          <div class="ttrat" style="color:${color}">${name}</div>
+          <div class="ttdesc">${from ? 'From: ' + from : ''}${to ? ' → To: ' + to : ''}${spd}${surf}${lanes}</div>
+        </div></div>
+      </div>`;
+      toggleTooltip('road:' + el.id, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    l.addTo(map);
+    _roadLines.push(l);
+  });
+}
+
+// ─── Road Click Info (legacy — kept for map-click fallback on road tiles) ────
 // Queries Overpass for named roads and highway refs near the click point.
-// Called when the Roads tile layer is active and the user clicks the map.
 
 async function fetchRoadInfo(lat, lng) {
   try {
@@ -2234,34 +2370,45 @@ function _renderHolidayMarkers() {
   _clearHolidayMarkers();
   if (!POI_LAYERS.holidays || !POI_LAYERS.holidays.active) return;
   if (typeof COUNTRY_HOLIDAYS === 'undefined') return;
-  const months = [...selectedMonths];
-  // For each country with holiday data, find a representative lat/lng from GeoJSON.
-  // Use the choropleth GeoJSON layer (_geoData) to get country centroids.
-  if (!_geoData || !_geoData.features) return;
-  _geoData.features.forEach(f => {
-    const iso2 = getIso2(f.properties);
-    if (!iso2 || !COUNTRY_HOLIDAYS[iso2]) return;
+  if (!map) return;
+  const months = yearMode
+    ? [0,1,2,3,4,5,6,7,8,9,10,11]
+    : [...selectedMonths].length ? [...selectedMonths] : [activeMonth];
+
+  // Build a centroid lookup: COUNTRY_CENTERS (always available) plus _geoData bounds
+  // for any country not in COUNTRY_CENTERS.
+  const centroids = {};
+  if (typeof COUNTRY_CENTERS !== 'undefined') {
+    Object.entries(COUNTRY_CENTERS).forEach(([iso2, c]) => {
+      centroids[iso2] = { lat: c[0], lng: c[1] };
+    });
+  }
+  if (_geoData && _geoData.features) {
+    _geoData.features.forEach(f => {
+      const iso2 = getIso2(f.properties);
+      if (!iso2 || centroids[iso2]) return;   // already have it
+      try {
+        const b = L.geoJSON(f).getBounds();
+        const lat = (b.getSouth() + b.getNorth()) / 2;
+        const lng = (b.getWest()  + b.getEast())  / 2;
+        if (isFinite(lat) && isFinite(lng)) centroids[iso2] = { lat, lng };
+      } catch(_) {}
+    });
+  }
+
+  Object.keys(COUNTRY_HOLIDAYS).forEach(iso2 => {
     const hols = [];
     months.forEach(m => {
       const list = COUNTRY_HOLIDAYS[iso2][m];
-      if (list && list.length) hols.push(...list.map(h => h));
+      if (list && list.length) hols.push(...list);
     });
     if (!hols.length) return;
-    // Get centroid from bounding box
-    let lat = 0, lng = 0;
-    try {
-      const bounds = L.geoJSON(f).getBounds();
-      lat = (bounds.getSouth() + bounds.getNorth()) / 2;
-      lng = (bounds.getWest() + bounds.getEast()) / 2;
-    } catch(e) { return; }
-    if (!isFinite(lat) || !isFinite(lng)) return;
-    const marker = L.circleMarker([lat, lng], {
-      pane: 'markersPane',
-      radius: 7,
-      color: '#ffffff',
-      weight: 1.5,
-      fillColor: '#f59e0b',
-      fillOpacity: 0.88,
+    const c = centroids[iso2];
+    if (!c) return;
+    const marker = L.circleMarker([c.lat, c.lng], {
+      pane: 'markersPane', radius: 7,
+      color: '#ffffff', weight: 1.5,
+      fillColor: '#f59e0b', fillOpacity: 0.88,
     });
     marker.on('click', ev => {
       _featureClicked = true;
@@ -2951,6 +3098,8 @@ function onZoom() {
       if (map.getZoom() >= 7) _fetchAndRenderRailStops();
       else _clearRailStops();
     }
+    // Road vectors: re-evaluate on zoom change.
+    if (TRANSPORT_LAYERS.roads.active) _fetchAndRenderRoads();
     // Park border vectors: re-evaluate on zoom change.
     if (TRANSPORT_LAYERS.natparks.active) {
       if (map.getZoom() >= 5) _fetchAndRenderParkBorders();
@@ -4001,6 +4150,11 @@ function initPOILayers() {
   map.on('moveend', () => {
     if (!showBorders) return;
     if (map.getZoom() >= 7) _fetchAndRenderBorders();
+  });
+
+  // Road vectors: re-query on pan when roads layer is active.
+  map.on('moveend', () => {
+    if (TRANSPORT_LAYERS.roads.active) _fetchAndRenderRoads();
   });
 }
 
