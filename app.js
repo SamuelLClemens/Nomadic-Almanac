@@ -3329,32 +3329,40 @@ function initLegendCollapsible() {
   if (btWrap) wrap.appendChild(btWrap);
   if (btList) wrap.appendChild(btList);
 
-  // Collapse arrow — clearly visible chevron, changes ▴↔▾ to show open/closed
+  // Remove the static "FIELD GUIDE" text node from index.html. If left in place it
+  // renders alongside the layer name injected by updateLegend() — the "name twice" bug.
+  h4.textContent = '';
+  h4.style.cssText += ';display:flex;align-items:center;gap:4px;';
+
+  // Left spacer — matches the arrow width so the centered name sits visually balanced.
+  const spacer = document.createElement('span');
+  spacer.style.cssText = 'width:24px;flex-shrink:0';
+  h4.appendChild(spacer);
+
+  // Layer name — centered. Clicking it minimizes / expands the legend window.
+  const nameBtn = document.createElement('span');
+  nameBtn.id = 'legend-layer-btn';
+  nameBtn.title = 'Click to minimize';
+  nameBtn.style.cssText = 'cursor:pointer;flex:1;min-width:0;text-align:center;border-radius:4px;padding:3px 5px;transition:background .12s';
+  nameBtn.textContent = 'FIELD GUIDE';
+  nameBtn.onmouseenter = () => { nameBtn.style.background = 'rgba(201,168,76,0.10)'; };
+  nameBtn.onmouseleave = () => { nameBtn.style.background = ''; };
+  h4.appendChild(nameBtn);
+
+  // Arrow to the right of the name. Clicking it opens the layer-change dropdown.
   const arrow = document.createElement('span');
   arrow.id    = 'legend-collapse-arrow';
-  arrow.title = 'Click to collapse';
-  arrow.style.cssText = 'font-size:11px;color:var(--gold);opacity:0.9;transition:transform .2s ease;margin-left:auto;padding:2px 6px;border-radius:3px;background:rgba(201,168,76,0.08)';
-  arrow.textContent = '▴';
-  h4.style.cssText += ';display:flex;align-items:center;cursor:pointer;';
+  arrow.title = 'Change layer';
+  arrow.style.cssText = 'font-size:11px;color:var(--gold);opacity:0.9;cursor:pointer;padding:2px 6px;border-radius:3px;background:rgba(201,168,76,0.08);flex-shrink:0;width:24px;text-align:center';
+  arrow.textContent = '▾';
   h4.appendChild(arrow);
 
-  // Click the title row to collapse/expand — arrow glyph changes so state is unambiguous
-  h4.addEventListener('click', e => {
-    if (e.target.closest('#legend-layer-btn')) return;
-    const isCollapsed   = wrap.classList.toggle('collapsed');
-    arrow.textContent   = isCollapsed ? '▾' : '▴';
-    arrow.title         = isCollapsed ? 'Click to expand' : 'Click to collapse';
+  // Clicking the layer NAME collapses / expands the legend body.
+  nameBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isCollapsed = wrap.classList.toggle('collapsed');
+    nameBtn.title = isCollapsed ? 'Click to expand' : 'Click to minimize';
   });
-
-  // ── Layer picker: clicking the emoji+name area opens a layer switcher ──────
-  // ── Layer name area: click = open picker dropdown ─────────────────────────
-  const pickerBtn = document.createElement('span');
-  pickerBtn.id = 'legend-layer-btn';
-  pickerBtn.title = 'Click to change layer';
-  pickerBtn.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:5px;flex:1;min-width:0;padding-right:4px;border-radius:4px;padding:3px 5px;transition:background .12s';
-  pickerBtn.onmouseenter = () => { pickerBtn.style.background = 'rgba(201,168,76,0.10)'; };
-  pickerBtn.onmouseleave = () => { pickerBtn.style.background = ''; };
-  h4.prepend(pickerBtn);
 
   // Dropdown picker — shows all geographic layers
   const picker = document.createElement('div');
@@ -3378,7 +3386,8 @@ function initLegendCollapsible() {
     picker.appendChild(item);
   });
 
-  pickerBtn.addEventListener('click', e => {
+  // Clicking the ARROW opens / closes the layer-change dropdown.
+  arrow.addEventListener('click', e => {
     e.stopPropagation();
     const isOpen = picker.classList.contains('open');
     picker.classList.toggle('open', !isOpen);
@@ -3386,17 +3395,22 @@ function initLegendCollapsible() {
       picker.querySelectorAll('.llp-item').forEach(item => {
         item.classList.toggle('active', activeLayers.has(item.dataset.key));
       });
-      const r = pickerBtn.getBoundingClientRect();
+      const r = arrow.getBoundingClientRect();
       picker.style.top  = (r.bottom + 6) + 'px';
-      picker.style.left = r.left + 'px';
+      // Right-align the dropdown beneath the arrow, clamped to the viewport edge.
+      picker.style.left = Math.max(8, r.right - 175) + 'px';
     }
   });
 
   document.addEventListener('click', e => {
-    if (!picker.contains(e.target) && !pickerBtn.contains(e.target)) {
+    if (!picker.contains(e.target) && !arrow.contains(e.target)) {
       picker.classList.remove('open');
     }
   });
+
+  // Sync the title to any layer restored from localStorage/URL at boot, since the
+  // earlier updateLegend() ran before this header existed.
+  updateLegend();
 }
 
 // ─── Share URL button ─────────────────────────────────────────────────────────
