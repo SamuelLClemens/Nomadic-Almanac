@@ -56,7 +56,14 @@ html, body {
   /* Relative — stays at the top as a flex item; map fills the rest */
   position: relative; z-index: 1200;
   flex-shrink: 0;   /* never shrink; map gets whatever is left */
-  background: var(--panel);
+  /* Logo area (first ~270 px) stays fully opaque so the compass reads clearly.
+     Everything to the right fades to 78 % opacity so the map shows through. */
+  background: linear-gradient(
+    to right,
+    rgba(48,36,16,0.98) 0px,
+    rgba(48,36,16,0.98) 268px,
+    rgba(28,20,8,0.78)  370px
+  );
   border-bottom: 1px solid var(--b2);
   backdrop-filter: blur(20px);
 }
@@ -111,7 +118,19 @@ html, body {
   text-decoration: none;
 }
 #logo-icon { width: 46px; height: 46px; flex-shrink: 0; }
-#logo-text  { display: flex; flex-direction: column; line-height: 1; }
+/* Antique world map silhouette behind the wordmark — faint gold continents
+   on dark ground, with a lat/long graticule grid. Purely decorative: opacity
+   is kept low so it never competes with the text readability. */
+#logo-text  {
+  display: flex; flex-direction: column; line-height: 1;
+  position: relative;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 46'%3E%3Crect width='220' height='46' fill='%230e0b06'/%3E%3C!-- graticule --%3E%3Cline x1='0' y1='8' x2='220' y2='8' stroke='%23c9a84c' stroke-width='0.5' opacity='0.12'/%3E%3Cline x1='0' y1='23' x2='220' y2='23' stroke='%23c9a84c' stroke-width='0.6' opacity='0.15'/%3E%3Cline x1='0' y1='38' x2='220' y2='38' stroke='%23c9a84c' stroke-width='0.5' opacity='0.12'/%3E%3Cline x1='22' y1='0' x2='22' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='44' y1='0' x2='44' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='66' y1='0' x2='66' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='88' y1='0' x2='88' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='110' y1='0' x2='110' y2='46' stroke='%23c9a84c' stroke-width='0.5' opacity='0.12'/%3E%3Cline x1='132' y1='0' x2='132' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='154' y1='0' x2='154' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='176' y1='0' x2='176' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='198' y1='0' x2='198' y2='46' stroke='%23c9a84c' stroke-width='0.4' opacity='0.10'/%3E%3C!-- continents --%3E%3Cpath d='M4,5 L28,3 L37,9 L41,19 L35,27 L21,29 L8,25 L3,15 Z' fill='%23c9a84c' opacity='0.13'/%3E%3Cpath d='M25,31 L38,29 L44,37 L40,45 L27,46 L20,40 Z' fill='%23c9a84c' opacity='0.13'/%3E%3Cpath d='M70,3 L90,2 L96,9 L90,15 L74,15 L68,9 Z' fill='%23c9a84c' opacity='0.13'/%3E%3Cpath d='M74,17 L94,15 L102,26 L98,40 L85,45 L73,39 L68,28 Z' fill='%23c9a84c' opacity='0.13'/%3E%3Cpath d='M93,2 L168,1 L176,13 L168,21 L138,23 L108,19 L96,9 Z' fill='%23c9a84c' opacity='0.11'/%3E%3Cpath d='M150,30 L170,28 L178,38 L166,45 L148,45 L142,37 Z' fill='%23c9a84c' opacity='0.13'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 3px;
+  padding: 2px 5px;
+}
 
 #logo-wordmark {
   display: flex; align-items: baseline; gap: 4px;
@@ -400,11 +419,14 @@ html, body {
 /* ─── Legend (Field Guide) ───────────────────────────────────────────────── */
 #legend {
   position: absolute; bottom: 38px; left: 14px; z-index: 1000;
-  background: var(--panel2); border: 1px solid var(--b2);
+  /* Frosted-glass legend: 84 % opaque so the map shows subtly through.
+     backdrop-filter blur handles the see-through blur effect.
+     Text stays fully legible — sand on dark has strong contrast. */
+  background: rgba(14,11,6,0.84); border: 1px solid var(--b2);
   border-left: 2px solid rgba(201,168,76,0.35);
   border-radius: 10px; padding: 13px 15px;
-  backdrop-filter: blur(18px); min-width: 210px; max-width: 260px;
-  display: none; box-shadow: 0 8px 32px rgba(0,0,0,.80);
+  backdrop-filter: blur(22px); min-width: 210px; max-width: 260px;
+  display: none; box-shadow: 0 8px 32px rgba(0,0,0,.65);
   font-family: var(--fm);
 }
 /* Legend title — large, clickable, matches Best This Month toggle */

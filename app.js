@@ -1130,11 +1130,22 @@ function renderAdmin2Styles() {
 // Loads Natural Earth 10 m admin-1 GeoJSON and creates the sub-national choropleth.
 // Runs after initChoropleth so _geoData / geojsonLayer already exist.
 async function initAdmin1Choropleth() {
+  // Two CDNs tried in order.  raw.githubusercontent.com is fastest when available;
+  // jsDelivr mirrors the same repo and is more reliably globally cached.
+  const ADMIN1_URLS = [
+    'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson',
+    'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_10m_admin_1_states_provinces.geojson',
+  ];
   try {
-    const res = await fetch(
-      'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson'
-    );
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    let res, lastErr;
+    for (const url of ADMIN1_URLS) {
+      try {
+        res = await fetch(url);
+        if (res.ok) break;
+        lastErr = new Error('HTTP ' + res.status + ' from ' + url);
+      } catch (e) { lastErr = e; }
+    }
+    if (!res || !res.ok) throw lastErr || new Error('All admin-1 CDN sources failed');
     _admin1GeoData = await res.json();
 
     // IMPORTANT: only suppress the country-level choropleth polygon for countries
@@ -2650,6 +2661,8 @@ function onZoom() {
       const def = POI_LAYERS[key];
       const linkedActive = key === 'camping' && (TRANSPORT_LAYERS.trails.active || POI_LAYERS.parks.active);
       if (!def.active && !linkedActive) return;
+      // Holidays use static data, not Overpass — route to its own renderer.
+      if (key === 'holidays') { _renderHolidayMarkers(); return; }
       if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key, linkedActive);
       else _clearPOIMarkers(key);
     });
