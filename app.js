@@ -31,6 +31,7 @@ let _holidayMarkers = [];
 // Click-toggle tooltip: tracks which feature's popup is currently open.
 // Clicking the same feature again closes the tooltip (toggle behavior).
 let _activeTooltipKey = null;
+let _tempUnit         = 'C';   // 'C' or 'F' — toggled by the weather info window button
 let climateZoneLayer  = null;
 let _climateRenderer  = null;
 let geojsonLayer     = null;
@@ -368,7 +369,6 @@ const CAT_GROUPS = [
   // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
   // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
   { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
-  { id:'overlays',      label:'Overlays',        emoji:'🗂', keys:[] },
 ];
 
 function makeLbButton(key, layer) {
@@ -404,7 +404,7 @@ function syncCatButtons() {
   CAT_GROUPS.forEach(group => {
     const btn = document.getElementById('cat-btn-' + group.id);
     if (!btn) return;
-    const anyOn = group.keys.some(k => activeLayers.has(k)) || (group.id === 'overlays' && showBorders);
+    const anyOn = group.keys.some(k => activeLayers.has(k));
     btn.classList.toggle('has-active', anyOn);
   });
 }
@@ -428,7 +428,67 @@ function buildLayerButtons() {
     container.appendChild(makeLbButton(key, layer));
   });
 
-  // ── 🗺 Political (always-on control) ──────────────────────────────────────
+  // ── Category dropdown buttons (one per group) ──────────────────────────────
+  CAT_GROUPS.forEach(group => {
+    const catBtn = document.createElement('button');
+    catBtn.id = 'cat-btn-' + group.id;
+    catBtn.className = 'cat-btn';
+    catBtn.innerHTML = `<span>${group.emoji}</span><span>${group.label}</span><span style="font-size:7px;opacity:0.6">▾</span>`;
+    const anyOn = group.keys.some(k => activeLayers.has(k));
+    catBtn.classList.toggle('has-active', anyOn);
+
+    const catDd = document.createElement('div');
+    catDd.id = 'cat-dd-' + group.id;
+    catDd.className = 'cat-dropdown';
+    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px)';
+    document.body.appendChild(catDd);
+
+    // Group header label
+    const lbl = document.createElement('div');
+    lbl.className = 'more-dropdown-label';
+    lbl.textContent = group.label;
+    catDd.appendChild(lbl);
+
+    // Layer buttons for this group
+    group.keys.forEach(key => {
+      const layer = LAYERS[key];
+      if (!layer) return;
+      const lb = makeLbButton(key, layer);
+      lb.addEventListener('click', () => syncCatButtons());
+      catDd.appendChild(lb);
+    });
+
+    catBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = catDd.style.display === 'flex';
+      document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display = 'none'; });
+      if (!isOpen) {
+        catDd.style.display = 'flex';
+        const r = catBtn.getBoundingClientRect();
+        catDd.style.top  = (r.bottom + 5) + 'px';
+        catDd.style.left = Math.min(r.left, window.innerWidth - 200) + 'px';
+      }
+    });
+
+    container.appendChild(catBtn);
+  });
+
+  // ── 🛂 Borders (standalone — was inside Overlays dropdown) ────────────────
+  const borderBtn = document.createElement('button');
+  borderBtn.id = 'btn-borders';
+  borderBtn.className = 'lb';
+  borderBtn.innerHTML = '<span class="lb-emoji">🛂</span><span class="lb-name">Borders</span>';
+  borderBtn.classList.toggle('on', showBorders);
+  borderBtn.addEventListener('click', () => {
+    showBorders = !showBorders;
+    borderBtn.classList.toggle('on', showBorders);
+    renderBorderMarkers();
+    updateLegend();
+    syncCatButtons();
+  });
+  container.appendChild(borderBtn);
+
+  // ── 🗺 Political (last — most users leave this on and never touch it) ──────
   const politicalBtn = document.createElement('button');
   politicalBtn.id = 'btn-political';
   politicalBtn.className = 'lb';
@@ -441,70 +501,6 @@ function buildLayerButtons() {
     updateLegend();
   });
   container.appendChild(politicalBtn);
-
-  // ── Category dropdown buttons (one per group, replaces single More ▾) ──────
-  CAT_GROUPS.forEach(group => {
-    const catBtn = document.createElement('button');
-    catBtn.id = 'cat-btn-' + group.id;
-    catBtn.className = 'cat-btn';
-    catBtn.innerHTML = `<span>${group.emoji}</span><span>${group.label}</span><span style="font-size:7px;opacity:0.6">▾</span>`;
-    const anyOn = group.keys.some(k => activeLayers.has(k)) || (group.id === 'overlays' && showBorders);
-    catBtn.classList.toggle('has-active', anyOn);
-
-    const catDd = document.createElement('div');
-    catDd.id = 'cat-dd-' + group.id;
-    catDd.className = 'cat-dropdown';
-    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px)';
-    document.body.appendChild(catDd);
-
-    // Add a group header label
-    const lbl = document.createElement('div');
-    lbl.className = 'more-dropdown-label';
-    lbl.textContent = group.label;
-    catDd.appendChild(lbl);
-
-    // Layer buttons for this group
-    group.keys.forEach(key => {
-      const layer = LAYERS[key];
-      if (!layer) return;
-      const lb = makeLbButton(key, layer);
-      // Override click so category button active state also updates
-      lb.addEventListener('click', () => syncCatButtons());
-      catDd.appendChild(lb);
-    });
-
-    // Borders button for Overlays category
-    if (group.id === 'overlays') {
-      const borderBtn = document.createElement('button');
-      borderBtn.id = 'btn-borders';
-      borderBtn.className = 'lb';
-      borderBtn.innerHTML = '<span class="lb-emoji">🛂</span><span class="lb-name">Borders</span>';
-      borderBtn.classList.toggle('on', showBorders);
-      borderBtn.addEventListener('click', () => {
-        showBorders = !showBorders;
-        borderBtn.classList.toggle('on', showBorders);
-        renderBorderMarkers();
-        updateLegend();
-        syncCatButtons();
-      });
-      catDd.appendChild(borderBtn);
-    }
-
-    catBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      const isOpen = catDd.style.display === 'flex';
-      // Close all other category dropdowns
-      document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display = 'none'; });
-      if (!isOpen) {
-        catDd.style.display = 'flex';
-        const r = catBtn.getBoundingClientRect();
-        catDd.style.top  = (r.bottom + 5) + 'px';
-        catDd.style.left = Math.min(r.left, window.innerWidth - 200) + 'px';
-      }
-    });
-
-    container.appendChild(catBtn);
-  });
 
   // Close all category dropdowns when clicking outside any of them
   if (!buildLayerButtons._catCloseAdded) {
@@ -2272,6 +2268,74 @@ function buildCompositeScore(dataObj, iso2) {
   </div>`;
 }
 
+// Toggles the temperature unit (°C ↔ °F) in the currently visible tooltip.
+// Works by updating data-celsius spans in-place — no full re-render needed.
+function toggleTempUnit() {
+  _tempUnit = _tempUnit === 'C' ? 'F' : 'C';
+  document.querySelectorAll('.tt-temp-val').forEach(el => {
+    const c = parseFloat(el.dataset.celsius);
+    if (!isNaN(c)) {
+      el.textContent = _tempUnit === 'F' ? (Math.round(c * 9 / 5 + 32) + '°F') : (c + '°C');
+    }
+  });
+  document.querySelectorAll('.tt-unit-btn').forEach(el => {
+    el.textContent = _tempUnit === 'C' ? '→°F' : '→°C';
+    el.title = _tempUnit === 'C' ? 'Switch to Fahrenheit' : 'Switch to Celsius';
+  });
+}
+
+// Builds a detailed climate card for the weather info section.
+// Shows average temperature (with live F/C toggle) and average rainfall
+// for the currently selected month(s), plus any seasonal event alerts.
+function buildWeatherDetails(iso2) {
+  if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
+  const cl = CD_CLIMATE[iso2];
+  const months = yearMode ? [0,1,2,3,4,5,6,7,8,9,10,11] : [...selectedMonths];
+  const temps = months.map(m => cl.temp[m]).filter(v => v != null && !isNaN(v));
+  const rains = months.map(m => cl.rain[m]).filter(v => v != null && !isNaN(v));
+  if (!temps.length) return '';
+
+  const avgTempC = Math.round(temps.reduce((a, b) => a + b, 0) / temps.length);
+  const avgRain  = Math.round(rains.reduce((a, b) => a + b, 0) / rains.length);
+
+  const dispTemp = _tempUnit === 'F'
+    ? (Math.round(avgTempC * 9 / 5 + 32) + '°F')
+    : (avgTempC + '°C');
+  const unitLabel = _tempUnit === 'C' ? '→°F' : '→°C';
+  const unitTitle = _tempUnit === 'C' ? 'Switch to Fahrenheit' : 'Switch to Celsius';
+
+  // Determine rainfall emoji
+  const rainEmoji = avgRain < 20 ? '☀️' : avgRain < 80 ? '🌤' : avgRain < 180 ? '🌧' : '⛈';
+
+  // Seasonal events for this country + month(s)
+  const events = (typeof SEASONAL_EVENTS !== 'undefined' ? SEASONAL_EVENTS : [])
+    .filter(e => e.country === iso2 && months.includes(e.month));
+  const eventHtml = events.map(e =>
+    `<div style="margin-top:6px;padding:5px 8px;background:rgba(201,168,76,0.06);border-left:2px solid rgba(201,168,76,0.35);border-radius:0 4px 4px 0">
+       <div style="font-size:8px;font-weight:700;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase">${e.emoji} ${e.name}</div>
+       <div class="ttdesc" style="margin-top:2px">${e.desc}</div>
+     </div>`
+  ).join('');
+
+  return `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.12)">
+    <div class="ttln">MONTHLY CLIMATE — ${periodLabel()}</div>
+    <div style="display:flex;gap:14px;margin-top:8px;align-items:flex-start">
+      <div style="flex:1;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.12);border-radius:6px;padding:7px 9px;text-align:center">
+        <div style="font-size:7.5px;color:rgba(201,168,76,0.55);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">AVG TEMP</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:5px">
+          <span class="tt-temp-val" data-celsius="${avgTempC}" style="font-size:19px;font-weight:700;color:var(--sand)">${dispTemp}</span>
+        </div>
+        <button class="tt-unit-btn" onclick="toggleTempUnit()" title="${unitTitle}" style="margin-top:5px;font-size:7px;color:var(--gold);background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${unitLabel}</button>
+      </div>
+      <div style="flex:1;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:6px;padding:7px 9px;text-align:center">
+        <div style="font-size:7.5px;color:rgba(96,165,250,0.65);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">AVG RAINFALL</div>
+        <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} ${avgRain}<span style="font-size:10px;font-weight:400;opacity:0.7">mm</span></div>
+      </div>
+    </div>
+    ${eventHtml}
+  </div>`;
+}
+
 // Returns a string key representing the primary active context for tooltip
 // content decisions.  Transport layers take priority over geographic choropleth
 // layers; within each group the priority order matches the order of the keys.
@@ -2347,6 +2411,10 @@ function buildLayerRows(dataObj, context) {
         ${arr ? buildSparkline(arr) : ''}
       </div>
     </div>`;
+    // Append detailed climate card directly under the Weather row
+    if (key === 'weather' && context && context.iso2) {
+      html += buildWeatherDetails(context.iso2);
+    }
   });
   return html;
 }

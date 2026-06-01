@@ -483,14 +483,27 @@ html, body {
   margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--b1);
   cursor: pointer; user-select: none; text-align: center;
 }
-/* Collapsible body wrapper */
+/* Collapsible body wrapper — handles the expand/collapse animation */
 #legend-body-wrap {
-  max-height: 500px;
+  max-height: 600px;
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.22s ease;
   opacity: 1;
 }
 #legend-body-wrap.collapsed { max-height: 0; opacity: 0; }
+
+/* Inner legend body — independently scrollable when many layers are active */
+#legend-body {
+  max-height: calc(70vh - 160px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,168,76,0.3) transparent;
+  padding-right: 3px;
+}
+#legend-body::-webkit-scrollbar { width: 3px; }
+#legend-body::-webkit-scrollbar-track { background: transparent; }
+#legend-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
 /* Layer picker dropdown */
 #legend-layer-picker {
   position: fixed; z-index: 1700;
