@@ -10,6 +10,9 @@ let showPolitical  = true;   // country borders + territory overlays on by defau
 let map            = null;
 let cityMarkers    = [];
 let borderMarkers    = [];
+let _borderPoiMarkers  = [];   // live Overpass border crossing markers
+let _borderPoiCache    = {};   // bboxKey → OSM elements
+let _borderDebounce    = null;
 let beachMarkers     = [];
 let _beachPoiMarkers = [];    // live Overpass beach circleMarkers (zoom ≥ 7)
 let _beachPoiCache   = {};    // bboxKey → OSM elements array (avoids re-querying)
@@ -742,10 +745,24 @@ function getCountryRating(iso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
-    if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[iso2]     != null) ? CD_COST[iso2]     : null;
-    if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[iso2]   != null) ? CD_SAFETY[iso2]   : null;
-    if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) ? CD_INTERNET[iso2] : null;
-    if (lk === 'kids')     return (typeof CD_KIDS     !== 'undefined' && CD_KIDS[iso2]     != null) ? CD_KIDS[iso2]     : null;
+    // Scalar tables are the primary source; fall back to 12-month CD arrays so
+    // countries with array data but no scalar entry still get a choropleth color.
+    if (lk === 'cost') {
+      if (typeof CD_COST !== 'undefined' && CD_COST[iso2] != null) return CD_COST[iso2];
+      return d && d.cost != null ? getRating(d.cost) : null;
+    }
+    if (lk === 'safety') {
+      if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[iso2] != null) return CD_SAFETY[iso2];
+      return d && d.safety != null ? getRating(d.safety) : null;
+    }
+    if (lk === 'internet') {
+      if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) return CD_INTERNET[iso2];
+      return d && d.remote != null ? getRating(d.remote) : null;  // remote work quality as proxy
+    }
+    if (lk === 'kids') {
+      if (typeof CD_KIDS !== 'undefined' && CD_KIDS[iso2] != null) return CD_KIDS[iso2];
+      return d && d.family != null ? getRating(d.family) : null;  // family rating as proxy
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -766,9 +783,22 @@ function getAdmin1Rating(subCode, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
-    if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[parentIso2]     != null) ? CD_COST[parentIso2]     : null;
-    if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
-    if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
+    if (lk === 'cost') {
+      if (typeof CD_COST !== 'undefined' && CD_COST[parentIso2] != null) return CD_COST[parentIso2];
+      return d2 && d2.cost != null ? getRating(d2.cost) : null;
+    }
+    if (lk === 'safety') {
+      if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[parentIso2] != null) return CD_SAFETY[parentIso2];
+      return d2 && d2.safety != null ? getRating(d2.safety) : null;
+    }
+    if (lk === 'internet') {
+      if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) return CD_INTERNET[parentIso2];
+      return d2 && d2.remote != null ? getRating(d2.remote) : null;
+    }
+    if (lk === 'kids') {
+      if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
+      return d2 && d2.family != null ? getRating(d2.family) : null;
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
@@ -832,10 +862,23 @@ function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
-    // Scalar / nationality-dependent layers: fall back to country-level value
-    if (lk === 'cost')     return (typeof CD_COST     !== 'undefined' && CD_COST[parentIso2]     != null) ? CD_COST[parentIso2]     : null;
-    if (lk === 'safety')   return (typeof CD_SAFETY   !== 'undefined' && CD_SAFETY[parentIso2]   != null) ? CD_SAFETY[parentIso2]   : null;
-    if (lk === 'internet') return (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) ? CD_INTERNET[parentIso2] : null;
+    // Scalar tables first; fall back to CD arrays for broad coverage
+    if (lk === 'cost') {
+      if (typeof CD_COST !== 'undefined' && CD_COST[parentIso2] != null) return CD_COST[parentIso2];
+      return d0 && d0.cost != null ? getRating(d0.cost) : null;
+    }
+    if (lk === 'safety') {
+      if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[parentIso2] != null) return CD_SAFETY[parentIso2];
+      return d0 && d0.safety != null ? getRating(d0.safety) : null;
+    }
+    if (lk === 'internet') {
+      if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) return CD_INTERNET[parentIso2];
+      return d0 && d0.remote != null ? getRating(d0.remote) : null;
+    }
+    if (lk === 'kids') {
+      if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
+      return d0 && d0.family != null ? getRating(d0.family) : null;
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d2 && d2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
@@ -1358,24 +1401,100 @@ function _placeCities(list) {
 }
 
 // ─── Border Markers ───────────────────────────────────────────────────────────
+// At zoom < 4: show nothing (too cluttered at world view).
+// At zoom 4–6: show static BORDERS curated list (major crossings).
+// At zoom ≥ 7: fetch all OSM border_control nodes in the viewport via Overpass.
 function renderBorderMarkers() {
   borderMarkers.forEach(m => m.remove());
   borderMarkers = [];
+  _borderPoiMarkers.forEach(m => m.remove());
+  _borderPoiMarkers = [];
   if (!showBorders) return;
 
   const zoom = map.getZoom();
+  if (zoom < 4) return;
+
+  if (zoom >= 7) {
+    _fetchAndRenderBorders();
+    return;
+  }
+
+  // Zoom 4–6: render curated static list
   BORDERS.forEach(bc => {
     const icon = makeBorderIcon(bc, zoom);
     const marker = L.marker([bc.lat, bc.lng], { icon, pane: 'markersPane' });
-
     marker.on('click', e => {
       _featureClicked = true;
       toggleTooltip('border:' + (bc.id || (bc.lat + ':' + bc.lng)), buildBorderTooltip(bc), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
-
     marker.addTo(map);
     borderMarkers.push(marker);
+  });
+}
+
+// Fetch all international border control nodes in the current viewport via Overpass.
+// Results are cached by bbox key so panning re-uses previously fetched data.
+function _fetchAndRenderBorders() {
+  if (_borderDebounce) clearTimeout(_borderDebounce);
+  _borderDebounce = setTimeout(async () => {
+    if (!showBorders || !map) return;
+    const b   = map.getBounds();
+    const pad = 0.05;
+    const s   = (b.getSouth() - pad).toFixed(4);
+    const w   = (b.getWest()  - pad).toFixed(4);
+    const n   = (b.getNorth() + pad).toFixed(4);
+    const e   = (b.getEast()  + pad).toFixed(4);
+    const key = `${s},${w},${n},${e}`;
+    if (_borderPoiCache[key]) { _placeBorderPois(_borderPoiCache[key]); return; }
+    const query = `[out:json][timeout:20];
+(
+  node["barrier"="border_control"](${s},${w},${n},${e});
+  node["border_control"="yes"](${s},${w},${n},${e});
+  node["crossing:barrier"="border_control"](${s},${w},${n},${e});
+);
+out body;`;
+    try {
+      const res  = await fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        body: 'data=' + encodeURIComponent(query),
+        signal: AbortSignal.timeout(22000),
+      });
+      if (!res.ok) return;
+      const json = await res.json();
+      const elements = (json.elements || []).filter(el => el.lat && el.lon);
+      _borderPoiCache[key] = elements;
+      if (showBorders) _placeBorderPois(elements);
+    } catch(_) { /* network error — silently skip, user can pan to retry */ }
+  }, 400);
+}
+
+function _placeBorderPois(elements) {
+  _borderPoiMarkers.forEach(m => m.remove());
+  _borderPoiMarkers = [];
+  if (!showBorders || !map) return;
+  const zoom = map.getZoom();
+  elements.forEach(el => {
+    const tags = el.tags || {};
+    const name = tags.name || tags['name:en'] || tags['int_name'] || 'Border Crossing';
+    // Infer status from OSM tags
+    let status = 'open';
+    if (tags.access === 'no' || tags.operational_status === 'closed') status = 'closed';
+    else if (tags.access === 'restricted' || tags.access === 'private') status = 'restricted';
+    const fromNote = tags['from:country'] || tags['addr:country'] || '';
+    const toNote   = tags['to:country']   || '';
+    const hours    = tags.opening_hours   || '';
+    const bc = { id: 'osm:' + el.id, name, from: fromNote || '–', to: toNote || '–',
+                 lat: el.lat, lng: el.lon, status, hours, note: tags.note || tags.description || '' };
+    const icon = makeBorderIcon(bc, zoom);
+    const marker = L.marker([el.lat, el.lon], { icon, pane: 'markersPane' });
+    marker.on('click', e => {
+      _featureClicked = true;
+      toggleTooltip('border:' + el.id, buildBorderTooltip(bc), e.originalEvent.clientX, e.originalEvent.clientY);
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    marker.addTo(map);
+    _borderPoiMarkers.push(marker);
   });
 }
 
@@ -2383,9 +2502,23 @@ function buildLayerRows(dataObj, context) {
     // Scalar layers: look up CD_COST / CD_SAFETY / CD_INTERNET using iso2 from context
     let scalarVal = null;
     if (!arr && context && context.iso2) {
-      if (key === 'cost'     && typeof CD_COST     !== 'undefined') scalarVal = CD_COST[context.iso2]     ?? null;
-      if (key === 'safety'   && typeof CD_SAFETY   !== 'undefined') scalarVal = CD_SAFETY[context.iso2]   ?? null;
-      if (key === 'internet' && typeof CD_INTERNET !== 'undefined') scalarVal = CD_INTERNET[context.iso2] ?? null;
+      if (key === 'cost') {
+        scalarVal = (typeof CD_COST !== 'undefined' && CD_COST[context.iso2] != null)
+          ? CD_COST[context.iso2]
+          : (dataObj.cost != null ? getRating(dataObj.cost) : null);
+      } else if (key === 'safety') {
+        scalarVal = (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[context.iso2] != null)
+          ? CD_SAFETY[context.iso2]
+          : (dataObj.safety != null ? getRating(dataObj.safety) : null);
+      } else if (key === 'internet') {
+        scalarVal = (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[context.iso2] != null)
+          ? CD_INTERNET[context.iso2]
+          : (dataObj.remote != null ? getRating(dataObj.remote) : null);
+      } else if (key === 'kids') {
+        scalarVal = (typeof CD_KIDS !== 'undefined' && CD_KIDS[context.iso2] != null)
+          ? CD_KIDS[context.iso2]
+          : (dataObj.family != null ? getRating(dataObj.family) : null);
+      }
     }
     if (!arr && scalarVal === null) return;
     const v = arr ? getRating(arr) : scalarVal;
@@ -3862,6 +3995,12 @@ function initPOILayers() {
       if (map.getZoom() >= 5) _fetchAndRenderParkBorders();
       else _clearParkBorders();
     }, 350);
+  });
+
+  // Border crossings: re-query via Overpass on pan when zoom ≥ 7 and borders active.
+  map.on('moveend', () => {
+    if (!showBorders) return;
+    if (map.getZoom() >= 7) _fetchAndRenderBorders();
   });
 }
 

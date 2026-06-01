@@ -521,14 +521,6 @@ html, body {
   justify-content: center;
   text-align: center;
 }
-#share-url-btn {
-  position: absolute; top: 10px; right: 40px;
-  background: none; border: none; cursor: pointer;
-  font-size: 13px; opacity: 0.5; transition: opacity .15s;
-  padding: 2px 4px; border-radius: 3px;
-}
-#share-url-btn:hover { opacity: 1; background: rgba(201,168,76,0.1); }
-#share-url-btn.copied { opacity: 1; color: #43A047; }
 .llp-item {
   font-family: var(--fm); font-size: 9px;
   padding: 6px 8px; cursor: pointer; border-radius: 6px;

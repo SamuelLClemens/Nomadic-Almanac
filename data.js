@@ -20,6 +20,33 @@ const CD_COST = {
   AE:3, ZA:1,
   MY:0, KH:0, LA:0, MM:0, LK:0, NP:0, KE:0, TZ:0, GH:0,
   CL:1, EC:0, CU:1, CZ:1, PL:1, HU:1,
+  // East & Southeast Asia
+  TW:1, HK:3, MN:0, BN:1, BD:0, BT:1, MV:3, MO:3,
+  // Middle East
+  SA:2, IL:2, JO:1, LB:1, OM:2, QA:3, KW:3, BH:2, IQ:1, IR:0, YE:0, SY:0,
+  // North Africa
+  TN:0, DZ:0, LY:0,
+  // East Africa
+  ET:0, MZ:0, RW:0, UG:0, SO:0, SD:0, ER:0, DJ:0,
+  // West Africa
+  SL:0, GM:0, BF:0, ML:0, NE:0, TD:0, MR:0,
+  // Central & Southern Africa
+  CG:0, GA:1, BW:1, NA:1, ZM:0, ZW:0, AO:0, SZ:0, LS:0, MW:0, SS:0,
+  // Western Europe (new)
+  NL:2, BE:2, AT:2, CH:3, SE:2, NO:3, DK:3, FI:2, IE:2, IS:3,
+  // Eastern Europe (new)
+  RO:1, BG:1, HR:1, SI:2, SK:1, RS:1, AL:0, ME:1, BA:1, MK:1, XK:0,
+  // Microstates
+  LU:3, MT:1, SM:2, VA:2, LI:3, MC:3, AD:2, CY:1,
+  // Central Asia & Caucasus
+  UZ:0, KZ:1, GE:0, AM:0, AZ:0, AF:0, KP:0,
+  // South America (new)
+  BO:0, PY:0, UY:1, GY:0, SR:0,
+  // Pacific Islands
+  TL:0, FJ:1, PG:0, VU:1, SB:0, WS:1, TO:1, KI:0, TV:0, NR:1, FM:0, PW:1,
+  // Central America & Caribbean (new)
+  GT:0, BZ:0, SV:0, HN:0, NI:0, CR:1, PA:1,
+  JM:1, HT:0, DO:0, TT:1, BB:2,
 };
 // Safety index: 0=very safe, 1=generally safe, 2=exercise caution, 3=high risk
 // Source: Global Peace Index 2024 / US State Dept advisories
@@ -30,6 +57,33 @@ const CD_SAFETY = {
   AE:0, ZA:2,
   MY:0, KH:1, LA:0, MM:2, LK:1, NP:1, KE:2, TZ:1, GH:1,
   CL:1, EC:2, CU:1, CZ:0, PL:0, HU:0,
+  // East & Southeast Asia
+  TW:0, HK:0, MN:1, BN:0, BD:2, BT:0, MV:0, MO:0,
+  // Middle East
+  SA:1, IL:2, JO:1, LB:2, OM:0, QA:0, KW:0, BH:0, IQ:3, IR:2, YE:3, SY:3,
+  // North Africa
+  TN:1, DZ:2, LY:3,
+  // East Africa
+  ET:2, MZ:2, RW:1, UG:2, SO:3, SD:3, ER:3, DJ:2,
+  // West Africa
+  SL:2, GM:1, BF:3, ML:3, NE:3, TD:3, MR:2,
+  // Central & Southern Africa
+  CG:2, GA:1, BW:1, NA:1, ZM:1, ZW:2, AO:2, SZ:1, LS:2, MW:1, SS:3,
+  // Western Europe (new)
+  NL:0, BE:0, AT:0, CH:0, SE:0, NO:0, DK:0, FI:0, IE:0, IS:0,
+  // Eastern Europe (new)
+  RO:1, BG:1, HR:0, SI:0, SK:0, RS:1, AL:1, ME:1, BA:1, MK:1, XK:1,
+  // Microstates
+  LU:0, MT:0, SM:0, VA:0, LI:0, MC:0, AD:0, CY:0,
+  // Central Asia & Caucasus
+  UZ:1, KZ:1, GE:1, AM:1, AZ:2, AF:3, KP:3,
+  // South America (new)
+  BO:1, PY:2, UY:0, GY:2, SR:1,
+  // Pacific Islands
+  TL:1, FJ:1, PG:2, VU:1, SB:2, WS:1, TO:1, KI:1, TV:1, NR:1, FM:1, PW:1,
+  // Central America & Caribbean (new)
+  GT:2, BZ:2, SV:2, HN:2, NI:2, CR:1, PA:1,
+  JM:2, HT:3, DO:2, TT:2, BB:1,
 };
 // Internet quality: 0=excellent, 1=good, 2=fair, 3=poor
 // Source: Speedtest Global Index / Ookla 2024
@@ -40,6 +94,33 @@ const CD_INTERNET = {
   AE:0, ZA:1,
   MY:1, KH:2, LA:2, MM:2, LK:1, NP:2, KE:2, TZ:2, GH:2,
   CL:1, EC:2, CU:3, CZ:0, PL:0, HU:0,
+  // East & Southeast Asia
+  TW:0, HK:0, MN:2, BN:1, BD:2, BT:2, MV:1, MO:0,
+  // Middle East
+  SA:1, IL:0, JO:1, LB:2, OM:1, QA:0, KW:0, BH:0, IQ:2, IR:1, YE:3, SY:3,
+  // North Africa
+  TN:1, DZ:2, LY:3,
+  // East Africa
+  ET:2, MZ:3, RW:2, UG:2, SO:3, SD:3, ER:3, DJ:2,
+  // West Africa
+  SL:3, GM:2, BF:3, ML:3, NE:3, TD:3, MR:3,
+  // Central & Southern Africa
+  CG:3, GA:2, BW:2, NA:2, ZM:2, ZW:2, AO:2, SZ:2, LS:2, MW:3, SS:3,
+  // Western Europe (new)
+  NL:0, BE:0, AT:0, CH:0, SE:0, NO:0, DK:0, FI:0, IE:0, IS:1,
+  // Eastern Europe (new)
+  RO:0, BG:0, HR:1, SI:0, SK:0, RS:1, AL:1, ME:1, BA:1, MK:1, XK:2,
+  // Microstates
+  LU:0, MT:1, SM:1, VA:1, LI:0, MC:0, AD:1, CY:1,
+  // Central Asia & Caucasus
+  UZ:2, KZ:1, GE:1, AM:1, AZ:1, AF:3, KP:3,
+  // South America (new)
+  BO:2, PY:2, UY:1, GY:2, SR:2,
+  // Pacific Islands
+  TL:2, FJ:2, PG:3, VU:2, SB:3, WS:2, TO:2, KI:3, TV:3, NR:2, FM:3, PW:2,
+  // Central America & Caribbean (new)
+  GT:2, BZ:2, SV:2, HN:2, NI:2, CR:1, PA:1,
+  JM:2, HT:3, DO:2, TT:1, BB:1,
 };
 // Layer display metadata: rating labels for each layer type
 const LAYER_LABELS = {
@@ -175,6 +256,33 @@ const CD_KIDS = {
   AE:0, BR:1, KR:0, PH:1, SG:0,
   MY:1, KH:2, LA:2, MM:3, LK:1, NP:2, KE:2, TZ:2, GH:2,
   CL:1, EC:2, CU:1, CZ:0, PL:0, HU:0,
+  // East & Southeast Asia
+  TW:0, HK:0, MN:2, BN:1, BD:2, BT:1, MV:1, MO:0,
+  // Middle East
+  SA:1, IL:0, JO:1, LB:2, OM:1, QA:0, KW:0, BH:0, IQ:3, IR:2, YE:3, SY:3,
+  // North Africa
+  TN:1, DZ:2, LY:3,
+  // East Africa
+  ET:2, MZ:3, RW:2, UG:2, SO:3, SD:3, ER:3, DJ:2,
+  // West Africa
+  SL:3, GM:2, BF:3, ML:3, NE:3, TD:3, MR:3,
+  // Central & Southern Africa
+  CG:3, GA:2, BW:2, NA:2, ZM:2, ZW:2, AO:2, SZ:2, LS:2, MW:3, SS:3,
+  // Western Europe (new)
+  NL:0, BE:0, AT:0, CH:0, SE:0, NO:0, DK:0, FI:0, IE:0, IS:0,
+  // Eastern Europe (new)
+  RO:1, BG:1, HR:1, SI:0, SK:0, RS:1, AL:2, ME:1, BA:1, MK:1, XK:2,
+  // Microstates
+  LU:0, MT:0, SM:0, VA:1, LI:0, MC:0, AD:0, CY:0,
+  // Central Asia & Caucasus
+  UZ:1, KZ:1, GE:1, AM:1, AZ:1, AF:3, KP:3,
+  // South America (new)
+  BO:2, PY:2, UY:0, GY:2, SR:2,
+  // Pacific Islands
+  TL:2, FJ:1, PG:2, VU:2, SB:2, WS:1, TO:1, KI:2, TV:2, NR:1, FM:2, PW:1,
+  // Central America & Caribbean (new)
+  GT:2, BZ:1, SV:2, HN:2, NI:2, CR:1, PA:1,
+  JM:2, HT:3, DO:2, TT:1, BB:1,
 };
 
 // CD_TIMEZONE: ISO-2 → integer UTC offset (capital / dominant zone; half-hour
