@@ -1177,6 +1177,20 @@ function getAdmin1Rating(subCode, parentIso2) {
 }
 
 // ─── Style ────────────────────────────────────────────────────────────────────
+// Returns true when the selected passport nationality is explicitly banned from
+// entering iso2 (VISA_DATA entry type === 'banned').  Used by getCountryStyle
+// to render entry-denied countries with a distinct black + red-border visual so
+// they are unmistakable at world zoom — not just dark red like "visa required."
+function isBannedEntry(iso2) {
+  if (!selectedNationality) return false;
+  if (!(activeLayers.has('visa') || activeLayers.has('strength'))) return false;
+  if (iso2 === selectedNationality) return false;
+  const dest = typeof VISA_DATA !== 'undefined' ? VISA_DATA[iso2] : null;
+  if (!dest) return false;
+  const entry = dest[selectedNationality];
+  return entry && entry.t === 'banned';
+}
+
 function getCountryStyle(iso2, hover) {
   // Hide countries represented in the admin-1 layer ONLY when admin-1 is visible
   if (_admin1Visible && _coveredByAdmin1.has(iso2)) {
@@ -1185,9 +1199,18 @@ function getCountryStyle(iso2, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(201,168,76,0.04)', weight: 0.3 };
   }
-  // Climate zones now live in the lower climatePane (z-index 290).
-  // Country/admin-1 fills render above them at choroplethPane (z-index 300).
-  // No suppression needed — both layers are always visible simultaneously.
+
+  // Banned entry: near-black fill + red dashed border — visually unmistakable
+  if (isBannedEntry(iso2)) {
+    return {
+      fillColor:   '#1a0000',
+      fillOpacity: hover ? 0.97 : 0.92,
+      color:       hover ? '#ff4444' : '#cc2222',
+      weight:      hover ? 2.5 : 1.8,
+      dashArray:   '5,3',
+    };
+  }
+
   const r = getCountryRating(iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
   const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.25 : 0);
@@ -1206,8 +1229,15 @@ function getAdmin1Style(iso2, subCode, hover) {
   if (activeLayers.size === 0) {
     return { fillColor: '#000', fillOpacity: 0, color: 'rgba(255,255,255,0.07)', weight: 0.2 };
   }
-  // Climate zones are in climatePane (z-290), admin-1 fill renders above them.
-  // No suppression — admin-1 and climate zone fills show simultaneously.
+  if (isBannedEntry(iso2)) {
+    return {
+      fillColor:   '#1a0000',
+      fillOpacity: hover ? 0.97 : 0.90,
+      color:       hover ? '#ff4444' : '#cc2222',
+      weight:      hover ? 2.0 : 1.5,
+      dashArray:   '5,3',
+    };
+  }
   const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
   const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.20 : 0);
@@ -3300,7 +3330,17 @@ function updateLegend() {
       + '<select id="legend-passport-sel" style="width:100%;margin-top:4px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.22);border-radius:5px;color:var(--gold);font-family:var(--fm);font-size:9px;padding:4px 6px;cursor:pointer;outline:none">'
       + '<option value="">Select nationality…</option>'
       + opts
-      + '</select></div>';
+      + '</select>';
+    // Banned-entry swatch — only shown when a nationality with banned countries is selected
+    const hasBanned = selectedNationality && typeof VISA_DATA !== 'undefined' &&
+      Object.values(VISA_DATA).some(d => d[selectedNationality] && d[selectedNationality].t === 'banned');
+    if (hasBanned) {
+      html += `<div class="lr" style="margin-top:6px;padding-top:5px;border-top:1px solid rgba(201,168,76,0.08)">
+        <div class="lsw" style="background:#1a0000;border:1.5px dashed #cc2222;border-radius:2px"></div>
+        <span class="llabel" style="color:#e57373">Entry Denied — passport not accepted</span>
+      </div>`;
+    }
+    html += '</div>';
   }
 
   if (activeLayers.has('beaches')) {
