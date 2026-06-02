@@ -42,6 +42,7 @@ let _activeTooltipKey = null;
 let _tempUnit         = 'C';   // 'C' or 'F' — toggled by the weather info window button
 var _distUnit = localStorage.getItem('na_dist') || 'km';
 let climateZoneLayer  = null;
+let _elevationTileLayer = null;
 let _climateRenderer  = null;
 let geojsonLayer     = null;
 let borderLinesLayer     = null;
@@ -830,6 +831,7 @@ function initMap() {
     maxBoundsViscosity: 0.85,   // resist panning into blank polar/edge areas
     preferCanvas: false,
   });
+  window.naMap = map;   // expose Leaflet instance (window.map is the #map div) for URL view-state + tests
 
   // Prevent zooming out past the point where the full world is visible.
   // Recalculates on every resize so it works correctly across screen sizes.
@@ -1255,6 +1257,24 @@ function toggleTimezoneLayer(active) {
   updateLegend();
 }
 
+function toggleElevationLayer(active) {
+  if (active) {
+    if (!_elevationTileLayer && map) {
+      _elevationTileLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '© OpenTopoMap (CC-BY-SA)',
+        opacity: 0.65,
+        pane: 'choroplethPane',
+      }).addTo(map);
+    }
+  } else {
+    if (_elevationTileLayer) {
+      _elevationTileLayer.remove();
+      _elevationTileLayer = null;
+    }
+  }
+}
+
 function syncTransportBtn() {
   const btn = document.getElementById('btn-transport-menu');
   if (btn) {
@@ -1617,6 +1637,21 @@ function getCountryStyle(iso2, hover) {
       weight:      hover ? 2.5 : 1.8,
       dashArray:   '5,3',
     };
+  }
+
+  // Visa layer (sole active layer): colour by actual entry TYPE so VOA / e-Visa / ETA /
+  // embassy read as distinct hues. Gated to size===1 so Combined View is unaffected.
+  if (activeLayers.has('visa') && activeLayers.size === 1 && selectedNationality) {
+    const vc = visaTypeColor(iso2, selectedNationality);
+    if (vc) {
+      return { fillColor: vc, fillOpacity: hover ? 0.9 : 0.74,
+               color: hover ? 'rgba(232,213,163,0.65)' : 'rgba(255,255,255,0.30)', weight: hover ? 2.5 : 0.65 };
+    }
+    if (iso2 !== selectedNationality) {
+      // No visa data for this destination → terra incognita (faint, hatched border).
+      return { fillColor: RC_NODATA, fillOpacity: hover ? 0.4 : 0.16,
+               color: 'rgba(201,168,76,0.18)', weight: 0.4, dashArray: '2,3' };
+    }
   }
 
   const r = getCountryRating(iso2);
@@ -2887,9 +2922,38 @@ function _buildTippingTooltip(iso2) {
     "A 10-15% tip is appreciated in restaurants and for personal services.",
     "Server wages depend on tips. 18-20% is standard; 15% is the minimum considered polite."
   ];
-  return "<div class=\"tt-section\"><div class=\"tt-row\"><span class=\"tt-key\">Tipping: </span>"
-    + "<span class=\"tt-val\">" + _esc(labels[v]) + "</span></div>"
-    + "<p class=\"tt-note\">" + _esc(notes[v]) + "</p></div>";
+  // Dot indicator: filled dots up to tier level
+  var dots = "";
+  for (var d = 0; d < 4; d++) { dots += d <= v ? "●" : "○"; }
+  // Compact header (always shown when tipping layer is active)
+  var header = '<div style="margin:6px 0 2px 0;padding:4px 6px;border-top:1px solid rgba(201,168,76,0.25);border-bottom:1px solid rgba(201,168,76,0.10);">'
+    + '<span style="font-size:8px;font-weight:700;color:var(--gold);letter-spacing:0.04em;">' + _esc(labels[v]) + '</span>'
+    + '<span style="font-size:8px;color:var(--gold);opacity:0.7;margin-left:6px;letter-spacing:0.12em;">' + _esc(dots) + '</span>'
+    + '</div>';
+  // Industry rows: [icon, label, amounts per tier 0-3]
+  var industries = [
+    ["🍽", "Restaurants",   ["Not expected","Round up","10-15%","18-20%"]],
+    ["🚕", "Taxis / Rides", ["Not expected","Round up","10%","15-20%"]],
+    ["🏨", "Hotels",        ["Not expected","€1-2/bag optional","$1-2/bag","$2-5/bag"]],
+    ["💆", "Spas / Haircuts",["Not expected","5-10% optional","15%","20%"]],
+    ["🗺", "Tour Guides",   ["Not expected","€5-10 optional","$5-10/day","$10-20/day"]]
+  ];
+  var gridRows = "";
+  for (var i = 0; i < industries.length; i++) {
+    var row = industries[i];
+    gridRows += '<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;">'
+      + '<span style="font-size:7.5px;color:rgba(255,255,255,0.65);">' + _esc(row[0]) + " " + _esc(row[1]) + '</span>'
+      + '<span style="font-size:7.5px;font-weight:600;color:var(--sand);text-align:right;">' + _esc(row[2][v]) + '</span>'
+      + '</div>';
+  }
+  var grid = "";
+  if (typeof activeLayers !== "undefined" && activeLayers.has("tipping")) {
+    grid = '<div style="margin:4px 0;padding:5px 7px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.10);border-radius:4px;">'
+      + gridRows
+      + '</div>';
+  }
+  var note = '<p class="tt-note">' + _esc(notes[v]) + '</p>';
+  return '<div class="tt-section">' + header + grid + note + '</div>';
 }
 
 // ─── Country Intelligence (AI) ───────────────────────────────────────────────
@@ -3877,8 +3941,12 @@ function buildCountryTooltip(iso2) {
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? ` <span style="font-size:9px;color:var(--gold);font-weight:400;letter-spacing:1px">${CURRENCY[iso2]}</span>` : '';
   const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
   const costSection    = buildCostDetailsSection(iso2);
+  const healthSection  = buildHealthSection(iso2);
+  const climateSection = buildClimateWheelSection(iso2);
+  const safetySection  = buildSafetySection(iso2);
   const visaSection    = buildVisaSection(iso2);
-  const tippingSection = activeLayers.has('tipping') ? _buildTippingTooltip(iso2) : '';
+  const tippingSection  = activeLayers.has('tipping') ? _buildTippingTooltip(iso2) : '';
+  const languageSection = buildLanguageSection(iso2);
   const tzSection      = buildTimezoneSection(iso2);
   const holSection     = buildHolidaysSection(iso2);
   const journalSection = buildJournalSection(iso2);
@@ -3901,7 +3969,13 @@ function buildCountryTooltip(iso2) {
     cost:     '💰 Cost of living data below',
     safety:   '🛡 Safety index below',
     visa:     '🛂 Visa requirements below',
-    internet: '📶 Connectivity data below',
+    internet:    '📶 Connectivity data below',
+    english:     '🗣 Language & connectivity data below',
+    nomad:       '💻 Digital nomad score below',
+    healthcare:  '🏥 Healthcare & health data below',
+    tapwater:    '💧 Water safety data below',
+    airquality:  '🌬 Air quality data below',
+    malaria:     '🦟 Disease risk data below',
   };
   const ctxBand = ctxLabels[ctx]
     ? `<div style="background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.12);padding:4px 14px;font-size:7.5px;color:rgba(201,168,76,0.7);letter-spacing:1px">${ctxLabels[ctx]}</div>`
@@ -3931,7 +4005,7 @@ function buildCountryTooltip(iso2) {
     ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${rows}${costSection}${tippingSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}
+  <div class="ttb" id="tt-body">${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}
   <div class="intel-wrap"><div class="intel-hdr">Country Intelligence <span class="intel-badge">AI</span></div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
   </div>${pinSection}${similarSection}`;
 }
@@ -4044,6 +4118,17 @@ function updateLegend() {
   let html = '';
   active.forEach(key => {
     const layer = LAYERS[key];
+    // Visa (sole geo layer, passport chosen): show the 5-tier entry-type legend
+    // that matches the choropleth, instead of the collapsed 4-bucket ramp.
+    if (key === 'visa' && geoLayers.length === 1 && selectedNationality) {
+      html += `<div class="ll">`;
+      VISA_LEGEND_ROWS.forEach(row => {
+        html += `<div class="lr"><div class="lsw" style="background:${VISA_TYPE_COLORS[row.t]}"></div><span class="llabel">${row.label}</span></div>`;
+      });
+      html += `<div class="lr"><div class="lsw" style="background:${RC_NODATA};opacity:0.6"></div><span class="llabel" style="color:#8a8a8a">No data</span></div>`;
+      html += `</div>`;
+      return;
+    }
     // Use LAYER_LABELS for display text where available
     const lyrLabels = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) || layer.levels;
     html += `<div class="ll">`;
@@ -4266,6 +4351,7 @@ function refresh() {
       if (map.hasLayer(climateZoneLayer)) climateZoneLayer.remove();
     }
   }
+  toggleElevationLayer(activeLayers.has('elevation'));
   renderCityMarkers();
   renderBorderMarkers();
   renderBeachMarkers();
@@ -4638,6 +4724,55 @@ function onZoomAdmin1() {
 // ─── Visa Rating & Tooltip ───────────────────────────────────────────────────
 // Returns 0–3 for the given destination × passport pair, or null if unknown.
 // 0=visa-free  1=ETA/eVisa/VoA  2=required (obtainable)  3=restricted/closed
+// 5-tier visa entry-type palette for the visa choropleth + legend (Gate 2).
+// Categorical, not a gradient: each entry type reads as a distinct, colour-blind-aware
+// hue, deliberately set apart from RC (green→red). Banned uses the dedicated near-black
+// style in getCountryStyle, so it is intentionally absent here.
+const VISA_TYPE_COLORS = {
+  free:  '#3E8E5A',  // visa-free — open
+  eta:   '#4FA3B8',  // ETA / pre-registration
+  evisa: '#5B7FC9',  // e-visa (dusty blue)
+  voa:   '#D4953B',  // visa on arrival (amber)
+  req:   '#C56A3A',  // embassy visa required (terracotta)
+};
+const VISA_LEGEND_ROWS = [
+  { t:'free',  label:'Visa-free' },
+  { t:'eta',   label:'ETA / Pre-reg.' },
+  { t:'evisa', label:'E-Visa' },
+  { t:'voa',   label:'Visa on Arrival' },
+  { t:'req',   label:'Embassy Visa Req.' },
+];
+const _SCHENGEN = ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY'];
+
+// Resolve a destination's entry-type fill colour for the active passport.
+// Returns null when no data exists (caller renders "terra incognita") or for banned.
+function visaTypeColor(destIso2, passport) {
+  if (!passport || !destIso2 || destIso2 === passport) return null;
+  if (passport === 'DE' && _SCHENGEN.includes(destIso2)) return VISA_TYPE_COLORS.free;
+  const dest = typeof VISA_DATA !== 'undefined' ? VISA_DATA[destIso2] : null;
+  const entry = dest && dest[passport];
+  if (!entry || entry.t === 'banned') return null;
+  return VISA_TYPE_COLORS[entry.t] || VISA_TYPE_COLORS.req;
+}
+
+// Passport coverage across the destinations present in this almanac's VISA_DATA.
+// Honestly scoped to the dataset — NOT a claim about all ~200 world states.
+function visaCoverage(passport) {
+  const out = { free:0, easy:0, req:0, banned:0, total:0 };
+  if (!passport || typeof VISA_DATA === 'undefined') return out;
+  Object.keys(VISA_DATA).forEach(dest => {
+    if (dest === passport) return;
+    const e = VISA_DATA[dest][passport];
+    if (!e) return;
+    out.total++;
+    if (e.t === 'free') out.free++;
+    else if (e.t === 'banned') out.banned++;
+    else if (e.t === 'req') out.req++;
+    else out.easy++;   // eta / evisa / voa
+  });
+  return out;
+}
+
 function getVisaRating(destIso2, passport) {
   if (!passport || !destIso2) return null;
   // Visiting your own country
@@ -4730,6 +4865,20 @@ function buildVisaSection(iso2) {
   const m = TYPE_META[entry.t] || TYPE_META.req;
   const cost = entry.c > 0 ? `&nbsp;&middot;&nbsp;<span style="color:#c9a84c">~$${entry.c} USD</span>` : `&nbsp;&middot;&nbsp;<span style="color:#43A047">Free</span>`;
   const days = entry.d > 0 ? `&nbsp;&middot;&nbsp;Up to <strong>${entry.d} days</strong>` : '';
+  // Passport coverage bar — honestly scoped to the destinations in this almanac.
+  const cov = visaCoverage(selectedNationality);
+  const covPct = cov.total ? Math.round((cov.free / cov.total) * 100) : 0;
+  const coverageHtml = cov.total ? `
+    <div style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.10)">
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.6px;text-transform:uppercase;margin-bottom:4px">PASSPORT COVERAGE &middot; ${natName}</div>
+      <div style="display:flex;height:7px;border-radius:3px;overflow:hidden;border:1px solid rgba(201,168,76,0.18)">
+        <div style="flex:${cov.free};background:${VISA_TYPE_COLORS.free}"></div>
+        <div style="flex:${cov.easy};background:${VISA_TYPE_COLORS.voa}"></div>
+        <div style="flex:${cov.req};background:${VISA_TYPE_COLORS.req}"></div>
+        ${cov.banned ? `<div style="flex:${cov.banned};background:#1a0000"></div>` : ''}
+      </div>
+      <div style="font-size:8px;color:#7a8a5a;margin-top:4px">Visa-free to <strong style="color:#43A047">${cov.free}</strong> of ${cov.total} almanac destinations (${covPct}%).</div>
+    </div>` : '';
   return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
     <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">VISA &middot; ${natName}</div>
     <div class="ttr" style="margin-bottom:0">
@@ -4741,7 +4890,7 @@ function buildVisaSection(iso2) {
         <div class="ttdesc" style="margin-top:3px;color:#7a8a5a">${days ? days.trim() : ''}${cost}</div>
         <div class="ttdesc" style="margin-top:4px;color:#4a3a18">Always verify with your country's official government travel site before booking.</div>
       </div>
-    </div>
+    </div>${coverageHtml}
   </div>`;
 }
 
@@ -4903,6 +5052,220 @@ function buildCostDetailsSection(iso2) {
     ${compactCard}${detailed}</div>`;
 }
 
+// ─── Health & Safety Section ─────────────────────────────────────────────────
+function buildHealthSection(iso2) {
+  if (!activeLayers.has('health') && !activeLayers.has('healthcare') &&
+      !activeLayers.has('tapwater') && !activeLayers.has('airquality') &&
+      !activeLayers.has('malaria')) return '';
+
+  const HC_COLORS = ['#43A047', '#7CB342', '#EF6C00', '#C62828'];
+  const MAL_COLORS = ['#43A047', '#FDD835', '#EF6C00', '#C62828'];
+
+  const hcRaw  = (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[iso2] != null) ? CD_HEALTHCARE[iso2] : null;
+  const twRaw  = (typeof CD_TAPWATER   !== 'undefined' && CD_TAPWATER[iso2]   != null) ? CD_TAPWATER[iso2]   : null;
+  const aqRaw  = (typeof CD_AIRQUALITY !== 'undefined' && CD_AIRQUALITY[iso2]  != null) ? CD_AIRQUALITY[iso2]  : null;
+  const malRaw = (typeof CD_MALARIA    !== 'undefined' && CD_MALARIA[iso2]     != null) ? CD_MALARIA[iso2]     : null;
+
+  const hcLabels  = ['World-class', 'Good quality', 'Basic/variable', 'Limited'];
+  const twLabels  = ['Drinkable', 'Generally safe', 'Treat or buy bottled', 'Unsafe — bottled only'];
+  const aqLabels  = ['Good', 'Moderate', 'Unhealthy for sensitive', 'Very unhealthy'];
+  const malLabels = ['None', 'Low risk zone', 'Moderate risk', 'High risk'];
+
+  function metricRow(label, val, labels, colors) {
+    if (val === null) return '';
+    const idx = Math.min(3, Math.max(0, val));
+    const color = colors[idx];
+    const text = labels[idx];
+    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+      <div style="font-size:7.5px;color:rgba(232,213,163,0.7);flex:1">${label}</div>
+      <div style="font-size:7.5px;font-weight:600;color:${color}">${_esc(text)}</div>
+    </div>`;
+  }
+
+  const rows = metricRow('Healthcare', hcRaw, hcLabels, HC_COLORS) +
+               metricRow('Tap Water',  twRaw, twLabels,  HC_COLORS) +
+               metricRow('Air Quality', aqRaw, aqLabels, HC_COLORS) +
+               metricRow('Malaria Risk', malRaw, malLabels, MAL_COLORS);
+
+  const malariaWarn = (malRaw != null && malRaw >= 2)
+    ? `<div style="margin-top:5px;padding:4px 6px;background:rgba(239,108,0,0.10);border:1px solid rgba(239,108,0,0.25);border-radius:4px;font-size:7px;color:#EF6C00;line-height:1.5">⚠ Antimalarial prophylaxis recommended — consult a doctor.</div>`
+    : '';
+
+  const waterWarn = (twRaw != null && twRaw >= 2)
+    ? `<div style="margin-top:5px;padding:4px 6px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.20);border-radius:4px;font-size:7px;color:rgba(56,189,248,0.85);line-height:1.5">💧 Drink bottled or purified water only.</div>`
+    : '';
+
+  const advisory = `<div style="margin-top:6px;padding:4px 6px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);border-radius:4px;font-size:7px;color:rgba(201,168,76,0.6);line-height:1.5">Always consult a travel health clinic 4–6 weeks before departure for current vaccination requirements.</div>`;
+
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">🏥 HEALTH &amp; SAFETY ESSENTIALS</div>
+    ${rows}${malariaWarn}${waterWarn}${advisory}
+  </div>`;
+}
+
+// ─── Language & Connectivity Section ─────────────────────────────────────────
+function buildLanguageSection(iso2) {
+  if (!activeLayers.has('english') && !activeLayers.has('nomad') && !activeLayers.has('internet')) return '';
+
+  const RC4 = ['#43A047', '#7CB342', '#EF6C00', '#C62828'];
+
+  // Retrieve raw rating values, clamped to 0-3
+  const engRaw   = (typeof CD_ENGLISH !== 'undefined' && CD_ENGLISH[iso2] != null)  ? Math.min(3, Math.max(0, CD_ENGLISH[iso2]))  : null;
+  const netRaw   = (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) ? Math.min(3, Math.max(0, CD_INTERNET[iso2])) : null;
+  const nomadRaw = (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[iso2] != null)       ? Math.min(3, Math.max(0, CD_NOMAD[iso2]))    : null;
+
+  const engLabels   = ['Very High', 'High', 'Moderate', 'Low'];
+  const netLabels   = ['Excellent', 'Good', 'Fair', 'Poor'];
+  const nomadLabels = ['Excellent', 'Good', 'Fair', 'Challenging'];
+
+  function metricRow(label, val, labels) {
+    if (val === null) return '';
+    const color = RC4[val];
+    const text  = labels[val];
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(201,168,76,0.06)">
+      <span style="font-size:6.5px;color:rgba(232,213,163,0.5);letter-spacing:0.8px;text-transform:uppercase">${_esc(label)}</span>
+      <span style="display:flex;align-items:center;gap:4px">
+        <span style="width:6px;height:6px;border-radius:50%;background:${color};flex-shrink:0"></span>
+        <span style="font-size:8px;color:${color};font-weight:600">${_esc(text)}</span>
+      </span>
+    </div>`;
+  }
+
+  const rows = metricRow('English Proficiency', engRaw, engLabels)
+             + metricRow('Internet Quality', netRaw, netLabels)
+             + metricRow('Nomad Score', nomadRaw, nomadLabels);
+
+  // Practical notes
+  const notes = [];
+  if (engRaw === 0 || engRaw === 1) {
+    notes.push('English widely spoken');
+  } else if (engRaw === 3) {
+    notes.push('Limited English — carry a phrasebook or translation app');
+  }
+  if (nomadRaw === 0) {
+    notes.push('Top-rated digital nomad destination');
+  }
+  const currCode = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? CURRENCY[iso2] : null;
+  if (currCode) {
+    notes.push('Local currency: ' + currCode);
+  }
+
+  const notesHtml = notes.length
+    ? `<div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(201,168,76,0.08)">${
+        notes.map(function(n) {
+          return `<div style="font-size:7.5px;color:rgba(232,213,163,0.55);line-height:1.5;padding:1px 0">• ${_esc(n)}</div>`;
+        }).join('')
+      }</div>`
+    : '';
+
+  return `<div style="margin-top:8px;padding:8px 10px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.10);border-radius:7px">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.6);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px;font-weight:700">&#x1F5E3; LANGUAGE &amp; CONNECTIVITY</div>
+    <div>${rows}</div>
+    ${notesHtml}
+  </div>`;
+}
+
+// ─── Climate Wheel Section ────────────────────────────────────────────────────
+function buildClimateWheelSection(iso2) {
+  if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
+  const d = CD_CLIMATE[iso2];
+  const temps = d.temp;
+  const rains = d.rain;
+  const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const now = new Date();
+  const curMon = now.getMonth(); // 0-11
+
+  // Scale rain bars: max bar = 32px
+  const maxRain = Math.max(...rains, 1);
+  const BAR_MAX = 32;
+
+  // Determine best travel months: rain in lowest third AND temp 20-28°C
+  const rainThresh = maxRain * 0.35;
+  const bestMonths = MONTHS.filter((_, i) => rains[i] <= rainThresh && temps[i] >= 20 && temps[i] <= 28);
+
+  // Build 12-column bar chart
+  let bars = '';
+  for (let i = 0; i < 12; i++) {
+    const h = Math.max(2, Math.round((rains[i] / maxRain) * BAR_MAX));
+    const isActive = i === curMon;
+    const border = isActive ? 'border:1px solid rgba(201,168,76,0.9);' : 'border:1px solid transparent;';
+    const tempLabel = isActive
+      ? `<div style="font-size:6px;color:rgba(251,191,36,0.9);text-align:center;margin-bottom:1px">${temps[i]}&deg;</div>`
+      : `<div style="font-size:6px;color:rgba(232,213,163,0.35);text-align:center;margin-bottom:1px">${temps[i]}&deg;</div>`;
+    bars += `<div style="display:flex;flex-direction:column;align-items:center;width:14px">
+      ${tempLabel}
+      <div style="width:10px;height:${BAR_MAX}px;display:flex;align-items:flex-end;${border}border-radius:2px;box-sizing:border-box">
+        <div style="width:100%;height:${h}px;background:rgba(56,189,248,0.6);border-radius:1px"></div>
+      </div>
+      <div style="font-size:5.5px;color:rgba(232,213,163,${isActive ? '0.9' : '0.4'});text-align:center;margin-top:2px;letter-spacing:0.3px">${MONTHS[i]}</div>
+    </div>`;
+  }
+
+  const bestLine = bestMonths.length
+    ? `<div style="margin-top:5px;font-size:7px;color:rgba(232,213,163,0.55)">Best: <span style="color:#43A047;font-weight:700">${bestMonths.join(' ')}</span></div>`
+    : '';
+
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL mm</div>
+    <div style="display:flex;gap:1px;align-items:flex-end">${bars}</div>
+    ${bestLine}
+  </div>`;
+}
+
+// ─── Safety Section ──────────────────────────────────────────────────────────
+function buildSafetySection(iso2) {
+  if (!activeLayers.has('safety')) return '';
+  const safetyVal   = (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[iso2] != null)   ? CD_SAFETY[iso2]   : null;
+  const femaleVal   = (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[iso2] != null) ? CD_FEMALE_SAFETY[iso2] : null;
+  const scamVal     = (typeof CD_SCAM !== 'undefined' && CD_SCAM[iso2] != null)        ? CD_SCAM[iso2]     : null;
+  if (safetyVal === null && femaleVal === null && scamVal === null) return '';
+
+  const safetyColors  = ['#43A047','#7CB342','#EF6C00','#C62828'];
+  const safetyLabels  = ['Very Safe','Generally Safe','Exercise Caution','High Risk'];
+  const femaleLabels  = ['Very Safe for Solo Women','Safe for Solo Women','Exercise Caution','High Caution Advised'];
+  const scamLabels    = ['Minimal Scam Risk','Low Scam Risk','Moderate Scam Risk','High Scam Risk'];
+
+  function _safeColor(v) { return safetyColors[Math.min(3, Math.max(0, v))]; }
+  function _safeLabel(arr, v) { return arr[Math.min(3, Math.max(0, v))] || ''; }
+
+  function _metricRow(label, v, labelArr) {
+    if (v === null) return '';
+    const c = _safeColor(v);
+    const lbl = _safeLabel(labelArr, v);
+    const pct = Math.round(((v + 1) / 4) * 100);
+    return `<div style="margin-bottom:5px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <span style="font-size:7px;color:rgba(232,213,163,0.55);letter-spacing:0.8px;text-transform:uppercase">${_esc(label)}</span>
+        <span style="font-size:7.5px;color:${c};font-weight:700">${_esc(lbl)}</span>
+      </div>
+      <div style="height:3px;background:rgba(201,168,76,0.1);border-radius:2px">
+        <div style="height:3px;width:${pct}%;background:${c};border-radius:2px"></div>
+      </div>
+    </div>`;
+  }
+
+  const sv = safetyVal !== null ? Math.min(3, Math.max(0, safetyVal)) : null;
+  const chipColor = sv !== null ? _safeColor(sv) : '#7CB342';
+  const chipLabel = sv !== null ? _safeLabel(safetyLabels, sv) : 'Data Limited';
+
+  const noteHtml = (typeof SAFETY_NOTES !== 'undefined' && SAFETY_NOTES[iso2])
+    ? `<div style="margin-top:6px;padding-top:5px;border-top:1px solid rgba(201,168,76,0.08);font-size:7.5px;color:rgba(232,213,163,0.6);line-height:1.45;font-style:italic"><span style="color:rgba(201,168,76,0.5);font-style:normal">Local context: </span>${_esc(SAFETY_NOTES[iso2])}</div>`
+    : '';
+
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase">SAFETY INDEX</div>
+      <div style="font-size:7.5px;font-weight:700;color:${chipColor};background:rgba(0,0,0,0.25);border:1px solid ${chipColor}44;border-radius:3px;padding:2px 6px">${_esc(chipLabel)}</div>
+    </div>
+    <div style="font-size:7px;color:rgba(232,213,163,0.38);line-height:1.4;margin-bottom:7px;font-style:italic">Index-based estimate only. Conditions change rapidly — check your government's current travel advisory before departure.</div>
+    ${_metricRow('Overall Safety', safetyVal, safetyLabels)}
+    ${_metricRow('Female Solo Safety', femaleVal, femaleLabels)}
+    ${_metricRow('Scam Risk', scamVal, scamLabels)}
+    ${noteHtml}
+  </div>`;
+}
+
 // ─── Travel Journal Section ───────────────────────────────────────────────────
 function buildJournalSection(iso2) {
   const note = _getNote(iso2);
@@ -4951,47 +5314,92 @@ function _saveJournalEntry(iso2) {
 
 
 // ─── URL Deep Linking ─────────────────────────────────────────────────────────
+let _applyingHash = false;   // re-entrancy guard: suppresses updateURLState while restoring
+let _pendingView  = null;    // {zoom, center:[lat,lng]} stashed when map is not yet ready
+
 function initURLState() {
-  // Read initial state from URL hash e.g. #month=6&layer=weather&nat=US
-  const params = new URLSearchParams(window.location.hash.slice(1));
-  const m = parseInt(params.get('month'));
-  if (!isNaN(m) && m >= 0 && m <= 11) setMonth(m);
-  const lyr = params.get('layer');
-  if (lyr && typeof LAYERS !== 'undefined' && lyr in LAYERS) {
-    activeLayers.clear(); activeLayers.add(lyr);
-  }
-  const nat = params.get('nat');
-  if (nat) {
-    selectedNationality = nat;
-    // The select element is populated later by initNationalitySelector();
-    // it reads selectedNationality on init and sets sel.value accordingly.
-  }
-  const pinsParam = params.get('pins');
-  if (pinsParam) {
-    try {
-      const pinsRaw = JSON.parse(decodeURIComponent(pinsParam));
-      if (Array.isArray(pinsRaw)) {
-        pinsRaw.forEach(function(p, i) {
-          if (Array.isArray(p) && typeof p[0] === 'number' && typeof p[1] === 'number') {
-            _tripPins.push({ id: 'tp_url' + i, lat: p[0], lng: p[1], name: (typeof p[2] === 'string' ? p[2] : 'Pin ' + (i+1)).slice(0,120) });
-          }
-        });
+  // Read initial state from URL hash e.g. #month=6&layer=weather,cost&nat=US&zoom=4&center=48.8,2.3
+  // Suppress updateURLState() side-effects (setMonth calls it) while restoring, so the
+  // incoming hash is not clobbered before every param is read. Save/restore the prior
+  // guard value so the hashchange path (which sets it true) is not cleared early.
+  const _prevGuard = _applyingHash;
+  _applyingHash = true;
+  try {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const m = parseInt(params.get('month'));
+    if (!isNaN(m) && m >= 0 && m <= 11) setMonth(m);
+    // Multi-layer: comma-separated; a single bare slug stays backward compatible.
+    const lyr = params.get('layer');
+    if (lyr && typeof LAYERS !== 'undefined') {
+      const wanted = lyr.split(',').filter(k => k in LAYERS);
+      if (wanted.length) { activeLayers.clear(); wanted.forEach(k => activeLayers.add(k)); }
+    }
+    // Map view: apply now if the map exists (hashchange path), else stash for boot.
+    const z = parseFloat(params.get('zoom'));
+    const c = (params.get('center') || '').split(',').map(Number);
+    if (!isNaN(z) && c.length === 2 && c.every(n => !isNaN(n))) {
+      if (map) map.setView([c[0], c[1]], z); else _pendingView = { zoom: z, center: [c[0], c[1]] };
+    }
+    const nat = params.get('nat');
+    if (nat) {
+      selectedNationality = nat;
+      // The select element is populated later by initNationalitySelector();
+      // it reads selectedNationality on init and sets sel.value accordingly.
+    }
+    const pinsParam = params.get('pins');
+    if (pinsParam) {
+      try {
+        const pinsRaw = JSON.parse(decodeURIComponent(pinsParam));
+        if (Array.isArray(pinsRaw)) {
+          pinsRaw.forEach(function(p, i) {
+            if (Array.isArray(p) && typeof p[0] === 'number' && typeof p[1] === 'number') {
+              _tripPins.push({ id: 'tp_url' + i, lat: p[0], lng: p[1], name: (typeof p[2] === 'string' ? p[2] : 'Pin ' + (i+1)).slice(0,120) });
+            }
+          });
+        }
+      } catch(_e) {}
+    }
+    const compareParam = params.get('compare');
+    if (compareParam) {
+      const codes = compareParam.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length === 2);
+      if (codes.length >= 2) {
+        pinnedCountries = codes.slice(0, 4);
+        // renderComparePanel() will be called after refresh()
       }
-    } catch(_e) {}
+    }
+  } finally {
+    _applyingHash = _prevGuard;
   }
 }
 
 function updateURLState() {
-  const lyr = [...activeLayers][0] || '';
+  if (_applyingHash) return;   // do not rewrite the hash while restoring from it
+  const layers = [...activeLayers];
   let hash = 'month=' + activeMonth;
-  if (lyr) hash += '&layer=' + lyr;
+  if (layers.length) hash += '&layer=' + layers.join(',');   // all active layers, not just the first
   if (selectedNationality) hash += '&nat=' + selectedNationality;
+  if (map) {
+    const ctr = map.getCenter();
+    hash += '&zoom=' + map.getZoom();
+    hash += '&center=' + ctr.lat.toFixed(3) + ',' + ctr.lng.toFixed(3);
+  }
   if (typeof _tripPins !== 'undefined' && _tripPins.length > 0) {
     const encoded = _tripPins.map(function(p) { return [Math.round(p.lat*1000)/1000, Math.round(p.lng*1000)/1000, p.name.slice(0,40)]; });
     hash += '&pins=' + encodeURIComponent(JSON.stringify(encoded));
   }
+  if (typeof pinnedCountries !== 'undefined' && pinnedCountries.length >= 2) {
+    hash += '&compare=' + pinnedCountries.join(',');
+  }
   history.replaceState(null, '', '#' + hash);
 }
+
+// Restore state on browser back/forward or manual hash edits. replaceState does
+// not fire this event, so updateURLState() cannot trigger a loop; the guard is belt-and-braces.
+window.addEventListener('hashchange', function() {
+  _applyingHash = true;
+  try { initURLState(); if (typeof refresh === 'function') refresh(); }
+  finally { _applyingHash = false; }
+});
 
 // ─── Country Search ───────────────────────────────────────────────────────────
 // Country name → ISO-2 lookup for search
@@ -5541,6 +5949,17 @@ function togglePinCountry(iso2) {
   }
 }
 
+function _shareCompareURL() {
+  updateURLState();
+  var url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      var btn = document.querySelector('[onclick="_shareCompareURL()"]');
+      if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '⎘ Copy Comparison URL'; }, 1800); }
+    });
+  }
+}
+
 function renderComparePanel() {
   var panel = document.getElementById('compare-panel');
   if (!panel) return;
@@ -5550,7 +5969,7 @@ function renderComparePanel() {
     return;
   }
   panel.style.display = 'block';
-  var countries = pinnedCountries.slice(0, 3);
+  var countries = pinnedCountries.slice(0, 4);
   var RCOL = ['#43A047','#FDD835','#EF6C00','#C62828'];
 
   function ratingChip(iso2, layerKey, labels) {
@@ -5614,7 +6033,8 @@ function renderComparePanel() {
 
   panel.innerHTML = '<div style="padding:6px 10px 4px;font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12)">⚖ COUNTRY COMPARISON</div>' +
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' + dataRows + climateRow + budgetRow + '</tbody></table></div>' +
-    '<div style="padding:6px 10px 8px;font-size:7.5px;color:var(--dim);border-top:1px solid rgba(201,168,76,0.08);margin-top:4px">💡 Pin countries on the map to compare them. Click a country name to fly there.</div>';
+    '<div style="padding:6px 10px 8px;font-size:7.5px;color:var(--dim);border-top:1px solid rgba(201,168,76,0.08);margin-top:4px">💡 Pin countries on the map to compare them. Click a country name to fly there.</div>' +
+    '<div style="padding:4px 10px 8px;text-align:right"><button onclick="_shareCompareURL()" style="font-size:7px;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:4px;color:var(--gold);cursor:pointer;padding:3px 8px;font-family:var(--fm)">⎘ Copy Comparison URL</button></div>';
 }
 
 function closeComparePanel() {
@@ -5800,6 +6220,14 @@ function showBootError(msg) {
   _loadWishlist();    // restore wishlist (bucket list) from localStorage
   initURLState();     // URL hash overrides month + layer if present
   initMap();
+  if (_pendingView) {
+    // Defer to a macrotask so the restore lands AFTER Leaflet applies its constructor
+    // center/zoom on first layout (a synchronous setView here is clobbered by it).
+    const _pv = _pendingView; _pendingView = null;
+    setTimeout(function() {
+      if (map) { map.invalidateSize(); map.setView(_pv.center, _pv.zoom, { animate: false }); }
+    }, 0);
+  }
   buildMonthSelector();
   buildLayerButtons();
   syncCatButtons();       // highlight category buttons for any layers restored from localStorage

@@ -55,15 +55,15 @@
   <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#7a8a5a;letter-spacing:2px;margin-top:6px">LOADING WORLD DATA&hellip;</div>
 </div>
 <script>
-  // Hard safety valve: dismiss overlay after 6 s regardless of JS/network state.
-  // app.js will cancel this timer as soon as the map is ready.
+  // Hard safety valve: dismiss overlay after 3 s regardless of JS/network state.
+  // app.js cancels this timer (dismissOverlay) as soon as the map is ready.
   window._loTimer = setTimeout(function() {
     var lo = document.getElementById('loading-overlay');
     if (!lo) return;
     lo.style.transition = 'opacity 0.5s';
     lo.style.opacity    = '0';
     setTimeout(function() { if (lo.parentNode) lo.parentNode.removeChild(lo); }, 520);
-  }, 6000);
+  }, 3000);
 </script>
 
 <!-- ─── Top Bar ──────────────────────────────────────────────────────────────── -->

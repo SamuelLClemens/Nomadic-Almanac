@@ -931,6 +931,7 @@ const LAYERS = {
   nightlife:    { name:'Nightlife & Social',  emoji:'🎉', color:'#a78bfa', levels:['World-class','Good','Moderate','Restricted'] },
   scam:         { name:'Scam Risk',           emoji:'⚠', color:'#fb923c', levels:['Minimal','Low','Moderate','High Risk'] },
   malaria:      { name:'Malaria & Mosquito Risk', emoji:'🦟', color:'#a3e635', levels:['No Risk','Low Risk','Moderate','High Risk'] },
+  elevation:    { label:'🏔 Elevation / Terrain', icon:'🏔', cat:'terrain', desc:'OpenTopoMap topographic overlay showing elevation and terrain. Based on OpenStreetMap + SRTM data.' },
 };
 
 const DESCS = {

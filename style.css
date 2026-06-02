@@ -2,16 +2,38 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --ink:     #0e0b06;
-  --panel:   rgba(48,36,16,0.98);
+  /* ── Canonical design tokens (Gate 1D) ─────────────────────────────── */
+  /* Surfaces */
+  --color-paper:       #e8d5a3;
+  --color-paper-dark:  rgba(48,36,16,0.98);
+  --color-ink:         #0e0b06;
+  --color-ink-faint:   #7a8a5a;
+  --color-sepia:       #a0522d;
+  --color-accent:      #c9a84c;   /* canonical compass gold (UI) */
+  --color-accent-deep: #9b1c2e;   /* north-needle crimson */
+  --color-water:       #1b2a4a;   /* prussian map water */
+
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'IBM Plex Mono', monospace;
+  --font-data:    'IBM Plex Mono', monospace;
+  --font-label:   'IBM Plex Mono', monospace;
+
+  /* Spacing scale */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* ── Legacy aliases — preserve all working features ────────────────── */
+  --ink:     var(--color-ink);
+  --panel:   var(--color-paper-dark);
   --panel2:  rgba(22,17,9,0.98);
-  --sand:    #e8d5a3;
-  --gold:    #c9a84c;
-  --crimson: #9b1c2e;
-  --dim:     #7a8a5a;
+  --sand:    var(--color-paper);
+  --gold:    var(--color-accent);
+  --crimson: var(--color-accent-deep);
+  --dim:     var(--color-ink-faint);
   --b1:      rgba(201,168,76,0.14);
   --b2:      rgba(201,168,76,0.32);
-  --fm:      'IBM Plex Mono', monospace;
+  --fm:      var(--font-body);
   --tb-h:    84px;   /* topbar total height (row1 48px + row2 36px) */
 }
 
@@ -49,6 +71,9 @@ html, body {
 @keyframes lo-spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #loading-overlay svg { animation: none !important; }
 }
 
 /* ─── Top Bar ────────────────────────────────────────────────────────────── */
