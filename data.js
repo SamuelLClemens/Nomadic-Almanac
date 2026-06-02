@@ -134,6 +134,13 @@ const LAYER_LABELS = {
   parks:    ['Abundant','Good Coverage','Some','Few'],
   cannabis: ['Legal','Medical/Decrim','Minor Penalties','Severe/Zero Tolerance'],
   nomad:    ['Excellent Base','Good Option','Fair','Not Recommended'],
+  english:      ['Very High Proficiency','High Proficiency','Moderate Proficiency','Low Proficiency'],
+  healthcare:   ['Excellent Healthcare','Good Healthcare','Fair Healthcare','Poor Healthcare'],
+  tapwater:     ['Safe to Drink','Mostly Safe','Use Bottled Water','Severely Unsafe'],
+  airquality:   ['Good Air Quality','Moderate AQ','Unhealthy AQ','Very Unhealthy AQ'],
+  femalesafety: ['Very Safe for Solo Women','Safe for Solo Women','Caution Advised','High Caution'],
+  nightlife:    ['World-class Nightlife','Good Scene','Moderate Scene','Restricted'],
+  scam:         ['Minimal Scam Risk','Low Risk','Moderate Risk','High Scam Risk'],
 };
 // ISO 4217 currency codes per country
 const CURRENCY = {
@@ -451,6 +458,27 @@ const CD_NOMAD = {
   BO:2,PY:2,GY:2,CR:2,PA:2,JM:2,DO:2,TT:2,CN:2,MN:2,UZ:2,KZ:2,
   NG:3,SD:3,AF:3,KP:3,SY:3,YE:3,LY:3,SO:3,IQ:3,IR:3,MM:3,CU:3,RU:3,BY:3,
 };
+
+// ── English Proficiency (EF EPI 2024 | 0=Very High → 3=Low) ──────────────
+const CD_ENGLISH = {NL:0,AT:0,NO:0,DK:0,SE:0,BE:0,FI:0,PT:0,SG:0,ZA:0,IS:0,LU:0,DE:1,PL:1,RO:1,HR:1,CH:1,HU:1,SK:1,CZ:1,GR:1,BG:1,RS:1,UA:1,EE:1,LV:1,LT:1,MY:1,PH:1,NZ:1,AU:1,IE:1,GB:1,US:1,CA:1,IN:1,IL:1,CY:1,MT:1,ME:1,FR:2,ES:2,IT:2,CN:2,BR:2,RU:2,JP:2,KR:2,TH:2,MX:2,TR:2,VN:2,ID:2,TW:2,AR:2,CO:2,CL:2,UY:2,GE:2,AM:2,AZ:2,KZ:2,TN:2,MA:2,EG:2,SA:2,AE:2,QA:2,KW:2,BH:2,JO:2,LB:2,ZM:2,ZW:2,GH:2,KE:2,TZ:2,RW:2,SN:2,UG:2,FJ:2,DO:2,JM:2,TT:2,PE:2,GY:2,KH:2,MV:2,LK:2,MK:2,AL:2,BA:2,XK:2,UZ:2,SY:3,IQ:3,IR:3,AF:3,PK:3,BD:3,ET:3,NG:3,CM:3,MG:3,MZ:3,AO:3,CD:3,ML:3,BF:3,NE:3,TD:3,SO:3,SD:3,LY:3,YE:3,GT:3,HN:3,SV:3,NI:3,CU:3,EC:3,BO:3,PY:3,VE:3,MM:3,LA:3,NP:3,BT:3,KG:3,TJ:3,TM:3,DJ:3,ER:3,MR:3,GM:3,PG:3,VU:3,MN:3};
+
+// ── Healthcare Quality (WHO/GHS 2023 | 0=Excellent → 3=Poor) ──────────────
+const CD_HEALTHCARE = {SG:0,AU:0,CA:0,JP:0,KR:0,CH:0,DE:0,FR:0,NL:0,SE:0,NO:0,DK:0,FI:0,AT:0,BE:0,GB:0,IE:0,NZ:0,IL:0,IS:0,LU:0,US:1,ES:1,IT:1,PT:1,GR:1,CZ:1,PL:1,HU:1,RO:1,BG:1,HR:1,SK:1,EE:1,LV:1,LT:1,TW:1,MY:1,TH:1,AR:1,CL:1,UY:1,MX:1,BR:1,TR:1,AE:1,QA:1,KW:1,BH:1,SA:1,CY:1,MT:1,RS:1,ME:1,SI:1,CN:2,IN:2,RU:2,UA:2,MK:2,AL:2,BA:2,XK:2,GE:2,AM:2,AZ:2,KZ:2,VN:2,ID:2,PH:2,LK:2,CO:2,PE:2,EC:2,VE:2,ZA:2,EG:2,MA:2,TN:2,JO:2,LB:2,IR:2,TZ:2,KE:2,GH:2,SN:2,ZM:2,ZW:2,UG:2,RW:2,MV:2,MN:2,UZ:2,FJ:2,PK:3,BD:3,NP:3,MM:3,KH:3,LA:3,AF:3,IQ:3,SY:3,YE:3,LY:3,SO:3,SD:3,NG:3,ET:3,CM:3,CD:3,MZ:3,MG:3,AO:3,HN:3,GT:3,SV:3,NI:3,BO:3,PG:3,ML:3,BF:3,NE:3,TD:3};
+
+// ── Tap Water Safety (WHO/UNICEF JMP | 0=Safe → 3=Severely Unsafe) ─────────
+const CD_TAPWATER = {DE:0,CH:0,AT:0,SE:0,NO:0,DK:0,FI:0,NL:0,BE:0,LU:0,FR:0,GB:0,IE:0,US:0,CA:0,AU:0,NZ:0,JP:0,SG:0,KR:0,IS:0,MT:0,CY:0,IL:0,AE:0,QA:0,ES:1,IT:1,PT:1,GR:1,CZ:1,PL:1,HU:1,RO:1,SK:1,EE:1,LV:1,LT:1,HR:1,BG:1,TW:1,MY:1,TR:1,AR:1,CL:1,UY:1,MX:1,RS:1,ME:1,BA:1,MK:1,AL:1,GE:1,AM:1,BH:1,KW:1,SA:1,SI:1,CN:2,TH:2,VN:2,ID:2,PH:2,IN:2,LK:2,MV:2,BR:2,CO:2,PE:2,EC:2,BO:2,ZA:2,EG:2,MA:2,TN:2,JO:2,LB:2,RU:2,UA:2,KZ:2,UZ:2,MN:2,AZ:2,RW:2,KE:2,TZ:2,GH:2,SN:2,ZM:2,ZW:2,UG:2,IR:2,FJ:2,BD:3,NP:3,MM:3,KH:3,LA:3,PK:3,AF:3,IQ:3,SY:3,YE:3,LY:3,ET:3,NG:3,CD:3,MZ:3,MG:3,AO:3,SD:3,SO:3,HN:3,GT:3,NI:3,CM:3,ML:3,BF:3,NE:3,TD:3};
+
+// ── Air Quality (IQAir 2023 avg PM2.5 | 0=Good → 3=Very Unhealthy) ─────────
+const CD_AIRQUALITY = {IS:0,NO:0,FI:0,SE:0,AU:0,NZ:0,CA:0,IE:0,EE:0,LV:0,LT:0,PT:0,US:1,DE:1,GB:1,FR:1,NL:1,AT:1,CH:1,BE:1,DK:1,JP:1,SG:1,KR:1,TW:1,CL:1,AR:1,ZA:1,IL:1,GR:1,ES:1,IT:1,CY:1,MT:1,LU:1,SI:1,SK:1,HR:1,CN:2,TH:2,VN:2,ID:2,PH:2,MX:2,CO:2,PE:2,EC:2,TR:2,RU:2,UA:2,PL:2,CZ:2,HU:2,RO:2,BG:2,EG:2,MA:2,TN:2,KE:2,NG:2,ET:2,AM:2,GE:2,RS:2,IN:2,BD:3,PK:3,AF:3,IQ:3,IR:3,KW:3,QA:3,SA:3,AE:3,MN:3,MM:3,KH:3,LA:3,NP:3,LK:3,SD:3,LY:3,CM:3};
+
+// ── Female Solo Safety (composite index | 0=Very Safe → 3=High Caution) ────
+const CD_FEMALE_SAFETY = {IS:0,NO:0,FI:0,SE:0,DK:0,NL:0,NZ:0,AU:0,CH:0,AT:0,IE:0,CA:0,JP:0,SG:0,LU:0,DE:1,GB:1,FR:1,ES:1,PT:1,BE:1,US:1,KR:1,TW:1,CZ:1,SK:1,EE:1,LV:1,LT:1,SI:1,HR:1,MT:1,CY:1,IL:1,UY:1,AR:1,CL:1,GE:1,IT:2,GR:2,PL:2,HU:2,RO:2,BG:2,TR:2,RU:2,UA:2,MX:2,BR:2,CO:2,TH:2,VN:2,MY:2,ID:2,PH:2,MN:2,AM:2,AZ:2,ZA:2,KE:2,GH:2,TZ:2,MA:2,TN:2,JO:2,BO:2,PE:2,EC:2,LB:2,AE:2,ME:2,RS:2,BA:2,IN:3,PK:3,BD:3,NP:3,AF:3,IQ:3,SY:3,YE:3,IR:3,SA:3,KW:3,QA:3,BH:3,EG:3,LY:3,SD:3,SO:3,NG:3,ET:3,MM:3,KH:3,LA:3,GT:3,HN:3,SV:3,CD:3};
+
+// ── Nightlife & Social Scene (0=World-class → 3=Restricted) ─────────────────
+const CD_NIGHTLIFE = {DE:0,ES:0,CO:0,AR:0,TH:0,PT:0,NL:0,GB:0,US:0,AU:0,JP:0,CZ:0,BR:0,FR:1,IT:1,GR:1,TR:1,MX:1,RU:1,UA:1,RO:1,RS:1,HR:1,BA:1,ME:1,PH:1,MY:1,SG:1,KR:1,TW:1,CH:1,AT:1,BE:1,SE:1,DK:1,NO:1,FI:1,IE:1,CA:1,NZ:1,ZA:1,LB:1,IL:1,IN:2,ID:2,VN:2,CN:2,PE:2,CL:2,EC:2,BO:2,PL:2,HU:2,SK:2,BG:2,EE:2,LV:2,LT:2,CY:2,MT:2,GE:2,AM:2,TN:2,MA:2,EG:2,NP:2,KH:2,LA:2,JO:2,SA:3,IR:3,AF:3,PK:3,SD:3,LY:3,SY:3,YE:3,IQ:3,KW:3,QA:3,BH:3,AE:3,UZ:3,TM:3,TJ:3,MM:3,MV:3,BN:3,BD:3};
+
+// ── Scam Risk Index (tourist-facing | 0=Minimal → 3=High Risk) ──────────────
+const CD_SCAM = {JP:0,SG:0,IS:0,NO:0,FI:0,DK:0,NZ:0,AU:0,CH:0,AT:0,LU:0,DE:1,SE:1,NL:1,BE:1,GB:1,IE:1,FR:1,CA:1,US:1,KR:1,TW:1,CZ:1,SK:1,EE:1,LV:1,LT:1,PT:1,SI:1,ES:2,IT:2,GR:2,TR:2,RU:2,MX:2,BR:2,AR:2,CO:2,PL:2,HU:2,RO:2,BG:2,RS:2,HR:2,CY:2,TH:2,VN:2,MY:2,ID:2,PH:2,ZA:2,MA:2,TN:2,JO:2,IL:2,AE:2,GE:2,AM:2,UA:2,CN:2,KH:2,ME:2,BA:2,LB:2,EG:3,IN:3,ET:3,NG:3,KE:3,TZ:3,MM:3,BD:3,NP:3,PK:3,LK:3,CM:3,SN:3,GH:3,PE:3,EC:3,BO:3,GT:3,HN:3,MG:3};
 
 // CD_TIMEZONE: ISO-2 → integer UTC offset (capital / dominant zone; half-hour
 // offsets rounded to nearest integer; multi-timezone countries use the most-
@@ -828,6 +856,13 @@ const LAYERS = {
   parks:    { name:'National Parks',   emoji:'🌲', color:'#52b788', levels:['Abundant','Good','Some','Few'] },
   cannabis: { name:'Cannabis Laws',   emoji:'🌿', color:'#4ade80', levels:['Legal','Medical/Decrim','Minor Penalties','Severe/Zero Tolerance'] },
   nomad:    { name:'Nomad Score',     emoji:'💻', color:'#38bdf8', levels:['Excellent','Good','Fair','Poor'] },
+  english:      { name:'English Proficiency', emoji:'🌐', color:'#6366f1', levels:['Very High','High','Moderate','Low'] },
+  healthcare:   { name:'Healthcare Quality',  emoji:'🏥', color:'#ec4899', levels:['Excellent','Good','Fair','Poor'] },
+  tapwater:     { name:'Tap Water Safety',    emoji:'💧', color:'#06b6d4', levels:['Safe','Mostly Safe','Use Bottled','Severely Unsafe'] },
+  airquality:   { name:'Air Quality',         emoji:'🌫', color:'#84cc16', levels:['Good','Moderate','Unhealthy','Very Unhealthy'] },
+  femalesafety: { name:'Female Solo Safety',  emoji:'👩', color:'#f472b6', levels:['Very Safe','Safe','Caution','High Caution'] },
+  nightlife:    { name:'Nightlife & Social',  emoji:'🎉', color:'#a78bfa', levels:['World-class','Good','Moderate','Restricted'] },
+  scam:         { name:'Scam Risk',           emoji:'⚠', color:'#fb923c', levels:['Minimal','Low','Moderate','High Risk'] },
 };
 
 const DESCS = {
@@ -932,6 +967,48 @@ const DESCS = {
     "Good nomad option. Solid connectivity, reasonable costs, growing expat scene.",
     "Workable but with trade-offs. Internet, cost, visa, or safety issues make extended stays harder.",
     "Not recommended for nomads. Persistent connectivity issues, restrictive access, safety, or prohibitive cost."
+  ],
+  english: [
+    "Near-universal English spoken. No language barrier for travellers.",
+    "English widely spoken in cities and tourist areas. Minor gap in rural zones.",
+    "Limited English outside tourist areas. Translation app strongly recommended.",
+    "Very limited English. Local guide or interpreter is advisable for navigation."
+  ],
+  healthcare: [
+    "World-class hospitals; universal or near-universal coverage; fast emergency response.",
+    "Good hospitals in cities; quality care widely accessible. Travel insurance advisable.",
+    "Adequate for routine care; significant gaps in rural areas. Medical insurance essential.",
+    "Limited or poor facilities. Medical evacuation insurance is strongly recommended."
+  ],
+  tapwater: [
+    "Tap water is safe to drink directly from the tap. No filter or bottled water needed.",
+    "Tap water is generally safe; sensitive travellers may prefer bottled or filtered water.",
+    "Tap water is not safe to drink. Use bottled or purified water at all times.",
+    "Tap water is severely unsafe. Serious illness risk — bottled water is essential throughout."
+  ],
+  airquality: [
+    "Air quality is consistently good. Safe and comfortable for all outdoor activities.",
+    "Generally acceptable air quality; occasional moderate pollution days in cities.",
+    "Pollution can reach unhealthy levels, especially in urban areas. Mask advisable.",
+    "Air frequently very unhealthy (AQI > 150). N95 mask strongly recommended outdoors."
+  ],
+  femalesafety: [
+    "Exceptionally safe for solo female travellers. Harassment is very rare nationwide.",
+    "Generally safe. Standard urban precautions sufficient. Most areas welcoming.",
+    "Exercise caution — harassment reported in some areas. Research local norms before visiting.",
+    "High caution strongly advised. Dress conservatively; avoid solo night travel in most areas."
+  ],
+  nightlife: [
+    "World-class nightlife — clubs, bars, live music and late-night dining for every taste.",
+    "Good variety of bars, restaurants and entertainment. Most cities have active scenes.",
+    "Moderate nightlife; primarily in major urban centres. Rural areas very quiet at night.",
+    "Nightlife is very limited. Alcohol may be restricted, expensive, or socially discouraged."
+  ],
+  scam: [
+    "Tourist scams are very rare. High-trust environment — standard awareness is plenty.",
+    "Occasional petty scams near tourist sites. Standard vigilance is sufficient.",
+    "Tourist scams are common — research typical local schemes (taxi, currency, tours) beforehand.",
+    "High risk of scams targeting tourists. Stay alert; use only vetted operators and transport."
   ]
 };
 

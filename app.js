@@ -158,7 +158,7 @@ const POI_LAYERS = {
   attractions:  { label: '⭐ Attractions',   active: false, minZoom: 5, markers: [], bboxCache: {}, debounce: null },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -208,11 +208,80 @@ function isVisited(iso2) {
   return _visitedSet.has(iso2);
 }
 
+// ─── Wishlist / Bucket List ───────────────────────────────────────────────────
+// Stores ISO2 codes the user has heart-listed, persisted to localStorage.
+var _wishlist = new Set();
+
+function _loadWishlist() {
+  try { var d = JSON.parse(localStorage.getItem('na_wishlist')||'[]'); if (Array.isArray(d)) _wishlist = new Set(d); } catch(e){}
+}
+
+function _saveWishlist() {
+  try { localStorage.setItem('na_wishlist', JSON.stringify(Array.from(_wishlist))); } catch(e){}
+}
+
+function _toggleWishlist(iso2) {
+  if (!iso2) return;
+  if (_wishlist.has(iso2)) { _wishlist.delete(iso2); } else { _wishlist.add(iso2); }
+  _saveWishlist();
+  _updateWishlistUI(iso2);
+  if (typeof showToast === 'function') showToast(_wishlist.has(iso2) ? '♥ Added to wishlist' : 'Removed from wishlist');
+}
+
+function _updateWishlistUI(iso2) {
+  var btn = document.getElementById('btn-wishlist-' + iso2);
+  if (btn) btn.textContent = _wishlist.has(iso2) ? '♥' : '♡';
+  var counter = document.getElementById('wishlist-count');
+  if (counter) counter.textContent = _wishlist.size > 0 ? _wishlist.size : '';
+}
+
+// ─── Trip Share Card ──────────────────────────────────────────────────────────
+function _shareTrip() {
+  if (!_tripPins || _tripPins.length === 0) { showToast('Add some trip pins first!'); return; }
+  var lines = ['🗺 My Nomadic Almanac Trip Plan', ''];
+  _tripPins.forEach(function(pin, i) {
+    var flag = typeof _countryFlag === 'function' ? _countryFlag(pin.iso2 || '') : '';
+    var name = pin.name || pin.iso2 || ('Pin ' + (i+1));
+    var cd = (typeof COST_DETAILS !== 'undefined' && pin.iso2) ? COST_DETAILS[pin.iso2] : null;
+    var budget = cd ? ('~$' + Math.round((cd.hostel||25)+(cd.meal||8)*3+(cd.transport||5)) + '/day') : '';
+    lines.push((i+1) + '. ' + flag + ' ' + name + (budget ? ' (' + budget + ')' : ''));
+  });
+  lines.push('');
+  var totalKm = 0;
+  for (var i=1;i<_tripPins.length;i++) {
+    if (typeof _haversineKm === 'function') totalKm += _haversineKm(_tripPins[i-1].lat,_tripPins[i-1].lng,_tripPins[i].lat,_tripPins[i].lng);
+  }
+  if (totalKm > 0) lines.push('Total route distance: ' + Math.round(totalKm).toLocaleString() + ' km');
+  lines.push('Planned with Nomadic Almanac — https://samuellclemens.github.io/Nomadic-Almanac/');
+  var text = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){showToast('📋 Trip copied to clipboard!');}).catch(function(){_fallbackShare(text);});
+  } else { _fallbackShare(text); }
+}
+
+function _fallbackShare(text) {
+  var el = document.createElement('textarea');
+  el.value = text;
+  el.style.cssText = 'position:fixed;left:-9999px';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  showToast('📋 Trip copied to clipboard!');
+}
+
 // ─── Trip Planning Pins ───────────────────────────────────────────────────────
 // User-placed named pins stored in localStorage. Each pin: {id, lat, lng, name}.
 let _tripPins  = [];
 let _tripPinMarkers = {};   // id → Leaflet marker
 let _placingPin = false;    // true while the user is clicking to place a new pin
+
+// Returns the flag emoji for a 2-letter ISO country code (Unicode regional indicators)
+function _countryFlag(iso2) {
+  if (!iso2 || iso2.length !== 2) return '';
+  var o = 127397;
+  return String.fromCodePoint(iso2.toUpperCase().charCodeAt(0)+o, iso2.toUpperCase().charCodeAt(1)+o);
+}
 
 // HTML escape helper — applied to ALL user-supplied or external-data strings
 // before they are interpolated into innerHTML. Prevents stored XSS from pin
@@ -278,6 +347,92 @@ function _haversineKm(lat1, lng1, lat2, lng2) {
   return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
+function _buildBudgetEstimate() {
+  if (!_tripPins || _tripPins.length === 0) return '';
+  var html = '<div style="margin-top:10px;padding:8px;background:rgba(201,168,76,0.08);border-radius:6px;border:1px solid rgba(201,168,76,0.2)">' +
+    '<div style="font-size:8px;letter-spacing:1.5px;color:rgba(201,168,76,0.6);text-transform:uppercase;margin-bottom:6px">Budget Estimator</div>' +
+    '<div style="font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:6px">Enter days per destination:</div>';
+  var totalBudget = 0, totalComfort = 0;
+  _tripPins.forEach(function(pin, i) {
+    var cd = (typeof COST_DETAILS !== 'undefined' && pin.iso2) ? COST_DETAILS[pin.iso2] : null;
+    var budgetDay = cd ? ((cd.hostel||25) + (cd.meal||8)*3 + (cd.transport||5)) : 60;
+    var comfortDay = cd ? (budgetDay * 2.2) : 130;
+    var days = 7;
+    totalBudget += budgetDay * days;
+    totalComfort += comfortDay * days;
+    var flag = typeof _countryFlag === 'function' ? _countryFlag(pin.iso2 || '') : '';
+    var name = _esc(pin.name || pin.iso2 || ('Pin ' + (i+1)));
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
+      '<span style="font-size:10px">' + flag + '</span>' +
+      '<span style="font-size:8px;color:var(--sand);flex:1">' + name + '</span>' +
+      '<span style="font-size:8px;color:var(--dim)">~$' + Math.round(budgetDay) + '/day</span>' +
+      '</div>';
+  });
+  html += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.15)">' +
+    '<div style="font-size:8px;color:var(--dim)">Est. 7 days each:</div>' +
+    '<div style="font-size:10px;color:#4ade80;font-weight:700;margin-top:2px">Budget: ~$' + Math.round(totalBudget) + '</div>' +
+    '<div style="font-size:10px;color:#fbbf24;font-weight:700">Comfort: ~$' + Math.round(totalComfort) + '</div>' +
+    '</div></div>';
+  return html;
+}
+
+function _buildPackingList() {
+  if (!_tripPins || _tripPins.length === 0) return '';
+  var items = {
+    essentials: ['Passport','Visa documents','Travel insurance card','Emergency contacts','Phone + charger','Power bank','Local SIM or eSIM plan','Headphones','Reusable water bottle'],
+    health: ['Prescription meds (2x supply)','First aid kit','Diarrhea tabs','Antihistamines','Sunscreen SPF 50+','Insect repellent','Hand sanitiser'],
+    clothing: ['Comfortable walking shoes','Flip-flops','5x underwear','4x T-shirts','2x trousers/pants','Rain jacket or poncho','Versatile layer'],
+    warm: ['Thermal base layers','Warm hat and gloves','Insulated jacket','Wool socks'],
+    beach: ['Swimwear (x2)','Quick-dry towel','Reef-safe sunscreen','UV rash guard'],
+    unsafe_water: ['Water purification tablets','Portable water filter (Sawyer etc.)','Extra bottled water budget'],
+    poor_health: ['Vaccination certificates','Comprehensive medical kit','Travel doctor consultation pre-trip','Medical evacuation insurance'],
+    active: ['Hiking boots','Trekking poles','Lightweight daypack','Microfibre towel'],
+  };
+  var pack = new Set(items.essentials);
+  items.health.forEach(function(i){pack.add(i);});
+  items.clothing.forEach(function(i){pack.add(i);});
+  var hasWarm=false, hasBeach=false, hasUnsafeWater=false, hasPoorHealth=false, hasActive=false;
+  _tripPins.forEach(function(pin) {
+    var iso2 = pin.iso2 || '';
+    if (typeof CD_TAPWATER !== 'undefined' && CD_TAPWATER[iso2] >= 2) hasUnsafeWater = true;
+    if (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[iso2] >= 3) hasPoorHealth = true;
+    if (typeof CD_CLIMATE !== 'undefined' && CD_CLIMATE[iso2]) {
+      var temp = CD_CLIMATE[iso2].temp[activeMonth];
+      if (temp != null && temp < 10) hasWarm = true;
+      if (temp != null && temp > 20) hasBeach = true;
+    }
+  });
+  var activePoi = typeof POI_LAYERS !== 'undefined' ? Object.keys(POI_LAYERS).filter(function(k){return POI_LAYERS[k].active;}) : [];
+  if (activePoi.some(function(k){return ['climbing','hiking','parks'].includes(k);})) hasActive = true;
+  if (hasWarm) items.warm.forEach(function(i){pack.add(i);});
+  if (hasBeach) items.beach.forEach(function(i){pack.add(i);});
+  if (hasUnsafeWater) items.unsafe_water.forEach(function(i){pack.add(i);});
+  if (hasPoorHealth) items.poor_health.forEach(function(i){pack.add(i);});
+  if (hasActive) items.active.forEach(function(i){pack.add(i);});
+  var arr = Array.from(pack);
+  return '<div style="margin-top:10px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08)">' +
+    '<div style="font-size:8px;letter-spacing:1.5px;color:rgba(201,168,76,0.6);text-transform:uppercase;margin-bottom:6px">Smart Packing List (' + arr.length + ' items)</div>' +
+    '<div style="columns:2;column-gap:10px">' +
+    arr.map(function(item){return '<div style="font-size:7.5px;color:var(--sand);margin-bottom:2px;break-inside:avoid">✓ ' + _esc(item) + '</div>';}).join('') +
+    '</div></div>';
+}
+
+function _togglePackingPanel() {
+  var el = document.getElementById('packing-panel');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'packing-panel';
+    el.style.cssText = 'position:fixed;right:12px;bottom:120px;width:280px;max-height:60vh;overflow-y:auto;background:rgba(14,11,6,0.97);border:1px solid rgba(201,168,76,0.3);border-radius:10px;padding:10px;z-index:1200;display:none';
+    document.body.appendChild(el);
+  }
+  if (el.style.display === 'none' || el.style.display === '') {
+    el.innerHTML = _buildPackingList();
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 function _buildRoutePanel() {
   const el = document.getElementById('trip-route-panel');
   if (!el) return;
@@ -297,6 +452,8 @@ function _buildRoutePanel() {
       '</div>';
   }
   html += '<div style="margin-top:5px;text-align:right;font-size:9px;font-weight:700;color:var(--gold)">Total: ' + totalKm.toLocaleString() + ' km</div>';
+  html += _buildBudgetEstimate();
+  html += _buildPackingList();
   el.innerHTML = html;
 }
 
@@ -534,6 +691,24 @@ function initTripPlanner() {
   });
   document.getElementById('trip-panel-actions').appendChild(shareBtn);
 
+  // Packing List button — toggles the floating packing panel
+  const packingBtn = document.createElement('button');
+  packingBtn.id = 'btn-packing-list';
+  packingBtn.className = 'trip-action-btn';
+  packingBtn.textContent = 'Packing List';
+  packingBtn.style.cssText = 'background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);color:var(--gold);';
+  packingBtn.addEventListener('click', function() { _togglePackingPanel(); });
+  document.getElementById('trip-panel-actions').appendChild(packingBtn);
+
+  // Share Trip card button — copies a human-readable trip card to clipboard
+  const shareTripCardBtn = document.createElement('button');
+  shareTripCardBtn.id = 'btn-share-trip-card';
+  shareTripCardBtn.className = 'trip-action-btn';
+  shareTripCardBtn.textContent = '📤 Share Trip';
+  shareTripCardBtn.style.cssText = 'background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.25);color:#f472b6;';
+  shareTripCardBtn.addEventListener('click', function() { _shareTrip(); });
+  document.getElementById('trip-panel-actions').appendChild(shareTripCardBtn);
+
   // Map click handler — place pin when _placingPin is active.
   // Guard: if a Leaflet feature (country polygon, POI marker) was clicked, that
   // handler sets _featureClicked=true for 10 ms. We skip placement in that window
@@ -736,8 +911,9 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 
 // Category groups — each becomes a dropdown button in the topbar row.
 const CAT_GROUPS = [
-  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster'] },
-  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis','nomad'] },
+  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster','healthcare','femalesafety'] },
+  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis','nomad','nightlife'] },
+  { id:'local-info',    label:'Local Info',      emoji:'ℹ',  keys:['english','tapwater','airquality','scam'] },
   // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
   // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
   { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
@@ -1202,6 +1378,13 @@ function getCountryRating(iso2) {
       if (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[iso2] != null) return CD_NOMAD[iso2];
       return null;
     }
+    if (lk === 'english') { if (typeof CD_ENGLISH !== 'undefined' && CD_ENGLISH[iso2] != null) return CD_ENGLISH[iso2]; return null; }
+    if (lk === 'healthcare') { if (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[iso2] != null) return CD_HEALTHCARE[iso2]; return null; }
+    if (lk === 'tapwater') { if (typeof CD_TAPWATER !== 'undefined' && CD_TAPWATER[iso2] != null) return CD_TAPWATER[iso2]; return null; }
+    if (lk === 'airquality') { if (typeof CD_AIRQUALITY !== 'undefined' && CD_AIRQUALITY[iso2] != null) return CD_AIRQUALITY[iso2]; return null; }
+    if (lk === 'femalesafety') { if (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[iso2] != null) return CD_FEMALE_SAFETY[iso2]; return null; }
+    if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[iso2] != null) return CD_NIGHTLIFE[iso2]; return null; }
+    if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[iso2] != null) return CD_SCAM[iso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -1246,6 +1429,13 @@ function getAdmin1Rating(subCode, parentIso2) {
       if (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[parentIso2] != null) return CD_NOMAD[parentIso2];
       return null;
     }
+    if (lk === 'english') { if (typeof CD_ENGLISH !== 'undefined' && CD_ENGLISH[parentIso2] != null) return CD_ENGLISH[parentIso2]; return null; }
+    if (lk === 'healthcare') { if (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[parentIso2] != null) return CD_HEALTHCARE[parentIso2]; return null; }
+    if (lk === 'tapwater') { if (typeof CD_TAPWATER !== 'undefined' && CD_TAPWATER[parentIso2] != null) return CD_TAPWATER[parentIso2]; return null; }
+    if (lk === 'airquality') { if (typeof CD_AIRQUALITY !== 'undefined' && CD_AIRQUALITY[parentIso2] != null) return CD_AIRQUALITY[parentIso2]; return null; }
+    if (lk === 'femalesafety') { if (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[parentIso2] != null) return CD_FEMALE_SAFETY[parentIso2]; return null; }
+    if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[parentIso2] != null) return CD_NIGHTLIFE[parentIso2]; return null; }
+    if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[parentIso2] != null) return CD_SCAM[parentIso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
@@ -1604,7 +1794,11 @@ async function initChoropleth() {
       layer.on('click', e => {
         _featureClicked = true;
         const html = buildCountryTooltip(iso2);
-        if (html) toggleTooltip('country:' + iso2, html, e.originalEvent.clientX, e.originalEvent.clientY);
+        if (html) {
+          toggleTooltip('country:' + iso2, html, e.originalEvent.clientX, e.originalEvent.clientY);
+          var center = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[iso2]);
+          if (center) _injectWeatherRow(iso2, center[0], center[1]);
+        }
         setTimeout(() => { _featureClicked = false; }, 10);
       });
     },
@@ -2902,6 +3096,12 @@ function showTooltip(html) {
   tt.style.display = 'block';
   tooltipVisible = true;
   positionTooltip(_ttX, _ttY);
+  // Attach wishlist toggle listener if a wishlist button was rendered in this tooltip
+  var wishlistBtns = tt.querySelectorAll('[id^="btn-wishlist-"]');
+  wishlistBtns.forEach(function(btn) {
+    var iso2 = btn.id.replace('btn-wishlist-', '');
+    btn.addEventListener('click', function() { _toggleWishlist(iso2); });
+  });
 }
 
 function hideTooltip() {
@@ -3162,6 +3362,45 @@ function calcSunriseSunset(lat, lng, utcOffset, month) {
   return { rise: fmt(riseL), set: fmt(setL), daylight, polar: null };
 }
 
+// ─── Live Weather (Open-Meteo) ────────────────────────────────────────────────
+var _weatherCache = {};
+
+var _WMO_DESC = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Showers',81:'Rain showers',82:'Heavy showers',85:'Snow showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Heavy thunderstorm'};
+var _WMO_EMOJI = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌦',63:'🌧',65:'🌧',71:'🌨',73:'❄️',75:'❄️',80:'🌦',81:'🌧',82:'⛈',85:'🌨',95:'⛈',96:'⛈',99:'⛈'};
+
+function _fetchCurrentWeather(lat, lng, iso2, callback) {
+  var key = iso2 || (Math.round(lat*2)/2 + ',' + Math.round(lng*2)/2);
+  if (_weatherCache[key]) { callback(_weatherCache[key]); return; }
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lng.toFixed(3) + '&current_weather=true&wind_speed_unit=kmh';
+  fetch(url, {signal: AbortSignal.timeout(5000)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (d && d.current_weather) {
+        _weatherCache[key] = d.current_weather;
+        callback(d.current_weather);
+      }
+    })
+    .catch(function(){});
+}
+
+function _injectWeatherRow(iso2, lat, lng) {
+  var el = document.getElementById('weather-live-' + iso2);
+  if (!el) return;
+  _fetchCurrentWeather(lat, lng, iso2, function(w) {
+    var code = w.weathercode || 0;
+    var emoji = _WMO_EMOJI[code] || '🌡';
+    var desc = _WMO_DESC[code] || ('Code ' + code);
+    var temp = (typeof _tempUnit !== 'undefined' && _tempUnit === 'F')
+      ? Math.round(w.temperature * 9/5 + 32) + '°F'
+      : Math.round(w.temperature) + '°C';
+    el.innerHTML = '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px">' +
+      '<span style="font-size:16px">' + emoji + '</span>' +
+      '<span style="font-size:9px;color:var(--sand)">' + temp + ' — ' + _esc(desc) + '</span>' +
+      '<span style="font-size:8px;color:var(--dim);margin-left:auto">💨' + Math.round(w.windspeed) + 'km/h</span>' +
+      '</div>';
+  });
+}
+
 function buildWeatherDetails(iso2) {
   if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
   const cl = CD_CLIMATE[iso2];
@@ -3224,6 +3463,7 @@ function buildWeatherDetails(iso2) {
   }
 
   return `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.12)">
+    <div id="weather-live-${iso2}" style="min-height:10px"></div>
     <div class="ttln">MONTHLY CLIMATE — ${periodLabel()}</div>
     <div style="display:flex;gap:10px;margin-top:8px;align-items:flex-start">
       <div style="flex:1;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.12);border-radius:6px;padding:7px 9px;text-align:center">
@@ -3352,8 +3592,9 @@ function buildCountryTooltip(iso2) {
   const journalSection = buildJournalSection(iso2);
   const isPinned    = pinnedCountries.includes(iso2);
   const pinLabel    = isPinned ? '&#x2665; Pinned' : '&#x2661; Compare';
-  const pinSection  = `<div style="padding:6px 14px 10px">
+  const pinSection  = `<div style="padding:6px 14px 10px;display:flex;align-items:center;gap:6px">
     <button class="tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" onclick="togglePinCountry('${iso2}')">${pinLabel}</button>
+    <button id="btn-wishlist-${iso2}" title="Add to wishlist" style="background:none;border:none;cursor:pointer;font-size:16px;color:#ec4899;padding:4px 8px">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
   </div>`;
   const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
     ? `<div class="tm" style="color:#43A047;margin-top:2px">&#x2708; Best time: ${BEST_TRAVEL_RANGE[iso2]}</div>`
@@ -3378,14 +3619,27 @@ function buildCountryTooltip(iso2) {
     : `<button onclick="markVisited('${iso2}');this.outerHTML='<div style=\\'font-size:8px;color:#22c55e;padding:6px 0;text-align:center\\'>&#x2713; MARKED AS VISITED</div>';" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">+ MARK AS VISITED</button>`;
   const flag = getFlag(iso2);
   const scoreChip = buildCompositeScore(CD[iso2] || {}, iso2);
+  // Similar countries row
+  var similarSection = '';
+  try {
+    var simResults = _findSimilarCountries(iso2);
+    if (simResults && simResults.length) {
+      var simItems = simResults.map(function(s) {
+        var sf = typeof _countryFlag === 'function' ? _countryFlag(s.iso2) : '';
+        var sn = (typeof countryNames !== 'undefined' && countryNames[s.iso2]) || s.iso2;
+        return '<span onclick="(function(){var c=COUNTRY_CENTERS&&COUNTRY_CENTERS[\'' + s.iso2 + '\'];if(c&&map)map.flyTo(c,5,{duration:1.2});})()" title="' + _esc(sn) + '" style="cursor:pointer;margin-right:6px;white-space:nowrap">' + sf + ' ' + _esc(s.iso2) + '</span>';
+      }).join('');
+      similarSection = '<div style="padding:4px 14px 8px;font-size:8.5px;color:rgba(232,213,163,0.65);border-top:1px solid rgba(201,168,76,0.1);margin-top:4px"><span style="color:rgba(201,168,76,0.5);letter-spacing:1px;font-size:7.5px;display:block;margin-bottom:3px">SIMILAR</span>' + simItems + '</div>';
+    }
+  } catch(_e) {}
   return `<div class="tth">
-    <h3 id="tt-name">${flag ? flag + ' ' : ''}${name}${curr}</h3>
+    <h3 id="tt-name">${_countryFlag(iso2) ? _countryFlag(iso2) + ' ' : ''}${_esc(name)}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
     ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}</div>${pinSection}`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}</div>${pinSection}${similarSection}`;
 }
 
 function buildCityTooltip(city) {
@@ -4489,6 +4743,80 @@ const COUNTRY_CENTERS = {
   BN:[4.5,114.7], TW:[23.7,121], HK:[22.4,114], MO:[22.2,113],
 };
 
+// ─── Discovery Features ───────────────────────────────────────────────────────
+
+function showToast(msg) {
+  var t = document.getElementById('_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(14,11,6,0.95);color:var(--sand);border:1px solid rgba(201,168,76,0.4);padding:8px 16px;border-radius:20px;font-size:11px;z-index:9999;pointer-events:none;transition:opacity 0.4s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){t.style.opacity='0';}, 3200);
+}
+
+function _surpriseMe() {
+  if (!_geoData || !_geoData.features) { alert('Map data not loaded yet.'); return; }
+  var geoLayers = Array.from(activeLayers).filter(function(k){ return GEOGRAPHIC_LAYERS.has(k); });
+  if (geoLayers.length === 0) geoLayers = ['safety','cost','weather'];
+  var prev = new Set(activeLayers);
+  var candidates = [];
+  _geoData.features.forEach(function(f) {
+    var iso2 = f.properties && (f.properties.ISO_A2 || f.properties.iso_a2 || f.properties.ISO2);
+    if (!iso2 || iso2 === '-99') return;
+    var totalScore = 0;
+    geoLayers.forEach(function(lk) {
+      activeLayers.clear(); activeLayers.add(lk);
+      var r = getCountryRating(iso2);
+      if (r != null) totalScore += r;
+    });
+    activeLayers.clear(); prev.forEach(function(k){activeLayers.add(k);});
+    if (totalScore <= geoLayers.length) candidates.push({iso2:iso2, score:totalScore});
+  });
+  if (candidates.length === 0) { alert('No great matches found — try fewer layers active.'); return; }
+  candidates.sort(function(a,b){return a.score-b.score;});
+  var top = candidates.slice(0, Math.max(5, Math.floor(candidates.length * 0.2)));
+  var pick = top[Math.floor(Math.random() * top.length)];
+  var center = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[pick.iso2]);
+  if (center) {
+    map.flyTo(center, 5, {duration:1.5});
+  }
+  var name = (typeof countryNames !== 'undefined' && countryNames[pick.iso2]) || pick.iso2;
+  var flag = typeof _countryFlag === 'function' ? _countryFlag(pick.iso2) : '';
+  setTimeout(function() {
+    showToast(flag + ' Surprise: ' + name + '! Score: ' + pick.score + '/' + geoLayers.length);
+  }, 800);
+}
+
+function _findSimilarCountries(iso2) {
+  var keys = ['safety','cost','weather','internet','english','healthcare','tapwater','airquality','scam'];
+  var prev = new Set(activeLayers);
+  function getProfile(code) {
+    return keys.map(function(lk) {
+      activeLayers.clear(); activeLayers.add(lk);
+      var r = getCountryRating(code);
+      activeLayers.clear(); prev.forEach(function(k){activeLayers.add(k);});
+      return r != null ? r : 1.5;
+    });
+  }
+  var target = getProfile(iso2);
+  var results = [];
+  if (!_geoData) return [];
+  _geoData.features.forEach(function(f) {
+    var code = f.properties && (f.properties.ISO_A2 || f.properties.iso_a2 || f.properties.ISO2);
+    if (!code || code === '-99' || code === iso2) return;
+    var prof = getProfile(code);
+    var dist = Math.sqrt(target.reduce(function(sum,v,i){return sum+Math.pow(v-prof[i],2);},0));
+    results.push({iso2:code, dist:dist});
+  });
+  results.sort(function(a,b){return a.dist-b.dist;});
+  return results.slice(0,5);
+}
+
 function initSearch() {
   const input  = document.getElementById('country-search');
   const list   = document.getElementById('search-results');
@@ -4525,6 +4853,18 @@ function initSearch() {
       list.style.display = 'none';
     }
   });
+
+  // ── Surprise Me button ──────────────────────────────────────────────────────
+  var wrap = input.closest('#search-wrap') || input.parentNode;
+  if (wrap && !document.getElementById('btn-surprise')) {
+    var surpriseBtn = document.createElement('button');
+    surpriseBtn.id = 'btn-surprise';
+    surpriseBtn.title = 'Surprise Me — find a great match!';
+    surpriseBtn.textContent = '🎲';
+    surpriseBtn.style.cssText = 'background:rgba(14,11,6,0.85);border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:3px 7px;font-size:13px;cursor:pointer;margin-left:4px;vertical-align:middle;line-height:1;flex-shrink:0';
+    surpriseBtn.addEventListener('click', _surpriseMe);
+    wrap.appendChild(surpriseBtn);
+  }
 }
 
 var _nominatimDebounce = null;
@@ -4860,7 +5200,10 @@ function renderComparePanel() {
     { key:'lgbtq',    label:'LGBTQ+',      labels: null },
     { key:'nomad',    label:'Nomad Score', labels: ['Excellent','Good','Fair','Poor'] },
     { key:'cannabis', label:'Cannabis',    labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.cannabis:null },
-    { key:'kids',     label:'Kid Friendly',labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.kids:null },
+    { key:'kids',     label:'Kid Friendly',  labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.kids:null },
+    { key:'healthcare',label:'Healthcare',    labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.healthcare:null },
+    { key:'english',  label:'English',        labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.english:null },
+    { key:'scam',     label:'Scam Risk',      labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.scam:null },
   ];
 
   var heads = '<th style="padding:5px 8px;font-size:7px;color:var(--dim);text-align:left;border-bottom:1px solid rgba(201,168,76,0.15)">Metric</th>' +
@@ -4884,7 +5227,8 @@ function renderComparePanel() {
     countries.map(function(iso2){ return '<td style="padding:4px 8px;text-align:center;font-size:9px;color:#4ade80">' + budgetCell(iso2) + '</td>'; }).join('') + '</tr>';
 
   panel.innerHTML = '<div style="padding:6px 10px 4px;font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12)">⚖ COUNTRY COMPARISON</div>' +
-    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' + dataRows + climateRow + budgetRow + '</tbody></table></div>';
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' + dataRows + climateRow + budgetRow + '</tbody></table></div>' +
+    '<div style="padding:6px 10px 8px;font-size:7.5px;color:var(--dim);border-top:1px solid rgba(201,168,76,0.08);margin-top:4px">💡 Pin countries on the map to compare them. Click a country name to fly there.</div>';
 }
 
 function closeComparePanel() {
@@ -5027,6 +5371,7 @@ function showBootError(msg) {
 
   loadState();        // restore month, layers, nationality from localStorage
   _loadTripPins();    // initialise _tripPins before initURLState may append URL pins
+  _loadWishlist();    // restore wishlist (bucket list) from localStorage
   initURLState();     // URL hash overrides month + layer if present
   initMap();
   buildMonthSelector();
