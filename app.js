@@ -152,9 +152,13 @@ const POI_LAYERS = {
     label: '✈ Airports',
     active: false, minZoom: 4, markers: [], bboxCache: {}, debounce: null,
   },
+  birdwatching: { label: '🐦 Bird Watching', active: false, minZoom: 7, markers: [], bboxCache: {}, debounce: null },
+  surfing:      { label: '🏄 Surf Spots',    active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null },
+  diving:       { label: '🤿 Dive & Snorkel', active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null },
+  attractions:  { label: '⭐ Attractions',   active: false, minZoom: 5, markers: [], bboxCache: {}, debounce: null },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -247,6 +251,53 @@ function _saveTripPins() {
   try {
     localStorage.setItem('na_trip_pins', JSON.stringify(_tripPins));
   } catch (_) { /* quota or private mode */ }
+}
+
+const _JOURNAL_KEY = 'na_journal';
+function _getJournal() {
+  try { return JSON.parse(localStorage.getItem(_JOURNAL_KEY) || '{}'); } catch(_) { return {}; }
+}
+function _saveJournal(j) {
+  try { localStorage.setItem(_JOURNAL_KEY, JSON.stringify(j)); } catch(_) {}
+}
+function _getNote(iso2) { return _getJournal()[iso2] || ''; }
+function _saveNote(iso2, text) {
+  const j = _getJournal();
+  const t = text.trim().slice(0, 2000);
+  if (t) j[iso2] = t; else delete j[iso2];
+  _saveJournal(j);
+}
+
+function _haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dL = (lat2 - lat1) * Math.PI / 180;
+  const dG = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dL/2) * Math.sin(dL/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dG/2) * Math.sin(dG/2);
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+function _buildRoutePanel() {
+  const el = document.getElementById('trip-route-panel');
+  if (!el) return;
+  if (_tripPins.length < 2) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  let totalKm = 0;
+  let html = '<div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:5px">ROUTE DISTANCES</div>';
+  for (let i = 1; i < _tripPins.length; i++) {
+    const prev = _tripPins[i - 1];
+    const cur = _tripPins[i];
+    const km = _haversineKm(prev.lat, prev.lng, cur.lat, cur.lng);
+    totalKm += km;
+    html += '<div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(201,168,76,0.06);font-size:8px">' +
+      '<span style="color:var(--crimson);font-weight:700;flex-shrink:0">' + i + '→' + (i+1) + '</span>' +
+      '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">' + _esc(prev.name) + ' → ' + _esc(cur.name) + '</span>' +
+      '<span style="color:var(--gold);font-weight:600;white-space:nowrap">' + km.toLocaleString() + ' km</span>' +
+      '</div>';
+  }
+  html += '<div style="margin-top:5px;text-align:right;font-size:9px;font-weight:700;color:var(--gold)">Total: ' + totalKm.toLocaleString() + ' km</div>';
+  el.innerHTML = html;
 }
 
 function _renderTripPinMarker(pin, index) {
@@ -391,6 +442,7 @@ function _updateTripPlannerPanel() {
     li.appendChild(delBtn);
     list.appendChild(li);
   });
+  _buildRoutePanel();
 }
 
 function initTripPlanner() {
@@ -415,6 +467,7 @@ function initTripPlanner() {
     </div>
     <div id="trip-hint">Click the map while "Add Pin" is active to place a waypoint. Drag pins to reposition.</div>
   `;
+  panel.insertAdjacentHTML('beforeend', '<div id="trip-route-panel" style="display:none;margin-top:8px;padding:6px 8px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.10);border-radius:6px"></div>');
   document.body.appendChild(panel);
 
   // Render existing pins
@@ -462,6 +515,24 @@ function initTripPlanner() {
     const btn = document.getElementById('btn-clear-pins');
     if (btn) { btn.textContent = 'Clear All'; btn.style.color = ''; }
   });
+
+  // Share button — copies current URL (with encoded pins) to clipboard
+  const shareBtn = document.createElement('button');
+  shareBtn.id = 'btn-share-trip';
+  shareBtn.className = 'trip-action-btn';
+  shareBtn.textContent = '📤 Share';
+  shareBtn.style.cssText = 'background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.25);color:#38bdf8;';
+  shareBtn.addEventListener('click', function() {
+    if (_tripPins.length === 0) { shareBtn.textContent = 'No pins!'; setTimeout(function(){shareBtn.textContent='📤 Share';},1500); return; }
+    updateURLState();
+    try {
+      navigator.clipboard.writeText(window.location.href).then(function() {
+        shareBtn.textContent = '✓ Copied!';
+        setTimeout(function(){ shareBtn.textContent = '📤 Share'; }, 2000);
+      });
+    } catch(_e) { shareBtn.textContent = '📤 Share'; }
+  });
+  document.getElementById('trip-panel-actions').appendChild(shareBtn);
 
   // Map click handler — place pin when _placingPin is active.
   // Guard: if a Leaflet feature (country polygon, POI marker) was clicked, that
@@ -666,7 +737,7 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 // Category groups — each becomes a dropdown button in the topbar row.
 const CAT_GROUPS = [
   { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster'] },
-  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis'] },
+  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis','nomad'] },
   // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
   // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
   { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
@@ -1039,9 +1110,9 @@ function buildTransportButtons() {
 
   // Group POI layers by theme
   const POI_GROUPS = [
-    { label: 'Nature',      keys: ['parks','camping','viewpoints','hotsprings'] },
-    { label: 'Adventure',   keys: ['climbing'] },
-    { label: 'Travel Info', keys: ['holidays','airports'] },
+    { label: 'Nature',      keys: ['parks','camping','viewpoints','hotsprings','birdwatching'] },
+    { label: 'Adventure',   keys: ['climbing','surfing','diving'] },
+    { label: 'Travel Info', keys: ['holidays','airports','attractions'] },
   ];
 
   POI_GROUPS.forEach(group => {
@@ -1127,6 +1198,10 @@ function getCountryRating(iso2) {
       if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[iso2] != null) return CD_CANNABIS[iso2];
       return null;
     }
+    if (lk === 'nomad') {
+      if (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[iso2] != null) return CD_NOMAD[iso2];
+      return null;
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -1165,6 +1240,10 @@ function getAdmin1Rating(subCode, parentIso2) {
     }
     if (lk === 'cannabis') {
       if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[parentIso2] != null) return CD_CANNABIS[parentIso2];
+      return null;
+    }
+    if (lk === 'nomad') {
+      if (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[parentIso2] != null) return CD_NOMAD[parentIso2];
       return null;
     }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
@@ -2176,6 +2255,14 @@ async function _fetchAndRenderPOI(key, forceRender) {
     ? `[out:json][timeout:25];(node["natural"="hot_spring"](${bbox});way["natural"="hot_spring"](${bbox});node["amenity"="spa"]["natural"="hot_spring"](${bbox});node["leisure"="bathing_place"]["natural"="hot_spring"](${bbox}););out center 150;`
     : key === 'airports'
     ? `[out:json][timeout:30];(node["aeroway"="aerodrome"](${bbox});way["aeroway"="aerodrome"](${bbox});relation["aeroway"="aerodrome"](${bbox}););out center 200;`
+    : key === 'birdwatching'
+    ? `[out:json][timeout:25];(node["leisure"="bird_hide"](${bbox});node["natural"="bird_sanctuary"](${bbox});node["amenity"="wildlife_park"](${bbox}););out center 200;`
+    : key === 'surfing'
+    ? `[out:json][timeout:25];(node["leisure"="surfing"](${bbox});node["sport"="surfing"](${bbox});way["sport"="surfing"](${bbox}););out center 150;`
+    : key === 'diving'
+    ? `[out:json][timeout:25];(node["sport"="scuba_diving"](${bbox});node["leisure"="diving"](${bbox});node["sport"="snorkeling"](${bbox}););out center 150;`
+    : key === 'attractions'
+    ? `[out:json][timeout:30];(node["tourism"="attraction"](${bbox});node["tourism"="museum"](${bbox});node["tourism"="monument"](${bbox});node["tourism"="gallery"](${bbox});node["historic"="monument"](${bbox}););out center 250;`
     : `[out:json][timeout:25];(node["boundary"="national_park"](${bbox});way["boundary"="national_park"](${bbox});relation["boundary"="national_park"](${bbox});node["leisure"="nature_reserve"](${bbox});way["leisure"="nature_reserve"](${bbox});relation["leisure"="nature_reserve"](${bbox});node["landuse"="forest"]["name"](${bbox});way["landuse"="forest"]["name"](${bbox}););out center 250;`;
 
   try {
@@ -2203,7 +2290,11 @@ function _renderPOICircles(key, elements) {
     parks:      { color: '#fff',     fillColor: '#15803d', weight: 0.8,  radius: 6,  fillOpacity: 0.88 },
     climbing:   { color: '#fff',     fillColor: '#f97316', weight: 1.0,  radius: 6,  fillOpacity: 0.90 },
     hotsprings: { color: '#fff',     fillColor: '#e11d48', weight: 1.0,  radius: 6,  fillOpacity: 0.90 },
-    airports:   { color: '#fff',     fillColor: '#0ea5e9', weight: 1.2,  radius: 7,  fillOpacity: 0.92 },
+    airports:     { color: '#fff',     fillColor: '#0ea5e9', weight: 1.2,  radius: 7,  fillOpacity: 0.92 },
+    birdwatching: { color:'#fff', fillColor:'#14b8a6', weight:1.0, radius:5, fillOpacity:0.90 },
+    surfing:      { color:'#fff', fillColor:'#0284c7', weight:1.0, radius:6, fillOpacity:0.90 },
+    diving:       { color:'#fff', fillColor:'#0891b2', weight:1.0, radius:6, fillOpacity:0.90 },
+    attractions:  { color:'#fff', fillColor:'#f59e0b', weight:1.2, radius:7, fillOpacity:0.92 },
   };
   const s = POI_STYLE[key] || POI_STYLE.parks;
   elements.forEach(el => {
@@ -2225,7 +2316,11 @@ function _renderPOICircles(key, elements) {
                  : key === 'viewpoints' ? _buildViewpointTooltip(t)
                  : key === 'climbing'   ? _buildClimbingTooltip(t)
                  : key === 'hotsprings' ? _buildHotspringTooltip(t)
-                 : key === 'airports'   ? _buildAirportTooltip(t)
+                 : key === 'airports'      ? _buildAirportTooltip(t)
+                 : key === 'birdwatching' ? _buildBirdwatchingTooltip(t)
+                 : key === 'surfing'      ? _buildSurfingTooltip(t)
+                 : key === 'diving'       ? _buildDivingTooltip(t)
+                 : key === 'attractions'  ? _buildAttractionsTooltip(t)
                  : _buildParkTooltip(t);
       toggleTooltip(ttKey, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -2382,6 +2477,28 @@ function _buildAirportTooltip(t) {
     <div class="ts" id="tt-sub">${t.iata ? '✈ ' + t.iata : ''} ${t['addr:city'] || ''}</div>
     <div class="tm" id="tt-period">AIRPORT — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this airport.</div>'}</div>`;
+}
+
+function _buildBirdwatchingTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
+  const fields = [row('Species',t['species']||t['bird_species']||''),row('Habitat',t['habitat']||t['natural']||''),row('Access',t.access||''),row('Fee',t.fee||''),row('Hours',t['opening_hours']||'')].join('');
+  return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Bird Watching Site')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">🐦 BIRD WATCHING — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data for this site.</div>'}</div>`;
+}
+function _buildSurfingTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
+  const fields = [row('Break Type',t['surfing:break_type']||t['wave_type']||''),row('Difficulty',t['surfing:difficulty']||t['difficulty']||''),row('Best Season',t['surfing:season']||t['opening_hours']||''),row('Access',t.access||''),row('Fee',t.fee||'')].join('');
+  return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Surf Spot')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">🏄 SURF SPOT — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
+}
+function _buildDivingTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
+  const fields = [row('Sport',t.sport||t.leisure||''),row('Depth',t['diving:depth']||t['max_depth']||''),row('Visibility',t['diving:visibility']||''),row('Cert.',t['diving:certification']||''),row('Access',t.access||''),row('Fee',t.fee||'')].join('');
+  return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Dive Site')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">🤿 DIVE / SNORKEL — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
+}
+function _buildAttractionsTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b">Open</a>` : '';
+  const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),row('Website',link(t.website||t['contact:website']))].join('');
+  return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Attraction')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">⭐ ATTRACTION — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
 }
 
 // ─── Rail Stop Markers ────────────────────────────────────────────────────────
@@ -3231,7 +3348,8 @@ function buildCountryTooltip(iso2) {
   const costSection = buildCostDetailsSection(iso2);
   const visaSection = buildVisaSection(iso2);
   const tzSection   = buildTimezoneSection(iso2);
-  const holSection  = buildHolidaysSection(iso2);
+  const holSection     = buildHolidaysSection(iso2);
+  const journalSection = buildJournalSection(iso2);
   const isPinned    = pinnedCountries.includes(iso2);
   const pinLabel    = isPinned ? '&#x2665; Pinned' : '&#x2661; Compare';
   const pinSection  = `<div style="padding:6px 14px 10px">
@@ -3267,7 +3385,7 @@ function buildCountryTooltip(iso2) {
     ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${visitedBtn}</div>${pinSection}`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}</div>${pinSection}`;
 }
 
 function buildCityTooltip(city) {
@@ -3525,7 +3643,11 @@ function updateLegend() {
     viewpoints: { color:'#a855f7', label:'Viewpoints / Photo Spots', note:'OSM tourism=viewpoint' },
     climbing:   { color:'#f97316', label:'Rock Climbing',            note:'OSM sport=climbing' },
     hotsprings: { color:'#e11d48', label:'Hot Springs',              note:'OSM natural=hot_spring' },
-    airports:   { color:'#0ea5e9', label:'Airports',                 note:'OSM aeroway=aerodrome' },
+    airports:     { color:'#0ea5e9', label:'Airports',                 note:'OSM aeroway=aerodrome' },
+    birdwatching: { color:'#14b8a6', label:'Bird Watching',  note:'OSM leisure=bird_hide' },
+    surfing:      { color:'#0284c7', label:'Surf Spots',      note:'OSM sport=surfing' },
+    diving:       { color:'#0891b2', label:'Dive & Snorkel',  note:'OSM sport=scuba_diving' },
+    attractions:  { color:'#f59e0b', label:'Attractions',     note:'OSM tourism=attraction · museum · monument' },
   };
   Object.entries(POI_LAYERS).forEach(([key, def]) => {
     if (!def.active) return;
@@ -4232,6 +4354,52 @@ function buildCostDetailsSection(iso2) {
     ${compactCard}${detailed}</div>`;
 }
 
+// ─── Travel Journal Section ───────────────────────────────────────────────────
+function buildJournalSection(iso2) {
+  const note = _getNote(iso2);
+  const noteHtml = note
+    ? '<div style="font-size:8.5px;color:var(--sand);line-height:1.5;white-space:pre-wrap;padding:5px 7px;background:rgba(201,168,76,0.04);border-radius:4px;border:1px solid rgba(201,168,76,0.10)">' + _esc(note) + '</div>'
+    : '<div style="font-size:7.5px;color:rgba(201,168,76,0.3);font-style:italic">No notes yet.</div>';
+  const btnLabel = note ? 'Edit' : '+ Add Note';
+  return '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
+    '<div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase">&#x270F; MY JOURNAL</div>' +
+    '<button id="jbtn-' + iso2 + '" onclick="_openJournalEditor(\'' + iso2 + '\')" style="font-size:7px;color:var(--gold);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:3px;padding:2px 7px;cursor:pointer;font-family:var(--fm)">' + btnLabel + '</button>' +
+    '</div>' +
+    '<div id="jnote-' + iso2 + '">' + noteHtml + '</div>' +
+    '<div id="jed-' + iso2 + '" style="display:none;margin-top:5px">' +
+    '<textarea id="jta-' + iso2 + '" maxlength="2000" placeholder="Your thoughts, tips, memories..." style="width:100%;min-height:70px;background:rgba(14,11,6,0.85);border:1px solid rgba(201,168,76,0.25);border-radius:5px;color:var(--sand);font-family:var(--fm);font-size:8.5px;padding:6px 8px;resize:vertical;outline:none;box-sizing:border-box">' + _esc(note) + '</textarea>' +
+    '<div style="display:flex;gap:5px;margin-top:4px">' +
+    '<button onclick="_saveJournalEntry(\'' + iso2 + '\')" style="flex:1;padding:4px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.12);border:1px solid var(--b2);border-radius:4px;color:var(--gold);cursor:pointer">Save</button>' +
+    '<button onclick="_closeJournalEditor(\'' + iso2 + '\')" style="padding:4px 8px;font-family:var(--fm);font-size:8px;background:none;border:1px solid rgba(201,168,76,0.15);border-radius:4px;color:var(--dim);cursor:pointer">Cancel</button>' +
+    '</div></div></div>';
+}
+function _openJournalEditor(iso2) {
+  const ed = document.getElementById('jed-' + iso2);
+  const btn = document.getElementById('jbtn-' + iso2);
+  if (ed) { ed.style.display = 'block'; var ta = document.getElementById('jta-' + iso2); if (ta) { ta.focus(); ta.selectionStart = ta.value.length; } }
+  if (btn) btn.style.display = 'none';
+}
+function _closeJournalEditor(iso2) {
+  var ed = document.getElementById('jed-' + iso2);
+  var btn = document.getElementById('jbtn-' + iso2);
+  if (ed) ed.style.display = 'none';
+  if (btn) btn.style.display = '';
+}
+function _saveJournalEntry(iso2) {
+  var ta = document.getElementById('jta-' + iso2);
+  if (!ta) return;
+  _saveNote(iso2, ta.value);
+  _closeJournalEditor(iso2);
+  var note = _getNote(iso2);
+  var noteEl = document.getElementById('jnote-' + iso2);
+  if (noteEl) noteEl.innerHTML = note
+    ? '<div style="font-size:8.5px;color:var(--sand);line-height:1.5;white-space:pre-wrap;padding:5px 7px;background:rgba(201,168,76,0.04);border-radius:4px;border:1px solid rgba(201,168,76,0.10)">' + _esc(note) + '</div>'
+    : '<div style="font-size:7.5px;color:rgba(201,168,76,0.3);font-style:italic">No notes yet.</div>';
+  var btn = document.getElementById('jbtn-' + iso2);
+  if (btn) btn.textContent = note ? 'Edit' : '+ Add Note';
+}
+
 
 // ─── URL Deep Linking ─────────────────────────────────────────────────────────
 function initURLState() {
@@ -4249,6 +4417,19 @@ function initURLState() {
     // The select element is populated later by initNationalitySelector();
     // it reads selectedNationality on init and sets sel.value accordingly.
   }
+  const pinsParam = params.get('pins');
+  if (pinsParam) {
+    try {
+      const pinsRaw = JSON.parse(decodeURIComponent(pinsParam));
+      if (Array.isArray(pinsRaw)) {
+        pinsRaw.forEach(function(p, i) {
+          if (Array.isArray(p) && typeof p[0] === 'number' && typeof p[1] === 'number') {
+            _tripPins.push({ id: 'tp_url' + i, lat: p[0], lng: p[1], name: (typeof p[2] === 'string' ? p[2] : 'Pin ' + (i+1)).slice(0,120) });
+          }
+        });
+      }
+    } catch(_e) {}
+  }
 }
 
 function updateURLState() {
@@ -4256,6 +4437,10 @@ function updateURLState() {
   let hash = 'month=' + activeMonth;
   if (lyr) hash += '&layer=' + lyr;
   if (selectedNationality) hash += '&nat=' + selectedNationality;
+  if (typeof _tripPins !== 'undefined' && _tripPins.length > 0) {
+    const encoded = _tripPins.map(function(p) { return [Math.round(p.lat*1000)/1000, Math.round(p.lng*1000)/1000, p.name.slice(0,40)]; });
+    hash += '&pins=' + encodeURIComponent(JSON.stringify(encoded));
+  }
   history.replaceState(null, '', '#' + hash);
 }
 
@@ -4316,7 +4501,7 @@ function initSearch() {
     const matches = Object.entries(COUNTRY_NAMES)
       .filter(([iso, name]) => name.toLowerCase().startsWith(q) || iso.toLowerCase() === q)
       .slice(0, 8);
-    if (!matches.length) { list.style.display = 'none'; return; }
+    if (!matches.length) { _searchNominatim(q, list); return; }
     matches.forEach(([iso, name]) => {
       const item = document.createElement('div');
       item.className = 'sr-item';
@@ -4340,6 +4525,38 @@ function initSearch() {
       list.style.display = 'none';
     }
   });
+}
+
+var _nominatimDebounce = null;
+function _searchNominatim(query, listEl) {
+  if (!listEl) return;
+  clearTimeout(_nominatimDebounce);
+  _nominatimDebounce = setTimeout(function() {
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=6&addressdetails=1&q=' + encodeURIComponent(query);
+    fetch(url, { headers: { 'Accept-Language': 'en', 'User-Agent': 'NomadicAlmanac/1.0' } })
+      .then(function(res) { return res.ok ? res.json() : []; })
+      .then(function(results) {
+        if (!results.length) { listEl.style.display = 'none'; return; }
+        listEl.innerHTML = '';
+        results.forEach(function(r) {
+          var item = document.createElement('div');
+          item.className = 'sr-item';
+          var parts = r.display_name.split(',');
+          var name = parts.slice(0, 2).join(',').trim();
+          item.textContent = '📍 ' + name;
+          item.style.cssText = 'color:rgba(232,213,163,0.75);';
+          item.addEventListener('click', function() {
+            listEl.style.display = 'none';
+            var inp = document.getElementById('country-search');
+            if (inp) inp.value = '';
+            if (map) map.flyTo([parseFloat(r.lat), parseFloat(r.lon)], 10, { duration: 1.2 });
+          });
+          listEl.appendChild(item);
+        });
+        listEl.style.display = 'block';
+      })
+      .catch(function() { listEl.style.display = 'none'; });
+  }, 450);
 }
 
 // ─── Best Destinations Panel ──────────────────────────────────────────────────
@@ -4599,80 +4816,75 @@ function togglePinCountry(iso2) {
 }
 
 function renderComparePanel() {
-  let panel = document.getElementById('compare-panel');
-  if (!panel) {
-    panel = document.createElement('div');
-    panel.id = 'compare-panel';
-    panel.innerHTML = `
-      <div id="compare-header">
-        <span id="compare-title">Compare (${pinnedCountries.length})</span>
-        <span id="compare-close-btn" onclick="closeComparePanel()" title="Close panel">&#x2715;</span>
-      </div>
-      <div id="compare-list"></div>`;
-    document.body.appendChild(panel);
-  }
-
-  const titleEl = panel.querySelector('#compare-title');
-  if (titleEl) titleEl.textContent = `Compare (${pinnedCountries.length})`;
-
-  const list = panel.querySelector('#compare-list');
-  if (!list) return;
-
-  if (pinnedCountries.length === 0) {
-    list.innerHTML = '<div id="compare-empty">Pin countries using the ♡ button in each country tooltip.<br><br>Up to 10 countries can be compared side by side.</div>';
-    panel.classList.remove('open');
+  var panel = document.getElementById('compare-panel');
+  if (!panel) return;
+  if (!pinnedCountries || pinnedCountries.length < 2) {
+    panel.style.display = 'none';
+    panel.innerHTML = '';
     return;
   }
+  panel.style.display = 'block';
+  var countries = pinnedCountries.slice(0, 3);
+  var RCOL = ['#43A047','#FDD835','#EF6C00','#C62828'];
 
-  panel.classList.add('open');
+  function ratingChip(iso2, layerKey, labels) {
+    var prev = new Set(activeLayers);
+    activeLayers.clear();
+    activeLayers.add(layerKey);
+    var r = getCountryRating(iso2);
+    activeLayers.clear();
+    prev.forEach(function(k){ activeLayers.add(k); });
+    if (r === null || r === undefined) return '<span style="color:rgba(255,255,255,0.2);font-size:8px">—</span>';
+    var idx = Math.min(3, Math.max(0, r));
+    var lbl = (labels && labels[idx]) ? labels[idx] : String(r);
+    return '<span style="background:' + RCOL[idx] + ';color:#fff;font-size:7px;padding:1px 5px;border-radius:3px;font-weight:700">' + _esc(lbl) + '</span>';
+  }
 
-  list.innerHTML = '';
-  pinnedCountries.forEach(iso2 => {
-    const name = (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[iso2]) ||
-                  countryNames[iso2] || iso2;
-    const item = document.createElement('div');
-    item.className = 'cp-item';
+  function tempCell(iso2) {
+    if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '—';
+    var t = CD_CLIMATE[iso2].temp[activeMonth];
+    return t != null ? t + '°C' : '—';
+  }
 
-    // Build score chips for active geographic layers
-    let scoreHtml = '';
-    const dataObj = (typeof CD !== 'undefined' && CD[iso2]) || null;
-    const geoKeys = [...activeLayers].filter(k => typeof GEOGRAPHIC_LAYERS !== 'undefined' && GEOGRAPHIC_LAYERS.has(k));
-    geoKeys.forEach(key => {
-      let v = null;
-      if (dataObj && dataObj[key]) {
-        v = typeof getRating === 'function' ? getRating(dataObj[key]) : null;
-      } else if (key === 'cost'     && typeof CD_COST     !== 'undefined') v = CD_COST[iso2]     ?? null;
-      else if (key === 'safety'   && typeof CD_SAFETY   !== 'undefined') v = CD_SAFETY[iso2]   ?? null;
-      else if (key === 'internet' && typeof CD_INTERNET !== 'undefined') v = CD_INTERNET[iso2] ?? null;
-      if (v === null) return;
-      const vc  = Math.min(3, Math.max(0, v));
-      const col = RC[vc];
-      const lbl = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) ||
-                  (typeof LAYERS !== 'undefined' && LAYERS[key] && LAYERS[key].levels) ||
-                  ['0','1','2','3'];
-      scoreHtml += `<span class="cp-score" style="color:${col};border-color:${col}22">${lbl[vc]}</span>`;
-    });
+  function budgetCell(iso2) {
+    if (typeof COST_DETAILS === 'undefined' || !COST_DETAILS[iso2]) return '—';
+    var d = COST_DETAILS[iso2];
+    return '$' + ((d.hostel||0) + (d.meal||0)*3 + (d.transport||0)) + '/day';
+  }
 
-    item.innerHTML = `
-      <div class="cp-name">
-        <span>${name}</span>
-        <span class="cp-remove" data-iso2="${iso2}" title="Remove">&#x2715;</span>
-      </div>
-      <div class="cp-scores">${scoreHtml || '<span class="cp-score">—</span>'}</div>`;
+  var ROWS = [
+    { key:'weather',  label:'Weather',     labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.weather:null },
+    { key:'safety',   label:'Safety',      labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.safety:null },
+    { key:'cost',     label:'Cost',        labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.cost:null },
+    { key:'internet', label:'Internet',    labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.internet:null },
+    { key:'lgbtq',    label:'LGBTQ+',      labels: null },
+    { key:'nomad',    label:'Nomad Score', labels: ['Excellent','Good','Fair','Poor'] },
+    { key:'cannabis', label:'Cannabis',    labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.cannabis:null },
+    { key:'kids',     label:'Kid Friendly',labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.kids:null },
+  ];
 
-    item.addEventListener('click', e => {
-      if (e.target.classList.contains('cp-remove')) {
-        togglePinCountry(e.target.dataset.iso2);
-        return;
-      }
-      const c = typeof COUNTRY_CENTERS !== 'undefined' ? COUNTRY_CENTERS[iso2] : null;
-      if (c && map) map.flyTo(c, 5, { duration: 1.2 });
-    });
-    item.addEventListener('mouseenter', () => highlightCountry(iso2));
-    item.addEventListener('mouseleave', () => unhighlightCountry(iso2));
+  var heads = '<th style="padding:5px 8px;font-size:7px;color:var(--dim);text-align:left;border-bottom:1px solid rgba(201,168,76,0.15)">Metric</th>' +
+    countries.map(function(iso2){
+      var flag = typeof getFlag==='function'?getFlag(iso2):'';
+      var name = (typeof countryNames!=='undefined'&&countryNames[iso2])||iso2;
+      return '<th style="padding:5px 8px;font-size:8px;font-weight:700;color:var(--sand);text-align:center;border-bottom:1px solid rgba(201,168,76,0.15)">' + (flag||'') + ' ' + _esc(name.length>12?iso2:name) + '<br><button onclick="togglePinCountry(\'' + iso2 + '\')" style="font-size:7px;color:var(--dim);background:none;border:none;cursor:pointer;margin-top:2px">✕ remove</button></th>';
+    }).join('');
 
-    list.appendChild(item);
-  });
+  var dataRows = ROWS.map(function(row){
+    var cells = countries.map(function(iso2){
+      return '<td style="padding:4px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04)">' + ratingChip(iso2, row.key, row.labels) + '</td>';
+    }).join('');
+    return '<tr><td style="padding:4px 8px;font-size:7.5px;color:var(--dim);border-bottom:1px solid rgba(255,255,255,0.04)">' + row.label + '</td>' + cells + '</tr>';
+  }).join('');
+
+  var climateRow = '<tr><td style="padding:4px 8px;font-size:7.5px;color:var(--dim)">Temp (' + ((typeof MONTHS_F!=='undefined'&&MONTHS_F[activeMonth])||'') + ')</td>' +
+    countries.map(function(iso2){ return '<td style="padding:4px 8px;text-align:center;font-size:9px;color:var(--sand)">' + tempCell(iso2) + '</td>'; }).join('') + '</tr>';
+
+  var budgetRow = '<tr><td style="padding:4px 8px;font-size:7.5px;color:var(--dim)">Daily Budget</td>' +
+    countries.map(function(iso2){ return '<td style="padding:4px 8px;text-align:center;font-size:9px;color:#4ade80">' + budgetCell(iso2) + '</td>'; }).join('') + '</tr>';
+
+  panel.innerHTML = '<div style="padding:6px 10px 4px;font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12)">⚖ COUNTRY COMPARISON</div>' +
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' + dataRows + climateRow + budgetRow + '</tbody></table></div>';
 }
 
 function closeComparePanel() {
@@ -4814,6 +5026,7 @@ function showBootError(msg) {
   if (typeof L === 'undefined') throw new Error('Leaflet did not load. Check network / ad-blocker.');
 
   loadState();        // restore month, layers, nationality from localStorage
+  _loadTripPins();    // initialise _tripPins before initURLState may append URL pins
   initURLState();     // URL hash overrides month + layer if present
   initMap();
   buildMonthSelector();
