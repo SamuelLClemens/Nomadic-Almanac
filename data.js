@@ -246,7 +246,69 @@ const SEASONAL_EVENTS = [
   { id:'rainy-vn', country:'VN', month:9, name:'North Vietnam Autumn', emoji:'🍂', desc:'Oct–Dec: best weather in Hanoi and Ha Long Bay. South best Nov-Apr.' },
   { id:'august-eu', country:'FR', month:7, name:'Summer Peak', emoji:'☀️', desc:'July-August: peak tourist season. Beaches packed. Paris quieter as locals leave.' },
   { id:'holi', country:'IN', month:2, name:'Holi', emoji:'🎨', desc:'Festival of Colors. March. Vibrant celebration across North India. Be prepared to get colorful.' },
+
+  // East & Southeast Asia
+  { id:'tet-vn',        country:'VN', month:0,  name:'Tết New Year',      emoji:'🧧', desc:'Vietnamese Lunar New Year. Jan/Feb. Cities empty as everyone returns home — domestic travel near impossible. Book early or avoid travel dates.' },
+  { id:'lantern-tw',    country:'TW', month:1,  name:'Lantern Festival',  emoji:'🏮', desc:'15th day of Lunar New Year. Massive sky lantern release in Pingxi. Crowds are intense but magical.' },
+  { id:'naadam-mn',     country:'MN', month:6,  name:'Naadam Festival',   emoji:'🏹', desc:'July 11-13. National festival of three games: wrestling, horse racing, archery. Best way to experience Mongolian culture. Book Ulaanbaatar hotels months ahead.' },
+  { id:'bun-pi-mai-la', country:'LA', month:3,  name:'Bun Pi Mai',        emoji:'💦', desc:'Lao New Year water festival (April 13-15). Luang Prabang is spectacular — water fights, processions, sand stupas.' },
+  { id:'whale-shark-ph',country:'PH', month:2,  name:'Whale Shark Season',emoji:'🦈', desc:'Feb–May best chance to swim with whale sharks in Oslob, Cebu and Donsol. Dry season also best for islands.' },
+  { id:'dry-my',        country:'MY', month:2,  name:'East Coast Dry Season',emoji:'🌴', desc:'Feb–Aug dry on Perhentian, Redang, Tioman islands. West coast (Langkawi) best Dec–Apr. East coast monsoon Nov–Jan — islands close.' },
+  { id:'water-festival-mm', country:'MM', month:3, name:'Thingyan Water Festival', emoji:'💦', desc:'Myanmar New Year water festival (Apr 13-16). Nationwide street celebrations. Travel heavily disrupted.' },
+  { id:'monsoon-lk',    country:'LK', month:4,  name:'SW Monsoon',        emoji:'🌧', desc:'May–Sep: heavy rain on west and south coasts (Galle, Colombo). East coast (Trincomalee, Arugam Bay) is dry and perfect Jun–Sep.' },
+
+  // South Asia
+  { id:'trekking-np',   country:'NP', month:9,  name:'Trekking Season',   emoji:'🏔', desc:'Oct–Nov: clear skies, golden light, crisp air. Best for Everest Base Camp and Annapurna. Spring (Mar–May) is second season. Monsoon (Jun–Sep) makes trails muddy and leechy.' },
+  { id:'whale-lk',      country:'LK', month:1,  name:'Blue Whale Season', emoji:'🐋', desc:'Jan–Apr off Mirissa: highest concentration of blue whales on Earth. Best Feb–Mar. Morning boat trips required.' },
+
+  // Middle East & Central Asia
+  { id:'ramadan-sa',    country:'SA', month:2,  name:'Ramadan',           emoji:'🌙', desc:'Dates shift annually with lunar calendar. Daytime food and drink prohibited in public. Night markets vibrant. Dramatic change to daily rhythms.' },
+  { id:'silk-road-uz',  country:'UZ', month:3,  name:'Spring Blossom',    emoji:'🌸', desc:'Apr–May: Silk Road cities (Samarkand, Bukhara) at peak beauty. Fruit trees in bloom, pleasant 20–25°C. Summer exceeds 40°C.' },
+  { id:'tulip-tr',      country:'TR', month:3,  name:'Tulip Festival',    emoji:'🌷', desc:'April in Istanbul: millions of tulips in bloom across parks and squares. Tulips originated in Ottoman Turkey — spectacular and free.' },
+  { id:'nevruz-uz',     country:'UZ', month:2,  name:'Navruz / New Year', emoji:'🎊', desc:'March 21. Central Asian New Year. Sumalak (wheat porridge), music, dancing across every city. Best cultural immersion.' },
+
+  // Africa
+  { id:'migration-tz',  country:'TZ', month:11, name:'Serengeti Migration',emoji:'🦓', desc:'Dec–Mar: calving season in southern Serengeti. Predators follow — best wildlife drama. Jul–Sep: river crossings at Mara River.' },
+  { id:'whale-za',      country:'ZA', month:6,  name:'Whale Season',      emoji:'🐳', desc:'Jun–Nov: southern right whales in Hermanus (Walker Bay). World-class land-based whale watching. Peak Aug–Sep.' },
+  { id:'gorilla-rw',    country:'RW', month:5,  name:'Gorilla Trekking',  emoji:'🦍', desc:'Jun–Sep and Dec–Feb dry seasons are best for gorilla permits in Volcanoes NP. Permits ($1,500 per person) must be booked months ahead.' },
+  { id:'atlas-ma',      country:'MA', month:9,  name:'Atlas Trekking',    emoji:'⛰', desc:'Sep–Nov best for trekking High Atlas. Marrakech and desert tours ideal Oct–Apr. Summer desert exceeds 45°C.' },
+  { id:'harmattan-gh',  country:'GH', month:11, name:'Harmattan Season',  emoji:'💨', desc:'Nov–Mar: dry dusty Harmattan wind from the Sahara. Visibility poor, skin dries. Peak dry season otherwise good for travel.' },
+
+  // Europe
+  { id:'northern-lights-is', country:'IS', month:9, name:'Northern Lights',emoji:'🌌', desc:'Sep–Mar: Aurora Borealis visible. Best away from Reykjavik. App alerts (Vedur) recommended. Clear skies required.' },
+  { id:'midnight-sun-is', country:'IS', month:5, name:'Midnight Sun',     emoji:'☀️', desc:'May–Jul: nearly 24-hour daylight. Puffins arrive May–Aug. Ideal for hiking, waterfalls, and road trips.' },
+  { id:'northern-lights-fi', country:'FI', month:1, name:'Northern Lights',emoji:'🌌', desc:'Feb–Mar prime Aurora season in Lapland. Santa Claus Village, reindeer safaris, ice fishing. Dec–Jan coldest but festive.' },
+  { id:'midsommar-se',  country:'SE', month:5,  name:'Midsommar',         emoji:'🌻', desc:'Late June: biggest Swedish celebration. Maypoles, herring, schnapps, dancing. Swedes travel en masse — ferries to islands packed.' },
+  { id:'white-nights-ru', country:'RU', month:5, name:'White Nights',     emoji:'🌕', desc:'Jun–Jul: St Petersburg never gets fully dark. Mariinsky Ballet, canal cruises, rooftop parties. Most magical time to visit.' },
+  { id:'venice-carnival', country:'IT', month:1, name:'Venice Carnival',  emoji:'🎭', desc:'Feb: elaborate masks, costumes, and balls. Extremely crowded. Prices triple. Book 6 months ahead for best masked balls.' },
+  { id:'bull-run-es',   country:'ES', month:6,  name:'San Fermín / Bull Run', emoji:'🐂', desc:'July 6-14 in Pamplona. Running of the Bulls draws global crowds. Rioja wine region also excellent Sep–Oct harvest.' },
+  { id:'harvest-pt',    country:'PT', month:8,  name:'Wine Harvest',      emoji:'🍇', desc:'Sep–Oct: Douro Valley grape harvest. Quinta estate visits, treading grapes, port wine tastings. Best season overall.' },
+  { id:'xmas-cz',       country:'CZ', month:11, name:'Christmas Markets', emoji:'🎄', desc:'Nov–Dec: Prague\'s Old Town Square and Wenceslas Square transform. Trdelník, mulled wine, hand-crafted gifts. Europe\'s most atmospheric.' },
+  { id:'xmas-pl',       country:'PL', month:11, name:'Christmas Markets', emoji:'🎄', desc:'Dec: Kraków and Warsaw markets. Pierogi, gingerbread, hand-painted ornaments. Cold but beautiful under snow.' },
+  { id:'glastonbury-gb',country:'GB', month:5,  name:'Glastonbury',       emoji:'🎸', desc:'Late June: world\'s largest greenfield music festival. Somerset, UK. Tickets sell out in minutes — set an alert.' },
+  { id:'oktoberfest-at',country:'AT', month:11, name:'Ski Season Opens',  emoji:'⛷', desc:'Dec–Apr: Austrian Alps (Innsbruck, Kitzbühel, St Anton) world-class skiing. Christmas markets in Vienna Dec.' },
+
+  // Americas
+  { id:'day-of-dead-mx',country:'MX', month:9,  name:'Día de los Muertos',emoji:'💀', desc:'Nov 1-2: stunning cemetery vigils especially in Oaxaca and Pátzcuaro. UNESCO Intangible Cultural Heritage. Book accommodation months ahead.' },
+  { id:'monarch-mx',    country:'MX', month:10, name:'Monarch Butterflies',emoji:'🦋', desc:'Nov–Mar: 100 million monarch butterflies overwinter in Michoacán. Biosphere Reserve, 2 hours from Mexico City. Surreal experience.' },
+  { id:'fall-foliage-us', country:'US', month:8, name:'Fall Foliage',     emoji:'🍂', desc:'Sep–Oct: New England, Appalachians, Rocky Mountains turn gold and red. Peak varies by latitude — check foliage reports.' },
+  { id:'maple-ca',      country:'CA', month:2,  name:'Maple Syrup Season',emoji:'🍁', desc:'Mar–Apr in Quebec and Ontario. Sugar shacks open for tastings. Cross-country skiing still good. Best shoulder season.' },
+  { id:'northern-lights-ca', country:'CA', month:1, name:'Northern Lights', emoji:'🌌', desc:'Feb–Mar in Yukon and Northwest Territories. Whitehorse best base. Clear cold nights essential.' },
+  { id:'carnival-co',   country:'CO', month:1,  name:'Carnaval de Barranquilla', emoji:'🎭', desc:'Feb: second largest carnival in the world after Rio. Costumes, cumbia, vallenato. Less crowded and cheaper than Rio.' },
+  { id:'flower-co',     country:'CO', month:7,  name:'Flower Festival',   emoji:'🌺', desc:'Early August in Medellín. Silleteros parade with elaborate flower arrangements. City transformed. Spectacular photography.' },
+  { id:'inti-raymi-pe', country:'PE', month:5,  name:'Inti Raymi',        emoji:'🌞', desc:'June 24 in Cusco: Inca festival of the sun. Massive ceremony at Sacsayhuamán. Timed to winter solstice — Inca New Year.' },
+  { id:'carnival-oruro-bo', country:'BO', month:1, name:'Carnaval de Oruro', emoji:'🎭', desc:'Feb/Mar: UNESCO Intangible Heritage. Elaborate devil dances (diablada), 18,000 dancers, 10,000+ musicians. 3,700m altitude.' },
+  { id:'patagonia-cl',  country:'CL', month:11, name:'Patagonia Season',  emoji:'🏔', desc:'Nov–Mar: Torres del Paine open season. Winds strong Nov–Dec; Jan–Feb best balance of weather and daylight.' },
+  { id:'galapagos-ec',  country:'EC', month:5,  name:'Dry Season',        emoji:'🐢', desc:'Jun–Nov: cooler, clearer water. Penguin and sea lion breeding. Dec–May warmer water, lush vegetation, baby sea turtles hatching.' },
+  { id:'reef-au',       country:'AU', month:5,  name:'Great Barrier Reef Season', emoji:'🐠', desc:'Jun–Oct: best visibility, no jellyfish, cooler temps (22–26°C). Cyclone risk Nov–Apr on north Queensland coast.' },
+  { id:'outback-au',    country:'AU', month:4,  name:'Outback Season',    emoji:'🦘', desc:'Apr–Sep: Uluru, Alice Springs, Kakadu best in dry season. Summer (Dec–Feb) can reach 50°C in outback. Wildflower season Aug–Sep WA.' },
+  { id:'turtle-cr',     country:'CR', month:6,  name:'Turtle Nesting',    emoji:'🐢', desc:'Jul–Oct: leatherback and green turtles nest on Caribbean and Pacific beaches. Tortuguero (Caribbean) most accessible.' },
+  { id:'reggae-jm',     country:'JM', month:7,  name:'Reggae Sumfest',    emoji:'🎵', desc:'July in Montego Bay. Jamaica\'s biggest music festival. International and local reggae, dancehall, soca.' },
+
+  // Oceania / Pacific
+  { id:'humpback-tonga', country:'TO', month:6, name:'Whale Season',      emoji:'🐳', desc:'Jul–Oct: humpback whales come to warm Tonga waters to breed. Swim with whales (legal only in Tonga). Book permits months ahead.' },
 ];
+
 
 // ── Kids-friendly rating per country (0=excellent, 1=good, 2=fair, 3=poor) ──
 // Factors: playgrounds, family attractions, child healthcare, safety for families
