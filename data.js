@@ -141,6 +141,7 @@ const LAYER_LABELS = {
   femalesafety: ['Very Safe for Solo Women','Safe for Solo Women','Caution Advised','High Caution'],
   nightlife:    ['World-class Nightlife','Good Scene','Moderate Scene','Restricted'],
   scam:         ['Minimal Scam Risk','Low Risk','Moderate Risk','High Scam Risk'],
+  malaria:      ['No Malaria Risk','Low Risk Area','Moderate Risk','High Risk Zone'],
 };
 // ISO 4217 currency codes per country
 const CURRENCY = {
@@ -480,6 +481,9 @@ const CD_NIGHTLIFE = {DE:0,ES:0,CO:0,AR:0,TH:0,PT:0,NL:0,GB:0,US:0,AU:0,JP:0,CZ:
 // ── Scam Risk Index (tourist-facing | 0=Minimal → 3=High Risk) ──────────────
 const CD_SCAM = {JP:0,SG:0,IS:0,NO:0,FI:0,DK:0,NZ:0,AU:0,CH:0,AT:0,LU:0,DE:1,SE:1,NL:1,BE:1,GB:1,IE:1,FR:1,CA:1,US:1,KR:1,TW:1,CZ:1,SK:1,EE:1,LV:1,LT:1,PT:1,SI:1,ES:2,IT:2,GR:2,TR:2,RU:2,MX:2,BR:2,AR:2,CO:2,PL:2,HU:2,RO:2,BG:2,RS:2,HR:2,CY:2,TH:2,VN:2,MY:2,ID:2,PH:2,ZA:2,MA:2,TN:2,JO:2,IL:2,AE:2,GE:2,AM:2,UA:2,CN:2,KH:2,ME:2,BA:2,LB:2,EG:3,IN:3,ET:3,NG:3,KE:3,TZ:3,MM:3,BD:3,NP:3,PK:3,LK:3,CM:3,SN:3,GH:3,PE:3,EC:3,BO:3,GT:3,HN:3,MG:3};
 
+// ── Malaria / Mosquito Risk (WHO 2023 | 0=No risk → 3=High risk) ─────────────
+const CD_MALARIA = {US:0,CA:0,GB:0,DE:0,FR:0,IT:0,ES:0,PT:0,NL:0,BE:0,LU:0,CH:0,AT:0,SE:0,NO:0,DK:0,FI:0,IS:0,IE:0,MT:0,CY:0,GR:0,PL:0,CZ:0,SK:0,HU:0,RO:0,BG:0,HR:0,SI:0,EE:0,LV:0,LT:0,RS:0,ME:0,MK:0,AL:0,BA:0,XK:0,JP:0,KR:0,TW:0,SG:0,NZ:0,AU:0,IL:0,AE:0,QA:0,KW:0,BH:0,SA:0,JO:0,LB:0,CL:0,AR:0,UY:0,GE:0,AM:0,AZ:0,UA:0,RU:0,MX:1,GT:1,HN:1,SV:1,NI:1,CR:1,PA:1,DO:1,JM:1,TT:1,CU:1,MA:1,TN:1,LY:1,EG:1,DZ:1,TR:1,IR:1,TH:1,VN:1,MY:1,ID:1,PH:1,KH:1,LA:1,MM:1,ZA:1,NA:1,BW:1,ZW:1,IN:2,BD:2,NP:2,LK:2,PK:2,AF:2,ET:2,KE:2,TZ:2,UG:2,RW:2,SN:2,GH:2,CI:2,CM:2,MZ:2,ZM:2,MG:2,AO:2,BR:2,CO:2,PE:2,EC:2,BO:2,VE:2,GY:2,NG:3,CD:3,ML:3,BF:3,NE:3,TD:3,CF:3,SS:3,SD:3,SO:3,DJ:3,PG:3,SB:3,VU:3,LR:3,SL:3,GN:3,GW:3,MR:3,GM:3};
+
 // CD_TIMEZONE: ISO-2 → integer UTC offset (capital / dominant zone; half-hour
 // offsets rounded to nearest integer; multi-timezone countries use the most-
 // populated zone, e.g. US→Eastern, RU→Moscow, AU→AEST, CN→Beijing).
@@ -583,6 +587,31 @@ const COUNTRY_HOLIDAYS = {
   CL:{ 0:['New Year\'s Day'],1:['Good Friday','Easter','Labour Day (May 21)'],2:[],3:[],4:['Labour Day (May 21)','Navy Day (May 21)'],5:['Corpus Christi (varies)'],6:['Our Lady of Mount Carmel (Jul 16)'],7:['Assumption (Aug 15)'],8:['Independence Day (Sep 18)','Army Day (Sep 19)'],9:['Columbus Day (Oct 12)'],10:['All Saints Day (Nov 1)','Evangelical Day (Oct 31)'],11:['Immaculate Conception (Dec 8)','Christmas (Dec 25)'] },
   EC:{ 0:['New Year\'s Day'],1:['Carnival (Feb/Mar)'],2:['Good Friday','Easter'],3:[],4:['Labour Day (May 1)','Battle of Pichincha (May 24)'],5:['Simón Bolívar Birthday (Jul 24)'],6:['Independence Day (Aug 10)'],7:[],8:['Independence of Guayaquil (Oct 9)','Columbus Day (Oct 12)'],9:[],10:['All Saints Day (Nov 1-3)','Independence of Cuenca (Nov 3)'],11:['Christmas (Dec 25)'] },
   CU:{ 0:['Liberation Day (Jan 1-2)'],1:['Victory Day (Jan 8)'],2:[],3:[],4:['Labour Day (May 1)'],5:[],6:[],7:['National Rebellion Day (Jul 26)'],8:[],9:['Independence Day (Oct 10)'],10:[],11:['Christmas (Dec 25)'] },
+  AT:{ 0:['New Year','Epiphany (Jan 6)'],1:[],2:[],3:['Easter Mon'],4:['Labour Day','Ascension'],5:['Whit Mon','Corpus Christi'],6:[],7:['Assumption (Aug 15)'],8:[],9:['National Day (Oct 26)'],10:['All Saints (Nov 1)'],11:['Immaculate Conception (Dec 8)','Christmas','St Stephen (Dec 26)'] },
+  BE:{ 0:['New Year'],1:[],2:[],3:['Easter Mon'],4:['Labour Day','Ascension','Armistice 1918 (May 8)'],5:['Whit Mon'],6:['National Day (Jul 21)'],7:['Assumption'],8:[],9:[],10:['All Saints','Armistice (Nov 11)'],11:['Christmas'] },
+  CH:{ 0:['New Year','Berchtolds Day'],1:[],2:[],3:['Good Fri','Easter Mon'],4:['Labour Day','Ascension'],5:['Whit Mon'],6:[],7:['Swiss National Day (Aug 1)'],8:[],9:[],10:['All Saints (some cantons)'],11:['Immaculate Conception (Dec 8)','Christmas'] },
+  DK:{ 0:['New Year'],1:[],2:[],3:['Maundy Thu','Good Fri','Easter Mon'],4:['Ascension','Great Prayer Day (some areas)'],5:['Whit Mon'],6:[],7:[],8:[],9:[],10:[],11:['Christmas Eve (Dec 24)','Christmas','Boxing Day'] },
+  FI:{ 0:['New Year','Epiphany (Jan 6)'],1:[],2:[],3:['Good Fri','Easter Mon'],4:['Labour Day'],5:['Ascension','Midsummer Eve & Day (Jun)'],6:[],7:[],8:[],9:[],11:['Independence Day (Dec 6)','Christmas Eve','Christmas','St Stephen'] },
+  IE:{ 0:['New Year'],1:['St Brigid’s Day (Feb 1)'],2:['St Patrick’s Day (Mar 17)'],3:['Easter Mon'],4:['May Bank Holiday'],5:['June Bank Holiday'],6:['August Bank Holiday'],7:[],8:[],9:['October Bank Holiday'],10:[],11:['Christmas','St Stephen’s Day (Dec 26)'] },
+  IL:{ 0:['New Year'],2:[],3:['Passover (Apr, varies)','Holocaust Remembrance Day','Memorial Day','Independence Day (Apr/May)'],4:['Lag B’Omer','Jerusalem Day'],5:['Shavuot'],6:[],7:[],8:['Rosh Hashanah (Sep, varies)','Yom Kippur','Sukkot'],9:['Simchat Torah'],10:[],11:['Hanukkah (varies)'] },
+  IS:{ 0:['New Year'],3:['Maundy Thu','Good Fri','Easter Mon','First Day of Summer'],4:['Labour Day','Ascension'],5:['Whit Mon'],6:['National Day (Jun 17)'],7:['Bank Holiday'],8:[],9:[],10:[],11:['Christmas Eve','Christmas','Boxing Day','New Year’s Eve'] },
+  LB:{ 0:['New Year'],1:['St Maroun’s Day (Feb 9)'],2:['St Joseph’s Day'],3:['Good Fri (Cath)','Easter (Orth)'],4:['Labour Day','Liberation Day (May 25)'],5:['Resistance Day'],6:[],7:['Assumption'],8:[],9:[],10:['All Saints'],11:['Independence Day (Nov 22)','Christmas (Dec 25)'] },
+  MT:{ 0:['New Year'],1:['St Paul’s Shipwreck (Feb 10)'],2:['St Joseph’s Day (Mar 19)'],3:['Good Fri','Freedom Day (Mar 31)'],4:['Workers Day'],5:['Sette Giugno (Jun 7)','St Peter & Paul (Jun 29)'],6:[],7:['Assumption','Victory Day (Sep 8)'],8:['Independence Day (Sep 21)'],9:[],10:['All Saints','Immaculate Conception (Dec 8)'],11:['Republic Day (Dec 13)','Christmas'] },
+  NO:{ 0:['New Year'],1:[],2:[],3:['Maundy Thu','Good Fri','Easter Mon'],4:['Labour Day (May 1)','Constitution Day (May 17)','Ascension'],5:['Whit Mon'],6:[],7:[],8:[],9:[],10:[],11:['Christmas Eve','Christmas','Boxing Day'] },
+  NL:{ 0:['New Year'],1:[],2:[],3:['Good Fri','Easter Mon'],4:['King’s Day (Apr 27)','Liberation Day (May 5)','Ascension'],5:['Whit Mon'],6:[],7:[],8:[],9:[],10:[],11:['Christmas (Dec 25-26)'] },
+  RO:{ 0:['New Year (Jan 1-2)','Unification Day (Jan 24)'],1:[],2:[],3:['Good Fri (Orth)','Easter Mon (Orth)'],4:['Labour Day','Children’s Day (Jun 1)'],5:['Whit Mon (Orth)'],6:[],7:['Assumption (Aug 15)'],8:[],9:['St Andrew’s Day (Nov 30)'],10:[],11:['National Day (Dec 1)','Christmas (Dec 25-26)'] },
+  RS:{ 0:['New Year (Jan 1-2)','Orthodox Christmas (Jan 7-8)'],1:['Statehood Day (Feb 15-16)'],2:[],3:['Orthodox Easter (varies)'],4:['Labour Day (May 1-2)'],5:[],6:[],7:[],8:[],9:[],10:['Armistice Day (Nov 11)'],11:[] },
+  SE:{ 0:['New Year','Epiphany (Jan 6)'],1:[],2:[],3:['Good Fri','Easter Mon'],4:['Labour Day','Ascension'],5:['National Day (Jun 6)','Whit Mon','Midsummer (Jun)'],6:[],7:[],8:[],10:['All Saints (Oct/Nov)'],11:['Christmas Eve','Christmas','Boxing Day'] },
+  UA:{ 0:['New Year (Jan 1)','Orthodox Christmas (Jan 7)'],1:[],2:['International Women’s Day (Mar 8)'],3:['Orthodox Easter (varies)'],4:['Labour Day (May 1)','Victory Day (May 9)'],5:[],6:['Constitution Day (Jun 28)'],7:['Independence Day (Aug 24)'],8:['Day of Defenders (Oct 14)'],9:[],10:[],11:['Christmas (Dec 25)'] },
+  SA:{ 0:[],1:['Founding Day (Feb 22)'],2:[],3:['Eid Al Fitr (varies)','Ramadan begins'],4:[],5:['Eid Al Adha (varies)'],6:[],7:[],8:['National Day (Sep 23)'],9:[],10:[],11:[] },
+  JO:{ 0:['New Year'],1:[],2:['Arab League Day (Mar 22)'],3:['Easter (varies)','Eid Al Fitr (varies)'],4:['Labour Day','Independence Day (May 25)'],5:['Eid Al Adha (varies)'],6:['Islamic New Year (varies)'],7:['Great Arab Revolt (Aug 11)'],8:[],9:[],10:[],11:[] },
+  NG:{ 0:['New Year'],2:[],3:['Good Fri','Easter Mon','Eid Al Fitr (varies)'],4:['Workers Day','Children’s Day (May 27)'],5:['Eid Al Adha (varies)'],6:[],7:[],8:[],9:['Independence Day (Oct 1)'],10:[],11:['Christmas','Boxing Day'] },
+  ET:{ 0:['Ethiopian Christmas (Jan 7)','Epiphany (Jan 19)'],1:['Victory of Adwa (Mar 2)'],2:['Ethiopian Easter (varies)'],3:['International Labour Day (May 1)','Patriots Victory Day (May 5)'],4:['Downfall of Derg (May 28)'],5:['Eid Al Adha (varies)'],6:[],7:['Ethiopian New Year (Sep 11)','Finding of the True Cross (Sep 27)'],8:[],9:['Eid Al Mawlid (varies)'],10:[],11:[] },
+  PK:{ 0:['New Year'],1:[],2:['Pakistan Day (Mar 23)'],3:['Easter (varies, minority)','Eid Al Fitr (3 days, varies)'],4:['Labour Day'],5:['Eid Al Adha (varies)'],6:['Independence Day (Aug 14)'],7:[],8:['Defence Day (Sep 6)','Birthday of Quaid (Sep 11)'],9:[],10:['Iqbal Day (Nov 9)'],11:['Birthday of Quaid-e-Azam (Dec 25)','Christmas (Dec 25)'] },
+  BD:{ 0:['New Year'],1:['Ekushey February (Feb 21)'],2:['Pohela Boishakh (Apr 14, Bengali New Year)','Eid Al Fitr (varies)'],3:[],4:['May Day'],5:['Eid Al Adha (varies)'],6:['National Mourning Day (Aug 15)'],7:['National Revolution Day (Nov 7)'],8:[],9:[],10:[],11:['Victory Day (Dec 16)','Christmas (Dec 25)'] },
+  LK:{ 0:['New Year'],1:['National Day (Feb 4)'],2:['Maha Sivarathri (varies)'],3:['Avurudhu (Apr 14)','Good Fri','Easter'],4:['Vesak Full Moon (varies)','May Day'],5:['Poson Poya'],6:['Esala Poya'],7:['National Heroes Day (Aug 15)'],8:[],9:[],10:['Deepavali (varies)'],11:['Christmas'] },
+  NP:{ 0:['New Year (Bikram Sambat, mid-Apr)'],1:['Maha Shivaratri (varies)','National Democracy Day (Feb 19)'],2:['Ghode Jatra (Kathmandu)','Holi'],3:['Eid (varies)','Buddha Jayanti (May, varies)'],4:['Republic Day (May 29)'],5:[],6:[],7:['Teej (Aug/Sep)','Janai Purnima'],8:['Indra Jatra (Sep)','Constitution Day (Sep 20)'],9:['Dashain (Oct)','Tihar/Diwali (Oct/Nov)'],10:[],11:['Christmas (mainly tourist)'] },
+  MM:{ 0:['Independence Day (Jan 4)'],1:['Union Day (Feb 12)'],2:['Armed Forces Day (Mar 27)'],3:['Thingyan Water Festival (Apr)','Burmese New Year'],4:['May Day','Full Moon Kason (May, Buddhist)'],5:[],6:[],7:['Waso/Buddhist Lent begins'],8:[],9:['Thadingyut Festival (Oct)'],10:['Tazaungdaing Festival (Nov)'],11:['National Day (Nov 27)','Christmas'] },
 };
 
 // Budget traveler cost estimates (approximate USD) for cost-of-living tooltip
@@ -863,6 +892,7 @@ const LAYERS = {
   femalesafety: { name:'Female Solo Safety',  emoji:'👩', color:'#f472b6', levels:['Very Safe','Safe','Caution','High Caution'] },
   nightlife:    { name:'Nightlife & Social',  emoji:'🎉', color:'#a78bfa', levels:['World-class','Good','Moderate','Restricted'] },
   scam:         { name:'Scam Risk',           emoji:'⚠', color:'#fb923c', levels:['Minimal','Low','Moderate','High Risk'] },
+  malaria:      { name:'Malaria & Mosquito Risk', emoji:'🦟', color:'#a3e635', levels:['No Risk','Low Risk','Moderate','High Risk'] },
 };
 
 const DESCS = {
@@ -1009,6 +1039,12 @@ const DESCS = {
     "Occasional petty scams near tourist sites. Standard vigilance is sufficient.",
     "Tourist scams are common — research typical local schemes (taxi, currency, tours) beforehand.",
     "High risk of scams targeting tourists. Stay alert; use only vetted operators and transport."
+  ],
+  malaria: [
+    "No malaria transmission. No prophylaxis required for most travellers.",
+    "Sporadic low-level transmission in some rural areas. Consult a travel doctor.",
+    "Moderate malaria risk, especially rural and jungle areas. Prophylaxis recommended.",
+    "High P. falciparum malaria risk. Prophylaxis is essential. Avoid stagnant water. Use nets."
   ]
 };
 
@@ -45250,3 +45286,83 @@ const CD_A2 = {
   '96644757B99662254658575': { weather: s12(1,1,0,0,0,0,1,1,0,0,1,1) },
   '96644757B99920267922653': { weather: s12(2,2,2,1,0,0,1,1,0,1,2,2) },
 };
+
+// ── NYC NYPD Precinct Crime Index (crimeIdx: 0=Low → 3=High) ──────────────────
+const NYPD_PRECINCTS = [
+  {p:1,  b:"Manhattan",     lat:40.7134,lng:-74.0107,ci:1},
+  {p:5,  b:"Manhattan",     lat:40.7155,lng:-73.9981,ci:2},
+  {p:6,  b:"Manhattan",     lat:40.7328,lng:-74.0026,ci:1},
+  {p:7,  b:"Manhattan",     lat:40.7152,lng:-73.9837,ci:2},
+  {p:9,  b:"Manhattan",     lat:40.7261,lng:-73.9876,ci:2},
+  {p:10, b:"Manhattan",     lat:40.7503,lng:-74.0021,ci:2},
+  {p:13, b:"Manhattan",     lat:40.7399,lng:-73.9879,ci:2},
+  {p:14, b:"Manhattan",     lat:40.7561,lng:-73.9914,ci:2},
+  {p:17, b:"Manhattan",     lat:40.7644,lng:-73.9726,ci:1},
+  {p:18, b:"Manhattan",     lat:40.7784,lng:-73.9824,ci:2},
+  {p:19, b:"Manhattan",     lat:40.7752,lng:-73.9548,ci:1},
+  {p:20, b:"Manhattan",     lat:40.7884,lng:-73.9726,ci:1},
+  {p:23, b:"Manhattan",     lat:40.7928,lng:-73.9439,ci:2},
+  {p:24, b:"Manhattan",     lat:40.8055,lng:-73.9599,ci:1},
+  {p:25, b:"Manhattan",     lat:40.8013,lng:-73.9367,ci:3},
+  {p:26, b:"Manhattan",     lat:40.8128,lng:-73.9535,ci:2},
+  {p:28, b:"Manhattan",     lat:40.8234,lng:-73.9437,ci:3},
+  {p:30, b:"Manhattan",     lat:40.8348,lng:-73.9388,ci:3},
+  {p:32, b:"Manhattan",     lat:40.8162,lng:-73.9515,ci:3},
+  {p:33, b:"Manhattan",     lat:40.8319,lng:-73.9346,ci:3},
+  {p:34, b:"Manhattan",     lat:40.8514,lng:-73.9345,ci:3},
+  {p:40, b:"Bronx",         lat:40.8148,lng:-73.9274,ci:3},
+  {p:41, b:"Bronx",         lat:40.8248,lng:-73.9052,ci:3},
+  {p:42, b:"Bronx",         lat:40.8387,lng:-73.8989,ci:3},
+  {p:43, b:"Bronx",         lat:40.8462,lng:-73.8926,ci:3},
+  {p:44, b:"Bronx",         lat:40.8536,lng:-73.9064,ci:3},
+  {p:45, b:"Bronx",         lat:40.8773,lng:-73.8643,ci:2},
+  {p:46, b:"Bronx",         lat:40.8625,lng:-73.9131,ci:3},
+  {p:47, b:"Bronx",         lat:40.8894,lng:-73.8669,ci:2},
+  {p:48, b:"Bronx",         lat:40.8721,lng:-73.8979,ci:2},
+  {p:49, b:"Bronx",         lat:40.8521,lng:-73.8574,ci:2},
+  {p:50, b:"Bronx",         lat:40.8794,lng:-73.9127,ci:2},
+  {p:52, b:"Bronx",         lat:40.8924,lng:-73.9022,ci:2},
+  {p:60, b:"Brooklyn",      lat:40.5914,lng:-74.0090,ci:2},
+  {p:61, b:"Brooklyn",      lat:40.6088,lng:-73.9425,ci:2},
+  {p:62, b:"Brooklyn",      lat:40.6250,lng:-74.0316,ci:1},
+  {p:63, b:"Brooklyn",      lat:40.6356,lng:-74.0024,ci:2},
+  {p:66, b:"Brooklyn",      lat:40.6485,lng:-74.0143,ci:2},
+  {p:67, b:"Brooklyn",      lat:40.6514,lng:-73.9574,ci:3},
+  {p:68, b:"Brooklyn",      lat:40.6634,lng:-74.0197,ci:1},
+  {p:69, b:"Brooklyn",      lat:40.6396,lng:-73.9349,ci:2},
+  {p:70, b:"Brooklyn",      lat:40.6648,lng:-73.9756,ci:2},
+  {p:71, b:"Brooklyn",      lat:40.6703,lng:-73.9361,ci:3},
+  {p:72, b:"Brooklyn",      lat:40.6882,lng:-74.0013,ci:1},
+  {p:73, b:"Brooklyn",      lat:40.6879,lng:-73.9452,ci:2},
+  {p:75, b:"Brooklyn",      lat:40.6726,lng:-73.8726,ci:3},
+  {p:76, b:"Brooklyn",      lat:40.6799,lng:-73.9912,ci:1},
+  {p:77, b:"Brooklyn",      lat:40.6782,lng:-73.9566,ci:3},
+  {p:78, b:"Brooklyn",      lat:40.6855,lng:-73.9856,ci:1},
+  {p:79, b:"Brooklyn",      lat:40.6982,lng:-73.9386,ci:3},
+  {p:81, b:"Brooklyn",      lat:40.7023,lng:-73.9266,ci:3},
+  {p:83, b:"Brooklyn",      lat:40.7023,lng:-73.9068,ci:2},
+  {p:84, b:"Brooklyn",      lat:40.6975,lng:-73.9874,ci:1},
+  {p:88, b:"Brooklyn",      lat:40.7042,lng:-73.9602,ci:3},
+  {p:90, b:"Brooklyn",      lat:40.7072,lng:-73.9488,ci:2},
+  {p:94, b:"Brooklyn",      lat:40.7169,lng:-73.9882,ci:1},
+  {p:100,b:"Queens",        lat:40.5746,lng:-73.8543,ci:1},
+  {p:101,b:"Queens",        lat:40.6042,lng:-73.8267,ci:2},
+  {p:102,b:"Queens",        lat:40.6146,lng:-73.8602,ci:2},
+  {p:103,b:"Queens",        lat:40.6373,lng:-73.8765,ci:2},
+  {p:104,b:"Queens",        lat:40.6285,lng:-73.9338,ci:1},
+  {p:105,b:"Queens",        lat:40.6684,lng:-73.8007,ci:1},
+  {p:106,b:"Queens",        lat:40.6820,lng:-73.8382,ci:2},
+  {p:107,b:"Queens",        lat:40.6988,lng:-73.7953,ci:1},
+  {p:108,b:"Queens",        lat:40.7237,lng:-73.8685,ci:2},
+  {p:109,b:"Queens",        lat:40.7272,lng:-73.7901,ci:1},
+  {p:110,b:"Queens",        lat:40.7373,lng:-73.8521,ci:2},
+  {p:111,b:"Queens",        lat:40.7462,lng:-73.8038,ci:1},
+  {p:112,b:"Queens",        lat:40.7355,lng:-73.8343,ci:2},
+  {p:113,b:"Queens",        lat:40.7053,lng:-73.8086,ci:3},
+  {p:114,b:"Queens",        lat:40.7625,lng:-73.8478,ci:2},
+  {p:115,b:"Queens",        lat:40.7748,lng:-73.8115,ci:1},
+  {p:120,b:"Staten Island", lat:40.6196,lng:-74.1196,ci:1},
+  {p:121,b:"Staten Island", lat:40.5870,lng:-74.1591,ci:1},
+  {p:122,b:"Staten Island", lat:40.5725,lng:-74.1046,ci:2},
+  {p:123,b:"Staten Island", lat:40.5428,lng:-74.1778,ci:1},
+];

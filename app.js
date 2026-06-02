@@ -40,6 +40,7 @@ let _holidayMarkers = [];
 // Clicking the same feature again closes the tooltip (toggle behavior).
 let _activeTooltipKey = null;
 let _tempUnit         = 'C';   // 'C' or 'F' — toggled by the weather info window button
+var _distUnit = localStorage.getItem('na_dist') || 'km';
 let climateZoneLayer  = null;
 let _climateRenderer  = null;
 let geojsonLayer     = null;
@@ -156,9 +157,14 @@ const POI_LAYERS = {
   surfing:      { label: '🏄 Surf Spots',    active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null },
   diving:       { label: '🤿 Dive & Snorkel', active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null },
   attractions:  { label: '⭐ Attractions',   active: false, minZoom: 5, markers: [], bboxCache: {}, debounce: null },
+  hospitals:    { label: "🏥 Hospitals",         active: false, minZoom: 8,  markers: [], bboxCache: {}, debounce: null },
+  toilets:      { label: "🚻 Toilets & Showers", active: false, minZoom: 14, markers: [], bboxCache: {}, debounce: null },
+  drinkwater:   { label: "🚰 Drinking Water",    active: false, minZoom: 13, markers: [], bboxCache: {}, debounce: null },
+  wildlife:     { label: "🌿 Wildlife & Nature", active: false, minZoom: 7,  markers: [], bboxCache: {}, debounce: null },
+  gasstations:  { label: "⛽ Gas Stations",       active: false, minZoom: 10, markers: [], bboxCache: {}, debounce: null },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -251,7 +257,7 @@ function _shareTrip() {
   for (var i=1;i<_tripPins.length;i++) {
     if (typeof _haversineKm === 'function') totalKm += _haversineKm(_tripPins[i-1].lat,_tripPins[i-1].lng,_tripPins[i].lat,_tripPins[i].lng);
   }
-  if (totalKm > 0) lines.push('Total route distance: ' + Math.round(totalKm).toLocaleString() + ' km');
+  if (totalKm > 0) lines.push('Total route distance: ' + _dist(totalKm));
   lines.push('Planned with Nomadic Almanac — https://samuellclemens.github.io/Nomadic-Almanac/');
   var text = lines.join('\n');
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -281,6 +287,80 @@ function _countryFlag(iso2) {
   if (!iso2 || iso2.length !== 2) return '';
   var o = 127397;
   return String.fromCodePoint(iso2.toUpperCase().charCodeAt(0)+o, iso2.toUpperCase().charCodeAt(1)+o);
+}
+
+// ─── Currency / distance / language globals ───────────────────────────────────
+var _currCode = localStorage.getItem('na_curr') || 'USD';
+var _RATES = {
+  USD:{rate:1,    sym:'$',   name:'US Dollar'},
+  EUR:{rate:0.92, sym:'€',   name:'Euro'},
+  GBP:{rate:0.79, sym:'£',   name:'Pound Sterling'},
+  AUD:{rate:1.54, sym:'A$',  name:'Aus Dollar'},
+  CAD:{rate:1.37, sym:'C$',  name:'Canadian Dollar'},
+  JPY:{rate:149,  sym:'¥',   name:'Japanese Yen'},
+  THB:{rate:35,   sym:'฿',   name:'Thai Baht'},
+  MXN:{rate:17.5, sym:'MX$', name:'Mexican Peso'},
+  SGD:{rate:1.35, sym:'S$',  name:'Singapore Dollar'},
+  CHF:{rate:0.90, sym:'CHF', name:'Swiss Franc'},
+};
+var _CURR_KEYS = ['USD','EUR','GBP','AUD','CAD','JPY','THB','MXN','SGD','CHF'];
+
+function _money(usdAmount) {
+  if (usdAmount == null || isNaN(usdAmount)) return '';
+  var c = _RATES[_currCode] || _RATES.USD;
+  var v = Math.round(usdAmount * c.rate);
+  return c.sym + v.toLocaleString();
+}
+
+function _cycleCurrency() {
+  var idx = _CURR_KEYS.indexOf(_currCode);
+  _currCode = _CURR_KEYS[(idx + 1) % _CURR_KEYS.length];
+  localStorage.setItem('na_curr', _currCode);
+  var btn = document.getElementById('btn-currency');
+  if (btn) btn.textContent = _currCode;
+  if (document.getElementById('tt') && document.getElementById('tt').style.display !== 'none') {
+    if (typeof _activeTooltipKey !== 'undefined' && _activeTooltipKey) {
+      if (typeof buildTooltip === 'function') buildTooltip(_activeTooltipKey);
+    }
+  }
+}
+
+var _lang = localStorage.getItem('na_lang') || 'en';
+var _STRINGS = {
+  en: { weather:'Weather', safety:'Safety', cost:'Cost', internet:'Internet', visa:'Visa Access', english:'English Proficiency', healthcare:'Healthcare', tapwater:'Tap Water', nightlife:'Nightlife', scam:'Scam Risk', malaria:'Malaria Risk', compare:'Compare', journal:'Journal', packing:'Packing List', wishlist:'Wishlist', share:'Share Trip' },
+  es: { weather:'Clima', safety:'Seguridad', cost:'Costo', internet:'Internet', visa:'Visa', english:'Inglés', healthcare:'Salud', tapwater:'Agua Potable', nightlife:'Vida Nocturna', scam:'Riesgo de Estafa', malaria:'Riesgo de Malaria', compare:'Comparar', journal:'Diario', packing:'Lista de Equipaje', wishlist:'Lista de Deseos', share:'Compartir' },
+  fr: { weather:'Météo', safety:'Sécurité', cost:'Coût', internet:'Internet', visa:'Visa', english:'Anglais', healthcare:'Santé', tapwater:'Eau Potable', nightlife:'Vie Nocturne', scam:"Risque d'arnaque", malaria:'Risque de Malaria', compare:'Comparer', journal:'Journal', packing:'Liste de Bagages', wishlist:'Souhaitlist', share:'Partager' },
+  de: { weather:'Wetter', safety:'Sicherheit', cost:'Kosten', internet:'Internet', visa:'Visum', english:'Englischkenntnisse', healthcare:'Gesundheit', tapwater:'Trinkwasser', nightlife:'Nachtleben', scam:'Betrugsrisiko', malaria:'Malariarisiko', compare:'Vergleichen', journal:'Tagebuch', packing:'Packliste', wishlist:'Wunschliste', share:'Teilen' },
+};
+var _LANG_KEYS = ['en','es','fr','de'];
+
+function _t(key) {
+  var strings = _STRINGS[_lang] || _STRINGS.en;
+  return strings[key] || (_STRINGS.en[key]) || key;
+}
+
+function _cycleLang() {
+  var idx = _LANG_KEYS.indexOf(_lang);
+  _lang = _LANG_KEYS[(idx + 1) % _LANG_KEYS.length];
+  localStorage.setItem('na_lang', _lang);
+  var btn = document.getElementById('btn-lang');
+  if (btn) btn.textContent = {en:'🌐 EN', es:'🌐 ES', fr:'🌐 FR', de:'🌐 DE'}[_lang] || '🌐';
+}
+
+// Distance helper
+function _dist(km) {
+  if (!km && km !== 0) return '';
+  if (_distUnit === 'mi') return Math.round(km * 0.621371).toLocaleString() + ' mi';
+  return Math.round(km).toLocaleString() + ' km';
+}
+
+function _toggleDistUnit() {
+  _distUnit = _distUnit === 'km' ? 'mi' : 'km';
+  localStorage.setItem('na_dist', _distUnit);
+  var btn = document.getElementById('btn-dist-unit');
+  if (btn) btn.textContent = _distUnit === 'km' ? 'km' : 'mi';
+  _buildRoutePanel && _buildRoutePanel();
+  if (typeof _updateTripPlannerPanel === 'function') _updateTripPlannerPanel();
 }
 
 // HTML escape helper — applied to ALL user-supplied or external-data strings
@@ -448,10 +528,10 @@ function _buildRoutePanel() {
     html += '<div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(201,168,76,0.06);font-size:8px">' +
       '<span style="color:var(--crimson);font-weight:700;flex-shrink:0">' + i + '→' + (i+1) + '</span>' +
       '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)">' + _esc(prev.name) + ' → ' + _esc(cur.name) + '</span>' +
-      '<span style="color:var(--gold);font-weight:600;white-space:nowrap">' + km.toLocaleString() + ' km</span>' +
+      '<span style="color:var(--gold);font-weight:600;white-space:nowrap">' + _dist(km) + '</span>' +
       '</div>';
   }
-  html += '<div style="margin-top:5px;text-align:right;font-size:9px;font-weight:700;color:var(--gold)">Total: ' + totalKm.toLocaleString() + ' km</div>';
+  html += '<div style="margin-top:5px;text-align:right;font-size:9px;font-weight:700;color:var(--gold)">Total: ' + _dist(totalKm) + '</div>';
   html += _buildBudgetEstimate();
   html += _buildPackingList();
   el.innerHTML = html;
@@ -911,7 +991,7 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 
 // Category groups — each becomes a dropdown button in the topbar row.
 const CAT_GROUPS = [
-  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster','healthcare','femalesafety'] },
+  { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster','healthcare','femalesafety','malaria'] },
   { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis','nomad','nightlife'] },
   { id:'local-info',    label:'Local Info',      emoji:'ℹ',  keys:['english','tapwater','airquality','scam'] },
   // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
@@ -938,6 +1018,7 @@ function makeLbButton(key, layer) {
     btn.classList.toggle('on', activeLayers.has(key));
     syncMoreButtonState();
     refresh();
+    _renderNYCCrime();
     updateURLState();
     saveState();
   });
@@ -1052,6 +1133,52 @@ function buildLayerButtons() {
       }
     });
   }
+}
+
+// ─── Unit / Currency / Language Topbar Buttons ───────────────────────────────
+function buildUnitButtons() {
+  var row2 = document.getElementById('tb-row2');
+  if (!row2) return;
+
+  var wrap = document.createElement('div');
+  wrap.id = 'unit-btn-wrap';
+  wrap.style.cssText = 'display:flex;align-items:center;gap:4px;margin-left:4px;flex-shrink:0';
+
+  var btnStyle = 'font-size:8px;color:var(--gold);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.22);border-radius:4px;padding:3px 7px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4;transition:border-color 0.15s,background 0.15s;white-space:nowrap';
+  var hoverIn  = function(e){ e.currentTarget.style.background='rgba(201,168,76,0.18)'; e.currentTarget.style.borderColor='rgba(201,168,76,0.6)'; };
+  var hoverOut = function(e){ e.currentTarget.style.background='rgba(201,168,76,0.08)'; e.currentTarget.style.borderColor='rgba(201,168,76,0.22)'; };
+
+  var distBtn = document.createElement('button');
+  distBtn.id = 'btn-dist-unit';
+  distBtn.setAttribute('style', btnStyle);
+  distBtn.setAttribute('title', 'Toggle distance unit (km / mi)');
+  distBtn.textContent = _distUnit === 'km' ? 'km' : 'mi';
+  distBtn.addEventListener('click', _toggleDistUnit);
+  distBtn.addEventListener('mouseenter', hoverIn);
+  distBtn.addEventListener('mouseleave', hoverOut);
+
+  var currBtn = document.createElement('button');
+  currBtn.id = 'btn-currency';
+  currBtn.setAttribute('style', btnStyle);
+  currBtn.setAttribute('title', 'Cycle currency');
+  currBtn.textContent = _currCode;
+  currBtn.addEventListener('click', _cycleCurrency);
+  currBtn.addEventListener('mouseenter', hoverIn);
+  currBtn.addEventListener('mouseleave', hoverOut);
+
+  var langBtn = document.createElement('button');
+  langBtn.id = 'btn-lang';
+  langBtn.setAttribute('style', btnStyle);
+  langBtn.setAttribute('title', 'Cycle interface language');
+  langBtn.textContent = ({en:'🌐 EN', es:'🌐 ES', fr:'🌐 FR', de:'🌐 DE'}[_lang] || '🌐');
+  langBtn.addEventListener('click', _cycleLang);
+  langBtn.addEventListener('mouseenter', hoverIn);
+  langBtn.addEventListener('mouseleave', hoverOut);
+
+  wrap.appendChild(distBtn);
+  wrap.appendChild(currBtn);
+  wrap.appendChild(langBtn);
+  row2.appendChild(wrap);
 }
 
 // ─── Transport Layer Buttons (single dropdown) ────────────────────────────────
@@ -1286,9 +1413,9 @@ function buildTransportButtons() {
 
   // Group POI layers by theme
   const POI_GROUPS = [
-    { label: 'Nature',      keys: ['parks','camping','viewpoints','hotsprings','birdwatching'] },
+    { label: 'Nature',      keys: ['parks','camping','viewpoints','hotsprings','birdwatching','toilets','drinkwater','wildlife'] },
     { label: 'Adventure',   keys: ['climbing','surfing','diving'] },
-    { label: 'Travel Info', keys: ['holidays','airports','attractions'] },
+    { label: 'Travel Info', keys: ['holidays','airports','attractions','hospitals','gasstations'] },
   ];
 
   POI_GROUPS.forEach(group => {
@@ -1385,6 +1512,7 @@ function getCountryRating(iso2) {
     if (lk === 'femalesafety') { if (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[iso2] != null) return CD_FEMALE_SAFETY[iso2]; return null; }
     if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[iso2] != null) return CD_NIGHTLIFE[iso2]; return null; }
     if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[iso2] != null) return CD_SCAM[iso2]; return null; }
+    if (lk === 'malaria') { if (typeof CD_MALARIA !== 'undefined' && CD_MALARIA[iso2] != null) return CD_MALARIA[iso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -1436,6 +1564,7 @@ function getAdmin1Rating(subCode, parentIso2) {
     if (lk === 'femalesafety') { if (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[parentIso2] != null) return CD_FEMALE_SAFETY[parentIso2]; return null; }
     if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[parentIso2] != null) return CD_NIGHTLIFE[parentIso2]; return null; }
     if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[parentIso2] != null) return CD_SCAM[parentIso2]; return null; }
+    if (lk === 'malaria') { if (typeof CD_MALARIA !== 'undefined' && CD_MALARIA[parentIso2] != null) return CD_MALARIA[parentIso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
@@ -2457,6 +2586,16 @@ async function _fetchAndRenderPOI(key, forceRender) {
     ? `[out:json][timeout:25];(node["sport"="scuba_diving"](${bbox});node["leisure"="diving"](${bbox});node["sport"="snorkeling"](${bbox}););out center 150;`
     : key === 'attractions'
     ? `[out:json][timeout:30];(node["tourism"="attraction"](${bbox});node["tourism"="museum"](${bbox});node["tourism"="monument"](${bbox});node["tourism"="gallery"](${bbox});node["historic"="monument"](${bbox}););out center 250;`
+    : key === 'hospitals'
+    ? `[out:json][timeout:25];(node["amenity"="hospital"](${bbox});way["amenity"="hospital"](${bbox}););out center 200;`
+    : key === 'toilets'
+    ? `[out:json][timeout:25];(node["amenity"="toilets"](${bbox});node["amenity"="shower"](${bbox}););out center 300;`
+    : key === 'drinkwater'
+    ? `[out:json][timeout:25];(node["amenity"="drinking_water"](${bbox});node["amenity"="water_point"](${bbox}););out center 300;`
+    : key === 'wildlife'
+    ? `[out:json][timeout:25];(node["natural"="wildlife_crossing"](${bbox});node["leisure"="nature_reserve"](${bbox});node["tourism"="zoo"](${bbox});way["leisure"="nature_reserve"](${bbox}););out center 100;`
+    : key === "gasstations"
+    ? `[out:json][timeout:25];(node["amenity"="fuel"](${bbox});way["amenity"="fuel"](${bbox}););out center 200;`
     : `[out:json][timeout:25];(node["boundary"="national_park"](${bbox});way["boundary"="national_park"](${bbox});relation["boundary"="national_park"](${bbox});node["leisure"="nature_reserve"](${bbox});way["leisure"="nature_reserve"](${bbox});relation["leisure"="nature_reserve"](${bbox});node["landuse"="forest"]["name"](${bbox});way["landuse"="forest"]["name"](${bbox}););out center 250;`;
 
   try {
@@ -2489,6 +2628,11 @@ function _renderPOICircles(key, elements) {
     surfing:      { color:'#fff', fillColor:'#0284c7', weight:1.0, radius:6, fillOpacity:0.90 },
     diving:       { color:'#fff', fillColor:'#0891b2', weight:1.0, radius:6, fillOpacity:0.90 },
     attractions:  { color:'#fff', fillColor:'#f59e0b', weight:1.2, radius:7, fillOpacity:0.92 },
+    hospitals:  { color:"#fff", fillColor:"#ef4444", weight:1.5, radius:7,  fillOpacity:0.95 },
+    toilets:    { color:"#fff", fillColor:"#6366f1", weight:1.0, radius:5,  fillOpacity:0.90 },
+    drinkwater: { color:"#fff", fillColor:"#22d3ee", weight:1.0, radius:5,  fillOpacity:0.90 },
+    wildlife:   { color:"#fff", fillColor:"#22c55e", weight:1.0, radius:6,  fillOpacity:0.90 },
+    gasstations: { color:"#fff", fillColor:"#f97316", weight:1.0, radius:5, fillOpacity:0.90 },
   };
   const s = POI_STYLE[key] || POI_STYLE.parks;
   elements.forEach(el => {
@@ -2515,6 +2659,11 @@ function _renderPOICircles(key, elements) {
                  : key === 'surfing'      ? _buildSurfingTooltip(t)
                  : key === 'diving'       ? _buildDivingTooltip(t)
                  : key === 'attractions'  ? _buildAttractionsTooltip(t)
+                 : key === 'hospitals'   ? _buildHospitalsTooltip(t)
+                 : key === 'toilets'     ? _buildToiletsTooltip(t)
+                 : key === 'drinkwater'  ? _buildDrinkwaterTooltip(t)
+                 : key === 'wildlife'    ? _buildWildlifeTooltip(t)
+                 : key === "gasstations" ? _buildGasstationsTooltip(t)
                  : _buildParkTooltip(t);
       toggleTooltip(ttKey, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -2693,6 +2842,27 @@ function _buildAttractionsTooltip(t) {
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b">Open</a>` : '';
   const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),row('Website',link(t.website||t['contact:website']))].join('');
   return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Attraction')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">⭐ ATTRACTION — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
+}
+
+function _buildHospitalsTooltip(t) {
+  var r = function(l,v){return v?'<div style="font-size:8px;color:var(--dim);margin-top:2px"><span style="color:rgba(255,255,255,0.5)">'+_esc(l)+': </span>'+_esc(v)+'</div>':'';}
+  return '<div style="padding:4px 0">'+r('Type',t.emergency||t.health_facility_type||'Hospital')+r('Beds',t.beds)+r('Phone',t['contact:phone']||t.phone)+r('Emergency',t.emergency)+'</div>';
+}
+function _buildToiletsTooltip(t) {
+  var r = function(l,v){return v?'<div style="font-size:8px;color:var(--dim);margin-top:2px"><span style="color:rgba(255,255,255,0.5)">'+_esc(l)+': </span>'+_esc(v)+'</div>':'';}
+  return '<div style="padding:4px 0">'+r('Access',t.access)+r('Fee',t.fee)+r('Unisex',t.unisex)+r('Wheelchair',t.wheelchair)+r('Showers',t.shower)+'</div>';
+}
+function _buildDrinkwaterTooltip(t) {
+  var r = function(l,v){return v?'<div style="font-size:8px;color:var(--dim);margin-top:2px"><span style="color:rgba(255,255,255,0.5)">'+_esc(l)+': </span>'+_esc(v)+'</div>':'';}
+  return '<div style="padding:4px 0">'+r('Access',t.access)+r('Seasonal',t.seasonal)+r('Fee',t.fee)+'<div style="font-size:8px;color:#22d3ee;margin-top:3px">💧 Safe drinking water</div></div>';
+}
+function _buildWildlifeTooltip(t) {
+  var r = function(l,v){return v?'<div style="font-size:8px;color:var(--dim);margin-top:2px"><span style="color:rgba(255,255,255,0.5)">'+_esc(l)+': </span>'+_esc(v)+'</div>':'';}
+  return '<div style="padding:4px 0">'+r('Species',t.species||t.animal)+r('Type',t.leisure||t.natural)+r('Access',t.access)+r('Website',t.website)+'</div>';
+}
+function _buildGasstationsTooltip(t) {
+  var r = function(l,v){return v?'<div style="font-size:8px;color:var(--dim);margin-top:2px"><span style="color:rgba(255,255,255,0.5)">'+_esc(l)+': </span>'+_esc(v)+'</div>':'';}
+  return '<div style="padding:4px 0">'+r('Brand',t.brand||t.operator)+r('Fuel',t.fuel||t['fuel:diesel']||'')+r('24h',t.opening_hours)+r('Shop',t.shop)+'</div>';
 }
 
 // ─── Rail Stop Markers ────────────────────────────────────────────────────────
@@ -3401,6 +3571,37 @@ function _injectWeatherRow(iso2, lat, lng) {
   });
 }
 
+function _buildSeasonCalendar(iso2) {
+  if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
+  var temps = CD_CLIMATE[iso2].temp;
+  if (!temps) return '';
+  var valid = temps.filter(function(t){return t!=null;});
+  if (valid.length < 4) return '';
+  var maxT = Math.max.apply(null, valid);
+  var minT = Math.min.apply(null, valid);
+  var rng = maxT - minT || 1;
+  var mn = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  var bars = temps.map(function(t,i) {
+    if (t == null) return '<div style="flex:1"></div>';
+    var pct = Math.round(((t-minT)/rng)*100);
+    var col = t > 25 ? '#ef4444' : t > 15 ? '#fbbf24' : t > 5 ? '#22d3ee' : '#818cf8';
+    var h = Math.max(4, Math.round(pct * 0.36));
+    var active = (i === activeMonth) ? 'box-shadow:0 0 4px ' + col + ';outline:1px solid ' + col + ';outline-offset:1px;' : '';
+    return '<div style="display:flex;flex-direction:column;align-items:center;flex:1;cursor:default" title="' + mn[i] + ': ' + t + (typeof _tempUnit!=='undefined'&&_tempUnit==='F'?'°F':'°C') + '">' +
+      '<div style="font-size:6.5px;color:var(--dim);margin-bottom:1px">' + t + '°</div>' +
+      '<div style="width:8px;height:' + h + 'px;background:' + col + ';border-radius:2px 2px 0 0;' + active + '"></div>' +
+      '<div style="font-size:5.5px;color:var(--dim);margin-top:2px">' + mn[i] + '</div>' +
+      '</div>';
+  }).join('');
+  return '<div style="margin-top:8px;padding:6px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">' +
+    '<div style="font-size:7.5px;color:var(--dim);margin-bottom:6px">📅 Temperature year-round (click month bar to filter)</div>' +
+    '<div style="display:flex;align-items:flex-end;height:52px;gap:1px">' + bars + '</div>' +
+    '<div style="display:flex;justify-content:space-between;margin-top:4px">' +
+    '<span style="font-size:7px;color:var(--dim)">❄️ ' + minT + (typeof _tempUnit!=='undefined'&&_tempUnit==='F'?'°F':'°C') + '</span>' +
+    '<span style="font-size:7px;color:var(--dim)">☀️ ' + maxT + (typeof _tempUnit!=='undefined'&&_tempUnit==='F'?'°F':'°C') + '</span></div>' +
+    '</div>';
+}
+
 function buildWeatherDetails(iso2) {
   if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
   const cl = CD_CLIMATE[iso2];
@@ -3480,6 +3681,7 @@ function buildWeatherDetails(iso2) {
     </div>
     ${solarHtml}
     ${eventHtml}
+    ${ _buildSeasonCalendar(iso2) }
   </div>`;
 }
 
@@ -4033,6 +4235,8 @@ function onZoom() {
     }
     // Update beach legend when crossing the zoom-7 threshold.
     if (activeLayers.has('beaches')) updateLegend();
+    // NYC precinct crime sublayer: re-evaluate on zoom change.
+    _renderNYCCrime();
   }, 150);
 }
 
@@ -4547,7 +4751,6 @@ function buildCostDetailsSection(iso2) {
   if (typeof COST_DETAILS === 'undefined' || !COST_DETAILS[iso2]) return '';
   const d    = COST_DETAILS[iso2];
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? CURRENCY[iso2] : '';
-  const usd  = n => n > 0 ? `$${n}` : '—';
 
   // Daily budget estimate: hostel + 3 meals + transport (budget traveller)
   const budgetDay  = (d.hostel || 0) + (d.meal || 0) * 3 + (d.transport || 0);
@@ -4563,21 +4766,21 @@ function buildCostDetailsSection(iso2) {
     <div style="display:flex;gap:8px;margin-bottom:6px">
       <div style="flex:1;text-align:center;padding:4px 0;background:rgba(34,197,94,0.07);border-radius:5px;border:1px solid rgba(34,197,94,0.15)">
         <div style="font-size:7px;color:rgba(34,197,94,0.6);letter-spacing:0.8px;text-transform:uppercase">Budget</div>
-        <div style="font-size:13px;font-weight:700;color:#4ade80">~${usd(budgetDay)}</div>
+        <div style="font-size:13px;font-weight:700;color:#4ade80">~${_money(budgetDay)}</div>
         <div style="font-size:6.5px;color:rgba(34,197,94,0.45)">per day</div>
       </div>
       <div style="flex:1;text-align:center;padding:4px 0;background:rgba(251,191,36,0.06);border-radius:5px;border:1px solid rgba(251,191,36,0.12)">
         <div style="font-size:7px;color:rgba(251,191,36,0.6);letter-spacing:0.8px;text-transform:uppercase">Comfort</div>
-        <div style="font-size:13px;font-weight:700;color:#fbbf24">~${usd(comfortDay)}</div>
+        <div style="font-size:13px;font-weight:700;color:#fbbf24">~${_money(comfortDay)}</div>
         <div style="font-size:6.5px;color:rgba(251,191,36,0.45)">per day</div>
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--dim)">
-      <span title="Hostel/guesthouse per night">🛏 ${usd(d.hostel)}</span>
-      <span title="Street meal">🍜 ${usd(d.meal)}</span>
-      <span title="Local transport per day">🚇 ${usd(d.transport)}</span>
-      <span title="Coffee">☕ ${usd(d.coffee)}</span>
-      <span title="Local beer">${d.beer > 0 ? '🍺' : '🥤'} ${usd(d.beer)}</span>
+      <span title="Hostel/guesthouse per night">🛏 ${_money(d.hostel)}</span>
+      <span title="Street meal">🍜 ${_money(d.meal)}</span>
+      <span title="Local transport per day">🚇 ${_money(d.transport)}</span>
+      <span title="Coffee">☕ ${_money(d.coffee)}</span>
+      <span title="Local beer">${d.beer > 0 ? '🍺' : '🥤'} ${_money(d.beer)}</span>
     </div>
     ${d.note ? `<div style="margin-top:6px;font-size:7.5px;color:rgba(201,168,76,0.5);line-height:1.4;padding-top:5px;border-top:1px solid rgba(201,168,76,0.08)">${_esc(d.note)}</div>` : ''}
   </div>`;
@@ -4589,18 +4792,18 @@ function buildCostDetailsSection(iso2) {
     <div class="ttr"><div class="ttstrip" style="background:#6a8a5a"></div>
       <div class="tti"><div class="ttln">ACCOMMODATION</div>
         <div class="ttrat" style="color:#90c070">Hostel / budget guesthouse</div>
-        <div class="ttdesc">${usd(d.hostel)} per night</div></div></div>
+        <div class="ttdesc">${_money(d.hostel)} per night</div></div></div>
     <div class="ttr"><div class="ttstrip" style="background:#8a7a3a"></div>
       <div class="tti"><div class="ttln">MEALS</div>
         <div class="ttrat" style="color:#c8a860">Street food / local restaurant</div>
-        <div class="ttdesc">${usd(d.meal)} per meal</div></div></div>
+        <div class="ttdesc">${_money(d.meal)} per meal</div></div></div>
     <div class="ttr"><div class="ttstrip" style="background:#4a6a8a"></div>
       <div class="tti"><div class="ttln">LOCAL TRANSPORT</div>
         <div class="ttrat" style="color:#80a8c8">Bus / metro / tuk-tuk</div>
-        <div class="ttdesc">${usd(d.transport)} per day</div></div></div>
+        <div class="ttdesc">${_money(d.transport)} per day</div></div></div>
     <div class="ttr"><div class="ttstrip" style="background:#6a5a8a"></div>
       <div class="tti"><div class="ttln">DRINKS</div>
-        <div class="ttrat" style="color:#a090c8">Coffee ${usd(d.coffee)} &middot; ${d.beer > 0 ? 'Beer ' + usd(d.beer) : 'Alcohol limited'}</div>
+        <div class="ttrat" style="color:#a090c8">Coffee ${_money(d.coffee)} &middot; ${d.beer > 0 ? 'Beer ' + _money(d.beer) : 'Alcohol limited'}</div>
       </div></div>`;
 
   return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
@@ -4865,6 +5068,97 @@ function initSearch() {
     surpriseBtn.addEventListener('click', _surpriseMe);
     wrap.appendChild(surpriseBtn);
   }
+
+  // ── Best For X button ───────────────────────────────────────────────────────
+  if (wrap && !document.getElementById('btn-best-for-x')) {
+    var bfxBtn = document.createElement('button');
+    bfxBtn.id = 'btn-best-for-x';
+    bfxBtn.title = 'Best Countries For…';
+    bfxBtn.textContent = '🎯';
+    bfxBtn.style.cssText = 'background:rgba(14,11,6,0.85);border:1px solid var(--gold);color:var(--gold);border-radius:6px;padding:3px 7px;font-size:13px;cursor:pointer;margin-left:4px;vertical-align:middle;line-height:1;flex-shrink:0';
+    bfxBtn.addEventListener('click', _toggleBestForXPanel);
+    wrap.appendChild(bfxBtn);
+  }
+}
+
+function _initBestForXPanel() {
+  var panel = document.getElementById('best-for-x-panel');
+  if (panel) return;
+  panel = document.createElement('div');
+  panel.id = 'best-for-x-panel';
+  panel.style.cssText = 'position:fixed;right:12px;top:96px;width:240px;max-height:70vh;overflow-y:auto;background:rgba(14,11,6,0.97);border:1px solid rgba(201,168,76,0.3);border-radius:10px;padding:12px;z-index:1100;display:none;font-family:var(--fm)';
+  var layerKeys = ['weather','safety','cost','internet','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria','lgbtq','nomad','cannabis','kids','beaches'];
+  var html = '<div style="font-size:9px;letter-spacing:1.5px;color:rgba(201,168,76,0.7);text-transform:uppercase;margin-bottom:10px">🎯 Best Countries For...</div>';
+  html += '<div style="font-size:8px;color:var(--dim);margin-bottom:8px">Pick up to 3 criteria (best = 0, worst = 3):</div>';
+  for (var i = 0; i < 3; i++) {
+    html += '<div style="margin-bottom:6px;display:flex;gap:6px;align-items:center">';
+    html += '<select id="bfx-layer-' + i + '" style="flex:1;background:rgba(255,255,255,0.06);color:var(--sand);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:3px;font-size:8px">';
+    html += '<option value="">— Layer ' + (i+1) + ' —</option>';
+    layerKeys.forEach(function(k){html += '<option value="' + k + '">' + (typeof LAYERS!=='undefined'&&LAYERS[k]?LAYERS[k].emoji+' '+LAYERS[k].name:k) + '</option>';});
+    html += '</select>';
+    html += '<select id="bfx-max-' + i + '" style="width:50px;background:rgba(255,255,255,0.06);color:var(--sand);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:3px;font-size:8px">';
+    html += '<option value="1">Best</option><option value="2">Good</option><option value="3">Any</option>';
+    html += '</select></div>';
+  }
+  html += '<button id="bfx-run" style="width:100%;padding:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);border-radius:6px;color:var(--gold);font-size:9px;cursor:pointer;margin-top:4px">🔍 Find Matching Countries</button>';
+  html += '<div id="bfx-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>';
+  html += '<button onclick="document.getElementById(\'best-for-x-panel\').style.display=\'none\'" style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px">✕</button>';
+  panel.innerHTML = html;
+  document.body.appendChild(panel);
+  var runBtn = document.getElementById('bfx-run');
+  if (runBtn) runBtn.addEventListener('click', _runBestForX);
+}
+
+function _runBestForX() {
+  var criteria = [];
+  for (var i = 0; i < 3; i++) {
+    var lEl = document.getElementById('bfx-layer-' + i);
+    var mEl = document.getElementById('bfx-max-' + i);
+    if (lEl && lEl.value && mEl) criteria.push({layer: lEl.value, max: parseInt(mEl.value)});
+  }
+  if (criteria.length === 0) return;
+  var prev = new Set(activeLayers);
+  var matches = [];
+  if (!_geoData || !_geoData.features) return;
+  _geoData.features.forEach(function(f) {
+    var iso2 = f.properties && (f.properties.ISO_A2 || f.properties.iso_a2 || f.properties.ISO2);
+    if (!iso2 || iso2 === '-99') return;
+    var ok = criteria.every(function(c) {
+      activeLayers.clear(); activeLayers.add(c.layer);
+      var r = getCountryRating(iso2);
+      activeLayers.clear(); prev.forEach(function(k){activeLayers.add(k);});
+      return r != null && r <= c.max;
+    });
+    if (ok) {
+      activeLayers.clear(); activeLayers.add(criteria[0].layer);
+      var score = getCountryRating(iso2) || 0;
+      activeLayers.clear(); prev.forEach(function(k){activeLayers.add(k);});
+      matches.push({iso2: iso2, score: score});
+    }
+  });
+  matches.sort(function(a,b){return a.score-b.score;});
+  var results = document.getElementById('bfx-results');
+  if (!results) return;
+  if (matches.length === 0) { results.innerHTML = '<div style="font-size:8px;color:var(--dim)">No countries match all criteria.</div>'; return; }
+  results.innerHTML = '<div style="font-size:8px;color:var(--dim);margin-bottom:4px">' + matches.length + ' matches:</div>' +
+    matches.slice(0, 30).map(function(m) {
+      var flag = typeof _countryFlag==='function' ? _countryFlag(m.iso2) : '';
+      var name = (typeof countryNames!=='undefined'&&countryNames[m.iso2]) || m.iso2;
+      return '<div style="font-size:8.5px;color:var(--sand);padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer" data-iso="' + m.iso2 + '">' + flag + ' ' + _esc(name) + '</div>';
+    }).join('');
+  results.querySelectorAll('[data-iso]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var iso = this.getAttribute('data-iso');
+      var ctr = typeof COUNTRY_CENTERS!=='undefined' && COUNTRY_CENTERS[iso];
+      if (ctr) map.flyTo(ctr, 5, {duration:1.2});
+    });
+  });
+}
+
+function _toggleBestForXPanel() {
+  _initBestForXPanel();
+  var p = document.getElementById('best-for-x-panel');
+  if (p) p.style.display = p.style.display === 'none' || p.style.display === '' ? 'block' : 'none';
 }
 
 var _nominatimDebounce = null;
@@ -5189,7 +5483,7 @@ function renderComparePanel() {
   function budgetCell(iso2) {
     if (typeof COST_DETAILS === 'undefined' || !COST_DETAILS[iso2]) return '—';
     var d = COST_DETAILS[iso2];
-    return '$' + ((d.hostel||0) + (d.meal||0)*3 + (d.transport||0)) + '/day';
+    return _money((d.hostel||0) + (d.meal||0)*3 + (d.transport||0)) + '/day';
   }
 
   var ROWS = [
@@ -5306,6 +5600,46 @@ function initPOILayers() {
   map.on('moveend', () => {
     if (TRANSPORT_LAYERS.roads.active) _fetchAndRenderRoads();
   });
+
+  // NYC precinct crime sublayer: re-evaluate on pan.
+  map.on('moveend', () => { _renderNYCCrime(); });
+}
+
+// ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
+// Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
+// and map center is within NYC bounds. Uses static 2023 NYPD crime index data.
+var _nycCrimeMarkers = [];
+var _nycCrimeActive = false;
+
+function _renderNYCCrime() {
+  if (typeof NYPD_PRECINCTS === 'undefined') return;
+  var z = map.getZoom();
+  var c = map.getCenter();
+  var inNYC = c.lat > 40.4 && c.lat < 41.0 && c.lng > -74.3 && c.lng < -73.7;
+  var safetyActive = activeLayers.has('safety');
+  if (!safetyActive || !inNYC || z < 10) { _clearNYCCrime(); return; }
+  if (_nycCrimeActive) return;
+  _nycCrimeActive = true;
+  var RC = ['#43A047','#FDD835','#EF6C00','#C62828'];
+  _clearNYCCrime();
+  (typeof NYPD_PRECINCTS !== 'undefined' ? NYPD_PRECINCTS : []).forEach(function(pr) {
+    var col = RC[Math.min(3, Math.max(0, pr.ci))];
+    var m = L.circleMarker([pr.lat, pr.lng], {
+      radius: 10, color: '#fff', weight: 1, fillColor: col, fillOpacity: 0.75,
+      pane: 'markersPane'
+    });
+    m.bindTooltip('<b>Precinct ' + pr.p + '</b> — ' + _esc(pr.b) + '<br><span style="color:' + col + '">' +
+      ['Low Crime','Moderate Crime','High Crime','Very High Crime'][pr.ci] + '</span><br><small>NYPD crime index · static 2023 data</small>',
+      {className: 'tt-sm'});
+    m.addTo(map);
+    _nycCrimeMarkers.push(m);
+  });
+}
+
+function _clearNYCCrime() {
+  _nycCrimeMarkers.forEach(function(m){map.removeLayer(m);});
+  _nycCrimeMarkers = [];
+  _nycCrimeActive = false;
 }
 
 // ─── Topbar hamburger toggle ──────────────────────────────────────────────────
@@ -5378,6 +5712,7 @@ function showBootError(msg) {
   buildLayerButtons();
   syncCatButtons();       // highlight category buttons for any layers restored from localStorage
   buildTransportButtons();
+  buildUnitButtons();     // distance / currency / language toggle buttons
   updateLegend();
   updateBadge();
 
