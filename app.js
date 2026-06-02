@@ -164,7 +164,7 @@ const POI_LAYERS = {
   gasstations:  { label: "⛽ Gas Stations",       active: false, minZoom: 10, markers: [], bboxCache: {}, debounce: null },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria','tipping']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -327,10 +327,10 @@ function _cycleCurrency() {
 
 var _lang = localStorage.getItem('na_lang') || 'en';
 var _STRINGS = {
-  en: { weather:'Weather', safety:'Safety', cost:'Cost', internet:'Internet', visa:'Visa Access', english:'English Proficiency', healthcare:'Healthcare', tapwater:'Tap Water', nightlife:'Nightlife', scam:'Scam Risk', malaria:'Malaria Risk', compare:'Compare', journal:'Journal', packing:'Packing List', wishlist:'Wishlist', share:'Share Trip' },
-  es: { weather:'Clima', safety:'Seguridad', cost:'Costo', internet:'Internet', visa:'Visa', english:'Inglés', healthcare:'Salud', tapwater:'Agua Potable', nightlife:'Vida Nocturna', scam:'Riesgo de Estafa', malaria:'Riesgo de Malaria', compare:'Comparar', journal:'Diario', packing:'Lista de Equipaje', wishlist:'Lista de Deseos', share:'Compartir' },
-  fr: { weather:'Météo', safety:'Sécurité', cost:'Coût', internet:'Internet', visa:'Visa', english:'Anglais', healthcare:'Santé', tapwater:'Eau Potable', nightlife:'Vie Nocturne', scam:"Risque d'arnaque", malaria:'Risque de Malaria', compare:'Comparer', journal:'Journal', packing:'Liste de Bagages', wishlist:'Souhaitlist', share:'Partager' },
-  de: { weather:'Wetter', safety:'Sicherheit', cost:'Kosten', internet:'Internet', visa:'Visum', english:'Englischkenntnisse', healthcare:'Gesundheit', tapwater:'Trinkwasser', nightlife:'Nachtleben', scam:'Betrugsrisiko', malaria:'Malariarisiko', compare:'Vergleichen', journal:'Tagebuch', packing:'Packliste', wishlist:'Wunschliste', share:'Teilen' },
+  en: { weather:'Weather', safety:'Safety', cost:'Cost', internet:'Internet', visa:'Visa Access', english:'English Proficiency', healthcare:'Healthcare', tapwater:'Tap Water', nightlife:'Nightlife', scam:'Scam Risk', malaria:'Malaria Risk', compare:'Compare', journal:'Journal', packing:'Packing List', wishlist:'Wishlist', share:'Share Trip', tipping:'Tipping', noTipping:'No Tipping', tipOptional:'Tip Optional', tipAppreciated:'Tip Appreciated', tipExpected:'Tipping Expected', countryIntel:'Country Intelligence', origin:'Origin', character:'Character', complexity:'Honest Complexity', bestFor:'Best For', notKnown:'What Locals Know', loading:'Loading', noData:'No Data', layers:'Layers', filters:'Filters', compare2:'Compare', share2:'Share', save:'Save', close:'Close', search:'Search', language:'Language', currency:'Currency', units:'Units', darkMode:'Dark Mode', about:'About' },
+  es: { weather:'Clima', safety:'Seguridad', cost:'Costo', internet:'Internet', visa:'Visa', english:'Inglés', healthcare:'Salud', tapwater:'Agua Potable', nightlife:'Vida Nocturna', scam:'Riesgo de Estafa', malaria:'Riesgo de Malaria', compare:'Comparar', journal:'Diario', packing:'Lista de Equipaje', wishlist:'Lista de Deseos', share:'Compartir', tipping:'Propinas', noTipping:'Sin propinas', tipOptional:'Propina opcional', tipAppreciated:'Propina apreciada', tipExpected:'Propina esperada', countryIntel:'Inteligencia del pais', origin:'Origen', character:'Caracter', complexity:'Complejidad honesta', bestFor:'Mejor para', notKnown:'Lo que saben los locales', loading:'Cargando', noData:'Sin datos', layers:'Capas', filters:'Filtros', compare2:'Comparar', share2:'Compartir', save:'Guardar', close:'Cerrar', search:'Buscar', language:'Idioma', currency:'Moneda', units:'Unidades', darkMode:'Modo oscuro', about:'Acerca de' },
+  fr: { weather:'Météo', safety:'Sécurité', cost:'Coût', internet:'Internet', visa:'Visa', english:'Anglais', healthcare:'Santé', tapwater:'Eau Potable', nightlife:'Vie Nocturne', scam:"Risque d'arnaque", malaria:'Risque de Malaria', compare:'Comparer', journal:'Journal', packing:'Liste de Bagages', wishlist:'Souhaitlist', share:'Partager', tipping:'Pourboire', noTipping:'Sans pourboire', tipOptional:'Pourboire optionnel', tipAppreciated:'Pourboire apprecie', tipExpected:'Pourboire attendu', countryIntel:'Intelligence pays', origin:'Origine', character:'Caractere', complexity:'Complexite honnete', bestFor:'Ideal pour', notKnown:'Ce que savent les locaux', loading:'Chargement', noData:'Pas de donnees', layers:'Couches', filters:'Filtres', compare2:'Comparer', share2:'Partager', save:'Enregistrer', close:'Fermer', search:'Rechercher', language:'Langue', currency:'Devise', units:'Unites', darkMode:'Mode sombre', about:'A propos' },
+  de: { weather:'Wetter', safety:'Sicherheit', cost:'Kosten', internet:'Internet', visa:'Visum', english:'Englischkenntnisse', healthcare:'Gesundheit', tapwater:'Trinkwasser', nightlife:'Nachtleben', scam:'Betrugsrisiko', malaria:'Malariarisiko', compare:'Vergleichen', journal:'Tagebuch', packing:'Packliste', wishlist:'Wunschliste', share:'Teilen', tipping:'Trinkgeld', noTipping:'Kein Trinkgeld', tipOptional:'Trinkgeld optional', tipAppreciated:'Trinkgeld willkommen', tipExpected:'Trinkgeld erwartet', countryIntel:'Laenderintelligenz', origin:'Herkunft', character:'Charakter', complexity:'Ehrliche Komplexitaet', bestFor:'Am besten fuer', notKnown:'Was Einheimische wissen', loading:'Laden', noData:'Keine Daten', layers:'Ebenen', filters:'Filter', compare2:'Vergleichen', share2:'Teilen', save:'Speichern', close:'Schliessen', search:'Suchen', language:'Sprache', currency:'Waehrung', units:'Einheiten', darkMode:'Dunkler Modus', about:'Ueber' },
 };
 var _LANG_KEYS = ['en','es','fr','de'];
 
@@ -993,7 +993,7 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 const CAT_GROUPS = [
   { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster','healthcare','femalesafety','malaria'] },
   { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis','nomad','nightlife'] },
-  { id:'local-info',    label:'Local Info',      emoji:'ℹ',  keys:['english','tapwater','airquality','scam'] },
+  { id:'local-info',    label:'Local Info',      emoji:'ℹ',  keys:['english','tapwater','airquality','scam','tipping'] },
   // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
   // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
   { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
@@ -1513,6 +1513,10 @@ function getCountryRating(iso2) {
     if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[iso2] != null) return CD_NIGHTLIFE[iso2]; return null; }
     if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[iso2] != null) return CD_SCAM[iso2]; return null; }
     if (lk === 'malaria') { if (typeof CD_MALARIA !== 'undefined' && CD_MALARIA[iso2] != null) return CD_MALARIA[iso2]; return null; }
+    if (lk === 'tipping') {
+      if (typeof CD_TIPPING !== 'undefined' && CD_TIPPING[iso2] != null) return CD_TIPPING[iso2];
+      return null;
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -1550,6 +1554,7 @@ function getAdmin1Rating(subCode, parentIso2) {
       return d2 && d2.family != null ? getRating(d2.family) : null;
     }
     if (lk === 'cannabis') {
+      if (d1 && d1.cannabis != null) return d1.cannabis;          // state-level override (e.g. US state laws)
       if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[parentIso2] != null) return CD_CANNABIS[parentIso2];
       return null;
     }
@@ -1565,6 +1570,11 @@ function getAdmin1Rating(subCode, parentIso2) {
     if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[parentIso2] != null) return CD_NIGHTLIFE[parentIso2]; return null; }
     if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[parentIso2] != null) return CD_SCAM[parentIso2]; return null; }
     if (lk === 'malaria') { if (typeof CD_MALARIA !== 'undefined' && CD_MALARIA[parentIso2] != null) return CD_MALARIA[parentIso2]; return null; }
+    if (lk === 'tipping') {
+      if (d1 && d1.tipping != null) return d1.tipping;
+      if (typeof CD_TIPPING !== 'undefined' && CD_TIPPING[parentIso2] != null) return CD_TIPPING[parentIso2];
+      return null;
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
@@ -1927,6 +1937,8 @@ async function initChoropleth() {
           toggleTooltip('country:' + iso2, html, e.originalEvent.clientX, e.originalEvent.clientY);
           var center = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[iso2]);
           if (center) _injectWeatherRow(iso2, center[0], center[1]);
+          var _ic = document.getElementById("intel-" + iso2);
+          if (_ic) _renderCountryIntel(iso2, countryNames[iso2] || iso2, _ic);
         }
         setTimeout(() => { _featureClicked = false; }, 10);
       });
@@ -2865,6 +2877,83 @@ function _buildGasstationsTooltip(t) {
   return '<div style="padding:4px 0">'+r('Brand',t.brand||t.operator)+r('Fuel',t.fuel||t['fuel:diesel']||'')+r('24h',t.opening_hours)+r('Shop',t.shop)+'</div>';
 }
 
+function _buildTippingTooltip(iso2) {
+  if (typeof CD_TIPPING === "undefined" || CD_TIPPING[iso2] == null) return "";
+  var v = CD_TIPPING[iso2];
+  var labels = ["No tipping expected","Tipping optional","Tipping appreciated (10-15%)","Tipping expected (15-20%+)"];
+  var notes = [
+    "Tipping is not customary here. Simply paying the bill is correct etiquette. Do not tip.",
+    "Rounding up or leaving small change is appreciated but never required.",
+    "A 10-15% tip is appreciated in restaurants and for personal services.",
+    "Server wages depend on tips. 18-20% is standard; 15% is the minimum considered polite."
+  ];
+  return "<div class=\"tt-section\"><div class=\"tt-row\"><span class=\"tt-key\">Tipping: </span>"
+    + "<span class=\"tt-val\">" + _esc(labels[v]) + "</span></div>"
+    + "<p class=\"tt-note\">" + _esc(notes[v]) + "</p></div>";
+}
+
+// ─── Country Intelligence (AI) ───────────────────────────────────────────────
+
+var _intelCache = {};
+
+async function _getCountryIntelligence(iso2, countryName) {
+  if (_intelCache[iso2]) return _intelCache[iso2];
+  var cached = sessionStorage.getItem("na_intel_" + iso2);
+  if (cached) { try { var r = JSON.parse(cached); _intelCache[iso2]=r; return r; } catch(e){} }
+  var apiKey = sessionStorage.getItem("na_api_key");
+  if (!apiKey) return null;
+  try {
+    var resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5",
+        max_tokens: 600,
+        system: "You are a travel intelligence analyst. Respond ONLY with a JSON object, no markdown fences.",
+        messages: [{ role: "user", content: "Travel intelligence brief for " + countryName + " (ISO: " + iso2 + "). Return JSON with keys: origin (2 sentences on how/when the nation formed and what shapes it today), character (2 sentences on national identity and what surprises visitors), complexity (1 honest sentence about a tension a visitor should know), bestFor (array of 3 strings: what this country is uniquely best for), notKnown (1 sentence on what locals are proud of that outsiders rarely know)." }]
+      })
+    });
+    if (!resp.ok) return null;
+    var data = await resp.json();
+    var text = data.content && data.content[0] && data.content[0].text;
+    if (!text) return null;
+    var json = JSON.parse(text.replace(/^```json\n?/,"").replace(/\n?```$/,""));
+    _intelCache[iso2] = json;
+    sessionStorage.setItem("na_intel_" + iso2, JSON.stringify(json));
+    return json;
+  } catch(e) { return null; }
+}
+
+function _renderCountryIntel(iso2, countryName, containerEl) {
+  if (!containerEl) return;
+  var apiKey = sessionStorage.getItem("na_api_key");
+  if (!apiKey) {
+    containerEl.innerHTML = "<div class=\"intel-prompt\">Add your API key above to enable AI country intelligence.</div>";
+    return;
+  }
+  containerEl.innerHTML = "<div class=\"intel-loading\">Consulting the almanac…</div>";
+  _getCountryIntelligence(iso2, countryName).then(function(intel) {
+    if (!intel) { containerEl.innerHTML = "<div class=\"intel-error\">Brief unavailable.</div>"; return; }
+    var h = "<div class=\"intel-panel\">";
+    if (intel.origin)    h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">ORIGIN</div><p>" + _esc(intel.origin) + "</p></div>";
+    if (intel.character) h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">CHARACTER</div><p>" + _esc(intel.character) + "</p></div>";
+    if (intel.bestFor && intel.bestFor.length) {
+      h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">BEST FOR</div><ul>";
+      intel.bestFor.forEach(function(b){ h += "<li>" + _esc(b) + "</li>"; });
+      h += "</ul></div>";
+    }
+    if (intel.notKnown)   h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">WHAT LOCALS KNOW</div><p>" + _esc(intel.notKnown) + "</p></div>";
+    if (intel.complexity) h += "<div class=\"intel-sect intel-cx\"><div class=\"intel-lbl\">HONEST COMPLEXITY</div><p>" + _esc(intel.complexity) + "</p></div>";
+    h += "</div>";
+    containerEl.innerHTML = h;
+  });
+}
+
 // ─── Rail Stop Markers ────────────────────────────────────────────────────────
 // Renders individual station/halt/stop dots when the Rail layer is active.
 // Visible at zoom ≥ 7; cleared when rail is deactivated or zoom drops below 7.
@@ -3787,9 +3876,10 @@ function buildCountryTooltip(iso2) {
   const name = countryNames[iso2] || iso2;
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? ` <span style="font-size:9px;color:var(--gold);font-weight:400;letter-spacing:1px">${CURRENCY[iso2]}</span>` : '';
   const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
-  const costSection = buildCostDetailsSection(iso2);
-  const visaSection = buildVisaSection(iso2);
-  const tzSection   = buildTimezoneSection(iso2);
+  const costSection    = buildCostDetailsSection(iso2);
+  const visaSection    = buildVisaSection(iso2);
+  const tippingSection = activeLayers.has('tipping') ? _buildTippingTooltip(iso2) : '';
+  const tzSection      = buildTimezoneSection(iso2);
   const holSection     = buildHolidaysSection(iso2);
   const journalSection = buildJournalSection(iso2);
   const isPinned    = pinnedCountries.includes(iso2);
@@ -3841,7 +3931,9 @@ function buildCountryTooltip(iso2) {
     ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${rows}${costSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}</div>${pinSection}${similarSection}`;
+  <div class="ttb" id="tt-body">${rows}${costSection}${tippingSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}
+  <div class="intel-wrap"><div class="intel-hdr">Country Intelligence <span class="intel-badge">AI</span></div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
+  </div>${pinSection}${similarSection}`;
 }
 
 function buildCityTooltip(city) {

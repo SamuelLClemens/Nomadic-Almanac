@@ -133,6 +133,7 @@ const LAYER_LABELS = {
   kids:     ['Excellent','Good','Fair','Limited'],
   parks:    ['Abundant','Good Coverage','Some','Few'],
   cannabis: ['Legal','Medical/Decrim','Minor Penalties','Severe/Zero Tolerance'],
+  tipping:  ['No Tipping Culture','Tip Optional','Tip Appreciated','Tipping Expected'],
   nomad:    ['Excellent Base','Good Option','Fair','Not Recommended'],
   english:      ['Very High Proficiency','High Proficiency','Moderate Proficiency','Low Proficiency'],
   healthcare:   ['Excellent Healthcare','Good Healthcare','Fair Healthcare','Poor Healthcare'],
@@ -446,6 +447,24 @@ const CD_CANNABIS = {
   BT:2,   // Bhutan: technically illegal but possession rarely prosecuted
 };
 
+const CD_TIPPING = {
+  JP:0,KR:0,CN:0,TW:0,HK:0,SG:0,BN:0,
+  GB:1,DE:1,FR:1,IT:1,ES:1,PT:1,NL:1,BE:1,CH:1,AT:1,
+  SE:1,NO:1,DK:1,FI:1,IS:1,IE:1,LU:1,GR:1,PL:1,CZ:1,
+  HU:1,SK:1,RO:1,BG:1,HR:1,SI:1,RS:1,ME:1,MK:1,AL:1,
+  BA:1,EE:1,LV:1,LT:1,UA:1,MD:1,BY:1,GE:1,AM:1,AZ:1,
+  AU:1,NZ:1,TH:1,ID:1,MY:1,VN:1,KH:1,LA:1,MM:1,PH:1,IN:1,LK:1,
+  CA:2,MX:2,BR:2,AR:2,CL:2,CO:2,PE:2,VE:2,EC:2,BO:2,
+  PY:2,UY:2,CR:2,GT:2,BZ:2,HN:2,SV:2,NI:2,PA:2,
+  CU:2,DO:2,JM:2,TT:2,BB:2,HT:2,
+  TR:2,IL:2,JO:2,LB:2,EG:2,MA:2,TN:2,DZ:2,
+  AE:2,SA:2,KW:2,BH:2,QA:2,OM:2,IQ:2,IR:2,
+  ZA:2,KE:2,GH:2,NG:2,TZ:2,ET:2,SN:2,UG:2,ZM:2,ZW:2,
+  RW:2,CM:2,CI:2,MZ:2,MG:2,AO:2,
+  PK:2,BD:2,NP:2,RU:2,KZ:2,UZ:2,MN:2,MV:2,
+  US:3
+};
+
 const CD_NOMAD = {
   PT:0,GE:0,MX:0,TH:0,VN:0,CO:0,ID:0,PH:0,MY:0,UY:0,
   CZ:0,PL:0,EE:0,HU:0,RO:0,BG:0,RS:0,BA:0,MK:0,AL:0,ME:0,
@@ -612,6 +631,24 @@ const COUNTRY_HOLIDAYS = {
   LK:{ 0:['New Year'],1:['National Day (Feb 4)'],2:['Maha Sivarathri (varies)'],3:['Avurudhu (Apr 14)','Good Fri','Easter'],4:['Vesak Full Moon (varies)','May Day'],5:['Poson Poya'],6:['Esala Poya'],7:['National Heroes Day (Aug 15)'],8:[],9:[],10:['Deepavali (varies)'],11:['Christmas'] },
   NP:{ 0:['New Year (Bikram Sambat, mid-Apr)'],1:['Maha Shivaratri (varies)','National Democracy Day (Feb 19)'],2:['Ghode Jatra (Kathmandu)','Holi'],3:['Eid (varies)','Buddha Jayanti (May, varies)'],4:['Republic Day (May 29)'],5:[],6:[],7:['Teej (Aug/Sep)','Janai Purnima'],8:['Indra Jatra (Sep)','Constitution Day (Sep 20)'],9:['Dashain (Oct)','Tihar/Diwali (Oct/Nov)'],10:[],11:['Christmas (mainly tourist)'] },
   MM:{ 0:['Independence Day (Jan 4)'],1:['Union Day (Feb 12)'],2:['Armed Forces Day (Mar 27)'],3:['Thingyan Water Festival (Apr)','Burmese New Year'],4:['May Day','Full Moon Kason (May, Buddhist)'],5:[],6:[],7:['Waso/Buddhist Lent begins'],8:[],9:['Thadingyut Festival (Oct)'],10:['Tazaungdaing Festival (Nov)'],11:['National Day (Nov 27)','Christmas'] },
+  CY:{ 0:['New Year\'s Day','Epiphany (Jan 6)'],1:[],2:['Greek Independence Day (Mar 25)'],3:['Cyprus National Day (Apr 1)','Good Friday','Easter Monday'],4:['Labour Day (May 1)'],5:['Whit Monday (Jun 15)'],6:[],7:['Assumption (Aug 15)'],8:[],9:['Cyprus Independence Day (Oct 1)','Ohi Day (Oct 28)'],10:[],11:['Christmas (Dec 25)','Boxing Day (Dec 26)'] },
+  LU:{ 0:['New Year\'s Day'],1:['Carnival (Feb 9)'],2:[],3:['Easter Monday (Apr 1)'],4:['Labour Day (May 1)','Europe Day (May 9)','Ascension (May 19)'],5:[],6:['National Day (Jun 23)'],7:['Assumption (Aug 15)'],8:[],9:[],10:['All Saints Day (Nov 1)'],11:['Christmas (Dec 25)','Boxing Day (Dec 26)'] },
+  LT:{ 0:['New Year\'s Day'],1:['Independence Day (Feb 16)'],2:['Independence Restoration Day (Mar 11)'],3:['Easter Sunday (Apr 1)','Easter Monday (Apr 4)'],4:['Labour Day (May 1)'],5:[],6:['St. John\'s Day (Jun 24)','Statehood Day (Jul 6)'],7:['Assumption (Aug 15)'],8:[],9:[],10:['All Saints Day (Nov 1)','Souls Day (Nov 2)'],11:['Christmas (Dec 25)','Boxing Day (Dec 26)'] },
+  LV:{ 0:['New Year\'s Day'],1:[],2:[],3:['Easter Sunday (Apr 1)','Easter Monday (Apr 4)'],4:['Labour Day (May 1)','Restoration of Independence (May 4)'],5:[],6:['Midsummer Eve (Jun 23)','Midsummer Day (Jun 24)'],7:[],8:[],9:[],10:['Proclamation Day (Nov 18)'],11:['Christmas (Dec 25)','Boxing Day (Dec 26)','New Year\'s Eve (Dec 31)'] },
+  EE:{ 0:['New Year\'s Day'],1:['Independence Day (Feb 24)'],2:[],3:['Good Friday (Apr 1)','Easter Sunday (Apr 4)'],4:['Labour Day (May 1)'],5:[],6:['Victory Day (Jun 23)','Midsummer Day (Jun 24)'],7:['Restoration of Independence (Aug 20)'],8:[],9:[],10:[],11:['Christmas (Dec 25)','Boxing Day (Dec 26)'] },
+  SI:{ 0:['New Year\'s Day (Jan 1-2)'],1:['Preseren Day (Feb 8)'],2:[],3:['Easter Sunday (Apr 1)','Uprising against Occupation (Apr 28)'],4:['Labour Day (May 1-2)'],5:[],6:['Statehood Day (Jun 25)'],7:['Assumption (Aug 15)'],8:[],9:['Reformation Day (Oct 31)','All Saints Day (Nov 1)'],10:[],11:['Christmas (Dec 25)','Independence Day (Dec 26)'] },
+  SK:{ 0:['New Year\'s Day / Slovak Statehood (Jan 1)','Epiphany (Jan 6)'],1:[],2:[],3:['Easter Friday (Apr 1)','Easter Monday (Apr 4)'],4:['Labour Day (May 1)','VE Day (May 8)'],5:[],6:['Cyril and Methodius Day (Jul 5)'],7:['SNP Anniversary (Aug 29)'],8:['Constitution Day (Sep 1)'],9:[],10:['All Saints Day (Nov 1)','Struggle for Freedom (Nov 17)'],11:['Christmas Eve (Dec 24)','Christmas (Dec 25)','St. Stephen (Dec 26)'] },
+  HR:{ 0:['New Year\'s Day','Epiphany (Jan 6)'],1:[],2:[],3:['Easter Sunday (Apr 1)','Easter Monday (Apr 4)'],4:['Labour Day (May 1)'],5:['Anti-Fascist Struggle Day (Jun 22)','Statehood Day (Jun 25)'],6:[],7:['Victory Day (Aug 5)','Assumption (Aug 15)'],8:[],9:['Independence Day (Oct 8)','All Saints Day (Nov 1)','Remembrance Day (Nov 18)'],10:[],11:['Christmas (Dec 25)','St. Stephen (Dec 26)'] },
+  MK:{ 0:['New Year\'s Day','Orthodox Christmas (Jan 7)'],1:[],2:[],3:['Easter Sunday (Apr 1)'],4:['Labour Day (May 1)','Saints Cyril and Methodius Day (May 24)'],5:[],6:[],7:['Ilinden Day (Aug 2)'],8:['Independence Day (Sep 8)'],9:['Day of the Macedonian Revolutionary Struggle (Oct 11)'],10:[],11:['St. Clement of Ohrid Day (Dec 8)','Christmas (Dec 25)'] },
+  ME:{ 0:['New Year\'s Day (Jan 1-2)','Orthodox Christmas (Jan 7-8)'],1:[],2:[],3:['Good Friday (Apr 1)','Orthodox Easter (Apr 22)'],4:['Labour Day (May 1-2)','Independence Day (May 21)'],5:[],6:['Statehood Day (Jul 13)'],7:[],8:[],9:[],10:[],11:['Christmas (Dec 25)'] },
+  KZ:{ 0:['New Year (Jan 1-2)','Orthodox Christmas (Jan 7)'],1:[],2:['International Women\'s Day (Mar 8)','Nowruz (Mar 21-22)'],3:[],4:['Kazakhstan People\'s Unity Day (May 1)','Defender of the Fatherland Day (May 7)','Victory Day (May 9)'],5:[],6:['Capital City Day (Jul 6)'],7:['Constitution Day (Aug 30)'],8:[],9:[],10:[],11:['Independence Day (Dec 16)'] },
+  UZ:{ 0:['New Year\'s Day'],1:[],2:['International Women\'s Day (Mar 8)','Nowruz (Mar 21)'],3:[],4:['Labour Day (May 1)','Victory Day (May 9)'],5:[],6:[],7:['Independence Day (Sep 1)'],8:[],9:['Teachers Day (Oct 1)'],10:[],11:['Constitution Day (Dec 8)'] },
+  MN:{ 0:['New Year (Jan 1-3)'],1:[],2:['International Women\'s Day (Mar 8)'],3:[],4:['Labour Day (May 1)'],5:['Children\'s Day (Jun 1)'],6:['Naadam (Jul 11-15, National Festival)'],7:[],8:[],9:[],10:[],11:['Constitution Day (Nov 26)','Mongolian New Year (Dec 29, varies)'] },
+  ZW:{ 0:['New Year\'s Day'],1:['Robert Mugabe National Youth Day (Feb 21)'],2:[],3:['Good Friday (Apr 1)','Easter Monday (Apr 4)','Independence Day (Apr 18)'],4:['Workers Day (May 1)'],5:[],6:[],7:['Heroes Day (Aug 11)'],8:[],9:[],10:[],11:['Christmas (Dec 22)','Christmas Day (Dec 25)','Boxing Day (Dec 26)'] },
+  CR:{ 0:['New Year\'s Day'],1:['St. Joseph\'s Day (Mar 19)'],2:[],3:['Good Friday (Apr 1)'],4:['Labour Day (May 1)'],5:[],6:['Annexation of Guanacaste (Jul 25)'],7:[],8:['Independence Day (Sep 15)'],9:['Columbus Day (Oct 12)'],10:[],11:['Immaculate Conception (Dec 8)','Christmas (Dec 25)'] },
+  UY:{ 0:['New Year\'s Day','Epiphany (Jan 6)'],1:[],2:[],3:['Easter Thursday (Apr 1)'],4:['Labour Day (May 1)','Battle of Las Piedras (May 18)'],5:['Artigas Day (Jun 19)'],6:['Constitution Day (Jul 18)','Independence Day (Aug 25)'],7:[],8:[],9:['Columbus Day (Oct 12)','All Souls Day (Nov 2)'],10:[],11:['Immaculate Conception (Dec 8)','Christmas (Dec 25)'] },
+  PY:{ 0:['New Year\'s Day'],1:['Heroes Day (Mar 1)'],2:[],3:['Easter Thursday (Apr 1)'],4:['Labour Day (May 1)','Independence Days (May 14-15)'],5:['Chaco Peace (Jun 12)'],6:[],7:['Founding of Asuncion (Aug 6)'],8:['Battle of Boqueron (Sep 29)'],9:[],10:['All Saints Day (Nov 1)','Immaculate Conception (Dec 8)'],11:['Christmas (Dec 25)'] },
+  DO:{ 0:['New Year\'s Day','Epiphany (Jan 6)','Our Lady of Altagracia (Jan 21)','Duarte Day (Jan 26)'],1:['Independence Day (Feb 27)'],2:[],3:['Good Friday (Apr 1)'],4:['Labour Day (May 1)'],5:[],6:[],7:['Restoration Day (Aug 16)'],8:['Our Lady of Mercy (Sep 24)'],9:['Columbus Day (Oct 12)'],10:['All Saints Day (Nov 6)'],11:['Christmas (Dec 25)'] },
 };
 
 // Budget traveler cost estimates (approximate USD) for cost-of-living tooltip
@@ -884,6 +921,7 @@ const LAYERS = {
   kids:     { name:'Kid Friendly',     emoji:'👶', color:'#f9c74f', levels:['Excellent','Good','Fair','Limited'] },
   parks:    { name:'National Parks',   emoji:'🌲', color:'#52b788', levels:['Abundant','Good','Some','Few'] },
   cannabis: { name:'Cannabis Laws',   emoji:'🌿', color:'#4ade80', levels:['Legal','Medical/Decrim','Minor Penalties','Severe/Zero Tolerance'] },
+  tipping:  { name:'Tipping Culture', emoji:'$',  color:'#10b981', levels:['No Tipping','Tip Optional','Tip Appreciated','Tipping Expected'] },
   nomad:    { name:'Nomad Score',     emoji:'💻', color:'#38bdf8', levels:['Excellent','Good','Fair','Poor'] },
   english:      { name:'English Proficiency', emoji:'🌐', color:'#6366f1', levels:['Very High','High','Moderate','Low'] },
   healthcare:   { name:'Healthcare Quality',  emoji:'🏥', color:'#ec4899', levels:['Excellent','Good','Fair','Poor'] },
@@ -1365,70 +1403,72 @@ const CD_A1 = {
   // ── USA — all 50 states ───────────────────────────────────────────────────
   // US national fallbacks: cost:rep(3), safety:rep(1), lgbtq:rep(1), disaster:rep(1)
   // Per-state entries only specify layers that meaningfully differ from those defaults.
+  // cannabis scale: 0=Recreational Legal  1=Medical/Decrim  2=Minor Penalties  3=Severe
+  // Source: NORML state laws database + individual state statutes, verified 2025.
 
   // Pacific Coast
-  'US-AK': { weather: s12(3,3,3,2,1,1,1,1,2,2,3,3), safety:rep(0), disaster:rep(1), beaches:rep(3) },
-  'US-HI': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), lgbtq:rep(0), beaches:rep(0), disaster:rep(2) },
-  'US-WA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), lgbtq:rep(0) },
-  'US-OR': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(2), lgbtq:rep(0) },
-  'US-CA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), lgbtq:rep(0), disaster:rep(2) },
+  'US-AK': { weather: s12(3,3,3,2,1,1,1,1,2,2,3,3), safety:rep(0), disaster:rep(1), beaches:rep(3), cannabis:0 }, // Recreational since 2014
+  'US-HI': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), lgbtq:rep(0), beaches:rep(0), disaster:rep(2), cannabis:1 },  // Medical + decrim
+  'US-WA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), lgbtq:rep(0), cannabis:0 },                                   // Recreational since 2012
+  'US-OR': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(2), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2014
+  'US-CA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), lgbtq:rep(0), disaster:rep(2), cannabis:0 },                  // Recreational since 2016
 
   // Mountain West
-  'US-MT': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
-  'US-ID': { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
-  'US-WY': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
-  'US-CO': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,1), cost:rep(2), lgbtq:rep(0) },
-  'US-NV': { weather: s12(1,1,1,1,1,2,3,3,2,1,0,0), cost:rep(1), lgbtq:rep(1) },
-  'US-UT': { weather: s12(1,1,1,1,1,1,2,2,1,0,0,1), cost:rep(1), lgbtq:rep(3) },
-  'US-AZ': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), cost:rep(1), lgbtq:rep(1) },
-  'US-NM': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1), cost:rep(1), safety:rep(2), lgbtq:rep(1) },
+  'US-MT': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2), cannabis:0 },       // Recreational since 2020
+  'US-ID': { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), cost:rep(1), safety:rep(0), lgbtq:rep(2), cannabis:2 },       // No medical; misdemeanor possession
+  'US-WY': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2), cannabis:2 },       // No medical; misdemeanor possession
+  'US-CO': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,1), cost:rep(2), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2012, first state
+  'US-NV': { weather: s12(1,1,1,1,1,2,3,3,2,1,0,0), cost:rep(1), lgbtq:rep(1), cannabis:0 },                      // Recreational since 2016
+  'US-UT': { weather: s12(1,1,1,1,1,1,2,2,1,0,0,1), cost:rep(1), lgbtq:rep(3), cannabis:1 },                      // Medical since 2018
+  'US-AZ': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), cost:rep(1), lgbtq:rep(1), cannabis:0 },                      // Recreational since 2020
+  'US-NM': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1), cost:rep(1), safety:rep(2), lgbtq:rep(1), cannabis:0 },       // Recreational since 2021
 
   // Great Plains
-  'US-ND': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2) },
-  'US-SD': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2), disaster:rep(2) },
-  'US-NE': { weather: s12(2,2,1,1,2,1,1,2,0,1,1,2), cost:rep(1), lgbtq:rep(2), disaster:rep(2) },
-  'US-KS': { weather: s12(1,1,1,1,2,1,2,3,1,1,1,1), cost:rep(1), lgbtq:rep(2), disaster:rep(2) },
-  'US-OK': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1), cost:rep(1), safety:rep(2), lgbtq:rep(2), disaster:rep(2) },
-  'US-TX': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1), cost:rep(2), lgbtq:rep(2), disaster:rep(2) },
+  'US-ND': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2), cannabis:1 },       // Medical since 2016
+  'US-SD': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), safety:rep(0), lgbtq:rep(2), disaster:rep(2), cannabis:1 }, // Medical since 2020; rec attempts failed
+  'US-NE': { weather: s12(2,2,1,1,2,1,1,2,0,1,1,2), cost:rep(1), lgbtq:rep(2), disaster:rep(2), cannabis:1 },     // Medical passed Nov 2024
+  'US-KS': { weather: s12(1,1,1,1,2,1,2,3,1,1,1,1), cost:rep(1), lgbtq:rep(2), disaster:rep(2), cannabis:2 },     // No medical; misdemeanor possession
+  'US-OK': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1), cost:rep(1), safety:rep(2), lgbtq:rep(2), disaster:rep(2), cannabis:1 }, // Medical since 2018; rec SQ820 failed 2023
+  'US-TX': { weather: s12(1,1,1,1,2,2,3,3,2,1,1,1), cost:rep(2), lgbtq:rep(2), disaster:rep(2), cannabis:1 },     // Very limited medical (CUP); possession misdemeanor
 
   // Upper Midwest
-  'US-MN': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(0) },
-  'US-WI': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(1) },
-  'US-MI': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(1) },
-  'US-IA': { weather: s12(3,2,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(2), disaster:rep(2) },
-  'US-MO': { weather: s12(2,2,1,1,2,1,2,2,1,1,1,2), cost:rep(1), lgbtq:rep(2) },
-  'US-IL': { weather: s12(3,2,2,1,1,0,1,1,0,1,1,3), cost:rep(2), lgbtq:rep(0) },
-  'US-IN': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1), lgbtq:rep(2) },
-  'US-OH': { weather: s12(2,2,1,1,1,0,0,0,0,1,1,2), cost:rep(1), lgbtq:rep(1) },
+  'US-MN': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2023
+  'US-WI': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(1), cannabis:2 },                      // No medical statewide; misdemeanor possession
+  'US-MI': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(1), cannabis:0 },                      // Recreational since 2018
+  'US-IA': { weather: s12(3,2,2,1,1,0,0,0,1,1,2,3), cost:rep(1), lgbtq:rep(2), disaster:rep(2), cannabis:1 },     // Very limited medical; possession criminal
+  'US-MO': { weather: s12(2,2,1,1,2,1,2,2,1,1,1,2), cost:rep(1), lgbtq:rep(2), cannabis:0 },                      // Recreational since 2022
+  'US-IL': { weather: s12(3,2,2,1,1,0,1,1,0,1,1,3), cost:rep(2), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2020
+  'US-IN': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1), lgbtq:rep(2), cannabis:2 },                      // CBD only; no medical; criminal possession
+  'US-OH': { weather: s12(2,2,1,1,1,0,0,0,0,1,1,2), cost:rep(1), lgbtq:rep(1), cannabis:0 },                      // Recreational since 2023
 
   // South / Gulf Coast
-  'US-LA': { weather: s12(1,1,1,2,2,2,3,3,2,1,1,1), cost:rep(1), safety:rep(2), lgbtq:rep(2), disaster:rep(3) },
-  'US-AR': { weather: s12(1,1,1,1,2,1,2,2,1,1,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(2) },
-  'US-MS': { weather: s12(1,1,1,1,2,2,2,2,2,1,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(3) },
-  'US-AL': { weather: s12(1,1,1,0,1,1,2,2,1,0,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(3) },
-  'US-TN': { weather: s12(1,1,1,1,1,0,1,1,0,1,1,1), cost:rep(1), lgbtq:rep(2) },
-  'US-KY': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1), lgbtq:rep(2) },
-  'US-WV': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(1), lgbtq:rep(2) },
-  'US-FL': { weather: s12(1,1,0,0,1,2,2,2,2,1,1,1), cost:rep(2), lgbtq:rep(1), disaster:rep(2) },
+  'US-LA': { weather: s12(1,1,1,2,2,2,3,3,2,1,1,1), cost:rep(1), safety:rep(2), lgbtq:rep(2), disaster:rep(3), cannabis:1 }, // Medical + decrim (≤14g)
+  'US-AR': { weather: s12(1,1,1,1,2,1,2,2,1,1,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(2), cannabis:1 },       // Medical since 2016
+  'US-MS': { weather: s12(1,1,1,1,2,2,2,2,2,1,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(3), cannabis:1 },       // Medical since 2022 + decrim
+  'US-AL': { weather: s12(1,1,1,0,1,1,2,2,1,0,1,1), cost:rep(0), safety:rep(2), lgbtq:rep(3), cannabis:1 },       // Medical since 2021
+  'US-TN': { weather: s12(1,1,1,1,1,0,1,1,0,1,1,1), cost:rep(1), lgbtq:rep(2), cannabis:2 },                      // No comprehensive medical; criminal possession
+  'US-KY': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1), lgbtq:rep(2), cannabis:1 },                      // Medical since 2023 (SB 47)
+  'US-WV': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(1), lgbtq:rep(2), cannabis:1 },                      // Medical since 2017
+  'US-FL': { weather: s12(1,1,0,0,1,2,2,2,2,1,1,1), cost:rep(2), lgbtq:rep(1), disaster:rep(2), cannabis:1 },     // Medical; Measure 3 (2024 rec) failed at 55.9%
 
   // Southeast Atlantic
-  'US-GA': { weather: s12(1,1,1,0,1,1,2,2,1,0,0,1), cost:rep(1), lgbtq:rep(2) },
-  'US-SC': { weather: s12(1,1,0,0,0,0,1,1,0,0,0,1), cost:rep(1), lgbtq:rep(2) },
-  'US-NC': { weather: s12(1,1,1,1,0,0,1,1,0,0,1,1), cost:rep(1), lgbtq:rep(2) },
-  'US-VA': { weather: s12(1,1,1,1,0,0,1,1,0,0,1,1), cost:rep(2), lgbtq:rep(1) },
-  'US-MD': { weather: s12(1,1,1,1,1,0,1,1,0,0,1,2), cost:rep(2), lgbtq:rep(0) },
-  'US-DE': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2), cost:rep(2), lgbtq:rep(0) },
+  'US-GA': { weather: s12(1,1,1,0,1,1,2,2,1,0,0,1), cost:rep(1), lgbtq:rep(2), cannabis:1 },                      // Medical (low-THC oil only)
+  'US-SC': { weather: s12(1,1,0,0,0,0,1,1,0,0,0,1), cost:rep(1), lgbtq:rep(2), cannabis:2 },                      // No medical; misdemeanor/felony possession
+  'US-NC': { weather: s12(1,1,1,1,0,0,1,1,0,0,1,1), cost:rep(1), lgbtq:rep(2), cannabis:1 },                      // No medical program; decrim ≤0.5oz ($200 fine)
+  'US-VA': { weather: s12(1,1,1,1,0,0,1,1,0,0,1,1), cost:rep(2), lgbtq:rep(1), cannabis:0 },                      // Recreational since 2021
+  'US-MD': { weather: s12(1,1,1,1,1,0,1,1,0,0,1,2), cost:rep(2), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2023
+  'US-DE': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2), cost:rep(2), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2023
 
   // Northeast
-  'US-NJ': { weather: s12(2,2,1,1,0,0,1,1,0,1,1,2), lgbtq:rep(0) },
-  'US-NY': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2), lgbtq:rep(0) },
-  'US-PA': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(2), lgbtq:rep(1) },
-  'US-CT': { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), lgbtq:rep(0) },
-  'US-RI': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(2), lgbtq:rep(0) },
-  'US-MA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), lgbtq:rep(0) },
-  'US-VT': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(0) },
-  'US-NH': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1) },
-  'US-ME': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1) },
+  'US-NJ': { weather: s12(2,2,1,1,0,0,1,1,0,1,1,2), lgbtq:rep(0), cannabis:0 },                                   // Recreational since 2021
+  'US-NY': { weather: s12(2,2,1,1,0,0,1,1,0,0,1,2), lgbtq:rep(0), cannabis:0 },                                   // Recreational since 2021
+  'US-PA': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(2), lgbtq:rep(1), cannabis:1 },                      // Medical since 2016; no recreational yet
+  'US-CT': { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), lgbtq:rep(0), cannabis:0 },                                   // Recreational since 2021
+  'US-RI': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), cost:rep(2), lgbtq:rep(0), cannabis:0 },                      // Recreational since 2022
+  'US-MA': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2), lgbtq:rep(0), cannabis:0 },                                   // Recreational since 2016
+  'US-VT': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(0), cannabis:0 },       // Recreational since 2020
+  'US-NH': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1), cannabis:0 },       // Recreational since 2024
+  'US-ME': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1), cannabis:0 },       // Recreational since 2016
 
   // ── Australia ────────────────────────────────────────────────────────────
   'AU-QLD': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) }, // Queensland — tropical north; cyclone season Dec–Mar
@@ -1452,6 +1492,10 @@ const CD_A1 = {
   'BR-SP': { weather: s12(2,2,2,2,1,1,1,1,1,1,2,2) }, // São Paulo — subtropical; mild most of year
   'BR-RS': { weather: s12(1,1,1,2,2,2,3,2,2,1,1,1) }, // Rio Grande do Sul — coldest Brazil; cool winters
   'BR-CE': { weather: s12(2,2,3,3,2,1,0,0,0,0,1,1) }, // Ceará (Fortaleza) — NE; rainy Feb–May
+  'BR-RJ':  { weather: s12(1,1,2,2,1,1,0,0,0,1,1,1), beaches:rep(0), cost:rep(2), crowds:rep(2), safety:rep(2) },
+  'BR-MG':  { weather: s12(1,1,1,2,2,2,1,1,0,0,1,2), cost:rep(1) },
+  'BR-SC':  { weather: s12(1,1,1,1,1,1,1,2,0,0,1,1), beaches:rep(1), cost:rep(1) },
+  'BR-PE':  { weather: s12(1,1,2,2,2,2,1,0,0,0,1,1), beaches:rep(0), cost:rep(0) },
 
   // ── Canada ───────────────────────────────────────────────────────────────
   'CA-BC': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // British Columbia — mild coast; rainy winters
@@ -1481,6 +1525,10 @@ const CD_A1 = {
   'FR-GES': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(1) },
   // Corse — island; hot dry summers; expensive; low crime; very limited winter tourism
   'FR-COR': { weather: s12(1,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
+  'FR-HDF': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1) },
+  'FR-CVL': { weather: s12(2,2,1,1,0,0,1,1,0,1,1,2), cost:rep(1) },
+  'FR-PDL': { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(1) },
+  'FR-BFC': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(1) },
 
   // ── Germany ──────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(0)
@@ -1494,6 +1542,17 @@ const CD_A1 = {
   'DE-NW': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(2) },
   // Baden-Wurttemberg — Stuttgart/Black Forest; wealthy; expensive; tech industry
   'DE-BW': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(2) },
+  'DE-HE':  { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(2) },
+  'DE-NI':  { weather: s12(2,2,2,1,1,1,0,0,1,1,2,2), cost:rep(1) },
+  'DE-RP':  { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), cost:rep(1) },
+  'DE-SH':  { weather: s12(2,2,2,1,1,1,0,0,1,1,2,2), cost:rep(1), beaches:rep(2) },
+  'DE-BB':  { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(0) },
+  'DE-MV':  { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(0), beaches:rep(1) },
+  'DE-TH':  { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(0) },
+  'DE-SN':  { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(0) },
+  'DE-ST':  { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(0) },
+  'DE-SL':  { weather: s12(2,2,1,1,1,0,0,0,1,1,1,2), cost:rep(1) },
+  'DE-HB':  { weather: s12(2,2,2,1,1,1,0,0,1,1,2,2), cost:rep(1) },
 
   // ── Spain ────────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(1), safety:rep(0), lgbtq:rep(0)
@@ -1511,6 +1570,17 @@ const CD_A1 = {
   'ES-MD': { weather: s12(1,1,1,1,0,1,2,2,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1) },
   // Valencia — sunniest major city; good beaches; more affordable than Barcelona
   'ES-VC': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1), cost:rep(1), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2) },
+  'ES-IC':  { weather: s12(0,0,0,0,0,1,1,1,0,0,0,0), beaches:rep(0), cost:rep(1), crowds:rep(1) },
+  'ES-GA':  { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(0), beaches:rep(1) },
+  'ES-CM':  { weather: s12(2,2,1,1,1,2,3,3,1,0,1,2), cost:rep(0) },
+  'ES-CL':  { weather: s12(2,2,1,1,1,1,2,3,1,0,1,2), cost:rep(0) },
+  'ES-NC':  { weather: s12(2,2,1,1,1,1,1,1,1,1,1,2), cost:rep(1) },
+  'ES-AR':  { weather: s12(2,2,1,1,1,1,2,2,1,1,1,2), cost:rep(0) },
+  'ES-MC':  { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1), cost:rep(1), beaches:rep(0) },
+  'ES-EX':  { weather: s12(1,1,0,0,1,2,3,3,1,0,0,1), cost:rep(0) },
+  'ES-AS':  { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(0), beaches:rep(1) },
+  'ES-CB':  { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(0) },
+  'ES-RI':  { weather: s12(2,2,1,1,1,1,2,2,1,0,1,2), cost:rep(0) },
 
   // ── Italy ─────────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(1), corrupt:rep(1)
@@ -1530,6 +1600,15 @@ const CD_A1 = {
   'IT-82': { weather: s12(1,1,0,0,0,0,0,0,0,0,1,1), cost:rep(0), safety:rep(1), corrupt:rep(2), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
   // Sardegna — beautiful beaches; very expensive Jul-Aug; deserted in winter
   'IT-88': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
+  'IT-LOM': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(3) },
+  'IT-LAZ': { weather: s12(1,1,0,0,1,1,2,2,1,0,0,1), cost:rep(2), crowds:rep(3) },
+  'IT-TOS': { weather: s12(1,2,1,1,0,0,0,0,1,0,1,2), cost:rep(2), crowds:rep(2) },
+  'IT-VEN': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(2), crowds:rep(3) },
+  'IT-CAM': { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1), beaches:rep(0), cost:rep(1) },
+  'IT-SIC': { weather: s12(1,1,0,0,1,2,3,3,2,0,0,1), beaches:rep(0), cost:rep(0) },
+  'IT-SAR': { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1), beaches:rep(0), cost:rep(1) },
+  'IT-TAA': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3), cost:rep(2) },
+  'IT-LIG': { weather: s12(1,1,0,0,1,1,1,1,1,0,0,1), beaches:rep(0), cost:rep(2) },
 
   // ── Japan ─────────────────────────────────────────────────────────────────────
   // Hokkaido — subarctic; powder ski paradise Dec-Mar; cool pleasant summers; best Jul-Sep
@@ -1684,6 +1763,10 @@ const CD_A1 = {
   'ZA-NC': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) },
   // Mpumalanga (Kruger National Park) — best game viewing May-Sep (dry); malaria risk year-round
   'ZA-MP': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), health:rep(2) },
+  'ZA-LP':  { weather: s12(0,0,0,1,1,2,2,1,1,0,0,0), cost:rep(0) },
+  'ZA-EC':  { weather: s12(0,0,0,1,1,2,2,2,1,0,0,0), beaches:rep(1), cost:rep(0), safety:rep(2) },
+  'ZA-NW':  { weather: s12(0,0,0,1,1,2,2,2,1,0,0,0), cost:rep(0) },
+  'ZA-FS':  { weather: s12(0,0,0,1,1,2,2,2,1,0,0,0), cost:rep(0) },
 
   // ── Morocco ───────────────────────────────────────────────────────────────────
   // Grand Casablanca-Settat — coastal Atlantic; mild year-round; best Mar-May, Sep-Nov
