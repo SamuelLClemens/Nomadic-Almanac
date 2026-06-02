@@ -1009,3 +1009,15 @@ html, body {
   transition: all 0.15s;
 }
 #btn-trip-planner:hover { background: rgba(48,36,16,0.98); border-color: var(--gold); }
+
+/* ─── Country Intelligence (AI) ─────────────────────────────────────────────── */
+.intel-wrap { margin-top: 10px; border-top: 1px solid rgba(184,150,12,0.3); padding-top: 8px; }
+.intel-hdr { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #B8960C; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.intel-badge { font-size: 8px; background: #B8960C; color: #0F1A2E; padding: 1px 4px; border-radius: 2px; }
+.intel-panel { font-size: 12px; line-height: 1.5; }
+.intel-sect { margin-bottom: 7px; }
+.intel-lbl { font-size: 8px; font-weight: 700; letter-spacing: 1.5px; color: #A0522D; margin-bottom: 2px; }
+.intel-sect p, .intel-sect ul { margin: 0; color: #1B2A4A; }
+.intel-sect ul { padding-left: 14px; }
+.intel-cx p { color: #6B5744; font-style: italic; }
+.intel-loading, .intel-error, .intel-prompt { font-size: 11px; color: #A0522D; font-style: italic; padding: 4px 0; }
