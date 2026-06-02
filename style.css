@@ -856,3 +856,156 @@ html, body {
   #topbar.tb-expanded #tb-row1 { flex-wrap: wrap; padding-bottom: 2px; }
   #topbar.tb-expanded #months-row { order: 3; width: 100%; padding-bottom: 4px; }
 }
+
+/* ─── Row-2 scroll fade indicator (shows more content is scrollable) ─────── */
+#tb-row2 {
+  position: relative;
+}
+#tb-row2::after {
+  content: '';
+  position: sticky;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  flex-shrink: 0;
+  background: linear-gradient(to right, transparent, rgba(28,20,8,0.85));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ─── Trip Planning Pins ─────────────────────────────────────────────────── */
+.trip-pin-icon {
+  background: none !important;
+  border: none !important;
+}
+.trip-pin-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.trip-pin-bubble {
+  width: 28px; height: 28px;
+  background: var(--crimson);
+  border: 2px solid var(--gold);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.6), 0 0 8px rgba(201,168,76,0.35);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.trip-pin-bubble:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7), 0 0 14px rgba(201,168,76,0.55);
+}
+.trip-pin-num {
+  transform: rotate(45deg);
+  font-family: var(--fm);
+  font-size: 9px; font-weight: 700;
+  color: var(--sand); line-height: 1;
+}
+.trip-pin-stem {
+  width: 2px; height: 6px;
+  background: var(--gold);
+  opacity: 0.7;
+}
+.trip-pin-shadow {
+  width: 8px; height: 3px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 50%;
+}
+
+/* Trip planner panel */
+#trip-panel {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  z-index: 1400;
+  background: rgba(14,11,6,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--b2);
+  border-top: 3px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 240px; max-width: 300px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  font-family: var(--fm);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+#trip-panel.open { display: flex; }
+#trip-panel-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 1.8px;
+  color: var(--gold); text-transform: uppercase;
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  padding-bottom: 6px;
+}
+#trip-pin-list { list-style: none; display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(201,168,76,0.3) transparent; }
+.trip-pin-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; color: var(--sand); padding: 4px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+  cursor: pointer;
+}
+.trip-pin-item:hover { color: var(--gold); }
+.trip-pin-item-num {
+  width: 18px; height: 18px;
+  background: var(--crimson);
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: var(--sand);
+  flex-shrink: 0;
+}
+.trip-pin-item-del {
+  margin-left: auto; color: rgba(201,168,76,0.4);
+  cursor: pointer; font-size: 11px; padding: 2px 4px;
+  border-radius: 3px; border: none; background: none;
+  font-family: var(--fm);
+}
+.trip-pin-item-del:hover { color: var(--crimson); background: rgba(155,28,46,0.1); }
+#trip-panel-actions { display: flex; gap: 6px; }
+.trip-action-btn {
+  flex: 1; padding: 5px 8px;
+  font-family: var(--fm); font-size: 8px; font-weight: 600;
+  border-radius: 5px; cursor: pointer;
+  transition: all 0.12s; letter-spacing: 0.5px;
+}
+#btn-add-pin {
+  background: rgba(155,28,46,0.12);
+  border: 1px solid rgba(155,28,46,0.35);
+  color: #e88888;
+}
+#btn-add-pin:hover { background: rgba(155,28,46,0.22); }
+#btn-add-pin.placing { background: rgba(155,28,46,0.25); border-color: var(--crimson); color: var(--sand); animation: pin-pulse 1s infinite; }
+@keyframes pin-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(155,28,46,0.4); } 50% { box-shadow: 0 0 0 5px rgba(155,28,46,0); } }
+#btn-clear-pins {
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.18);
+  color: rgba(201,168,76,0.5);
+}
+#btn-clear-pins:hover { background: rgba(201,168,76,0.1); color: var(--gold); }
+#trip-hint {
+  font-size: 8px; color: rgba(201,168,76,0.45); text-align: center;
+  line-height: 1.4; padding-top: 2px;
+}
+
+/* Trip planner toggle button (fixed to corner of map) */
+#btn-trip-planner {
+  position: fixed;
+  bottom: 20px; left: 60px;
+  z-index: 1300;
+  background: rgba(14,11,6,0.92);
+  border: 1px solid var(--b2);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-family: var(--fm); font-size: 9px; font-weight: 700;
+  color: var(--gold); letter-spacing: 0.8px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  transition: all 0.15s;
+}
+#btn-trip-planner:hover { background: rgba(48,36,16,0.98); border-color: var(--gold); }

@@ -132,6 +132,7 @@ const LAYER_LABELS = {
   strength: ['Open & Sunny','Visa-Free','Accessible','Restricted'],
   kids:     ['Excellent','Good','Fair','Limited'],
   parks:    ['Abundant','Good Coverage','Some','Few'],
+  cannabis: ['Legal','Medical/Decrim','Minor Penalties','Severe/Zero Tolerance'],
 };
 // ISO 4217 currency codes per country
 const CURRENCY = {
@@ -283,6 +284,29 @@ const CD_KIDS = {
   // Central America & Caribbean (new)
   GT:2, BZ:1, SV:2, HN:2, NI:2, CR:1, PA:1,
   JM:2, HT:3, DO:2, TT:1, BB:1,
+};
+
+// Cannabis legality: 0=Legal recreational, 1=Medical/Decrim, 2=Minor Penalties, 3=Severe/Zero Tolerance
+// Sources: EMCDDA, HRI Global Drug Policy Index 2023, individual country legislation
+const CD_CANNABIS = {
+  // 0 = Legal recreational adult use
+  CA:0, DE:0, MT:0, UY:0, GE:0,  // DE fully legal 2024 for adults; GE court ruling
+  // 1 = Medical legal / Possession decriminalized
+  US:1, AU:1, NZ:1, IL:1, PT:1, CZ:1, ES:1, NL:1, IT:1, CH:1, AR:1, BR:1, ZA:1,
+  TH:1,
+  CO:1, CL:1, MX:1, JM:1, BB:1, CR:1, EC:1, PE:1, GR:1, CY:1, HR:1, LU:1, BE:1,
+  // 2 = Minor penalties (technically illegal; small amounts = fine or caution)
+  GB:2, FR:2, IE:2, AT:2, SE:2, FI:2, NO:2, DK:2, SI:2, SK:2, RO:2, BG:2,
+  BA:2, RS:2, MK:2, AL:2, ME:2, TR:2, VN:2, KH:2, LA:2, IN:2, NP:2, LK:2,
+  KE:2, TZ:2, GH:2, MZ:2, RW:2, UG:2, NG:2, ET:2, TN:2, MN:2, BT:2,
+  HU:2, PL:2, EE:2, LV:2, LT:2, BY:2, UA:2, MD:2, GY:2, SR:2, BO:2, PY:2,
+  PA:2, DO:2, TT:2, CU:2, HT:2, GT:2, BZ:2, SV:2, HN:2, NI:2, JO:2,
+  MA:2, DZ:2, EG:2, MR:2, SD:2, UZ:2, KZ:2, AM:2, AZ:2,
+  // 3 = Severe penalties (arrest, significant prison, caning, or death for trafficking)
+  SG:3, MY:3, ID:3, PH:3, JP:3, KR:3, CN:3, HK:3, RU:3, MM:3, BN:3,
+  AE:3, QA:3, SA:3, KW:3, BH:3, OM:3, IR:3, IQ:3, SY:3, YE:3, LB:3, PK:3,
+  BD:3, AF:3, KP:3, LY:3, SO:3, SS:3, TD:3, NE:3, ML:3, BF:3, ER:3,
+  MV:3, MO:3,
 };
 
 // CD_TIMEZONE: ISO-2 → integer UTC offset (capital / dominant zone; half-hour
@@ -462,7 +486,7 @@ const PASSPORT_NATIONALITIES = {
 };
 
 // Visa requirements per destination × passport nationality
-// t: 'free'=visa-free  'eta'=electronic auth  'evisa'=online visa  'voa'=on arrival  'req'=embassy required
+// t: 'free'=visa-free  'eta'=electronic auth  'evisa'=online visa  'voa'=on arrival  'req'=embassy required  'banned'=entry refused/banned
 // d: max stay in days (0=variable/long-term)   c: approximate cost in USD
 const VISA_DATA = {
   AR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0} },
@@ -485,7 +509,7 @@ const VISA_DATA = {
   NG: { US:{t:'evisa',d:90,c:100},GB:{t:'evisa',d:90,c:100},DE:{t:'evisa',d:90,c:100},AU:{t:'evisa',d:90,c:100},CA:{t:'evisa',d:90,c:100},JP:{t:'evisa',d:90,c:100},NZ:{t:'evisa',d:90,c:100},ZA:{t:'req',d:0,c:0},IN:{t:'req',d:0,c:0},CN:{t:'free',d:30,c:0},BR:{t:'evisa',d:90,c:100} },
   NZ: { US:{t:'eta',d:90,c:14},  GB:{t:'eta',d:90,c:14},  DE:{t:'eta',d:90,c:14},  CA:{t:'eta',d:90,c:14},  JP:{t:'eta',d:90,c:14},  AU:{t:'free',d:0,c:0},   ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'req',d:0,c:0} },
   PE: { US:{t:'free',d:183,c:0}, GB:{t:'free',d:183,c:0}, DE:{t:'free',d:183,c:0}, AU:{t:'free',d:183,c:0}, CA:{t:'free',d:183,c:0}, JP:{t:'free',d:183,c:0}, NZ:{t:'free',d:183,c:0}, ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:90,c:0},  BR:{t:'free',d:183,c:0} },
-  PK: { US:{t:'evisa',d:30,c:75},GB:{t:'evisa',d:30,c:75},DE:{t:'evisa',d:30,c:75},AU:{t:'evisa',d:30,c:75},CA:{t:'evisa',d:30,c:75},JP:{t:'evisa',d:30,c:75},NZ:{t:'evisa',d:30,c:75},ZA:{t:'evisa',d:30,c:75},IN:{t:'req',d:0,c:0},CN:{t:'free',d:90,c:0},BR:{t:'evisa',d:30,c:75} },
+  PK: { US:{t:'evisa',d:30,c:75},GB:{t:'evisa',d:30,c:75},DE:{t:'evisa',d:30,c:75},AU:{t:'evisa',d:30,c:75},CA:{t:'evisa',d:30,c:75},JP:{t:'evisa',d:30,c:75},NZ:{t:'evisa',d:30,c:75},ZA:{t:'evisa',d:30,c:75},IN:{t:'req',d:0,c:0},CN:{t:'free',d:90,c:0},BR:{t:'evisa',d:30,c:75}, IL:{t:'banned',d:0,c:0} },
   PT: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
   RU: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'evisa',d:30,c:40}, IN:{t:'evisa',d:30,c:40}, CN:{t:'free',d:15,c:0}, BR:{t:'free',d:90,c:0} },
   TH: { US:{t:'free',d:60,c:0},  GB:{t:'free',d:60,c:0},  DE:{t:'free',d:60,c:0},  AU:{t:'free',d:60,c:0},  CA:{t:'free',d:60,c:0},  JP:{t:'free',d:60,c:0},  NZ:{t:'free',d:60,c:0},  ZA:{t:'free',d:60,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:60,c:0} },
@@ -493,7 +517,8 @@ const VISA_DATA = {
   US: { GB:{t:'eta',d:90,c:21},  DE:{t:'eta',d:90,c:21},  AU:{t:'eta',d:90,c:21},  CA:{t:'free',d:180,c:0}, JP:{t:'eta',d:90,c:21},  NZ:{t:'eta',d:90,c:21},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},   CN:{t:'req',d:0,c:0},   BR:{t:'eta',d:90,c:21} },
   VN: { US:{t:'evisa',d:90,c:25},GB:{t:'evisa',d:90,c:25},DE:{t:'evisa',d:90,c:25},AU:{t:'evisa',d:90,c:25},CA:{t:'evisa',d:90,c:25},JP:{t:'evisa',d:90,c:25},NZ:{t:'evisa',d:90,c:25},ZA:{t:'evisa',d:90,c:25},IN:{t:'evisa',d:90,c:25},CN:{t:'evisa',d:90,c:25},BR:{t:'evisa',d:90,c:25} },
   ZA: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  IN:{t:'req',d:0,c:0},   CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
-  MY: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // Malaysia bans Israeli passport holders; IL entry explicitly banned.
+  MY: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'banned',d:0,c:0} },
   KH: { US:{t:'evisa',d:30,c:30}, GB:{t:'evisa',d:30,c:30}, DE:{t:'evisa',d:30,c:30}, AU:{t:'evisa',d:30,c:30}, CA:{t:'evisa',d:30,c:30}, JP:{t:'free',d:30,c:0}, NZ:{t:'evisa',d:30,c:30}, ZA:{t:'evisa',d:30,c:30}, IN:{t:'evisa',d:30,c:30}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:30,c:30}, IL:{t:'evisa',d:30,c:30} },
   LA: { US:{t:'voa',d:30,c:35}, GB:{t:'voa',d:30,c:35}, DE:{t:'voa',d:30,c:35}, AU:{t:'voa',d:30,c:35}, CA:{t:'voa',d:30,c:35}, JP:{t:'free',d:15,c:0}, NZ:{t:'voa',d:30,c:35}, ZA:{t:'voa',d:30,c:35}, IN:{t:'voa',d:30,c:35}, CN:{t:'free',d:15,c:0}, BR:{t:'voa',d:30,c:35}, IL:{t:'voa',d:30,c:35} },
   MM: { US:{t:'evisa',d:28,c:50}, GB:{t:'evisa',d:28,c:50}, DE:{t:'evisa',d:28,c:50}, AU:{t:'evisa',d:28,c:50}, CA:{t:'evisa',d:28,c:50}, JP:{t:'free',d:30,c:0}, NZ:{t:'evisa',d:28,c:50}, ZA:{t:'evisa',d:28,c:50}, IN:{t:'evisa',d:28,c:50}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:28,c:50}, IL:{t:'evisa',d:28,c:50} },
@@ -514,6 +539,24 @@ const VISA_DATA = {
   KR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:180,c:0}, JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'evisa',d:30,c:0}, CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
   PH: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  ZA:{t:'free',d:30,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
   SG: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0} },
+  // Middle East & North Africa — includes IL:banned where entry is denied to Israeli passport holders
+  SA: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'evisa',d:90,c:0}, IN:{t:'evisa',d:90,c:0}, CN:{t:'evisa',d:90,c:0}, BR:{t:'evisa',d:90,c:0}, IL:{t:'req',d:0,c:0} },
+  JO: { US:{t:'voa',d:30,c:40},  GB:{t:'voa',d:30,c:40},  DE:{t:'voa',d:30,c:40},  AU:{t:'voa',d:30,c:40},  CA:{t:'voa',d:30,c:40},  JP:{t:'voa',d:30,c:40},  NZ:{t:'voa',d:30,c:40},  ZA:{t:'voa',d:30,c:40},  IN:{t:'voa',d:30,c:40},  CN:{t:'voa',d:30,c:40},  BR:{t:'voa',d:30,c:40},  IL:{t:'voa',d:30,c:40} },
+  LB: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
+  KW: { US:{t:'voa',d:90,c:0},   GB:{t:'voa',d:90,c:0},   DE:{t:'voa',d:90,c:0},   AU:{t:'voa',d:90,c:0},   CA:{t:'voa',d:90,c:0},   JP:{t:'voa',d:90,c:0},   NZ:{t:'voa',d:90,c:0},   ZA:{t:'req',d:0,c:0},    IN:{t:'voa',d:90,c:0},   CN:{t:'voa',d:90,c:0},   BR:{t:'voa',d:90,c:0},   IL:{t:'banned',d:0,c:0} },
+  QA: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'evisa',d:90,c:0}, CN:{t:'evisa',d:90,c:0}, BR:{t:'free',d:90,c:0},  IL:{t:'req',d:0,c:0} },
+  BH: { US:{t:'evisa',d:30,c:9}, GB:{t:'evisa',d:30,c:9}, DE:{t:'evisa',d:30,c:9}, AU:{t:'evisa',d:30,c:9}, CA:{t:'evisa',d:30,c:9}, JP:{t:'evisa',d:30,c:9}, NZ:{t:'evisa',d:30,c:9}, ZA:{t:'evisa',d:30,c:9}, IN:{t:'evisa',d:30,c:9}, CN:{t:'evisa',d:30,c:9}, BR:{t:'evisa',d:30,c:9}, IL:{t:'evisa',d:30,c:9} },
+  OM: { US:{t:'evisa',d:30,c:20},GB:{t:'evisa',d:30,c:20},DE:{t:'evisa',d:30,c:20},AU:{t:'evisa',d:30,c:20},CA:{t:'evisa',d:30,c:20},JP:{t:'evisa',d:30,c:20},NZ:{t:'evisa',d:30,c:20},ZA:{t:'evisa',d:30,c:20},IN:{t:'evisa',d:30,c:20},CN:{t:'evisa',d:30,c:20},BR:{t:'evisa',d:30,c:20},IL:{t:'evisa',d:30,c:20} },
+  IR: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'evisa',d:30,c:0}, BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
+  IQ: { US:{t:'voa',d:30,c:75},  GB:{t:'voa',d:30,c:75},  DE:{t:'voa',d:30,c:75},  AU:{t:'voa',d:30,c:75},  CA:{t:'voa',d:30,c:75},  JP:{t:'voa',d:30,c:75},  NZ:{t:'voa',d:30,c:75},  ZA:{t:'voa',d:30,c:75},  IN:{t:'voa',d:30,c:75},  CN:{t:'voa',d:30,c:75},  BR:{t:'voa',d:30,c:75},  IL:{t:'banned',d:0,c:0} },
+  SY: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
+  YE: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
+  DZ: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
+  LY: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
+  BD: { US:{t:'voa',d:30,c:50},  GB:{t:'voa',d:30,c:50},  DE:{t:'voa',d:30,c:50},  AU:{t:'voa',d:30,c:50},  CA:{t:'voa',d:30,c:50},  JP:{t:'voa',d:30,c:50},  NZ:{t:'voa',d:30,c:50},  ZA:{t:'voa',d:30,c:50},  IN:{t:'voa',d:30,c:50},  CN:{t:'voa',d:30,c:50},  BR:{t:'voa',d:30,c:50},  IL:{t:'banned',d:0,c:0} },
+  BN: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},  CN:{t:'free',d:90,c:0},  BR:{t:'free',d:90,c:0},  IL:{t:'banned',d:0,c:0} },
+  // IL (Israel) as destination — allows visitors from most countries
+  IL: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},  CN:{t:'evisa',d:30,c:0}, BR:{t:'free',d:90,c:0} },
 };
 
 const MONTHS   = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
@@ -572,6 +615,14 @@ const CD_CLIMATE = {
   CZ: { temp:[ 0, 1, 5,10,15,18,21,20,17,11, 5, 1], rain:[ 21, 19, 24, 33, 55, 71, 71, 64, 48, 32, 23, 23] },
   PL: { temp:[-2,-1, 3, 9,14,17,20,20,16,10, 4, 0], rain:[ 32, 27, 27, 35, 46, 65, 70, 66, 50, 37, 39, 38] },
   HU: { temp:[ 1, 3, 8,14,19,22,24,24,20,14, 8, 2], rain:[ 31, 27, 28, 41, 56, 65, 56, 56, 47, 37, 46, 40] },
+  CY: { temp:[12,13,15,19,24,29,33,33,30,25,19,14], rain:[ 60, 37, 30, 14,  8,  0,  0,  0,  0,  9, 46, 73] },
+  IL: { temp:[12,13,16,20,24,27,29,30,28,25,20,14], rain:[137, 90, 60, 17,  3,  0,  0,  0,  0,  9, 46,112] },
+  JO: { temp:[ 9,10,14,20,25,28,30,30,28,24,17,11], rain:[ 27, 24, 13,  4,  1,  0,  0,  0,  0,  3, 15, 22] },
+  LB: { temp:[11,12,15,19,23,26,29,30,28,24,18,13], rain:[130, 98, 64, 20,  8,  1,  0,  0,  0,  4, 44,116] },
+  BH: { temp:[17,18,22,27,31,34,36,36,34,30,24,19], rain:[  8,  8,  7,  2,  0,  0,  0,  0,  0,  0,  3, 12] },
+  OM: { temp:[19,20,24,29,33,34,30,28,29,30,26,21], rain:[  9,  6,  5,  1,  0,  0,  0,  0,  0,  0,  1,  6] },
+  KW: { temp:[13,15,20,27,33,38,42,42,39,33,23,15], rain:[  9,  8,  9,  3,  0,  0,  0,  0,  0,  0,  2,  8] },
+  QA: { temp:[17,18,22,27,32,36,39,39,37,31,24,19], rain:[  8,  7,  8,  2,  0,  0,  0,  0,  0,  0,  1, 10] },
 };
 
 const LAYERS = {
@@ -595,6 +646,7 @@ const LAYERS = {
   events:   { name:'Seasonal Events',  emoji:'🎪', color:'#f59e0b', levels:['Jan','Feb','Mar','All'] },
   kids:     { name:'Kid Friendly',     emoji:'👶', color:'#f9c74f', levels:['Excellent','Good','Fair','Limited'] },
   parks:    { name:'National Parks',   emoji:'🌲', color:'#52b788', levels:['Abundant','Good','Some','Few'] },
+  cannabis: { name:'Cannabis Laws',   emoji:'🌿', color:'#4ade80', levels:['Legal','Medical/Decrim','Minor Penalties','Severe/Zero Tolerance'] },
 };
 
 const DESCS = {
@@ -687,6 +739,12 @@ const DESCS = {
     "Generally safe roads with some hazards. Drive defensively, observe speed limits, and avoid rural roads after dark.",
     "Poor road conditions, aggressive driving culture, or limited enforcement. Motorbike hire carries real risk; night driving is inadvisable.",
     "Very high road-fatality rates. Hire experienced local drivers where possible; avoid motorbikes and any night driving."
+  ],
+  cannabis: [
+    "Recreational adult use fully legal. Licensed dispensaries, social clubs, or home cultivation permitted. Check local age limits and public consumption rules.",
+    "Medical use legal and/or personal possession decriminalized. Small amounts treated as a health matter. Purchase may still be restricted — verify current local rules.",
+    "Technically illegal — possession of small amounts typically results in a fine or administrative sanction rather than criminal prosecution. Enforcement varies widely.",
+    "Severe criminal penalties — arrest, significant prison time, caning, or deportation for any possession. Death penalty applies to trafficking in some jurisdictions. Do not carry."
   ]
 };
 
@@ -825,6 +883,10 @@ const CD = {
   'IT': { weather:s12(1,1,1,0,0,0,1,1,0,0,1,1), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,3,2,2,3,3,2,2,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,3,2,1,0,0,0,0,1,2,3), road:rep(1), vaccines:rep(0) },
   'PT': { weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,2,2,2,3,3,2,1,0,0), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
   'GR': { weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,2,2,2,3,3,2,1,0,0), disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(2,2,2,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
+  // Cyprus — Eastern Mediterranean island; EU member; warm sunny 11+ months; beaches Apr–Nov
+  'CY': { weather:s12(1,1,0,0,0,0,0,0,0,0,0,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0), disaster:rep(0), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
+  // Israel — Middle East; excellent weather Oct–May; security awareness required
+  'IL': { weather:s12(0,0,0,0,0,1,2,2,1,0,0,0), safety:rep(2), cost:rep(2), family:rep(1), solo:rep(1), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:s12(1,1,1,0,0,2,3,3,1,0,0,1), road:rep(1), vaccines:rep(0) },
   'DE': { weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,2,1,2), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), road:rep(0), vaccines:rep(0) },
   'GB': { weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,3,3,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,2,3,3), road:rep(0), vaccines:rep(0) },
   'NL': { weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,3,2,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), road:rep(0), vaccines:rep(0) },

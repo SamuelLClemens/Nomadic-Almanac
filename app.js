@@ -141,9 +141,21 @@ const POI_LAYERS = {
     label: '📷 Viewpoints',
     active: false, minZoom: 7, markers: [], bboxCache: {}, debounce: null,
   },
+  climbing: {
+    label: '🧗 Rock Climbing',
+    active: false, minZoom: 7, markers: [], bboxCache: {}, debounce: null,
+  },
+  hotsprings: {
+    label: '♨ Hot Springs',
+    active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null,
+  },
+  airports: {
+    label: '✈ Airports',
+    active: false, minZoom: 4, markers: [], bboxCache: {}, debounce: null,
+  },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -191,6 +203,192 @@ function markVisited(iso2) {
 
 function isVisited(iso2) {
   return _visitedSet.has(iso2);
+}
+
+// ─── Trip Planning Pins ───────────────────────────────────────────────────────
+// User-placed named pins stored in localStorage. Each pin: {id, lat, lng, name}.
+let _tripPins  = [];
+let _tripPinMarkers = {};   // id → Leaflet marker
+let _placingPin = false;    // true while the user is clicking to place a new pin
+
+function _loadTripPins() {
+  try {
+    const raw = localStorage.getItem('na_trip_pins');
+    _tripPins = raw ? JSON.parse(raw) : [];
+  } catch (_) { _tripPins = []; }
+}
+
+function _saveTripPins() {
+  try {
+    localStorage.setItem('na_trip_pins', JSON.stringify(_tripPins));
+  } catch (_) { /* quota or private mode */ }
+}
+
+function _renderTripPinMarker(pin, index) {
+  if (_tripPinMarkers[pin.id]) _tripPinMarkers[pin.id].remove();
+  const icon = L.divIcon({
+    className: 'trip-pin-icon',
+    html: `<div class="trip-pin-marker">
+      <div class="trip-pin-bubble"><span class="trip-pin-num">${index + 1}</span></div>
+      <div class="trip-pin-stem"></div>
+      <div class="trip-pin-shadow"></div>
+    </div>`,
+    iconSize: [28, 40],
+    iconAnchor: [14, 40],
+  });
+  const m = L.marker([pin.lat, pin.lng], { icon, pane: 'markersPane', draggable: true });
+  m.on('click', ev => {
+    ev.originalEvent.stopPropagation();
+    const idx = _tripPins.findIndex(p => p.id === pin.id);
+    const html = `<div class="tth">
+      <h3 id="tt-name">📍 ${pin.name}</h3>
+      <div class="ts" id="tt-sub">Trip Pin #${idx + 1}</div>
+      <div class="tm" id="tt-period">${pin.lat.toFixed(4)}, ${pin.lng.toFixed(4)}</div>
+    </div>
+    <div class="ttb" id="tt-body">
+      <div style="display:flex;gap:6px;margin-top:4px">
+        <button onclick="_renameTripPin('${pin.id}')" style="flex:1;padding:5px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.08);border:1px solid var(--b1);border-radius:4px;color:var(--gold);cursor:pointer">Rename</button>
+        <button onclick="_deleteTripPin('${pin.id}')" style="flex:1;padding:5px;font-family:var(--fm);font-size:8px;background:rgba(155,28,46,0.08);border:1px solid rgba(155,28,46,0.3);border-radius:4px;color:#e88888;cursor:pointer">Remove</button>
+      </div>
+    </div>`;
+    toggleTooltip('trip-pin:' + pin.id, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
+  });
+  m.on('dragend', () => {
+    const ll = m.getLatLng();
+    const p = _tripPins.find(p => p.id === pin.id);
+    if (p) { p.lat = ll.lat; p.lng = ll.lng; _saveTripPins(); _updateTripPlannerPanel(); }
+  });
+  m.addTo(map);
+  _tripPinMarkers[pin.id] = m;
+}
+
+function _renderAllTripPins() {
+  _tripPins.forEach((pin, i) => _renderTripPinMarker(pin, i));
+}
+
+function _deleteTripPin(id) {
+  _tripPins = _tripPins.filter(p => p.id !== id);
+  if (_tripPinMarkers[id]) { _tripPinMarkers[id].remove(); delete _tripPinMarkers[id]; }
+  _saveTripPins();
+  _updateTripPlannerPanel();
+  _reRenderAllPinNumbers();
+  const tt = document.getElementById('tt');
+  if (tt) tt.style.display = 'none';
+}
+
+function _renameTripPin(id) {
+  const pin = _tripPins.find(p => p.id === id);
+  if (!pin) return;
+  const newName = window.prompt('Rename pin:', pin.name);
+  if (newName && newName.trim()) {
+    pin.name = newName.trim();
+    _saveTripPins();
+    _reRenderAllPinNumbers();
+    _updateTripPlannerPanel();
+  }
+}
+
+function _reRenderAllPinNumbers() {
+  Object.values(_tripPinMarkers).forEach(m => m.remove());
+  _tripPinMarkers = {};
+  _renderAllTripPins();
+}
+
+function _updateTripPlannerPanel() {
+  const list = document.getElementById('trip-pin-list');
+  if (!list) return;
+  list.innerHTML = '';
+  if (_tripPins.length === 0) {
+    list.innerHTML = '<li style="font-size:8px;color:rgba(201,168,76,0.35);text-align:center;padding:8px 0">No pins placed yet.</li>';
+    return;
+  }
+  _tripPins.forEach((pin, i) => {
+    const li = document.createElement('li');
+    li.className = 'trip-pin-item';
+    li.innerHTML = `<span class="trip-pin-item-num">${i+1}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pin.name}</span>
+      <button class="trip-pin-item-del" onclick="_deleteTripPin('${pin.id}')" title="Remove pin">✕</button>`;
+    li.querySelector('span:nth-child(2)').addEventListener('click', () => {
+      if (map) map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 8), { duration: 0.8 });
+    });
+    list.appendChild(li);
+  });
+}
+
+function initTripPlanner() {
+  _loadTripPins();
+
+  // Add the floating trip planner button
+  const floatBtn = document.createElement('button');
+  floatBtn.id = 'btn-trip-planner';
+  floatBtn.innerHTML = '📍 Trip Planner';
+  floatBtn.title = 'Plan your trip with pins';
+  document.body.appendChild(floatBtn);
+
+  // Create the trip panel
+  const panel = document.createElement('div');
+  panel.id = 'trip-panel';
+  panel.innerHTML = `
+    <div id="trip-panel-title">📍 Trip Planner</div>
+    <ol id="trip-pin-list"></ol>
+    <div id="trip-panel-actions">
+      <button id="btn-add-pin" class="trip-action-btn">+ Add Pin</button>
+      <button id="btn-clear-pins" class="trip-action-btn">Clear All</button>
+    </div>
+    <div id="trip-hint">Click the map while "Add Pin" is active to place a waypoint. Drag pins to reposition.</div>
+  `;
+  document.body.appendChild(panel);
+
+  // Render existing pins
+  _renderAllTripPins();
+  _updateTripPlannerPanel();
+
+  // Float button toggles the panel
+  floatBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    panel.classList.toggle('open');
+  });
+
+  // Add Pin button
+  document.getElementById('btn-add-pin').addEventListener('click', () => {
+    _placingPin = !_placingPin;
+    document.getElementById('btn-add-pin').classList.toggle('placing', _placingPin);
+    document.getElementById('btn-add-pin').textContent = _placingPin ? '🎯 Click Map…' : '+ Add Pin';
+    document.getElementById('trip-hint').textContent = _placingPin
+      ? 'Click anywhere on the map to place a pin.'
+      : 'Click "Add Pin" to start placing waypoints.';
+    if (map) map.getContainer().style.cursor = _placingPin ? 'crosshair' : '';
+  });
+
+  // Clear All button
+  document.getElementById('btn-clear-pins').addEventListener('click', () => {
+    if (_tripPins.length === 0) return;
+    if (!window.confirm('Remove all trip pins?')) return;
+    _tripPins.forEach(p => { if (_tripPinMarkers[p.id]) _tripPinMarkers[p.id].remove(); });
+    _tripPins = [];
+    _tripPinMarkers = {};
+    _saveTripPins();
+    _updateTripPlannerPanel();
+  });
+
+  // Map click handler — place pin when _placingPin is active
+  if (map) {
+    map.on('click', e => {
+      if (!_placingPin) return;
+      const name = `Pin ${_tripPins.length + 1}`;
+      const pin = { id: 'tp_' + Date.now(), lat: e.latlng.lat, lng: e.latlng.lng, name };
+      _tripPins.push(pin);
+      _saveTripPins();
+      _renderTripPinMarker(pin, _tripPins.length - 1);
+      _updateTripPlannerPanel();
+      // Exit placing mode after single click so user can review
+      _placingPin = false;
+      document.getElementById('btn-add-pin').classList.remove('placing');
+      document.getElementById('btn-add-pin').textContent = '+ Add Pin';
+      document.getElementById('trip-hint').textContent = 'Click "Add Pin" to place more waypoints. Drag pins to reposition.';
+      if (map) map.getContainer().style.cursor = '';
+    });
+  }
 }
 
 let _ttX = 0, _ttY = 0;
@@ -373,7 +571,7 @@ const SECONDARY_LAYER_KEYS = ['health','beaches','family','solo','remote','crowd
 // Category groups — each becomes a dropdown button in the topbar row.
 const CAT_GROUPS = [
   { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster'] },
-  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids'] },
+  { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis'] },
   // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
   // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
   { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
@@ -448,7 +646,7 @@ function buildLayerButtons() {
     const catDd = document.createElement('div');
     catDd.id = 'cat-dd-' + group.id;
     catDd.className = 'cat-dropdown';
-    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px)';
+    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;max-width:250px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px);max-height:80vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,0.3) transparent';
     document.body.appendChild(catDd);
 
     // Group header label
@@ -468,14 +666,7 @@ function buildLayerButtons() {
 
     catBtn.addEventListener('click', e => {
       e.stopPropagation();
-      const isOpen = catDd.style.display === 'flex';
-      document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display = 'none'; });
-      if (!isOpen) {
-        catDd.style.display = 'flex';
-        const r = catBtn.getBoundingClientRect();
-        catDd.style.top  = (r.bottom + 5) + 'px';
-        catDd.style.left = Math.min(r.left, window.innerWidth - 200) + 'px';
-      }
+      _openDropdown(catDd, catBtn);
     });
 
     container.appendChild(catBtn);
@@ -597,31 +788,60 @@ function toggleTimezoneLayer(active) {
 
 function syncTransportBtn() {
   const btn = document.getElementById('btn-transport-menu');
-  if (!btn) return;
-  const anyOn = Object.values(TRANSPORT_LAYERS).some(d => d.active)
-             || _tzActive
-             || Object.values(POI_LAYERS).some(d => d.active);
-  btn.classList.toggle('has-active', anyOn);
+  if (btn) {
+    const anyTransportOn = Object.values(TRANSPORT_LAYERS).some(d => d.active) || _tzActive;
+    btn.classList.toggle('has-active', anyTransportOn);
+  }
+  const exploreBtn = document.getElementById('btn-explore-menu');
+  if (exploreBtn) {
+    const anyPOIOn = Object.values(POI_LAYERS).some(d => d.active);
+    exploreBtn.classList.toggle('has-active', anyPOIOn);
+  }
+}
+
+// Helper: create a scrollable dropdown panel attached to document.body
+function _makeDropdown(id) {
+  const dd = document.createElement('div');
+  dd.id = id;
+  dd.className = 'cat-dropdown';
+  dd.style.cssText = [
+    'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2)',
+    'border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px',
+    'min-width:210px;max-width:260px;box-shadow:0 10px 36px rgba(0,0,0,.88)',
+    'backdrop-filter:blur(20px);max-height:80vh;overflow-y:auto',
+    'scrollbar-width:thin;scrollbar-color:rgba(201,168,76,0.3) transparent',
+  ].join(';');
+  document.body.appendChild(dd);
+  return dd;
+}
+
+function _openDropdown(dd, btn) {
+  const isOpen = dd.style.display === 'flex';
+  document.querySelectorAll('.cat-dropdown').forEach(d => { d.style.display = 'none'; });
+  if (!isOpen) {
+    dd.style.display = 'flex';
+    const r = btn.getBoundingClientRect();
+    const availH = window.innerHeight - r.bottom - 10;
+    dd.style.maxHeight = Math.min(availH, window.innerHeight * 0.8) + 'px';
+    dd.style.top  = (r.bottom + 5) + 'px';
+    dd.style.left = Math.min(r.left, window.innerWidth - 220) + 'px';
+  }
 }
 
 function buildTransportButtons() {
   const container = document.getElementById('transport');
 
-  // Single dropdown button for ALL transport + overlays
+  // ── Transport dropdown ─────────────────────────────────────────────────────
   const transpBtn = document.createElement('button');
   transpBtn.id = 'btn-transport-menu';
   transpBtn.className = 'cat-btn';
   transpBtn.innerHTML = '<span>🚗</span><span>Transport</span><span style="font-size:7px;opacity:0.6">▾</span>';
 
-  const transpDd = document.createElement('div');
-  transpDd.id = 'transport-dropdown';
-  transpDd.className = 'cat-dropdown';
-  transpDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:200px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px)';
-  document.body.appendChild(transpDd);
+  const transpDd = _makeDropdown('transport-dropdown');
 
   const transpLabel = document.createElement('div');
   transpLabel.className = 'more-dropdown-label';
-  transpLabel.textContent = 'Transport & Overlays';
+  transpLabel.textContent = 'Transport Layers';
   transpDd.appendChild(transpLabel);
 
   // Transport tile layers
@@ -636,44 +856,35 @@ function buildTransportButtons() {
       btn.classList.toggle('on', def.active);
       if (def.active) {
         if (key === 'roads') {
-          // Roads: vector overlay via Overpass (not a tile layer)
           _fetchAndRenderRoads();
         } else if (def.vector) {
-          // natparks: vector polygon border rendering via Overpass
           _fetchAndRenderParkBorders();
         } else {
           if (!def.layer) {
             if (key === 'wildfires') {
-              // NASA GIBS WMTS — build the URL with yesterday's date for full tile coverage
               const d  = new Date(); d.setUTCDate(d.getUTCDate() - 1);
-              const ds = d.toISOString().slice(0, 10);  // YYYY-MM-DD
+              const ds = d.toISOString().slice(0, 10);
               def.url  = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_Fires_375m/default/${ds}/GoogleMapsCompatible/{z}/{y}/{x}.png`;
             }
             def.layer = L.tileLayer(def.url, { pane: 'transportPane', ...def.opts });
           }
           def.layer.addTo(map);
         }
-        // Guidance for maritime (only useful when zoomed in to ports)
         if (key === 'maritime') {
           const st = document.getElementById('map-status');
-          if (st) { st.textContent = '⚓ Maritime: zoom into port areas to see navigation marks and click for ferry/harbour data.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},6000); }
+          if (st) { st.textContent = '⚓ Maritime: zoom into port areas to see navigation marks.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},6000); }
         }
-        // Rail: render stop marker dots when layer is activated
         if (key === 'rail') _fetchAndRenderRailStops();
-        // Trails: auto-show camping when hiking overlay is on
         if (key === 'trails') _refreshLinkedCamping();
       } else {
         if (key === 'roads') {
           _clearRoads();
         } else if (def.vector) {
-          // natparks vector off: remove drawn park borders
           _clearParkBorders();
         } else if (def.layer) {
           def.layer.remove();
         }
-        // Rail off: remove stop dots and clear cache
         if (key === 'rail') { _clearRailStops(); _railStopCache = {}; }
-        // Trails off: remove linked camping markers if camping button is not independently on
         if (key === 'trails') _refreshLinkedCamping();
       }
       syncTransportBtn();
@@ -682,7 +893,7 @@ function buildTransportButtons() {
     transpDd.appendChild(btn);
   });
 
-  // Timezone overlay toggle (no tile, client-side)
+  // Timezone overlay toggle
   const tzSep = document.createElement('div');
   tzSep.className = 'more-dropdown-label';
   tzSep.style.marginTop = '6px';
@@ -694,65 +905,76 @@ function buildTransportButtons() {
   tzBtn.className = 'lb';
   tzBtn.innerHTML = '<span class="lb-emoji">🕐</span><span class="lb-name">Timezones</span>';
   tzBtn.addEventListener('click', () => {
-    toggleTimezoneLayer(!_tzActive);   // toggleTimezoneLayer sets _tzActive internally
+    toggleTimezoneLayer(!_tzActive);
     tzBtn.classList.toggle('on', _tzActive);
     syncTransportBtn();
   });
   transpDd.appendChild(tzBtn);
 
-  // ── Explore: Overpass POI layers ──────────────────────────────────────────
-  const exploreSep = document.createElement('div');
-  exploreSep.className = 'more-dropdown-label';
-  exploreSep.style.marginTop = '6px';
-  exploreSep.textContent = 'Explore';
-  transpDd.appendChild(exploreSep);
-
-  Object.entries(POI_LAYERS).forEach(([key, def]) => {
-    const pbtn = document.createElement('button');
-    pbtn.id = `btn-poi-${key}`;
-    pbtn.className = 'lb';
-    pbtn.innerHTML = `<span class="lb-emoji">${[...def.label][0]}</span><span class="lb-name">${def.label.replace(/^\S+\s*/u, '')}</span>`;
-    pbtn.classList.toggle('on', def.active);
-    pbtn.addEventListener('click', () => {
-      def.active = !def.active;
-      pbtn.classList.toggle('on', def.active);
-      // Holidays layer: static data, no Overpass query needed
-      if (key === 'holidays') {
-        if (def.active) _renderHolidayMarkers();
-        else _clearHolidayMarkers();
-        syncTransportBtn();
-        updateLegend();
-        return;
-      }
-      if (def.active) {
-        _fetchAndRenderPOI(key);
-        // Parks POI: also show camping sites automatically
-        if (key === 'parks') _refreshLinkedCamping();
-      } else {
-        _clearPOIMarkers(key);
-        // Parks POI off: remove linked camping markers if camping is not independently on
-        if (key === 'parks') _refreshLinkedCamping();
-      }
-      syncTransportBtn();
-      updateLegend();
-    });
-    transpDd.appendChild(pbtn);
-  });
-
-  // Toggle dropdown on button click
   transpBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const isOpen = transpDd.style.display === 'flex';
-    document.querySelectorAll('.cat-dropdown').forEach(dd => { dd.style.display='none'; });
-    if (!isOpen) {
-      transpDd.style.display = 'flex';
-      const r = transpBtn.getBoundingClientRect();
-      transpDd.style.top  = (r.bottom + 5) + 'px';
-      transpDd.style.left = Math.min(r.left, window.innerWidth - 220) + 'px';
-    }
+    _openDropdown(transpDd, transpBtn);
+  });
+  container.appendChild(transpBtn);
+
+  // ── Explore dropdown (separate from transport) ─────────────────────────────
+  const exploreBtn = document.createElement('button');
+  exploreBtn.id = 'btn-explore-menu';
+  exploreBtn.className = 'cat-btn';
+  exploreBtn.innerHTML = '<span>🔍</span><span>Explore</span><span style="font-size:7px;opacity:0.6">▾</span>';
+
+  const exploreDd = _makeDropdown('explore-dropdown');
+
+  // Group POI layers by theme
+  const POI_GROUPS = [
+    { label: 'Nature',      keys: ['parks','camping','viewpoints','hotsprings'] },
+    { label: 'Adventure',   keys: ['climbing'] },
+    { label: 'Travel Info', keys: ['holidays','airports'] },
+  ];
+
+  POI_GROUPS.forEach(group => {
+    const sep = document.createElement('div');
+    sep.className = 'more-dropdown-label';
+    sep.textContent = group.label;
+    exploreDd.appendChild(sep);
+
+    group.keys.forEach(key => {
+      const def = POI_LAYERS[key];
+      if (!def) return;
+      const pbtn = document.createElement('button');
+      pbtn.id = `btn-poi-${key}`;
+      pbtn.className = 'lb';
+      pbtn.innerHTML = `<span class="lb-emoji">${[...def.label][0]}</span><span class="lb-name">${def.label.replace(/^\S+\s*/u, '')}</span>`;
+      pbtn.classList.toggle('on', def.active);
+      pbtn.addEventListener('click', () => {
+        def.active = !def.active;
+        pbtn.classList.toggle('on', def.active);
+        if (key === 'holidays') {
+          if (def.active) _renderHolidayMarkers();
+          else _clearHolidayMarkers();
+          syncTransportBtn();
+          updateLegend();
+          return;
+        }
+        if (def.active) {
+          _fetchAndRenderPOI(key);
+          if (key === 'parks') _refreshLinkedCamping();
+        } else {
+          _clearPOIMarkers(key);
+          if (key === 'parks') _refreshLinkedCamping();
+        }
+        syncTransportBtn();
+        updateLegend();
+      });
+      exploreDd.appendChild(pbtn);
+    });
   });
 
-  container.appendChild(transpBtn);
+  exploreBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    _openDropdown(exploreDd, exploreBtn);
+  });
+  container.appendChild(exploreBtn);
 }
 
 // ─── Rating Helpers ───────────────────────────────────────────────────────────
@@ -789,6 +1011,10 @@ function getCountryRating(iso2) {
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[iso2] != null) return CD_KIDS[iso2];
       return d && d.family != null ? getRating(d.family) : null;  // family rating as proxy
     }
+    if (lk === 'cannabis') {
+      if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[iso2] != null) return CD_CANNABIS[iso2];
+      return null;
+    }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
     const arr = d ? d[lk] : null;
@@ -824,6 +1050,10 @@ function getAdmin1Rating(subCode, parentIso2) {
     if (lk === 'kids') {
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
       return d2 && d2.family != null ? getRating(d2.family) : null;
+    }
+    if (lk === 'cannabis') {
+      if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[parentIso2] != null) return CD_CANNABIS[parentIso2];
+      return null;
     }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
@@ -1798,6 +2028,12 @@ async function _fetchAndRenderPOI(key, forceRender) {
     ? `[out:json][timeout:20];(node["tourism"="camp_site"](${bbox});way["tourism"="camp_site"](${bbox}););out center 200;`
     : key === 'viewpoints'
     ? `[out:json][timeout:20];node["tourism"="viewpoint"](${bbox});out body 300;`
+    : key === 'climbing'
+    ? `[out:json][timeout:25];(node["sport"="climbing"](${bbox});way["sport"="climbing"](${bbox});node["leisure"="climbing"](${bbox});way["leisure"="climbing"](${bbox}););out center 200;`
+    : key === 'hotsprings'
+    ? `[out:json][timeout:25];(node["natural"="hot_spring"](${bbox});way["natural"="hot_spring"](${bbox});node["amenity"="spa"]["natural"="hot_spring"](${bbox});node["leisure"="bathing_place"]["natural"="hot_spring"](${bbox}););out center 150;`
+    : key === 'airports'
+    ? `[out:json][timeout:30];(node["aeroway"="aerodrome"](${bbox});way["aeroway"="aerodrome"](${bbox});relation["aeroway"="aerodrome"](${bbox}););out center 200;`
     : `[out:json][timeout:25];(node["boundary"="national_park"](${bbox});way["boundary"="national_park"](${bbox});relation["boundary"="national_park"](${bbox});node["leisure"="nature_reserve"](${bbox});way["leisure"="nature_reserve"](${bbox});relation["leisure"="nature_reserve"](${bbox});node["landuse"="forest"]["name"](${bbox});way["landuse"="forest"]["name"](${bbox}););out center 250;`;
 
   try {
@@ -1819,29 +2055,36 @@ async function _fetchAndRenderPOI(key, forceRender) {
 function _renderPOICircles(key, elements) {
   _clearPOIMarkers(key);
   const def = POI_LAYERS[key];
-  const style = key === 'camping'
-    ? { color: '#fff', fillColor: '#22c55e', weight: 0.8 }
-    : key === 'viewpoints'
-    ? { color: '#c4b5fd', fillColor: '#a855f7', weight: 1.5 }
-    : { color: '#fff', fillColor: '#15803d', weight: 0.8 };
-  const radius = key === 'viewpoints' ? 5 : 6;
-  const fillOpacity = key === 'viewpoints' ? 0.85 : 0.88;
+  const POI_STYLE = {
+    camping:    { color: '#fff',     fillColor: '#22c55e', weight: 0.8,  radius: 6,  fillOpacity: 0.88 },
+    viewpoints: { color: '#c4b5fd', fillColor: '#a855f7', weight: 1.5,  radius: 5,  fillOpacity: 0.85 },
+    parks:      { color: '#fff',     fillColor: '#15803d', weight: 0.8,  radius: 6,  fillOpacity: 0.88 },
+    climbing:   { color: '#fff',     fillColor: '#f97316', weight: 1.0,  radius: 6,  fillOpacity: 0.90 },
+    hotsprings: { color: '#fff',     fillColor: '#e11d48', weight: 1.0,  radius: 6,  fillOpacity: 0.90 },
+    airports:   { color: '#fff',     fillColor: '#0ea5e9', weight: 1.2,  radius: 7,  fillOpacity: 0.92 },
+  };
+  const s = POI_STYLE[key] || POI_STYLE.parks;
   elements.forEach(el => {
     const lat = el.lat || (el.center && el.center.lat);
     const lon = el.lon  || (el.center && el.center.lon);
     if (!lat || !lon) return;
     const t = el.tags || {};
+    // Airports: skip very small private airstrips with no name
+    if (key === 'airports' && !t.name && !t.iata) return;
     const m = L.circleMarker([lat, lon], {
-      pane: 'markersPane', radius, fillOpacity, ...style,
+      pane: 'markersPane',
+      radius: s.radius, fillOpacity: s.fillOpacity,
+      color: s.color, fillColor: s.fillColor, weight: s.weight,
     });
     m.on('click', ev => {
       _featureClicked = true;
       const ttKey = key + ':' + (el.id || (lat + ':' + lon));
-      const html = key === 'camping'
-        ? _buildCampingTooltip(t)
-        : key === 'viewpoints'
-        ? _buildViewpointTooltip(t)
-        : _buildParkTooltip(t);
+      const html = key === 'camping'    ? _buildCampingTooltip(t)
+                 : key === 'viewpoints' ? _buildViewpointTooltip(t)
+                 : key === 'climbing'   ? _buildClimbingTooltip(t)
+                 : key === 'hotsprings' ? _buildHotspringTooltip(t)
+                 : key === 'airports'   ? _buildAirportTooltip(t)
+                 : _buildParkTooltip(t);
       toggleTooltip(ttKey, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
     });
@@ -1934,6 +2177,69 @@ function _buildViewpointTooltip(t) {
   <div class="ttb" id="tt-body">
     ${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this viewpoint.</div>'}
   </div>`;
+}
+
+function _buildClimbingTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f97316">Open</a>` : '';
+  const fields = [
+    row('Type',         t['climbing:type']   || t['sport:climbing'] || ''),
+    row('Rock Type',    t['climbing:rock']   || ''),
+    row('Grade',        t['climbing:grade:french'] || t['climbing:difficulty'] || ''),
+    row('Routes',       t['climbing:routes'] || ''),
+    row('Height',       t['climbing:length'] ? t['climbing:length'] + ' m' : ''),
+    row('Bolted',       t['climbing:bolted'] || ''),
+    row('Rappel',       t['climbing:rappel'] || ''),
+    row('Access',       t.access             || ''),
+    row('Fee',          t.fee                || ''),
+    row('Website',      link(t.website || t['contact:website'])),
+  ].join('');
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Climbing Area'}</h3>
+    <div class="ts" id="tt-sub">${t.operator || t['addr:city'] || ''}</div>
+    <div class="tm" id="tt-period">🧗 ROCK CLIMBING — OSM</div>
+  </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this site.</div>'}</div>`;
+}
+
+function _buildHotspringTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : '';
+  const fields = [
+    row('Temperature',  t.temperature ? t.temperature + '°C' : ''),
+    row('pH',           t['hot_spring:ph'] || ''),
+    row('Opening Hours',t.opening_hours    || ''),
+    row('Fee',          t.fee              || ''),
+    row('Facilities',   t['leisure']       || ''),
+    row('Swimming',     t['bathing']       || ''),
+    row('Access',       t.access          || ''),
+    row('Website',      link(t.website || t['contact:website'])),
+  ].join('');
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Hot Spring'}</h3>
+    <div class="ts" id="tt-sub">${t.operator || t['addr:city'] || ''}</div>
+    <div class="tm" id="tt-period">♨ HOT SPRING — OSM</div>
+  </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this spring.</div>'}</div>`;
+}
+
+function _buildAirportTooltip(t) {
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9">Open</a>` : '';
+  const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
+  const typeLabel = type === 'international' ? 'International' : type === 'regional' ? 'Regional' : type === 'military' ? 'Military' : type.charAt(0).toUpperCase() + type.slice(1);
+  const fields = [
+    row('IATA Code',    t.iata             || ''),
+    row('ICAO Code',    t.icao             || ''),
+    row('Type',         typeLabel          || ''),
+    row('Operator',     t.operator         || ''),
+    row('Runways',      t['aeroway:runways']|| ''),
+    row('Elevation',    t.ele ? t.ele + ' m' : ''),
+    row('Website',      link(t.website || t['contact:website'])),
+  ].join('');
+  return `<div class="tth">
+    <h3 id="tt-name">${t.name || 'Airport'}</h3>
+    <div class="ts" id="tt-sub">${t.iata ? '✈ ' + t.iata : ''} ${t['addr:city'] || ''}</div>
+    <div class="tm" id="tt-period">AIRPORT — OSM</div>
+  </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this airport.</div>'}</div>`;
 }
 
 // ─── Rail Stop Markers ────────────────────────────────────────────────────────
@@ -2976,6 +3282,9 @@ function updateLegend() {
     camping:    { color:'#22c55e', label:'Camp Sites',               note:'OSM tourism=camp_site' },
     parks:      { color:'#15803d', label:'Parks & Forests',          note:'OSM national_park · nature_reserve · forest' },
     viewpoints: { color:'#a855f7', label:'Viewpoints / Photo Spots', note:'OSM tourism=viewpoint' },
+    climbing:   { color:'#f97316', label:'Rock Climbing',            note:'OSM sport=climbing' },
+    hotsprings: { color:'#e11d48', label:'Hot Springs',              note:'OSM natural=hot_spring' },
+    airports:   { color:'#0ea5e9', label:'Airports',                 note:'OSM aeroway=aerodrome' },
   };
   Object.entries(POI_LAYERS).forEach(([key, def]) => {
     if (!def.active) return;
@@ -3427,6 +3736,7 @@ function getVisaRating(destIso2, passport) {
   const entry = dest[passport];
   if (!entry) return 2;  // no data for this passport — default to required
   const t = entry.t;
+  if (t === 'banned') return 3;  // entry refused — passport nationality banned
   if (t === 'free') return 0;
   if (t === 'eta' || t === 'evisa' || t === 'voa') return 1;
   return 2;              // 'req'
@@ -3482,11 +3792,12 @@ function buildVisaSection(iso2) {
     (selectedNationality === 'DE' && ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY'].includes(iso2));
 
   const TYPE_META = {
-    free:  { col:'#43A047', icon:'✅', label:'Visa-free',       desc:'No visa required. Present your passport on arrival.' },
-    eta:   { col:'#8BC34A', icon:'📱', label:'ETA / Pre-reg.',  desc:'Quick online registration required before travel. Usually approved in minutes.' },
-    evisa: { col:'#FDD835', icon:'💻', label:'E-Visa',          desc:'Online visa application. Processing typically 3–10 business days.' },
-    voa:   { col:'#FDD835', icon:'🏛', label:'Visa on Arrival', desc:'Obtain a visa stamp at the airport on arrival. Have cash and photos ready.' },
-    req:   { col:'#EF6C00', icon:'📋', label:'Visa Required',   desc:'Apply at the embassy or consulate before departure. Allow 2–6 weeks.' },
+    free:   { col:'#43A047', icon:'✅', label:'Visa-free',       desc:'No visa required. Present your passport on arrival.' },
+    eta:    { col:'#8BC34A', icon:'📱', label:'ETA / Pre-reg.',  desc:'Quick online registration required before travel. Usually approved in minutes.' },
+    evisa:  { col:'#FDD835', icon:'💻', label:'E-Visa',          desc:'Online visa application. Processing typically 3–10 business days.' },
+    voa:    { col:'#FDD835', icon:'🏛', label:'Visa on Arrival', desc:'Obtain a visa stamp at the airport on arrival. Have cash and photos ready.' },
+    req:    { col:'#EF6C00', icon:'📋', label:'Visa Required',   desc:'Apply at the embassy or consulate before departure. Allow 2–6 weeks.' },
+    banned: { col:'#C62828', icon:'🚫', label:'Entry Denied',    desc:'This country does not permit entry to holders of this passport. Do not attempt to travel.' },
   };
 
   if (isSelf) {
@@ -3712,6 +4023,24 @@ const COUNTRY_CENTERS = {
   MY:[4,108], KH:[13,105], LA:[18,103], MM:[17,96], LK:[8,81], NP:[28,84],
   KE:[-1,38], TZ:[-6,35], GH:[8,-2], CL:[-35,-71], EC:[-2,-78], CU:[22,-80],
   CZ:[50,16], PL:[52,20], HU:[47,19],
+  // Mediterranean
+  CY:[35,33], MT:[35.9,14.5],
+  // Middle East
+  IL:[31.5,35], JO:[31,36], LB:[33.9,35.5], SA:[24,45], KW:[29,48],
+  QA:[25.3,51], BH:[26,50.5], OM:[22,57], IR:[32,53], IQ:[33,44], SY:[35,38],
+  YE:[15,48],
+  // North Africa
+  DZ:[28,2], LY:[27,17],
+  // More Europe
+  NL:[52.4,5.3], BE:[50.5,4.5], AT:[47.5,14], CH:[47,8.3], SE:[60,15],
+  NO:[64,14], DK:[56,10], FI:[64,26], IE:[53,-8], IS:[65,-18],
+  RO:[46,25], BG:[43,25], HR:[45,16], SI:[46,15], SK:[48.7,19], RS:[44,21],
+  AL:[41,20], ME:[42.9,19.5], BA:[44,17.4], MK:[41.6,21.7],
+  // East Europe/Caucasus
+  EE:[58.6,25], LV:[57,25], LT:[56,24], UA:[49,32], GE:[42,43.5],
+  AM:[40,45], AZ:[40.5,47.5],
+  // SE Asia
+  BN:[4.5,114.7], TW:[23.7,121], HK:[22.4,114], MO:[22.2,113],
 };
 
 function initSearch() {
@@ -4254,6 +4583,7 @@ function showBootError(msg) {
   renderComparePanel();
   updateZoomAnnotation();
   initTopbarToggle();
+  initTripPlanner();
 
   } catch (err) {
     console.error('[Nomadic Almanac] Boot error:', err);
