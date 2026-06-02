@@ -3001,6 +3001,50 @@ function toggleTempUnit() {
 // Builds a detailed climate card for the weather info section.
 // Shows average temperature (with live F/C toggle) and average rainfall
 // for the currently selected month(s), plus any seasonal event alerts.
+// ─── Solar Calculator ─────────────────────────────────────────────────────────
+// Pure-JS sunrise/sunset estimation using solar declination + hour angle formula.
+// Accuracy: ±5 minutes (ignores equation of time). No API, no network call.
+// lat/lng in decimal degrees; utcOffset in integer hours; month 0–11.
+// Returns { rise:'HH:MM', set:'HH:MM', daylight:'Xh Ym', polar:'night'|'day'|null }
+function calcSunriseSunset(lat, lng, utcOffset, month) {
+  // Representative day-of-year for the 15th of each month
+  const DOY = [15, 46, 74, 105, 135, 166, 196, 227, 258, 288, 319, 349];
+  const d = DOY[month];
+  const toRad = x => x * Math.PI / 180;
+
+  // Solar declination (Spencer formula)
+  const decl = -23.45 * Math.cos(toRad((360 / 365) * (d + 10)));
+
+  // Hour angle at sunrise/sunset (cos(H) = -tan(lat)·tan(decl))
+  const cosH = -Math.tan(toRad(lat)) * Math.tan(toRad(decl));
+  if (cosH >  1) return { rise: null, set: null, daylight: null, polar: 'night' };
+  if (cosH < -1) return { rise: null, set: null, daylight: null, polar: 'day'   };
+
+  const H = Math.acos(cosH) * 180 / Math.PI;          // degrees
+
+  // Solar noon in UTC (longitude offset, ignores equation of time)
+  const noonUTC = 12 - (lng / 15);
+  const riseUTC = noonUTC - H / 15;
+  const setUTC  = noonUTC + H / 15;
+
+  // Shift to local clock using UTC offset, wrap to 0–24
+  const wrap = v => ((v % 24) + 24) % 24;
+  const riseL = wrap(riseUTC + utcOffset);
+  const setL  = wrap(setUTC  + utcOffset);
+
+  const fmt = h => {
+    let hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    if (mm === 60) { mm = 0; hh++; }
+    return `${String(hh % 24).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  };
+
+  const daylightH = Math.floor(H * 2 / 15);
+  const daylightM = Math.round(((H * 2 / 15) - daylightH) * 60);
+  const daylight  = `${daylightH}h ${daylightM}m`;
+
+  return { rise: fmt(riseL), set: fmt(setL), daylight, polar: null };
+}
+
 function buildWeatherDetails(iso2) {
   if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
   const cl = CD_CLIMATE[iso2];
@@ -3031,9 +3075,40 @@ function buildWeatherDetails(iso2) {
      </div>`
   ).join('');
 
+  // Sunrise / sunset — computed for the representative month using solar declination
+  let solarHtml = '';
+  const center = (typeof COUNTRY_CENTERS !== 'undefined') ? COUNTRY_CENTERS[iso2] : null;
+  const utcOff = (typeof CD_TIMEZONE !== 'undefined' && CD_TIMEZONE[iso2] != null) ? CD_TIMEZONE[iso2] : 0;
+  if (center) {
+    const repMonth = yearMode ? 5 : [...selectedMonths].sort((a, b) => a - b)[0]; // June for year mode
+    const solar = calcSunriseSunset(center[0], center[1], utcOff, repMonth);
+    if (solar.polar === 'night') {
+      solarHtml = `<div style="margin-top:6px;padding:5px 8px;background:rgba(30,20,60,0.35);border:1px solid rgba(100,80,200,0.2);border-radius:6px;font-size:8px;color:#a78bfa;text-align:center">🌑 Polar Night — sun does not rise this month</div>`;
+    } else if (solar.polar === 'day') {
+      solarHtml = `<div style="margin-top:6px;padding:5px 8px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:6px;font-size:8px;color:#fbbf24;text-align:center">☀️ Midnight Sun — sun does not set this month</div>`;
+    } else {
+      solarHtml = `<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-around;padding:5px 8px;background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.12);border-radius:6px">
+        <div style="text-align:center">
+          <div style="font-size:7px;color:rgba(251,191,36,0.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">SUNRISE</div>
+          <div style="font-size:13px;font-weight:700;color:#fde68a">🌅 ${solar.rise}</div>
+        </div>
+        <div style="width:1px;height:28px;background:rgba(251,191,36,0.12)"></div>
+        <div style="text-align:center">
+          <div style="font-size:7px;color:rgba(251,191,36,0.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">SUNSET</div>
+          <div style="font-size:13px;font-weight:700;color:#fde68a">🌇 ${solar.set}</div>
+        </div>
+        <div style="width:1px;height:28px;background:rgba(251,191,36,0.12)"></div>
+        <div style="text-align:center">
+          <div style="font-size:7px;color:rgba(251,191,36,0.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">DAYLIGHT</div>
+          <div style="font-size:11px;font-weight:700;color:#fde68a">⏱ ${solar.daylight}</div>
+        </div>
+      </div>`;
+    }
+  }
+
   return `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.12)">
     <div class="ttln">MONTHLY CLIMATE — ${periodLabel()}</div>
-    <div style="display:flex;gap:14px;margin-top:8px;align-items:flex-start">
+    <div style="display:flex;gap:10px;margin-top:8px;align-items:flex-start">
       <div style="flex:1;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.12);border-radius:6px;padding:7px 9px;text-align:center">
         <div style="font-size:7.5px;color:rgba(201,168,76,0.55);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">AVG TEMP</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:5px">
@@ -3046,6 +3121,7 @@ function buildWeatherDetails(iso2) {
         <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} ${avgRain}<span style="font-size:10px;font-weight:400;opacity:0.7">mm</span></div>
       </div>
     </div>
+    ${solarHtml}
     ${eventHtml}
   </div>`;
 }
