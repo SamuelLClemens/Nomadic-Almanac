@@ -3374,17 +3374,30 @@ function updateLegend() {
   }
 
   // ── Timezone choropleth legend ─────────────────────────────────────────────
+  // The timezone layer uses 9 categorical colors cycling every 9 UTC hours so
+  // adjacent zones always differ. Each swatch shows the UTC offsets it covers.
   if (_tzActive) {
-    let stops = '';
-    for (let o = -12; o <= 14; o += 2) {
-      const pct = Math.round(((o + 12) / 26) * 100);
-      stops += `,${tzOffsetColor(o)} ${pct}%`;
-    }
+    const TZ_GROUPS = [
+      { color: TZ_PALETTE[0], offsets: '−12 · −3 · +6'  },
+      { color: TZ_PALETTE[1], offsets: '−11 · −2 · +7'  },
+      { color: TZ_PALETTE[2], offsets: '−10 · −1 · +8'  },
+      { color: TZ_PALETTE[3], offsets:  '−9 ·  0 · +9'  },
+      { color: TZ_PALETTE[4], offsets:  '−8 · +1 · +10' },
+      { color: TZ_PALETTE[5], offsets:  '−7 · +2 · +11' },
+      { color: TZ_PALETTE[6], offsets:  '−6 · +3 · +12' },
+      { color: TZ_PALETTE[7], offsets:  '−5 · +4 · +13' },
+      { color: TZ_PALETTE[8], offsets:  '−4 · +5 · +14' },
+    ];
+    const swatchItems = TZ_GROUPS.map(g =>
+      `<div style="display:flex;align-items:center;gap:4px;min-width:0">
+        <div style="width:11px;height:11px;border-radius:2px;flex-shrink:0;background:${g.color};box-shadow:0 0 0 1px rgba(255,255,255,0.15)"></div>
+        <span style="font-size:6.5px;color:var(--dim);white-space:nowrap;letter-spacing:0.3px">UTC ${g.offsets}</span>
+      </div>`
+    ).join('');
     html += `<div class="ll">
-      <div class="ll-name">Timezones</div>
-      <div style="height:8px;border-radius:3px;margin:4px 0;background:linear-gradient(to right${stops})"></div>
-      <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--dim);margin-top:2px">
-        <span>UTC−12</span><span>UTC 0</span><span>UTC+14</span>
+      <div class="ll-name">Timezones <span style="font-weight:400;opacity:0.55">(9-color cycle · UTC offset)</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px 6px;margin-top:5px">
+        ${swatchItems}
       </div>
     </div>`;
   }
