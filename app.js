@@ -210,10 +210,36 @@ let _tripPins  = [];
 let _tripPinMarkers = {};   // id → Leaflet marker
 let _placingPin = false;    // true while the user is clicking to place a new pin
 
+// HTML escape helper — applied to ALL user-supplied or external-data strings
+// before they are interpolated into innerHTML. Prevents stored XSS from pin
+// names, OSM tag values, and any other untrusted text.
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Validate and sanitise a pin object loaded from localStorage.
+// Returns the pin if it looks legitimate; returns null if it is malformed.
+function _validatePin(p) {
+  if (!p || typeof p !== 'object') return null;
+  if (typeof p.id !== 'string' || !/^tp_\d+$/.test(p.id)) return null;
+  if (typeof p.lat !== 'number' || typeof p.lng !== 'number') return null;
+  if (typeof p.name !== 'string') return null;
+  // Sanitise name length — truncate anything implausibly long
+  return { id: p.id, lat: p.lat, lng: p.lng, name: p.name.slice(0, 120) };
+}
+
 function _loadTripPins() {
   try {
     const raw = localStorage.getItem('na_trip_pins');
-    _tripPins = raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    _tripPins = Array.isArray(parsed)
+      ? parsed.map(_validatePin).filter(Boolean)
+      : [];
   } catch (_) { _tripPins = []; }
 }
 
@@ -237,20 +263,35 @@ function _renderTripPinMarker(pin, index) {
   });
   const m = L.marker([pin.lat, pin.lng], { icon, pane: 'markersPane', draggable: true });
   m.on('click', ev => {
+    // While placing a new pin, clicks on existing pin markers are ignored so the
+    // user can position the new pin precisely without accidentally triggering tooltips.
+    if (_placingPin) return;
     ev.originalEvent.stopPropagation();
+    _featureClicked = true;
+    setTimeout(() => { _featureClicked = false; }, 10);
+
     const idx = _tripPins.findIndex(p => p.id === pin.id);
+    // Build tooltip HTML — pin.name is escaped to prevent XSS
     const html = `<div class="tth">
-      <h3 id="tt-name">📍 ${pin.name}</h3>
+      <h3 id="tt-name">📍 ${_esc(pin.name)}</h3>
       <div class="ts" id="tt-sub">Trip Pin #${idx + 1}</div>
       <div class="tm" id="tt-period">${pin.lat.toFixed(4)}, ${pin.lng.toFixed(4)}</div>
     </div>
     <div class="ttb" id="tt-body">
-      <div style="display:flex;gap:6px;margin-top:4px">
-        <button onclick="_renameTripPin('${pin.id}')" style="flex:1;padding:5px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.08);border:1px solid var(--b1);border-radius:4px;color:var(--gold);cursor:pointer">Rename</button>
-        <button onclick="_deleteTripPin('${pin.id}')" style="flex:1;padding:5px;font-family:var(--fm);font-size:8px;background:rgba(155,28,46,0.08);border:1px solid rgba(155,28,46,0.3);border-radius:4px;color:#e88888;cursor:pointer">Remove</button>
+      <div id="trip-pin-tooltip-btns" style="display:flex;gap:6px;margin-top:4px">
+        <button id="tp-rename-btn" style="flex:1;padding:5px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.08);border:1px solid var(--b1);border-radius:4px;color:var(--gold);cursor:pointer">Rename</button>
+        <button id="tp-delete-btn" style="flex:1;padding:5px;font-family:var(--fm);font-size:8px;background:rgba(155,28,46,0.08);border:1px solid rgba(155,28,46,0.3);border-radius:4px;color:#e88888;cursor:pointer">Remove</button>
       </div>
     </div>`;
     toggleTooltip('trip-pin:' + pin.id, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
+    // Attach listeners programmatically — never use inline onclick with data from storage
+    const ttEl = document.getElementById('tt');
+    if (ttEl) {
+      const rBtn = ttEl.querySelector('#tp-rename-btn');
+      const dBtn = ttEl.querySelector('#tp-delete-btn');
+      if (rBtn) rBtn.addEventListener('click', () => _renameTripPin(pin.id));
+      if (dBtn) dBtn.addEventListener('click', () => _deleteTripPin(pin.id));
+    }
   });
   m.on('dragend', () => {
     const ll = m.getLatLng();
@@ -278,13 +319,35 @@ function _deleteTripPin(id) {
 function _renameTripPin(id) {
   const pin = _tripPins.find(p => p.id === id);
   if (!pin) return;
-  const newName = window.prompt('Rename pin:', pin.name);
-  if (newName && newName.trim()) {
-    pin.name = newName.trim();
-    _saveTripPins();
-    _reRenderAllPinNumbers();
-    _updateTripPlannerPanel();
-  }
+  // Replace the rename button area with an inline input (non-blocking, mobile-safe)
+  const btnArea = document.getElementById('trip-pin-tooltip-btns');
+  if (!btnArea) return;
+  btnArea.innerHTML = '';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = pin.name;
+  input.maxLength = 120;
+  input.style.cssText = 'flex:1;background:rgba(14,11,6,0.9);border:1px solid var(--b2);border-radius:4px;color:var(--sand);font-family:var(--fm);font-size:9px;padding:4px 7px;outline:none;min-width:0';
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = 'Save';
+  saveBtn.style.cssText = 'padding:4px 9px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.12);border:1px solid var(--b2);border-radius:4px;color:var(--gold);cursor:pointer;white-space:nowrap';
+  const doSave = () => {
+    const v = input.value.trim();
+    if (v) {
+      pin.name = v.slice(0, 120);
+      _saveTripPins();
+      _reRenderAllPinNumbers();
+      _updateTripPlannerPanel();
+    }
+    const tt = document.getElementById('tt');
+    if (tt) tt.style.display = 'none';
+  };
+  saveBtn.addEventListener('click', doSave);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); if (e.key === 'Escape') { const tt = document.getElementById('tt'); if (tt) tt.style.display = 'none'; } });
+  btnArea.style.display = 'flex';
+  btnArea.appendChild(input);
+  btnArea.appendChild(saveBtn);
+  setTimeout(() => input.focus(), 50);
 }
 
 function _reRenderAllPinNumbers() {
@@ -302,14 +365,30 @@ function _updateTripPlannerPanel() {
     return;
   }
   _tripPins.forEach((pin, i) => {
+    // Build list item using DOM methods — never innerHTML with pin.name (XSS risk)
     const li = document.createElement('li');
     li.className = 'trip-pin-item';
-    li.innerHTML = `<span class="trip-pin-item-num">${i+1}</span>
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pin.name}</span>
-      <button class="trip-pin-item-del" onclick="_deleteTripPin('${pin.id}')" title="Remove pin">✕</button>`;
-    li.querySelector('span:nth-child(2)').addEventListener('click', () => {
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'trip-pin-item-num';
+    numSpan.textContent = i + 1;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    nameSpan.textContent = pin.name;   // textContent — safe, no HTML parsing
+    nameSpan.addEventListener('click', () => {
       if (map) map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 8), { duration: 0.8 });
     });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'trip-pin-item-del';
+    delBtn.title = 'Remove pin';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => _deleteTripPin(pin.id));
+
+    li.appendChild(numSpan);
+    li.appendChild(nameSpan);
+    li.appendChild(delBtn);
     list.appendChild(li);
   });
 }
@@ -359,32 +438,49 @@ function initTripPlanner() {
     if (map) map.getContainer().style.cursor = _placingPin ? 'crosshair' : '';
   });
 
-  // Clear All button
+  // Clear All button — two-click confirmation (no blocking window.confirm)
+  let _clearPending = false;
   document.getElementById('btn-clear-pins').addEventListener('click', () => {
     if (_tripPins.length === 0) return;
-    if (!window.confirm('Remove all trip pins?')) return;
+    if (!_clearPending) {
+      _clearPending = true;
+      const btn = document.getElementById('btn-clear-pins');
+      btn.textContent = 'Tap again to confirm';
+      btn.style.color = '#e88888';
+      setTimeout(() => {
+        _clearPending = false;
+        if (btn) { btn.textContent = 'Clear All'; btn.style.color = ''; }
+      }, 2500);
+      return;
+    }
+    _clearPending = false;
     _tripPins.forEach(p => { if (_tripPinMarkers[p.id]) _tripPinMarkers[p.id].remove(); });
     _tripPins = [];
     _tripPinMarkers = {};
     _saveTripPins();
     _updateTripPlannerPanel();
+    const btn = document.getElementById('btn-clear-pins');
+    if (btn) { btn.textContent = 'Clear All'; btn.style.color = ''; }
   });
 
-  // Map click handler — place pin when _placingPin is active
+  // Map click handler — place pin when _placingPin is active.
+  // Guard: if a Leaflet feature (country polygon, POI marker) was clicked, that
+  // handler sets _featureClicked=true for 10 ms. We skip placement in that window
+  // to prevent placing a pin AND opening a country tooltip simultaneously.
   if (map) {
     map.on('click', e => {
-      if (!_placingPin) return;
+      if (!_placingPin || _featureClicked) return;
       const name = `Pin ${_tripPins.length + 1}`;
       const pin = { id: 'tp_' + Date.now(), lat: e.latlng.lat, lng: e.latlng.lng, name };
       _tripPins.push(pin);
       _saveTripPins();
       _renderTripPinMarker(pin, _tripPins.length - 1);
       _updateTripPlannerPanel();
-      // Exit placing mode after single click so user can review
       _placingPin = false;
-      document.getElementById('btn-add-pin').classList.remove('placing');
-      document.getElementById('btn-add-pin').textContent = '+ Add Pin';
-      document.getElementById('trip-hint').textContent = 'Click "Add Pin" to place more waypoints. Drag pins to reposition.';
+      const addBtn = document.getElementById('btn-add-pin');
+      if (addBtn) { addBtn.classList.remove('placing'); addBtn.textContent = '+ Add Pin'; }
+      const hint = document.getElementById('trip-hint');
+      if (hint) hint.textContent = 'Click "Add Pin" to place more waypoints. Drag pins to reposition.';
       if (map) map.getContainer().style.cursor = '';
     });
   }
@@ -1977,7 +2073,7 @@ function _renderBeachCircles(elements) {
 }
 
 function _buildOsmBeachTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#2EC4B6">Open</a>` : '';
   const fields = [
     row('Surface',        t.surface       || ''),
@@ -1993,7 +2089,7 @@ function _buildOsmBeachTooltip(t) {
     row('Website',        link(t.website || t['contact:website'])),
   ].join('');
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Beach'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Beach')}</h3>
     <div class="ts" id="tt-sub">${t['addr:country'] || ''}</div>
     <div class="tm" id="tt-period">PUBLIC BEACH — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this beach.</div>'}</div>`;
@@ -2110,7 +2206,7 @@ function _renderPOICircles(key, elements) {
 }
 
 function _buildCampingTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#22c55e">Open</a>` : '';
   const fields = [
     row('Fee',           t.fee            || ''),
@@ -2127,14 +2223,14 @@ function _buildCampingTooltip(t) {
     row('Website',       link(t.website || t['contact:website'])),
   ].join('');
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Camp Site'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Camp Site')}</h3>
     <div class="ts" id="tt-sub">${t.operator || ''}</div>
     <div class="tm" id="tt-period">CAMPING — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this campsite.</div>'}</div>`;
 }
 
 function _buildParkTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#15803d">Open</a>` : '';
   const kind = t['boundary'] === 'national_park' ? 'National Park'
              : t['leisure']  === 'nature_reserve' ? 'Nature Reserve' : 'Forest / Protected Area';
@@ -2146,7 +2242,7 @@ function _buildParkTooltip(t) {
     row('Website',          link(t.website || t['contact:website'])),
   ].join('');
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Protected Area'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Protected Area')}</h3>
     <div class="ts" id="tt-sub">${t.operator || ''}</div>
     <div class="tm" id="tt-period">${kind.toUpperCase()} — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this area.</div>'}</div>`;
@@ -2186,7 +2282,7 @@ function _buildViewpointTooltip(t) {
   ].join('');
 
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Viewpoint'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Viewpoint')}</h3>
     <div class="ts" id="tt-sub">${t['addr:city'] || t.loc_name || ''}</div>
     <div class="tm" id="tt-period">VIEWPOINT — OSM</div>
   </div>
@@ -2196,7 +2292,7 @@ function _buildViewpointTooltip(t) {
 }
 
 function _buildClimbingTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f97316">Open</a>` : '';
   const fields = [
     row('Type',         t['climbing:type']   || t['sport:climbing'] || ''),
@@ -2211,14 +2307,14 @@ function _buildClimbingTooltip(t) {
     row('Website',      link(t.website || t['contact:website'])),
   ].join('');
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Climbing Area'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Climbing Area')}</h3>
     <div class="ts" id="tt-sub">${t.operator || t['addr:city'] || ''}</div>
     <div class="tm" id="tt-period">🧗 ROCK CLIMBING — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this site.</div>'}</div>`;
 }
 
 function _buildHotspringTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : '';
   const fields = [
     row('Temperature',  t.temperature ? t.temperature + '°C' : ''),
@@ -2231,14 +2327,14 @@ function _buildHotspringTooltip(t) {
     row('Website',      link(t.website || t['contact:website'])),
   ].join('');
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Hot Spring'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Hot Spring')}</h3>
     <div class="ts" id="tt-sub">${t.operator || t['addr:city'] || ''}</div>
     <div class="tm" id="tt-period">♨ HOT SPRING — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this spring.</div>'}</div>`;
 }
 
 function _buildAirportTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9">Open</a>` : '';
   const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
   const typeLabel = type === 'international' ? 'International' : type === 'regional' ? 'Regional' : type === 'military' ? 'Military' : type.charAt(0).toUpperCase() + type.slice(1);
@@ -2252,7 +2348,7 @@ function _buildAirportTooltip(t) {
     row('Website',      link(t.website || t['contact:website'])),
   ].join('');
   return `<div class="tth">
-    <h3 id="tt-name">${t.name || 'Airport'}</h3>
+    <h3 id="tt-name">${_esc(t.name || 'Airport')}</h3>
     <div class="ts" id="tt-sub">${t.iata ? '✈ ' + t.iata : ''} ${t['addr:city'] || ''}</div>
     <div class="tm" id="tt-period">AIRPORT — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this airport.</div>'}</div>`;
@@ -4458,6 +4554,9 @@ function initPOILayers() {
 
   // Generic POI layers: re-query on pan when active and zoom ≥ minZoom.
   // Camping is also re-queried when linked (trails or parks POI active).
+  // Holidays use static data (COUNTRY_HOLIDAYS + COUNTRY_CENTERS) — never Overpass.
+  // Guarding holidays here prevents the national-park Overpass query from running
+  // under the holidays key, which would corrupt the holidays bboxCache with park data.
   Object.keys(POI_LAYERS).forEach(key => {
     const def = POI_LAYERS[key];
     map.on('moveend', () => {
@@ -4465,6 +4564,7 @@ function initPOILayers() {
       def.debounce = setTimeout(() => {
         const linked = key === 'camping' && (TRANSPORT_LAYERS.trails.active || POI_LAYERS.parks.active);
         if (!def.active && !linked) return;
+        if (key === 'holidays') { _renderHolidayMarkers(); return; }   // static — no Overpass
         if (map.getZoom() >= def.minZoom) _fetchAndRenderPOI(key, linked);
         else _clearPOIMarkers(key);
       }, 300);

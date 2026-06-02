@@ -344,6 +344,7 @@ const CD_CANNABIS = {
   RU:3,   // 3-10 years for possession; severe for any amount
   MM:3,   // 5-15 years mandatory prison for possession
   BN:3,   // Death penalty possible for trafficking; strict Islamic law enforcement
+  TH:3,   // Re-criminalized recreational use late 2024 (Cannabis Act reversal); severe possession penalties restored
   VN:3,   // Death penalty for trafficking ≥600g; 2-7 years possession
   KH:3,   // Crackdown intensified 2020+; 1-10 years possession; death for trafficking
   LA:3,   // 1-5 years for possession; death for trafficking
@@ -611,7 +612,9 @@ const VISA_DATA = {
   KW: { US:{t:'voa',d:90,c:0},   GB:{t:'voa',d:90,c:0},   DE:{t:'voa',d:90,c:0},   AU:{t:'voa',d:90,c:0},   CA:{t:'voa',d:90,c:0},   JP:{t:'voa',d:90,c:0},   NZ:{t:'voa',d:90,c:0},   ZA:{t:'req',d:0,c:0},    IN:{t:'voa',d:90,c:0},   CN:{t:'voa',d:90,c:0},   BR:{t:'voa',d:90,c:0},   IL:{t:'banned',d:0,c:0} },
   QA: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'evisa',d:90,c:0}, CN:{t:'evisa',d:90,c:0}, BR:{t:'free',d:90,c:0},  IL:{t:'req',d:0,c:0} },
   BH: { US:{t:'evisa',d:30,c:9}, GB:{t:'evisa',d:30,c:9}, DE:{t:'evisa',d:30,c:9}, AU:{t:'evisa',d:30,c:9}, CA:{t:'evisa',d:30,c:9}, JP:{t:'evisa',d:30,c:9}, NZ:{t:'evisa',d:30,c:9}, ZA:{t:'evisa',d:30,c:9}, IN:{t:'evisa',d:30,c:9}, CN:{t:'evisa',d:30,c:9}, BR:{t:'evisa',d:30,c:9}, IL:{t:'evisa',d:30,c:9} },
-  OM: { US:{t:'evisa',d:30,c:20},GB:{t:'evisa',d:30,c:20},DE:{t:'evisa',d:30,c:20},AU:{t:'evisa',d:30,c:20},CA:{t:'evisa',d:30,c:20},JP:{t:'evisa',d:30,c:20},NZ:{t:'evisa',d:30,c:20},ZA:{t:'evisa',d:30,c:20},IN:{t:'evisa',d:30,c:20},CN:{t:'evisa',d:30,c:20},BR:{t:'evisa',d:30,c:20},IL:{t:'evisa',d:30,c:20} },
+  // Oman opened limited tourism to Israelis post-2022, but no formal evisa exists for IL passports.
+  // Israeli passport holders face practical entry restrictions; req is the accurate status.
+  OM: { US:{t:'evisa',d:30,c:20},GB:{t:'evisa',d:30,c:20},DE:{t:'evisa',d:30,c:20},AU:{t:'evisa',d:30,c:20},CA:{t:'evisa',d:30,c:20},JP:{t:'evisa',d:30,c:20},NZ:{t:'evisa',d:30,c:20},ZA:{t:'evisa',d:30,c:20},IN:{t:'evisa',d:30,c:20},CN:{t:'evisa',d:30,c:20},BR:{t:'evisa',d:30,c:20},IL:{t:'req',d:0,c:0} },
   IR: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'evisa',d:30,c:0}, BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
   IQ: { US:{t:'voa',d:30,c:75},  GB:{t:'voa',d:30,c:75},  DE:{t:'voa',d:30,c:75},  AU:{t:'voa',d:30,c:75},  CA:{t:'voa',d:30,c:75},  JP:{t:'voa',d:30,c:75},  NZ:{t:'voa',d:30,c:75},  ZA:{t:'voa',d:30,c:75},  IN:{t:'voa',d:30,c:75},  CN:{t:'voa',d:30,c:75},  BR:{t:'voa',d:30,c:75},  IL:{t:'banned',d:0,c:0} },
   SY: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
