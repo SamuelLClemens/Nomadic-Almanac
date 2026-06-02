@@ -99,15 +99,14 @@ const TRANSPORT_LAYERS = {
   wildfires: {
     label: '🔥 Wildfires',
     // NASA GIBS WMTS — public endpoint, no API key required.
-    // VIIRS_SNPP_Fires_375m: Near-real-time fire detections from the Suomi NPP satellite.
-    // The tile URL includes a date token that is computed at activation time by
-    // buildTransportButtons() using the current UTC date (yesterday for full coverage).
-    // Standard L.tileLayer — GIBS WMTS uses GoogleMapsCompatible tile matrix (EPSG:3857)
-    // which is natively compatible with Leaflet's {z}/{x}/{y} template.
-    url: null,   // computed at activation; see buildTransportButtons()
+    // Layer: VIIRS_SNPP_Thermal_Anomalies_375m_All (Suomi NPP satellite thermal anomalies).
+    // TileMatrixSet: GoogleMapsCompatible_Level8 (max zoom 8).
+    // 404 on a tile = no hotspot detected there — Leaflet skips silently.
+    // URL is computed at activation using yesterday's date for full tile coverage.
+    url: null,   // computed at activation in buildTransportButtons()
     wms: false,
-    opts: { maxZoom: 8, opacity: 0.85, attribution: 'NASA GIBS · VIIRS SNPP Fires 375m',
-            maxNativeZoom: 8 },
+    opts: { maxZoom: 18, maxNativeZoom: 8, opacity: 0.9,
+            attribution: 'NASA GIBS · VIIRS SNPP Thermal Anomalies 375m' },
     layer: null, active: false,
   },
   natparks: {
@@ -857,14 +856,23 @@ function buildTransportButtons() {
       if (def.active) {
         if (key === 'roads') {
           _fetchAndRenderRoads();
+          const st = document.getElementById('map-status');
+          if (st && map && map.getZoom() < 9) { st.textContent = '🛣 Roads: zoom to level 9+ to render colored road vectors. Click any road for name and type.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},7000); }
         } else if (def.vector) {
           _fetchAndRenderParkBorders();
         } else {
           if (!def.layer) {
             if (key === 'wildfires') {
+              // NASA GIBS WMTS — VIIRS Suomi-NPP thermal anomaly detections.
+              // Layer name changed from retired VIIRS_SNPP_Fires_375m to current
+              // VIIRS_SNPP_Thermal_Anomalies_375m_All (verified 2026-06-02 via GetCapabilities).
+              // TileMatrixSet for this layer is GoogleMapsCompatible_Level8 (max zoom 8).
+              // 404 responses are expected for tiles with no fire detections — Leaflet
+              // silently skips missing tiles, so the overlay remains transparent over
+              // calm areas and only lights up red where hotspots are detected.
               const d  = new Date(); d.setUTCDate(d.getUTCDate() - 1);
               const ds = d.toISOString().slice(0, 10);
-              def.url  = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_Fires_375m/default/${ds}/GoogleMapsCompatible/{z}/{y}/{x}.png`;
+              def.url  = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_Thermal_Anomalies_375m_All/default/${ds}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png`;
             }
             def.layer = L.tileLayer(def.url, { pane: 'transportPane', ...def.opts });
           }
@@ -872,7 +880,15 @@ function buildTransportButtons() {
         }
         if (key === 'maritime') {
           const st = document.getElementById('map-status');
-          if (st) { st.textContent = '⚓ Maritime: zoom into port areas to see navigation marks.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},6000); }
+          if (st) { st.textContent = '⚓ Maritime: zoom into coastlines and port areas to see navigation buoys, lights, shipping lanes and harbour marks.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},8000); }
+        }
+        if (key === 'wildfires') {
+          const st = document.getElementById('map-status');
+          if (st) { st.textContent = '🔥 Wildfires: showing NASA VIIRS thermal anomaly detections from yesterday. Tiles only appear where active hotspots were detected.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},8000); }
+        }
+        if (key === 'natparks') {
+          const st = document.getElementById('map-status');
+          if (st) { st.textContent = '🌲 Parks: zoom in to zoom level 5+ to see national park and nature reserve boundaries.'; st.style.display='block'; setTimeout(()=>{st.style.display='none';},6000); }
         }
         if (key === 'rail') _fetchAndRenderRailStops();
         if (key === 'trails') _refreshLinkedCamping();
@@ -1657,9 +1673,9 @@ function _placeCities(list) {
 }
 
 // ─── Border Markers ───────────────────────────────────────────────────────────
-// At zoom < 4: show nothing (too cluttered at world view).
-// At zoom 4–6: show static BORDERS curated list (major crossings).
-// At zoom ≥ 7: fetch all OSM border_control nodes in the viewport via Overpass.
+// At zoom < 3: show nothing (too cluttered at world view).
+// At zoom 3–6: show static BORDERS curated list (206 major crossings worldwide).
+// At zoom ≥ 7: fetch all OSM barrier=border_control nodes via Overpass (live, bbox-cached).
 function renderBorderMarkers() {
   borderMarkers.forEach(m => m.remove());
   borderMarkers = [];
@@ -1668,14 +1684,14 @@ function renderBorderMarkers() {
   if (!showBorders) return;
 
   const zoom = map.getZoom();
-  if (zoom < 4) return;
+  if (zoom < 3) return;
 
   if (zoom >= 7) {
     _fetchAndRenderBorders();
     return;
   }
 
-  // Zoom 4–6: render curated static list
+  // Zoom 3–6: render curated static list
   BORDERS.forEach(bc => {
     const icon = makeBorderIcon(bc, zoom);
     const marker = L.marker([bc.lat, bc.lng], { icon, pane: 'markersPane' });
@@ -3230,7 +3246,7 @@ function updateLegend() {
       rail:     { color: '#4466cc', label: 'Rail & Transit',   note: 'train · metro · tram · cable car' },
       trails:   { color: '#44aa66', label: 'Hiking Trails',    note: 'marked routes' },
       maritime: { color: '#22aabb', label: 'Maritime',         note: 'ferries · sea routes' },
-      wildfires:{ color: '#ef4444', label: 'Active Wildfires', note: 'NASA FIRMS near-real-time' },
+      wildfires:{ color: '#ef4444', label: 'Active Wildfires', note: 'NASA VIIRS thermal anomalies · yesterday' },
       natparks: { color: '#22c55e', label: 'National Parks / Reserves', note: 'green border polygons · OSM' },
     };
     html += `<div class="ll"><div class="ll-name">Transport Layers</div>`;

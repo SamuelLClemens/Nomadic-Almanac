@@ -287,26 +287,91 @@ const CD_KIDS = {
 };
 
 // Cannabis legality: 0=Legal recreational, 1=Medical/Decrim, 2=Minor Penalties, 3=Severe/Zero Tolerance
-// Sources: EMCDDA, HRI Global Drug Policy Index 2023, individual country legislation
+// Sources: EMCDDA, HRI Global Drug Policy Index 2024, IDPC, individual country legislation (verified 2026-06)
+// Traveller perspective: severity reflects the realistic risk to a foreign visitor.
 const CD_CANNABIS = {
-  // 0 = Legal recreational adult use
-  CA:0, DE:0, MT:0, UY:0, GE:0,  // DE fully legal 2024 for adults; GE court ruling
-  // 1 = Medical legal / Possession decriminalized
-  US:1, AU:1, NZ:1, IL:1, PT:1, CZ:1, ES:1, NL:1, IT:1, CH:1, AR:1, BR:1, ZA:1,
-  TH:1,
-  CO:1, CL:1, MX:1, JM:1, BB:1, CR:1, EC:1, PE:1, GR:1, CY:1, HR:1, LU:1, BE:1,
-  // 2 = Minor penalties (technically illegal; small amounts = fine or caution)
+  // 0 = Legal recreational adult use (licensed retail or equivalent)
+  CA:0,   // Fully legal nationwide since 2018
+  DE:0,   // Cannabis Act April 2024: adults may possess ≤25g, grow 3 plants, join social clubs
+  MT:0,   // Cannabis Authority of Malta: personal cultivation + possession legal since 2021
+  UY:0,   // First country to fully legalize; pharmacies sell registered product
+
+  // 1 = Medical legal and/or personal possession formally decriminalized
+  US:1,   // Federal schedule 1, but 24 states fully legalized; possession ≤30g decrim in ~33 states
+  AU:1,   // ACT full legalization; other states decrim + medical; federal medical scheme
+  NZ:1,   // Medical prescription legal; 2020 referendum failed but enforcement minimal
+  IL:1,   // Medical widely legal; personal possession effectively decriminalized (2023 reform)
+  PT:1,   // All drugs decriminalized since 2001; no criminal penalty for personal amounts
+  CZ:1,   // Possession ≤10g = civil offence (fine); medical legal since 2013
+  ES:1,   // Legal in private spaces and licensed cannabis clubs; public possession is fine only
+  NL:1,   // Coffeeshops tolerated under gedoogbeleid; possession ≤5g = no prosecution
+  IT:1,   // Medical legal; minor possession is administrative offence; CBD widely sold
+  CH:1,   // Possession ≤10g = no criminal charge; 2024 pilot programs for recreational retail
+  BE:1,   // Decriminalized (≤3g / 1 plant) since 2022; medical scheme active
+  LU:1,   // Personal cultivation (4 plants) legal since 2023; possession ≤3g decrim
+  AR:1,   // Supreme Court ruling 2009 decriminalised personal use; medical decree 2017
+  BR:1,   // STF ruling effectively decriminalizes personal possession; medical ANVISA
+  ZA:1,   // Constitutional Court 2018: private use, possession, cultivation decriminalised
+  CO:1,   // Personal dose (≤20g) legal; medical decree; major exporter
+  CL:1,   // Medical legal; possession up to 10g for personal use decriminalized (2015)
+  MX:1,   // Supreme Court decriminalized personal use; medical regulations active
+  JM:1,   // Decriminalized ≤2oz (2015); Rastafari sacramental exemption; medical
+  BB:1,   // Decriminalized personal amounts (2019); medical scheme
+  CR:1,   // Medical legal; personal possession rarely prosecuted
+  EC:1,   // Constitutional Court: personal possession decriminalized 2019
+  PE:1,   // Medical legal; personal possession (≤8g) decriminalized
+  GR:1,   // Medical legal (2017); personal possession fine only, no arrest
+  CY:1,   // Medical cannabis legal; personal possession = administrative offence
+  GE:1,   // Constitutional Court 2018 ruled consumption punishment unconstitutional; production/sale still criminal
+
+  // 2 = Minor penalties — technically illegal; small amounts typically result in fine/caution
   GB:2, FR:2, IE:2, AT:2, SE:2, FI:2, NO:2, DK:2, SI:2, SK:2, RO:2, BG:2,
-  BA:2, RS:2, MK:2, AL:2, ME:2, TR:2, VN:2, KH:2, LA:2, IN:2, NP:2, LK:2,
-  KE:2, TZ:2, GH:2, MZ:2, RW:2, UG:2, NG:2, ET:2, TN:2, MN:2, BT:2,
+  HR:2, BA:2, RS:2, MK:2, AL:2, ME:2, IN:2, NP:2, LK:2,
+  KE:2, GH:2, MZ:2, RW:2, UG:2, ET:2, MN:2,
   HU:2, PL:2, EE:2, LV:2, LT:2, BY:2, UA:2, MD:2, GY:2, SR:2, BO:2, PY:2,
-  PA:2, DO:2, TT:2, CU:2, HT:2, GT:2, BZ:2, SV:2, HN:2, NI:2, JO:2,
-  MA:2, DZ:2, EG:2, MR:2, SD:2, UZ:2, KZ:2, AM:2, AZ:2,
-  // 3 = Severe penalties (arrest, significant prison, caning, or death for trafficking)
-  SG:3, MY:3, ID:3, PH:3, JP:3, KR:3, CN:3, HK:3, RU:3, MM:3, BN:3,
-  AE:3, QA:3, SA:3, KW:3, BH:3, OM:3, IR:3, IQ:3, SY:3, YE:3, LB:3, PK:3,
-  BD:3, AF:3, KP:3, LY:3, SO:3, SS:3, TD:3, NE:3, ML:3, BF:3, ER:3,
-  MV:3, MO:3,
+  PA:2, DO:2, TT:2, CU:2, HT:2, GT:2, BZ:2, SV:2, HN:2, NI:2,
+  MA:2, SD:2, UZ:2, KZ:2, AM:2, AZ:2, TZ:2,
+
+  // 3 = Severe penalties — significant prison time, caning, or death penalty for trafficking
+  SG:3,   // Death penalty for >500g; mandatory prison for any possession
+  MY:3,   // Death for trafficking; long prison for possession
+  ID:3,   // 4-12 years for possession; death for trafficking
+  PH:3,   // 12 years minimum for possession; "drug war" enforcement
+  JP:3,   // 5 years for possession; zero tolerance culture
+  KR:3,   // 5 years for possession; enforced even for foreign use abroad
+  CN:3,   // Criminal detention to 15 years; very strict enforcement
+  HK:3,   // Up to life imprisonment for trafficking; 7 years for possession
+  RU:3,   // 3-10 years for possession; severe for any amount
+  MM:3,   // 5-15 years mandatory prison for possession
+  BN:3,   // Death penalty possible for trafficking; strict Islamic law enforcement
+  VN:3,   // Death penalty for trafficking ≥600g; 2-7 years possession
+  KH:3,   // Crackdown intensified 2020+; 1-10 years possession; death for trafficking
+  LA:3,   // 1-5 years for possession; death for trafficking
+  NG:3,   // NDLEA enforcement harsh; 5-25 years for minor possession
+  TN:3,   // Law 52: mandatory 1 year minimum for first offence; widespread arrests of tourists
+  AE:3,   // 4+ years minimum; trace amounts on clothing prosecuted; no tolerance
+  QA:3,   // Criminal charges; deportation for foreigners; zero tolerance
+  SA:3,   // Flogging, prison, deportation; death for large amounts
+  KW:3,   // Criminal sentence; foreigners deported; zero tolerance
+  BH:3,   // Criminal sentence; foreigners face deportation
+  OM:3,   // Mandatory prison; foreigners deported
+  IR:3,   // Death penalty enforced for trafficking; prison for possession
+  IQ:3,   // Up to life imprisonment; irregular enforcement
+  SY:3,   // Severe; conflict conditions make unpredictable
+  YE:3,   // Severe; war conditions make enforcement unpredictable
+  LB:3,   // 3 months to 3 years; reform law passed 2020 but rarely applied
+  PK:3,   // Up to 2 years possession; death for large trafficking
+  BD:3,   // Mandatory 2 years to life; zero tolerance
+  TR:3,   // 2-5 years possession; 10-20 years trafficking; tourists regularly prosecuted
+  JO:3,   // Mandatory 1 year minimum; no suspended sentences; tourists arrested
+  DZ:3,   // 2 months to 10 years mandatory; strict enforcement
+  EG:3,   // Mandatory prison even for small amounts; tourists regularly arrested
+  AF:3,   // Ironically, Taliban crackdown on poppy but cannabis laws unpredictable
+  KP:3,   // Extremely severe; any foreign activity criminalized
+  LY:3, SO:3, SS:3, TD:3, NE:3, ML:3, BF:3, ER:3, MR:3,
+  MV:3,   // Maldives: very strict; foreigners arrested and deported
+  MO:3,   // Macau: criminal charges; casinos conduct surveillance
+  BT:2,   // Bhutan: technically illegal but possession rarely prosecuted
 };
 
 // CD_TIMEZONE: ISO-2 → integer UTC offset (capital / dominant zone; half-hour
