@@ -4168,48 +4168,68 @@ function buildTimezoneSection(iso2) {
 // ─── Cost Details Tooltip Section ────────────────────────────────────────────
 // Appended to the country tooltip when the Cost layer is active.
 function buildCostDetailsSection(iso2) {
-  if (!activeLayers.has('cost')) return '';
   if (typeof COST_DETAILS === 'undefined' || !COST_DETAILS[iso2]) return '';
   const d    = COST_DETAILS[iso2];
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? CURRENCY[iso2] : '';
-  const $ = n => (n > 0 ? `~$${n}` : 'N/A');
-  return `<div style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
-    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:7px">
-      BUDGET COSTS${curr ? ' &middot; ' + curr : ''}
+  const usd  = n => n > 0 ? `$${n}` : '—';
+
+  // Daily budget estimate: hostel + 3 meals + transport (budget traveller)
+  const budgetDay  = (d.hostel || 0) + (d.meal || 0) * 3 + (d.transport || 0);
+  // Comfort daily: add coffee + beer to the budget estimate
+  const comfortDay = budgetDay + (d.coffee || 0) + (d.beer || 0);
+
+  // Compact always-visible summary card
+  const compactCard = `<div style="margin-top:8px;padding:8px 10px;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.14);border-radius:7px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.5);letter-spacing:1.6px;text-transform:uppercase">💰 DAILY BUDGET</div>
+      ${curr ? `<div style="font-size:7px;font-weight:700;color:var(--gold);background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);border-radius:3px;padding:1px 6px;letter-spacing:0.8px">${_esc(curr)}</div>` : ''}
     </div>
-    <div class="ttr">
-      <div class="ttstrip" style="background:#6a8a5a"></div>
-      <div class="tti">
-        <div class="ttln">ACCOMMODATION</div>
-        <div class="ttrat" style="color:#90c070">Hostel / guesthouse</div>
-        <div class="ttdesc">${$(d.hostel)} per night</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <div style="flex:1;text-align:center;padding:4px 0;background:rgba(34,197,94,0.07);border-radius:5px;border:1px solid rgba(34,197,94,0.15)">
+        <div style="font-size:7px;color:rgba(34,197,94,0.6);letter-spacing:0.8px;text-transform:uppercase">Budget</div>
+        <div style="font-size:13px;font-weight:700;color:#4ade80">~${usd(budgetDay)}</div>
+        <div style="font-size:6.5px;color:rgba(34,197,94,0.45)">per day</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:4px 0;background:rgba(251,191,36,0.06);border-radius:5px;border:1px solid rgba(251,191,36,0.12)">
+        <div style="font-size:7px;color:rgba(251,191,36,0.6);letter-spacing:0.8px;text-transform:uppercase">Comfort</div>
+        <div style="font-size:13px;font-weight:700;color:#fbbf24">~${usd(comfortDay)}</div>
+        <div style="font-size:6.5px;color:rgba(251,191,36,0.45)">per day</div>
       </div>
     </div>
-    <div class="ttr">
-      <div class="ttstrip" style="background:#8a7a3a"></div>
-      <div class="tti">
-        <div class="ttln">MEALS</div>
-        <div class="ttrat" style="color:#c8a860">Budget street meal</div>
-        <div class="ttdesc">${$(d.meal)} per meal</div>
-      </div>
+    <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--dim)">
+      <span title="Hostel/guesthouse per night">🛏 ${usd(d.hostel)}</span>
+      <span title="Street meal">🍜 ${usd(d.meal)}</span>
+      <span title="Local transport per day">🚇 ${usd(d.transport)}</span>
+      <span title="Coffee">☕ ${usd(d.coffee)}</span>
+      <span title="Local beer">${d.beer > 0 ? '🍺' : '🥤'} ${usd(d.beer)}</span>
     </div>
-    <div class="ttr">
-      <div class="ttstrip" style="background:#4a6a8a"></div>
-      <div class="tti">
-        <div class="ttln">LOCAL TRANSPORT</div>
-        <div class="ttrat" style="color:#80a8c8">Bus / metro</div>
-        <div class="ttdesc">${$(d.transport)} per day</div>
-      </div>
-    </div>
-    <div class="ttr">
-      <div class="ttstrip" style="background:#6a5a8a"></div>
-      <div class="tti">
-        <div class="ttln">DRINKS</div>
-        <div class="ttrat" style="color:#a090c8">Coffee ${$(d.coffee)} &middot; Beer ${$(d.beer)}</div>
-        ${d.note ? `<div class="ttdesc" style="margin-top:3px">${d.note}</div>` : ''}
-      </div>
-    </div>
+    ${d.note ? `<div style="margin-top:6px;font-size:7.5px;color:rgba(201,168,76,0.5);line-height:1.4;padding-top:5px;border-top:1px solid rgba(201,168,76,0.08)">${_esc(d.note)}</div>` : ''}
   </div>`;
+
+  // Detailed breakdown only when cost layer is active
+  if (!activeLayers.has('cost')) return `<div style="padding-top:6px;border-top:1px solid rgba(201,168,76,0.10);margin-top:8px">${compactCard}</div>`;
+
+  const detailed = `
+    <div class="ttr"><div class="ttstrip" style="background:#6a8a5a"></div>
+      <div class="tti"><div class="ttln">ACCOMMODATION</div>
+        <div class="ttrat" style="color:#90c070">Hostel / budget guesthouse</div>
+        <div class="ttdesc">${usd(d.hostel)} per night</div></div></div>
+    <div class="ttr"><div class="ttstrip" style="background:#8a7a3a"></div>
+      <div class="tti"><div class="ttln">MEALS</div>
+        <div class="ttrat" style="color:#c8a860">Street food / local restaurant</div>
+        <div class="ttdesc">${usd(d.meal)} per meal</div></div></div>
+    <div class="ttr"><div class="ttstrip" style="background:#4a6a8a"></div>
+      <div class="tti"><div class="ttln">LOCAL TRANSPORT</div>
+        <div class="ttrat" style="color:#80a8c8">Bus / metro / tuk-tuk</div>
+        <div class="ttdesc">${usd(d.transport)} per day</div></div></div>
+    <div class="ttr"><div class="ttstrip" style="background:#6a5a8a"></div>
+      <div class="tti"><div class="ttln">DRINKS</div>
+        <div class="ttrat" style="color:#a090c8">Coffee ${usd(d.coffee)} &middot; ${d.beer > 0 ? 'Beer ' + usd(d.beer) : 'Alcohol limited'}</div>
+      </div></div>`;
+
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">COST OF LIVING${curr ? ' &middot; ' + _esc(curr) : ''}</div>
+    ${compactCard}${detailed}</div>`;
 }
 
 
