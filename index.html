@@ -74,257 +74,370 @@
 
     <div id="logo">
       <div id="logo-wrap"><svg id="na-logo" xmlns="http://www.w3.org/2000/svg" width="320" height="110" viewBox="0 0 480 165" role="img" aria-label="Nomadic Almanac — World Travel Intelligence">
-  <defs>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500&amp;display=swap');
-      .naml-compass { transform-box: view-box; transform-origin: 82px 82px; animation: namlSway 6s ease-in-out infinite; will-change: transform; }
-      .naml-needle  { transform-box: view-box; transform-origin: 82px 82px; animation: namlSettle 2.2s cubic-bezier(0.34,1.56,0.64,1) forwards, namlOsc 4s ease-in-out 2.2s infinite; will-change: transform; }
-      .naml-ship    { transform-box: view-box; transform-origin: 300px 118px; animation: namlShip 4.5s ease-in-out infinite; will-change: transform; }
-      .naml-waves   { transform-box: view-box; transform-origin: 300px 124px; animation: namlWave 3.2s ease-in-out infinite; will-change: transform; }
-      .naml-dragon  { transform-box: view-box; transform-origin: 410px 130px; animation: namlDragon 5s ease-in-out infinite; will-change: transform; }
-      .naml-flame   { transform-box: view-box; transform-origin: 396px 132px; animation: namlFlame 0.55s ease-in-out infinite alternate; will-change: transform, opacity; }
-      .naml-flame-b { animation-delay: 0.18s; }
-      @keyframes namlSettle { 0% { transform: rotate(160deg); } 100% { transform: rotate(0deg); } }
-      @keyframes namlOsc    { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(0.9deg); } 75% { transform: rotate(-0.9deg); } }
-      @keyframes namlSway   { 0%,100% { transform: rotate(-0.6deg); } 50% { transform: rotate(0.6deg); } }
-      @keyframes namlShip   { 0%,100% { transform: rotate(-2.2deg) translateY(0); } 50% { transform: rotate(2.6deg) translateY(-1px); } }
-      @keyframes namlWave   { 0%,100% { transform: translateX(0); } 50% { transform: translateX(2.5px); } }
-      @keyframes namlDragon { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
-      @keyframes namlFlame  { 0% { transform: scale(0.85, 0.9); opacity: 0.55; } 100% { transform: scale(1.12, 1.05); opacity: 1; } }
-      @media (prefers-reduced-motion: reduce) {
-        .naml-compass, .naml-needle, .naml-ship, .naml-waves, .naml-dragon, .naml-flame {
-          animation: none !important; transform: none !important;
-        }
-      }
-    </style>
-    <linearGradient id="naml-parch" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"  stop-color="#F5ECD0"/>
-      <stop offset="55%" stop-color="#EFE2B7"/>
-      <stop offset="100%" stop-color="#E2D098"/>
-    </linearGradient>
-    <radialGradient id="naml-vignette" cx="0.5" cy="0.5" r="0.78">
-      <stop offset="55%"  stop-color="#000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#5A4A20" stop-opacity="0.28"/>
-    </radialGradient>
-    <radialGradient id="naml-rose-bg" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%"  stop-color="#F8F1D8"/>
-      <stop offset="85%" stop-color="#EDDFB4"/>
-      <stop offset="100%" stop-color="#D7BF85"/>
-    </radialGradient>
-    <clipPath id="naml-rightclip"><rect x="158" y="10" width="317" height="145"/></clipPath>
-  </defs>
+<defs>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&amp;display=swap');
+    /* Compass bezel rocks with the boat; needle stays fixed seeking North */
+    .naml-cring { transform-box:view-box; transform-origin:82px 82px; animation:namlBoatRoll 5.5s ease-in-out infinite; }
+    .naml-needle{ transform-box:view-box; transform-origin:82px 82px; animation:namlSettle 2.2s cubic-bezier(0.34,1.56,0.64,1) forwards, namlSeek 8s ease-in-out 2.2s infinite; will-change:transform; }
+    /* Ship sails and rocks in swell */
+    .naml-ship  { transform-box:view-box; transform-origin:295px 113px; animation:namlShipRock 3.8s ease-in-out infinite; }
+    .naml-sail  { transform-box:view-box; transform-origin:295px 105px; animation:namlSailBow 2.4s ease-in-out infinite alternate; }
+    .naml-wv    { animation:namlWave 2.6s ease-in-out infinite; }
+    /* Dragon swims and breathes fire */
+    .naml-drg   { animation:namlDrgSwim 4.2s ease-in-out infinite; }
+    .naml-dtail { transform-box:view-box; transform-origin:460px 140px; animation:namlTailSwish 1.6s ease-in-out infinite alternate; }
+    .naml-fire  { transform-box:view-box; transform-origin:408px 135px; animation:namlFlicker 0.38s ease-in-out infinite alternate; }
+    .naml-fire2 { animation-delay:0.13s; }
+    .naml-fire3 { animation-delay:0.25s; }
+    .naml-fglow { animation:namlGlow 0.7s ease-in-out infinite alternate; }
+    @keyframes namlBoatRoll { 0%,100%{transform:rotate(-2.8deg)} 50%{transform:rotate(2.8deg)} }
+    @keyframes namlSettle   { 0%{transform:rotate(160deg)} 100%{transform:rotate(0deg)} }
+    @keyframes namlSeek     { 0%,100%{transform:rotate(0deg)} 12%{transform:rotate(3.5deg)} 28%{transform:rotate(-2.2deg)} 44%{transform:rotate(1.8deg)} 60%{transform:rotate(-1.2deg)} 76%{transform:rotate(0.8deg)} 92%{transform:rotate(-0.3deg)} }
+    @keyframes namlShipRock { 0%,100%{transform:rotate(-4.5deg) translateY(0)} 50%{transform:rotate(4deg) translateY(-1.8px)} }
+    @keyframes namlSailBow  { 0%{transform:scaleX(0.9) skewY(-1deg)} 100%{transform:scaleX(1.06) skewY(1deg)} }
+    @keyframes namlWave     { 0%,100%{transform:translateX(0)} 50%{transform:translateX(3.5px)} }
+    @keyframes namlDrgSwim  { 0%,100%{transform:translateY(0) rotate(-1.2deg)} 25%{transform:translateY(-2.5px) rotate(1.8deg)} 50%{transform:translateY(-0.8px) rotate(-0.8deg)} 75%{transform:translateY(-2.8px) rotate(2.2deg)} }
+    @keyframes namlTailSwish{ 0%{transform:rotate(-9deg)} 100%{transform:rotate(9deg)} }
+    @keyframes namlFlicker  { 0%{transform:scale(0.78,0.82) translateX(0); opacity:0.45} 100%{transform:scale(1.18,1.12) translateX(2.5px); opacity:1} }
+    @keyframes namlGlow     { 0%{opacity:0.15} 100%{opacity:0.55} }
+    @media (prefers-reduced-motion:reduce){
+      .naml-cring,.naml-needle,.naml-ship,.naml-sail,.naml-wv,.naml-drg,.naml-dtail,.naml-fire,.naml-fglow{
+        animation:none!important; transform:none!important; }
+    }
+  </style>
 
-  <!-- Parchment base + vignette -->
-  <rect width="480" height="165" fill="url(#naml-parch)"/>
-  <rect width="480" height="165" fill="url(#naml-vignette)"/>
+  <!-- Backgrounds / gradients -->
+  <linearGradient id="gNavy" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"  stop-color="#0D1D3F"/>
+    <stop offset="50%" stop-color="#0A1630"/>
+    <stop offset="100%" stop-color="#07102A"/>
+  </linearGradient>
+  <radialGradient id="gMapBg" cx="0.55" cy="0.5" r="0.65">
+    <stop offset="0%"  stop-color="#1B3565" stop-opacity="0.45"/>
+    <stop offset="100%" stop-color="#0A1630" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="gCompassGlow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0%"  stop-color="#C9A820" stop-opacity="0.1"/>
+    <stop offset="100%" stop-color="#C9A820" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="gFireCore" cx="0.15" cy="0.5" r="0.85">
+    <stop offset="0%"  stop-color="#FFF59D"/>
+    <stop offset="35%" stop-color="#FFA726"/>
+    <stop offset="100%" stop-color="#C62828" stop-opacity="0"/>
+  </radialGradient>
+  <clipPath id="cRight"><rect x="162" y="8" width="314" height="149"/></clipPath>
+</defs>
 
-  <!-- Outer + inner border lines (no crosses) -->
-  <rect x="5"  y="5"  width="470" height="155" fill="none" stroke="#1B2A4A" stroke-width="1.4"/>
-  <rect x="9"  y="9"  width="462" height="147" fill="none" stroke="#B8960C" stroke-width="0.55"/>
-  <rect x="12" y="12" width="456" height="141" fill="none" stroke="#B8960C" stroke-width="0.25" stroke-opacity="0.6"/>
+<!-- ══ BASE ══ -->
+<rect width="480" height="165" fill="url(#gNavy)"/>
 
-  <!-- 4-point compass-star corner ornaments (replacing the crosses) -->
-  <g fill="#B8960C">
-    <g transform="translate(18,18)"><polygon points="0,-5.5 1.6,-1.6 5.5,0 1.6,1.6 0,5.5 -1.6,1.6 -5.5,0 -1.6,-1.6"/><circle r="1.1" fill="#1B2A4A"/></g>
-    <g transform="translate(462,18)"><polygon points="0,-5.5 1.6,-1.6 5.5,0 1.6,1.6 0,5.5 -1.6,1.6 -5.5,0 -1.6,-1.6"/><circle r="1.1" fill="#1B2A4A"/></g>
-    <g transform="translate(18,147)"><polygon points="0,-5.5 1.6,-1.6 5.5,0 1.6,1.6 0,5.5 -1.6,1.6 -5.5,0 -1.6,-1.6"/><circle r="1.1" fill="#1B2A4A"/></g>
-    <g transform="translate(462,147)"><polygon points="0,-5.5 1.6,-1.6 5.5,0 1.6,1.6 0,5.5 -1.6,1.6 -5.5,0 -1.6,-1.6"/><circle r="1.1" fill="#1B2A4A"/></g>
+<!-- ══ BORDERS ══ -->
+<rect x="4"  y="4"  width="472" height="157" fill="none" stroke="#C9A820" stroke-width="1.7"/>
+<rect x="8"  y="8"  width="464" height="149" fill="none" stroke="#C9A820" stroke-width="0.5"/>
+<rect x="11" y="11" width="458" height="143" fill="none" stroke="#C9A820" stroke-width="0.2" opacity="0.5"/>
+
+<!-- 4-point compass-star corner ornaments (no crosses) -->
+<g fill="#C9A820">
+  <g transform="translate(19,19)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
+  <g transform="translate(461,19)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
+  <g transform="translate(19,146)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
+  <g transform="translate(461,146)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
+</g>
+
+<!-- ══ RIGHT PANEL — antique map ══ -->
+<g clip-path="url(#cRight)">
+  <ellipse cx="330" cy="82" rx="165" ry="78" fill="url(#gMapBg)"/>
+
+  <!-- Cartographic grid -->
+  <g stroke="#1E3D72" stroke-width="0.5" opacity="0.75">
+    <line x1="185" y1="10" x2="185" y2="155"/>
+    <line x1="210" y1="10" x2="210" y2="155"/>
+    <line x1="235" y1="10" x2="235" y2="155"/>
+    <line x1="260" y1="10" x2="260" y2="155"/>
+    <line x1="285" y1="10" x2="285" y2="155"/>
+    <line x1="310" y1="10" x2="310" y2="155"/>
+    <line x1="335" y1="10" x2="335" y2="155"/>
+    <line x1="360" y1="10" x2="360" y2="155"/>
+    <line x1="385" y1="10" x2="385" y2="155"/>
+    <line x1="410" y1="10" x2="410" y2="155"/>
+    <line x1="435" y1="10" x2="435" y2="155"/>
+    <line x1="460" y1="10" x2="460" y2="155"/>
+    <line x1="164" y1="28" x2="474" y2="28"/>
+    <line x1="164" y1="48" x2="474" y2="48"/>
+    <line x1="164" y1="68" x2="474" y2="68"/>
+    <line x1="164" y1="88" x2="474" y2="88"/>
+    <line x1="164" y1="108" x2="474" y2="108"/>
+    <line x1="164" y1="128" x2="474" y2="128"/>
+    <line x1="164" y1="148" x2="474" y2="148"/>
+  </g>
+  <!-- Equator curve (dashed) -->
+  <path d="M 164,85 Q 318,79 474,85" fill="none" stroke="#2A50A0" stroke-width="0.7" stroke-dasharray="3 2" opacity="0.9"/>
+
+  <!-- Continent fills -->
+  <g fill="#1B3565" opacity="0.75">
+    <!-- Eurasia -->
+    <path d="M 244,36 Q 272,28 300,35 Q 325,29 352,38 Q 380,44 398,56 Q 406,70 392,79 Q 372,86 348,82 Q 320,88 294,82 Q 269,77 258,64 Q 246,50 244,36 Z"/>
+    <!-- India -->
+    <path d="M 293,79 Q 299,85 301,96 Q 296,102 290,97 Q 288,88 293,79 Z"/>
+    <!-- Africa horn -->
+    <path d="M 322,85 Q 335,89 339,104 Q 336,120 327,128 Q 318,132 312,122 Q 310,106 317,93 Z"/>
+    <!-- Arabia -->
+    <path d="M 308,75 Q 320,75 321,85 Q 314,89 308,85 Z"/>
+    <!-- Australia -->
+    <path d="M 412,118 Q 435,112 450,120 Q 456,131 440,137 Q 420,137 410,127 Z"/>
+    <!-- Islands -->
+    <ellipse cx="402" cy="108" rx="2.2" ry="1.3"/>
+    <ellipse cx="410" cy="112" rx="1.6" ry="1"/>
+    <ellipse cx="396" cy="115" rx="1.3" ry="0.9"/>
   </g>
 
-  <!-- ============ RIGHT PANEL: antique map background ============ -->
-  <g clip-path="url(#naml-rightclip)">
-
-    <!-- Latitude / longitude grid -->
-    <g stroke="#7A5B33" stroke-width="0.3" opacity="0.32">
-      <line x1="175" y1="15" x2="175" y2="152"/>
-      <line x1="200" y1="15" x2="200" y2="152"/>
-      <line x1="225" y1="15" x2="225" y2="152"/>
-      <line x1="250" y1="15" x2="250" y2="152"/>
-      <line x1="275" y1="15" x2="275" y2="152"/>
-      <line x1="300" y1="15" x2="300" y2="152"/>
-      <line x1="325" y1="15" x2="325" y2="152"/>
-      <line x1="350" y1="15" x2="350" y2="152"/>
-      <line x1="375" y1="15" x2="375" y2="152"/>
-      <line x1="400" y1="15" x2="400" y2="152"/>
-      <line x1="425" y1="15" x2="425" y2="152"/>
-      <line x1="450" y1="15" x2="450" y2="152"/>
-      <line x1="160" y1="30"  x2="475" y2="30"/>
-      <line x1="160" y1="50"  x2="475" y2="50"/>
-      <line x1="160" y1="70"  x2="475" y2="70"/>
-      <line x1="160" y1="90"  x2="475" y2="90"/>
-      <line x1="160" y1="110" x2="475" y2="110"/>
-      <line x1="160" y1="130" x2="475" y2="130"/>
-    </g>
-
-    <!-- Curved meridian (equator-ish arc) -->
-    <path d="M 160,90 Q 320,82 475,90" fill="none" stroke="#7A5B33" stroke-width="0.45" opacity="0.45" stroke-dasharray="2 1.5"/>
-
-    <!-- Continent silhouettes -->
-    <g fill="#8B6F47" opacity="0.22">
-      <path d="M 240,35 Q 270,30 295,38 Q 322,32 350,40 Q 378,46 392,58 Q 396,72 378,80 Q 358,86 332,82 Q 305,88 278,80 Q 252,76 244,62 Q 238,48 240,35 Z"/>
-      <path d="M 286,76 Q 294,82 296,92 Q 290,98 285,93 Q 283,84 286,76 Z"/>
-      <path d="M 318,82 Q 330,86 334,100 Q 332,116 322,124 Q 313,128 308,118 Q 306,102 312,90 Z"/>
-      <path d="M 300,72 Q 312,72 314,82 Q 308,86 302,82 Z"/>
-      <path d="M 405,115 Q 428,110 445,118 Q 450,128 434,134 Q 414,134 404,124 Z"/>
-      <circle cx="396" cy="105" r="1.2"/>
-      <circle cx="402" cy="108" r="0.9"/>
-      <circle cx="388" cy="112" r="1"/>
-    </g>
-
-    <!-- Map labels — Latin / archaic exonyms in faded italic -->
-    <g fill="#5A4A20" opacity="0.55" font-family="Cormorant Garamond, Georgia, serif" font-style="italic" font-weight="500">
-      <text x="195" y="42"  font-size="5.4" letter-spacing="0.9">OCEANUS</text>
-      <text x="290" y="50"  font-size="5.4" letter-spacing="0.9">CATAY</text>
-      <text x="287" y="105" font-size="4.4" letter-spacing="0.6">INDIA</text>
-      <text x="190" y="138" font-size="5.2" letter-spacing="0.7">TERRA INCOGNITA</text>
-      <text x="410" y="146" font-size="4.5" letter-spacing="0.6">NEW HOLLAND</text>
-      <text x="455" y="28"  font-size="4"   letter-spacing="0.5" text-anchor="end">RUSSIA</text>
-    </g>
-
-    <!-- Rhumb lines from a small inset rose -->
-    <g stroke="#8B6F47" stroke-width="0.3" opacity="0.3">
-      <line x1="350" y1="92" x2="200" y2="40"/>
-      <line x1="350" y1="92" x2="200" y2="140"/>
-      <line x1="350" y1="92" x2="475" y2="50"/>
-      <line x1="350" y1="92" x2="475" y2="135"/>
-    </g>
-    <circle cx="350" cy="92" r="2.5" fill="none" stroke="#8B6F47" stroke-width="0.4" opacity="0.45"/>
-
-    <!-- ===== Animated ship fighting waves ===== -->
-    <g class="naml-waves" stroke="#1B2A4A" stroke-width="0.45" fill="none" opacity="0.55">
-      <path d="M 282,122 Q 286,120 290,122 T 298,122 T 306,122 T 314,122 T 322,122"/>
-      <path d="M 280,125 Q 284,123 288,125 T 296,125 T 304,125 T 312,125 T 320,125" opacity="0.65"/>
-      <path d="M 278,128 Q 282,126 286,128 T 294,128 T 302,128 T 310,128 T 318,128" opacity="0.4"/>
-    </g>
-    <g class="naml-ship">
-      <g transform="translate(300,118)">
-        <path d="M -8,-1 L 8,-1 L 6.5,3 L -6.5,3 Z" fill="#5A4A20" stroke="#1B2A4A" stroke-width="0.4"/>
-        <line x1="-7" y1="0" x2="7" y2="0" stroke="#B8960C" stroke-width="0.3"/>
-        <line x1="0" y1="-1" x2="0" y2="-12" stroke="#5A4A20" stroke-width="0.55"/>
-        <line x1="-3.5" y1="-8" x2="3.5" y2="-8" stroke="#5A4A20" stroke-width="0.3"/>
-        <path d="M 0,-11 Q 5,-8 4.5,-3 L 0,-3 Z" fill="#F5ECD0" stroke="#5A4A20" stroke-width="0.35"/>
-        <path d="M 0,-11 Q -3.5,-8 -3.5,-3 L 0,-3 Z" fill="#F5ECD0" stroke="#5A4A20" stroke-width="0.35" opacity="0.92"/>
-        <path d="M 0,-12 L 4,-11 L 0,-10 Z" fill="#C0392B"/>
-      </g>
-    </g>
-
-    <!-- ===== Animated dragon breathing fire ===== -->
-    <g class="naml-dragon">
-      <g transform="translate(410,130)">
-        <path d="M 9,3 Q 16,3 19,6 Q 18,9 14,8 Q 16,7 14,6" fill="none" stroke="#5A4A20" stroke-width="1.1" opacity="0.7" stroke-linecap="round"/>
-        <path d="M -2,0 Q 4,-3 10,-1 Q 13,3 9,5 Q 3,7 -2,5 Q -5,3 -2,0 Z" fill="#5A4A20" opacity="0.75"/>
-        <path d="M 5,-2 Q 9,-8 13,-5 Q 11,-1 7,0 Z" fill="#5A4A20" opacity="0.6"/>
-        <path d="M 10,-6 L 11,-4 L 12,-6" fill="none" stroke="#5A4A20" stroke-width="0.3" opacity="0.7"/>
-        <path d="M -2,1 Q -6,0 -9,2 L -10.5,3 L -8,3 Q -5,4 -2,3 Z" fill="#5A4A20" opacity="0.78"/>
-        <line x1="-8" y1="2" x2="-9" y2="0" stroke="#5A4A20" stroke-width="0.4" opacity="0.7"/>
-        <circle cx="-7" cy="1.6" r="0.55" fill="#C0392B"/>
-      </g>
-      <g class="naml-flame">
-        <path d="M 401,132 Q 395,130 390,132 Q 386,132.5 384,132 Q 388,133 393,132.5 Q 396,133 401,132 Z" fill="#E67E22"/>
-        <path d="M 401,132.5 Q 397,131.5 393,132.5 Q 390,133 388,132.7 Q 392,133.5 396,132.8 Z" fill="#FDD835"/>
-      </g>
-      <g class="naml-flame naml-flame-b">
-        <path d="M 400,133 Q 395,134.5 390,134 Q 387,134.3 385,134 Q 389,135 393,134.5 Z" fill="#C0392B" opacity="0.85"/>
-      </g>
-    </g>
+  <!-- Archaic map labels -->
+  <g fill="#4A80C8" opacity="0.9" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-size="5.2" letter-spacing="0.9">
+    <text x="173" y="43">OCEANUS OCCIDENTALIS</text>
+    <text x="295" y="52">CATAY</text>
+    <text x="292" y="108">INDIA</text>
+    <text x="174" y="140">TERRA   INCOGNITA</text>
+    <text x="414" y="150">NEW HOLLAND</text>
+    <text x="472" y="30" text-anchor="end">RUSSIA</text>
   </g>
 
-  <!-- Vertical divider -->
-  <line x1="158" y1="26" x2="158" y2="139" stroke="#1B2A4A" stroke-width="0.8" stroke-opacity="0.7"/>
-  <circle cx="158" cy="26"  r="1.3" fill="#B8960C"/>
-  <circle cx="158" cy="139" r="1.3" fill="#B8960C"/>
+  <!-- Rhumb lines from inset rose -->
+  <g stroke="#2A50A0" stroke-width="0.4" opacity="0.65">
+    <line x1="358" y1="92" x2="204" y2="40"/>
+    <line x1="358" y1="92" x2="204" y2="144"/>
+    <line x1="358" y1="92" x2="472" y2="40"/>
+    <line x1="358" y1="92" x2="472" y2="144"/>
+    <line x1="358" y1="92" x2="164" y2="82"/>
+    <line x1="358" y1="92" x2="474" y2="92"/>
+  </g>
+  <circle cx="358" cy="92" r="3.2" fill="none" stroke="#2A50A0" stroke-width="0.7" opacity="0.7"/>
 
-  <!-- ============ COMPASS ============ -->
-  <g class="naml-compass">
-    <circle cx="82" cy="82" r="64" fill="url(#naml-rose-bg)"/>
-    <circle cx="82" cy="82" r="64" stroke="#1B2A4A" stroke-width="1.5" fill="none"/>
-    <circle cx="82" cy="82" r="60" stroke="#B8960C" stroke-width="0.55" fill="none"/>
-    <circle cx="82" cy="82" r="56" stroke="#1B2A4A" stroke-width="0.4" fill="none" opacity="0.5"/>
-    <circle cx="82" cy="82" r="38" stroke="#B8960C" stroke-width="0.3" fill="none" opacity="0.5"/>
+  <!-- ── WAVES ── -->
+  <g class="naml-wv">
+    <path d="M 268,120 Q 273,116.5 278,120 Q 283,123.5 288,120 Q 293,116.5 298,120 Q 303,123.5 308,120 Q 313,116.5 318,120"
+          fill="none" stroke="#3A6FBF" stroke-width="0.9" opacity="0.75"/>
+    <path d="M 266,125 Q 271,122 276,125 Q 281,128 286,125 Q 291,122 296,125 Q 301,128 306,125 Q 311,122 316,125"
+          fill="none" stroke="#3A6FBF" stroke-width="0.65" opacity="0.55"/>
+    <path d="M 270,130 Q 275,128 280,130 Q 285,132 290,130 Q 295,128 300,130 Q 305,132 310,130"
+          fill="none" stroke="#3A6FBF" stroke-width="0.45" opacity="0.35"/>
+  </g>
 
-    <g stroke="#1B2A4A">
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(15 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(30 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(45 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(60 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(75 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(90 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(105 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(120 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(135 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(150 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(165 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(180 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(195 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(210 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(225 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(240 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(255 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(270 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(285 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(300 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="26" stroke-width="1.1" transform="rotate(315 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(330 82 82)"/>
-      <line x1="82" y1="20" x2="82" y2="23" stroke-width="0.45" opacity="0.7" transform="rotate(345 82 82)"/>
-    </g>
-
-    <!-- 4 cardinal long points (navy + gold half-tone) -->
-    <g fill="#1B2A4A">
-      <polygon points="82,26 86,78 82,82 78,78"/>
-      <polygon points="82,138 86,86 82,82 78,86"/>
-      <polygon points="138,82 86,78 82,82 86,86"/>
-      <polygon points="26,82 78,78 82,82 78,86"/>
-    </g>
-    <g fill="#B8960C">
-      <polygon points="82,26 82,82 78,78"/>
-      <polygon points="82,138 82,82 78,86"/>
-      <polygon points="138,82 82,82 86,86"/>
-      <polygon points="26,82 82,82 78,86"/>
-    </g>
-
-    <!-- 4 inter-cardinal long points (navy + gold half-tone) -->
-    <g fill="#1B2A4A">
-      <polygon points="121,43 86,78 82,82 78,78" transform="rotate(0 82 82)"/>
-      <polygon points="121,43 86,78 82,82 78,78" transform="rotate(90 82 82)"/>
-      <polygon points="121,43 86,78 82,82 78,78" transform="rotate(180 82 82)"/>
-      <polygon points="121,43 86,78 82,82 78,78" transform="rotate(270 82 82)"/>
-    </g>
-
-    <!-- 8 shorter intermediate points (gold) -->
-    <g fill="#B8960C" opacity="0.85">
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(22.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(67.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(112.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(157.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(202.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(247.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(292.5 82 82)"/>
-      <polygon points="82,38 85,80 82,82 79,80" transform="rotate(337.5 82 82)"/>
-    </g>
-
-    <!-- N / E / S / W cardinal letters -->
-    <text x="82" y="18"  text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#1B2A4A">N</text>
-    <text x="82" y="151" text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#1B2A4A">S</text>
-    <text x="151" y="85" text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#1B2A4A">E</text>
-    <text x="13"  y="85" text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#1B2A4A">W</text>
-
-    <!-- Animated needle: RED north, navy south -->
-    <g class="naml-needle">
-      <polygon points="82,34 86,80 82,82 78,80" fill="#C0392B"/>
-      <polygon points="82,130 86,84 82,82 78,84" fill="#1B2A4A"/>
-      <circle cx="82" cy="82" r="4" fill="#B8960C" stroke="#1B2A4A" stroke-width="0.6"/>
-      <circle cx="82" cy="82" r="1.4" fill="#1B2A4A"/>
+  <!-- ── SHIP ── -->
+  <g class="naml-ship">
+    <g transform="translate(293,113)">
+      <!-- Hull with sheer -->
+      <path d="M -12,1 Q -6,-1 0,-1 Q 6,-1 12,1 L 10,6 Q 0,9 -10,6 Z"
+            fill="#0D1D3F" stroke="#C9A820" stroke-width="0.55"/>
+      <!-- Waterline -->
+      <line x1="-11" y1="2" x2="11" y2="2" stroke="#C9A820" stroke-width="0.4" opacity="0.9"/>
+      <!-- Bowsprit -->
+      <line x1="10" y1="-0.5" x2="17" y2="-5.5" stroke="#C9A820" stroke-width="0.45"/>
+      <!-- Main mast -->
+      <line x1="-1" y1="-1" x2="-1" y2="-19" stroke="#C9A820" stroke-width="0.65"/>
+      <!-- Foremast -->
+      <line x1="6"  y1="-1" x2="6"  y2="-13" stroke="#C9A820" stroke-width="0.55"/>
+      <!-- Main yard -->
+      <line x1="-8" y1="-13" x2="6" y2="-13" stroke="#C9A820" stroke-width="0.38"/>
+      <!-- Fore yard -->
+      <line x1="3"  y1="-8"  x2="10" y2="-8" stroke="#C9A820" stroke-width="0.3"/>
+      <!-- Sails (animated bow/billow) -->
+      <g class="naml-sail">
+        <path d="M -1,-18 Q -9,-13 -9,-5 Q -5,-3 -1,-3 L -1,-18 Z"
+              fill="#0D1D3F" stroke="#C9A820" stroke-width="0.38" opacity="0.92"/>
+        <path d="M -1,-18 Q 6,-13 6,-5 L -1,-3 Z"
+              fill="#0D1D3F" stroke="#C9A820" stroke-width="0.38" opacity="0.92"/>
+      </g>
+      <!-- Fore sail -->
+      <path d="M 6,-12 Q 10,-9 10,-4 L 6,-4 Z"
+            fill="#0D1D3F" stroke="#C9A820" stroke-width="0.3" opacity="0.88"/>
+      <!-- Jib -->
+      <path d="M 16,-5.5 Q 11,-4 6,-4 L 6,-12 Z"
+            fill="#0D1D3F" stroke="#C9A820" stroke-width="0.3" opacity="0.78"/>
+      <!-- Pennant (red) -->
+      <path d="M -1,-19 L 4,-17.5 L -1,-16 Z" fill="#C0392B"/>
     </g>
   </g>
 
-  <!-- ============ WORDMARK ============ -->
-  <text x="175" y="62" font-family="Cormorant Garamond,Georgia,serif" font-size="26" font-weight="700" letter-spacing="5" fill="#1B2A4A">NOMADIC</text>
-  <line x1="175" y1="74" x2="252" y2="74" stroke="#B8960C" stroke-width="0.8"/>
-  <polygon points="276,70 281,74 276,78 271,74" fill="#B8960C"/>
-  <line x1="290" y1="74" x2="367" y2="74" stroke="#B8960C" stroke-width="0.8"/>
-  <text x="175" y="96" font-family="Cormorant Garamond,Georgia,serif" font-size="22" font-weight="600" letter-spacing="6" fill="#B8960C">ALMANAC</text>
-  <text x="175" y="118" font-family="Cormorant Garamond,Georgia,serif" font-size="7.5" font-style="italic" letter-spacing="2.5" fill="#1B2A4A" opacity="0.75">WORLD TRAVEL INTELLIGENCE</text>
+  <!-- ── DRAGON (sea serpent swimming) ── -->
+  <g class="naml-drg">
+    <!-- Serpent body — three arching coils read as a swimming undulation -->
+    <!-- Rear coil / tail -->
+    <g class="naml-dtail">
+      <path d="M 458,136 Q 464,132 469,135 Q 467,140 462,140 Q 457,139 458,136 Z"
+            fill="#0D1D3F" stroke="#C9A820" stroke-width="0.35" opacity="0.7"/>
+    </g>
+    <!-- Mid body -->
+    <path d="M 437,130 Q 445,125 452,127 Q 458,130 457,136 Q 452,139 445,137 Q 438,134 437,130 Z"
+          fill="#0D1D3F" stroke="#C9A820" stroke-width="0.4" opacity="0.8"/>
+    <!-- Second body coil (forms the crest) -->
+    <path d="M 420,126 Q 430,120 438,122 Q 442,127 437,130 Q 431,131 424,130 Q 419,129 420,126 Z"
+          fill="#0D1D3F" stroke="#C9A820" stroke-width="0.42" opacity="0.85"/>
+    <!-- Dorsal spine / sail fin -->
+    <path d="M 425,123 Q 429,116 434,119 Q 432,123 427,124 Z"
+          fill="#0D1D3F" stroke="#C9A820" stroke-width="0.3" opacity="0.75"/>
+    <!-- Neck -->
+    <path d="M 408,128 Q 414,122 420,124 Q 421,128 416,130 Q 411,131 408,128 Z"
+          fill="#0D1D3F" stroke="#C9A820" stroke-width="0.45" opacity="0.9"/>
+    <!-- Head (facing left, open mouth) -->
+    <path d="M 400,129 Q 404,124 410,125 Q 413,128 410,131 Q 406,133 401,132 Q 399,131 400,129 Z"
+          fill="#0D1D3F" stroke="#C9A820" stroke-width="0.5" opacity="0.95"/>
+    <!-- Lower jaw (open) -->
+    <path d="M 400,131 Q 403,133 408,133 L 409,135 Q 404,135 399,133 Z"
+          fill="#0D1D3F" stroke="#C9A820" stroke-width="0.35" opacity="0.85"/>
+    <!-- Horn -->
+    <line x1="407" y1="125" x2="406" y2="121" stroke="#C9A820" stroke-width="0.5" opacity="0.85"/>
+    <line x1="406" y1="125" x2="404" y2="122" stroke="#C9A820" stroke-width="0.35" opacity="0.6"/>
+    <!-- Glowing eye -->
+    <circle cx="404" cy="129" r="1.1" fill="#C0392B"/>
+    <circle cx="404" cy="129" r="0.5" fill="#FF8080"/>
+  </g>
+
+  <!-- Fire breath (from open mouth, facing left — origin ~398,133) -->
+  <!-- Three overlapping flame tongues + glow, each animated at different phase -->
+  <g class="naml-fire">
+    <path d="M 399,132 Q 393,129 387,131 Q 382,131.5 379,131 Q 383,133.5 389,132 Q 394,133 399,132 Z"
+          fill="url(#gFireCore)" opacity="0.92"/>
+  </g>
+  <g class="naml-fire naml-fire2">
+    <path d="M 399,133.5 Q 392,136.5 387,136 Q 383,136.5 380,136 Q 385,138 390,137 Q 395,137.5 399,133.5 Z"
+          fill="#E67E22" opacity="0.75"/>
+  </g>
+  <g class="naml-fire naml-fire3">
+    <path d="M 398,131.5 Q 393,128 389,129 Q 386,129 384,128 Q 388,130.5 393,129.5 Z"
+          fill="#FDD835" opacity="0.88"/>
+  </g>
+  <ellipse cx="390" cy="133" rx="13" ry="4.5" fill="#E67E22" class="naml-fglow"/>
+</g>
+<!-- ══ END RIGHT PANEL ══ -->
+
+<!-- Vertical divider -->
+<line x1="162" y1="23" x2="162" y2="142" stroke="#C9A820" stroke-width="1"/>
+<circle cx="162" cy="23"  r="1.8" fill="#C9A820"/>
+<circle cx="162" cy="142" r="1.8" fill="#C9A820"/>
+
+<!-- ══ COMPASS — left half ══ -->
+<!-- Ambient glow halo -->
+<circle cx="82" cy="82" r="68" fill="url(#gCompassGlow)"/>
+
+<!-- Everything EXCEPT the needle rocks with the boat -->
+<g class="naml-cring">
+  <!-- Bezel rings -->
+  <circle cx="82" cy="82" r="66" fill="none" stroke="#C9A820" stroke-width="1.8"/>
+  <circle cx="82" cy="82" r="62" fill="none" stroke="#C9A820" stroke-width="0.6"/>
+  <circle cx="82" cy="82" r="61" fill="#0A1630" fill-opacity="0.65"/>
+  <circle cx="82" cy="82" r="56" fill="none" stroke="#C9A820" stroke-width="0.3" opacity="0.55"/>
+  <circle cx="82" cy="82" r="39" fill="none" stroke="#C9A820" stroke-width="0.25" opacity="0.4"/>
+
+  <!-- Degree ticks (every 15°, major at 45°) all in gold -->
+  <g stroke="#C9A820">
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(15 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(30 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(45 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(60 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(75 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(90 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(105 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(120 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(135 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(150 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(165 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(180 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(195 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(210 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(225 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(240 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(255 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(270 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(285 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(300 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="25" stroke-width="1.1" transform="rotate(315 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(330 82 82)"/>
+    <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(345 82 82)"/>
+  </g>
+
+  <!-- 16-point rose — ALL GOLD (matching reference image) -->
+  <!-- 4 long cardinal points -->
+  <g fill="#C9A820">
+    <polygon points="82,22 87,76 82,82 77,76"/>
+    <polygon points="82,142 87,88 82,82 77,88"/>
+    <polygon points="142,82 88,77 82,82 88,87"/>
+    <polygon points="22,82 76,77 82,82 76,87"/>
+  </g>
+  <!-- Darker gold shadow halves (depth) -->
+  <g fill="#8B6F0A">
+    <polygon points="82,22 82,82 77,76"/>
+    <polygon points="82,142 82,82 77,88"/>
+    <polygon points="142,82 82,82 88,87"/>
+    <polygon points="22,82 82,82 76,87"/>
+  </g>
+  <!-- 4 inter-cardinal long points -->
+  <g fill="#C9A820">
+    <polygon points="82,22 87,76 82,82 77,76" transform="rotate(45 82 82)"/>
+    <polygon points="82,22 87,76 82,82 77,76" transform="rotate(90 82 82)"/>
+    <polygon points="82,22 87,76 82,82 77,76" transform="rotate(135 82 82)"/>
+    <polygon points="82,22 87,76 82,82 77,76" transform="rotate(180 82 82)"/>
+  </g>
+  <g fill="#8B6F0A">
+    <polygon points="82,22 82,82 77,76" transform="rotate(45 82 82)"/>
+    <polygon points="82,22 82,82 77,76" transform="rotate(90 82 82)"/>
+    <polygon points="82,22 82,82 77,76" transform="rotate(135 82 82)"/>
+    <polygon points="82,22 82,82 77,76" transform="rotate(180 82 82)"/>
+  </g>
+  <!-- 8 shorter intermediate points (brighter gold) -->
+  <g fill="#D4B030" opacity="0.82">
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(22.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(67.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(112.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(157.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(202.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(247.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(292.5 82 82)"/>
+    <polygon points="82,36 85.5,79 82,82 78.5,79" transform="rotate(337.5 82 82)"/>
+  </g>
+
+  <!-- NESW cardinal labels (gold) -->
+  <text x="82"  y="15"  text-anchor="middle" font-size="10" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#C9A820">N</text>
+  <text x="82"  y="155" text-anchor="middle" font-size="10" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#C9A820">S</text>
+  <text x="155" y="87"  text-anchor="middle" font-size="10" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#C9A820">E</text>
+  <text x="9"   y="87"  text-anchor="middle" font-size="10" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#C9A820">W</text>
+</g>
+
+<!-- NEEDLE renders above compass ring and does NOT participate in boat rock —
+     it seeks North independently while the bezel tips with the swell -->
+<g class="naml-needle">
+  <!-- North (RED) -->
+  <polygon points="82,30 87,77 82,82 77,77" fill="#C0392B"/>
+  <polygon points="82,30 82,82 77,77"        fill="#E74C3C"/>
+  <!-- South (dark navy / almost black) -->
+  <polygon points="82,134 87,87 82,82 77,87" fill="#1A2A50"/>
+  <polygon points="82,134 82,82 77,87"       fill="#243560"/>
+  <!-- Center hub (gold over dark) -->
+  <circle cx="82" cy="82" r="5.5" fill="#C9A820" stroke="#0A1630" stroke-width="0.8"/>
+  <circle cx="82" cy="82" r="2.2" fill="#0A1630"/>
+</g>
+
+<!-- ══ WORDMARK ══ -->
+<text x="178" y="62"
+      font-family="Cormorant Garamond,Georgia,serif"
+      font-size="26" font-weight="700" letter-spacing="5"
+      fill="#C9A820">NOMADIC</text>
+
+<!-- Decorative divider + diamond -->
+<line x1="178" y1="74" x2="258" y2="74" stroke="#C9A820" stroke-width="0.85"/>
+<polygon points="281,70 286,74 281,78 276,74" fill="#C9A820"/>
+<line x1="299" y1="74" x2="379" y2="74" stroke="#C9A820" stroke-width="0.85"/>
+
+<text x="178" y="97"
+      font-family="Cormorant Garamond,Georgia,serif"
+      font-size="22" font-weight="600" letter-spacing="7"
+      fill="#C9A820">ALMANAC</text>
+
+<text x="178" y="119"
+      font-family="Cormorant Garamond,Georgia,serif"
+      font-size="7.5" font-style="italic" letter-spacing="2.5"
+      fill="#C9A820" opacity="0.6">WORLD TRAVEL INTELLIGENCE</text>
 </svg></div>
     </div>
 
