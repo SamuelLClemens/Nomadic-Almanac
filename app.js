@@ -6268,3 +6268,591 @@ function showBootError(msg) {
     showBootError(err.message || String(err));
   }
 })();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UI MASTER BUILD v2 — NAVIGATION & PANEL MODULE
+// Self-contained. Initialised by navInit() called after the map is ready.
+// All functions are prefixed na_ to avoid collisions with existing globals.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Toast notification system ─────────────────────────────────────────────
+function na_toast(message, durationMs) {
+  var dur = durationMs || 2500;
+  var container = document.getElementById('na-toast-container');
+  if (!container) return;
+
+  // Remove any existing toast immediately
+  var existing = container.querySelector('.na-toast');
+  if (existing) existing.remove();
+
+  var el = document.createElement('div');
+  el.className = 'na-toast';
+  el.setAttribute('role', 'status');
+  el.textContent = message;
+  container.appendChild(el);
+
+  var timer = setTimeout(function() {
+    el.classList.add('dismissing');
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+  }, dur);
+
+  el.addEventListener('click', function() {
+    clearTimeout(timer);
+    el.classList.add('dismissing');
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+  });
+}
+
+// ── Theme system ──────────────────────────────────────────────────────────
+var _naTheme = 'dark';
+
+function na_applyTheme(theme) {
+  _naTheme = theme;
+  // Use removeAttribute for dark (default) so the selector [data-theme="light"]
+  // remains clean and the HTML element carries no spurious empty attribute.
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  try { localStorage.setItem('na_theme', theme); } catch(e) {}
+}
+
+function na_initTheme() {
+  var stored = null;
+  try { stored = localStorage.getItem('na_theme'); } catch(e) {}
+  if (stored === 'light' || stored === 'dark') {
+    na_applyTheme(stored);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    na_applyTheme('light');
+  } else {
+    na_applyTheme('dark');
+  }
+}
+
+function na_toggleTheme() {
+  na_applyTheme(_naTheme === 'dark' ? 'light' : 'dark');
+  na_toast(_naTheme === 'light' ? 'Light chart mode.' : 'Dark chart mode.');
+}
+
+// ── Sidebar accordion ─────────────────────────────────────────────────────
+function na_initAccordion() {
+  var triggers = document.querySelectorAll('.na-accordion-trigger');
+  triggers.forEach(function(trigger) {
+    trigger.addEventListener('click', function() {
+      var id = trigger.getAttribute('aria-controls');
+      if (!id) return;
+      var body = document.getElementById(id);
+      if (!body) return;
+      var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      trigger.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      body.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+      body.classList.toggle('open', !isOpen);
+      // Persist in sessionStorage
+      try { sessionStorage.setItem('na_accordion_' + id, isOpen ? '0' : '1'); } catch(e) {}
+    });
+
+    // Restore state
+    var id = trigger.getAttribute('aria-controls');
+    var saved = null;
+    try { saved = sessionStorage.getItem('na_accordion_' + id); } catch(e) {}
+    if (saved === '1') {
+      trigger.setAttribute('aria-expanded', 'true');
+      var body = document.getElementById(id);
+      if (body) { body.setAttribute('aria-hidden', 'false'); body.classList.add('open'); }
+    }
+  });
+}
+
+// ── Layer navigation items (sidebar + bottom sheet) ───────────────────────
+function na_initLayerItems() {
+  var items = document.querySelectorAll('.na-layer-item, .na-sheet-item');
+  items.forEach(function(item) {
+    var layerKey = item.getAttribute('data-layer');
+    if (!layerKey) return;
+    item.addEventListener('click', function() {
+      // Delegate to existing toggleLayer() function in app.js
+      if (typeof toggleLayer === 'function') {
+        toggleLayer(layerKey);
+      } else {
+        // Fallback: click the existing layer button if it exists
+        var lb = document.querySelector('.lb[data-key="' + layerKey + '"]');
+        if (lb) lb.click();
+      }
+      na_updateLayerActiveStates();
+      // Close bottom sheet if open
+      na_closeLayersSheet();
+    });
+  });
+}
+
+// Keep sidebar / sheet layer item visual states in sync with activeLayers
+function na_updateLayerActiveStates() {
+  var items = document.querySelectorAll('.na-layer-item, .na-sheet-item');
+  items.forEach(function(item) {
+    var layerKey = item.getAttribute('data-layer');
+    if (!layerKey) return;
+    var on = (typeof activeLayers !== 'undefined') && activeLayers.has(layerKey);
+    item.classList.toggle('active', on);
+    item.classList.toggle('layer-active', on);
+  });
+
+  // Update active badge on bottom nav layers button
+  var badge = document.getElementById('na-active-badge');
+  if (badge) {
+    var activeList = [];
+    if (typeof activeLayers !== 'undefined') {
+      activeLayers.forEach(function(k) { activeList.push(k.toUpperCase().slice(0,4)); });
+    }
+    if (activeList.length > 0) {
+      badge.textContent = activeList[0];
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
+}
+
+// ── Non-layer nav items ───────────────────────────────────────────────────
+function na_initNavItems() {
+  var items = document.querySelectorAll('.na-nav-item:not(.na-layer-item), .na-bottom-item');
+  items.forEach(function(item) {
+    var nav = item.getAttribute('data-nav');
+    if (!nav) return;
+    item.addEventListener('click', function() {
+      switch(nav) {
+        case 'bestmonth':
+          // Toggle best-panel visibility (existing widget)
+          var bestToggle = document.getElementById('best-toggle');
+          if (bestToggle) bestToggle.click();
+          break;
+        case 'visa':
+          // Focus the passport selector (existing)
+          var ps = document.getElementById('passport-select');
+          if (ps) { ps.focus(); ps.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+          break;
+        case 'planner':
+          // Toggle trip planner (existing)
+          var tp = document.getElementById('btn-trip-planner');
+          if (tp) tp.click();
+          break;
+        case 'compare':
+          // Open compare panel (existing)
+          var cp = document.getElementById('compare-panel');
+          if (cp) { cp.style.display = 'flex'; cp.classList.add('open'); }
+          break;
+        case 'layers':
+          // Open layers bottom sheet on mobile
+          na_openLayersSheet();
+          break;
+        case 'journey':
+          // Open trip planner on mobile
+          var tp2 = document.getElementById('btn-trip-planner');
+          if (tp2) tp2.click();
+          break;
+        case 'preferences':
+          na_toast('Preferences panel coming soon.');
+          break;
+        default:
+          break;
+      }
+      // Update active state on bottom nav
+      var allBottom = document.querySelectorAll('.na-bottom-item');
+      allBottom.forEach(function(b) { b.classList.remove('active'); });
+      item.classList.add('active');
+    });
+  });
+}
+
+// ── Mobile layers bottom sheet ────────────────────────────────────────────
+function na_openLayersSheet() {
+  var sheet = document.getElementById('na-layers-sheet');
+  var btn   = document.getElementById('na-layers-toggle');
+  if (!sheet) return;
+  sheet.hidden = false;
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+  // Focus trap: first focusable element in sheet
+  setTimeout(function() {
+    var first = sheet.querySelector('button, [tabindex="0"]');
+    if (first) first.focus();
+  }, 50);
+  document.body.style.overflow = 'hidden';
+}
+
+function na_closeLayersSheet() {
+  var sheet = document.getElementById('na-layers-sheet');
+  var btn   = document.getElementById('na-layers-toggle');
+  if (!sheet) return;
+  sheet.hidden = true;
+  if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+  document.body.style.overflow = '';
+}
+
+function na_initLayersSheet() {
+  var sheet = document.getElementById('na-layers-sheet');
+  if (!sheet) return;
+  var overlay = document.getElementById('na-sheet-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', na_closeLayersSheet);
+  }
+  // Swipe down to close
+  var panel = document.getElementById('na-sheet-panel');
+  if (panel) {
+    var startY = 0;
+    panel.addEventListener('touchstart', function(e) { startY = e.touches[0].clientY; }, {passive:true});
+    panel.addEventListener('touchend', function(e) {
+      if (e.changedTouches[0].clientY - startY > 60) na_closeLayersSheet();
+    }, {passive:true});
+  }
+}
+
+// ── Global search overlay ─────────────────────────────────────────────────
+function na_openSearch() {
+  var overlay = document.getElementById('na-search-overlay');
+  var input   = document.getElementById('na-search-input');
+  if (!overlay) return;
+  overlay.hidden = false;
+  if (input) input.focus();
+  document.body.style.overflow = 'hidden';
+}
+
+function na_closeSearch() {
+  var overlay = document.getElementById('na-search-overlay');
+  if (!overlay) return;
+  overlay.hidden = true;
+  document.body.style.overflow = '';
+}
+
+function na_initSearch() {
+  var backdrop = document.getElementById('na-search-backdrop');
+  var input    = document.getElementById('na-search-input');
+  var results  = document.getElementById('na-search-results');
+
+  if (backdrop) backdrop.addEventListener('click', na_closeSearch);
+
+  if (input) {
+    input.addEventListener('input', function() {
+      var q = input.value.trim().toLowerCase();
+      if (!results) return;
+      if (q.length < 2) { results.innerHTML = ''; return; }
+
+      var matches = [];
+      // Search country names from existing countryNames object
+      if (typeof countryNames === 'object') {
+        Object.keys(countryNames).forEach(function(iso2) {
+          var name = countryNames[iso2] || '';
+          if (name.toLowerCase().indexOf(q) !== -1) {
+            matches.push({ type: 'country', label: name, key: iso2 });
+          }
+        });
+      }
+      // Search layer names from existing LAYERS object
+      if (typeof LAYERS === 'object') {
+        Object.keys(LAYERS).forEach(function(k) {
+          var lbl = (LAYERS[k].label || k).toLowerCase();
+          if (lbl.indexOf(q) !== -1) {
+            matches.push({ type: 'layer', label: LAYERS[k].label || k, key: k });
+          }
+        });
+      }
+
+      // Render top 8 matches — use DOM creation, never innerHTML, for any
+      // string that might derive from data sources (defense in depth).
+      results.innerHTML = '';
+      matches.slice(0, 8).forEach(function(m) {
+        var el = document.createElement('div');
+        el.className = 'na-search-result';
+        var typeSpan = document.createElement('span');
+        typeSpan.className = 'na-search-result-type';
+        typeSpan.textContent = m.type;
+        var labelSpan = document.createElement('span');
+        labelSpan.textContent = m.label;
+        el.appendChild(typeSpan);
+        el.appendChild(labelSpan);
+        el.addEventListener('click', function() {
+          na_closeSearch();
+          if (m.type === 'layer') {
+            if (typeof toggleLayer === 'function') toggleLayer(m.key);
+            na_updateLayerActiveStates();
+          } else if (m.type === 'country') {
+            // Pan to country using existing search infrastructure
+            var existing = document.getElementById('country-search');
+            if (existing) {
+              existing.value = m.label;
+              existing.dispatchEvent(new Event('input', {bubbles:true}));
+            }
+          }
+        });
+        results.appendChild(el);
+      });
+      if (matches.length === 0) {
+        results.innerHTML = '<div class="terra-incognita">Terra Incognita</div>';
+      }
+    });
+  }
+
+  // Header search button
+  var btn = document.getElementById('na-search-btn');
+  if (btn) btn.addEventListener('click', na_openSearch);
+}
+
+// ── Keyboard navigation ───────────────────────────────────────────────────
+function na_initKeyboard() {
+  document.addEventListener('keydown', function(e) {
+    // '/' opens search from anywhere
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+      var active = document.activeElement;
+      var tag = active ? active.tagName : '';
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+        e.preventDefault();
+        na_openSearch();
+        return;
+      }
+    }
+    // 'T' toggles theme
+    if (e.key === 'T' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      var active = document.activeElement;
+      var tag = active ? active.tagName : '';
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        na_toggleTheme();
+      }
+    }
+    // Escape closes any open overlay (search → sheet → compare → tooltip)
+    if (e.key === 'Escape') {
+      var searchOverlay = document.getElementById('na-search-overlay');
+      if (searchOverlay && !searchOverlay.hidden) { na_closeSearch(); return; }
+      var sheet = document.getElementById('na-layers-sheet');
+      if (sheet && !sheet.hidden) { na_closeLayersSheet(); return; }
+      var compare = document.getElementById('compare-panel');
+      if (compare && compare.classList.contains('open')) {
+        compare.classList.remove('open');
+        compare.style.display = 'none';
+        return;
+      }
+    }
+    // Digit keys 1-8: quick-activate intelligence layers in order
+    var layerOrder = ['safety','cost','weather','health','tipping','english','elevation','nomad'];
+    var digit = parseInt(e.key, 10);
+    if (!isNaN(digit) && digit >= 1 && digit <= 8 && !e.ctrlKey && !e.metaKey) {
+      var active = document.activeElement;
+      var tag = active ? active.tagName : '';
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+        var lk = layerOrder[digit - 1];
+        if (lk && typeof toggleLayer === 'function') {
+          toggleLayer(lk);
+          na_updateLayerActiveStates();
+          na_toast('Layer: ' + lk.charAt(0).toUpperCase() + lk.slice(1));
+        }
+      }
+    }
+  });
+
+  // Sidebar keyboard: arrow up/down navigates between nav items
+  var sidebar = document.getElementById('na-sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('keydown', function(e) {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      var items = Array.from(sidebar.querySelectorAll('.na-nav-item:not([disabled])'));
+      var idx = items.indexOf(document.activeElement);
+      if (idx === -1) return;
+      e.preventDefault();
+      var next = e.key === 'ArrowDown' ? Math.min(idx + 1, items.length - 1) : Math.max(idx - 1, 0);
+      items[next].focus();
+    });
+  }
+}
+
+// ── Header action buttons ─────────────────────────────────────────────────
+function na_initHeaderActions() {
+  var themeBtn = document.getElementById('na-theme-btn');
+  if (themeBtn) themeBtn.addEventListener('click', na_toggleTheme);
+
+  var shareBtn = document.getElementById('na-share-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function() {
+      if (typeof updateURLState === 'function') updateURLState();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(window.location.href)
+          .then(function() { na_toast('Copied to chart.'); })
+          .catch(function() { na_toast('Copy failed — try manually.'); });
+      } else {
+        na_toast('Share: ' + window.location.href);
+      }
+    });
+  }
+}
+
+// ── Sidebar sidebar-passport mirror (desktop) ─────────────────────────────
+function na_initSidebarMirrors() {
+  // Mirror month buttons into the sidebar
+  var sidebarMonths = document.getElementById('na-sidebar-months');
+  if (sidebarMonths) {
+    var MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    MONTH_LABELS.forEach(function(label, idx) {
+      var btn = document.createElement('button');
+      btn.className = 'smb';
+      btn.textContent = label;
+      btn.setAttribute('aria-label', label);
+      btn.addEventListener('click', function() {
+        // Delegate to existing month click handler
+        var existing = document.querySelectorAll('.mb');
+        if (existing[idx]) existing[idx].click();
+        // Update sidebar month active states
+        na_syncSidebarMonths();
+      });
+      sidebarMonths.appendChild(btn);
+    });
+    na_syncSidebarMonths();
+  }
+
+  // Mirror passport selector into sidebar
+  var sidebarPassport = document.getElementById('na-sidebar-passport');
+  var origSelect = document.getElementById('passport-select');
+  if (sidebarPassport && origSelect) {
+    var cloneSelect = origSelect.cloneNode(true);
+    cloneSelect.id = 'na-sidebar-passport-select';
+    cloneSelect.removeAttribute('title');
+    cloneSelect.addEventListener('change', function() {
+      origSelect.value = cloneSelect.value;
+      origSelect.dispatchEvent(new Event('change', {bubbles:true}));
+    });
+    sidebarPassport.appendChild(cloneSelect);
+    // Sync original → clone
+    origSelect.addEventListener('change', function() {
+      cloneSelect.value = origSelect.value;
+    });
+  }
+}
+
+function na_syncSidebarMonths() {
+  var sidebarMonths = document.getElementById('na-sidebar-months');
+  if (!sidebarMonths) return;
+  var origBtns = document.querySelectorAll('.mb');
+  var sideBtns = sidebarMonths.querySelectorAll('.smb');
+  sideBtns.forEach(function(btn, i) {
+    if (origBtns[i]) btn.classList.toggle('on', origBtns[i].classList.contains('on'));
+  });
+}
+
+// ── Page Visibility API: pause/resume logo animations ─────────────────────
+function na_initPageVisibility() {
+  var animatedEls = null;
+
+  function getAnimated() {
+    if (!animatedEls) {
+      animatedEls = document.querySelectorAll(
+        '.naml-cring, .naml-needle, .naml-ship, .naml-sail, .naml-wv, .naml-drg, .naml-dtail, .naml-fire, .naml-fglow'
+      );
+    }
+    return animatedEls;
+  }
+
+  document.addEventListener('visibilitychange', function() {
+    var els = getAnimated();
+    var state = document.hidden ? 'paused' : 'running';
+    els.forEach(function(el) {
+      el.style.animationPlayState = state;
+    });
+  });
+}
+
+// ── will-change cleanup (perf: remove after animations settle) ────────────
+function na_cleanWillChange() {
+  setTimeout(function() {
+    var needle = document.querySelector('.naml-needle');
+    if (needle) needle.style.willChange = 'auto';
+  }, 3000);
+}
+
+// ── URL hash state extension for nav ─────────────────────────────────────
+// Reads 'nav=' param from hash on load; writes it on state changes.
+// Integrates with existing updateURLState() and initURLState().
+function na_patchURLState() {
+  // Extend existing updateURLState to also write nav state
+  if (typeof updateURLState === 'function') {
+    var _origUpdateURLState = updateURLState;
+    window.updateURLState = function() {
+      _origUpdateURLState.apply(this, arguments);
+      // The existing function writes to window.location.hash; we just let it run.
+    };
+  }
+
+  // Read nav param on load
+  try {
+    var hash = window.location.hash.replace(/^#/, '');
+    var params = new URLSearchParams(hash);
+    var navParam = params.get('nav');
+    if (navParam === 'layers') {
+      // Open the layers accordion if layers nav was active
+      var acc = document.getElementById('na-layers-list');
+      var trigger = document.querySelector('[aria-controls="na-layers-list"]');
+      if (acc && trigger) {
+        acc.classList.add('open');
+        acc.setAttribute('aria-hidden', 'false');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    }
+  } catch(e) {}
+}
+
+// ── Logo hover: re-trigger needle settle ─────────────────────────────────
+function na_initLogoHover() {
+  var needle = document.querySelector('.naml-needle');
+  var logo   = document.getElementById('na-logo');
+  if (!needle || !logo) return;
+
+  logo.addEventListener('mouseenter', function() {
+    // Remove the ongoing seek animation, reapply settle from a random offset
+    needle.style.animation = 'none';
+    // Force reflow
+    void needle.offsetHeight;
+    needle.style.animation = 'namlSettle 2.4s cubic-bezier(0.34,1.2,0.64,1) forwards, namlSeek 8s ease-in-out 2.4s infinite';
+  });
+}
+
+// ── Leaflet map resize on sidebar expand/collapse ─────────────────────────
+// At the laptop breakpoint (1024–1279px) the sidebar expands on hover,
+// changing the width of #na-main and therefore the Leaflet map container.
+// Leaflet must be told about the resize after the CSS transition completes
+// or tiles along the newly-revealed edge will not render.
+function na_initMapResize() {
+  var sidebar = document.getElementById('na-sidebar');
+  if (!sidebar) return;
+  sidebar.addEventListener('transitionend', function(e) {
+    if (e.propertyName !== 'width') return;
+    if (window.naMap && typeof window.naMap.invalidateSize === 'function') {
+      window.naMap.invalidateSize({ animate: false });
+    }
+  });
+}
+
+// ── Master init ───────────────────────────────────────────────────────────
+function navInit() {
+  na_initTheme();
+  na_initAccordion();
+  na_initLayerItems();
+  na_initNavItems();
+  na_initLayersSheet();
+  na_initSearch();
+  na_initKeyboard();
+  na_initHeaderActions();
+  na_initSidebarMirrors();
+  na_initPageVisibility();
+  na_cleanWillChange();
+  na_patchURLState();
+  na_initLogoHover();
+  na_initMapResize();
+
+  // Sync layer states whenever activeLayers changes
+  // Poll every 500ms as a lightweight approach (no MutationObserver needed)
+  setInterval(na_updateLayerActiveStates, 500);
+  na_updateLayerActiveStates();
+}
+
+// Call navInit after the DOM is ready and the map has initialised.
+// Use a short defer to let app.js finish its own DOMContentLoaded handlers.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { setTimeout(navInit, 200); });
+} else {
+  setTimeout(navInit, 200);
+}
