@@ -1,0 +1,250 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 295" width="480" height="295">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&amp;display=swap');
+
+      .needle {
+        animation: settleNorth 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                   microOscillate 4s ease-in-out 2.2s infinite;
+        will-change: transform;
+      }
+
+      @keyframes settleNorth {
+        0%   { transform: rotate(-110deg); }
+        100% { transform: rotate(0deg); }
+      }
+
+      @keyframes microOscillate {
+        0%   { transform: rotate(0deg); }
+        25%  { transform: rotate(0.8deg); }
+        75%  { transform: rotate(-0.8deg); }
+        100% { transform: rotate(0deg); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .needle {
+          animation: none !important;
+          transform: rotate(0deg) !important;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- BACKGROUND                                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect width="480" height="295" fill="#0F1A2E"/>
+
+  <!-- Subtle star field texture — scattered small dots -->
+  <circle cx="42"  cy="18"  r="0.6" fill="#F2E8C9" opacity="0.25"/>
+  <circle cx="118" cy="11"  r="0.5" fill="#F2E8C9" opacity="0.18"/>
+  <circle cx="67"  cy="38"  r="0.4" fill="#F2E8C9" opacity="0.20"/>
+  <circle cx="155" cy="22"  r="0.6" fill="#F2E8C9" opacity="0.22"/>
+  <circle cx="195" cy="9"   r="0.4" fill="#F2E8C9" opacity="0.16"/>
+  <circle cx="330" cy="14"  r="0.5" fill="#F2E8C9" opacity="0.20"/>
+  <circle cx="378" cy="24"  r="0.6" fill="#F2E8C9" opacity="0.24"/>
+  <circle cx="420" cy="11"  r="0.4" fill="#F2E8C9" opacity="0.18"/>
+  <circle cx="453" cy="35"  r="0.5" fill="#F2E8C9" opacity="0.20"/>
+  <circle cx="22"  cy="62"  r="0.4" fill="#F2E8C9" opacity="0.15"/>
+  <circle cx="460" cy="72"  r="0.5" fill="#F2E8C9" opacity="0.17"/>
+  <circle cx="14"  cy="155" r="0.4" fill="#F2E8C9" opacity="0.14"/>
+  <circle cx="468" cy="180" r="0.5" fill="#F2E8C9" opacity="0.16"/>
+  <circle cx="30"  cy="260" r="0.4" fill="#F2E8C9" opacity="0.15"/>
+  <circle cx="455" cy="255" r="0.5" fill="#F2E8C9" opacity="0.18"/>
+  <circle cx="92"  cy="280" r="0.4" fill="#F2E8C9" opacity="0.14"/>
+  <circle cx="388" cy="278" r="0.5" fill="#F2E8C9" opacity="0.16"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- OUTER FRAME                                    -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Outer border -->
+  <rect x="6" y="6" width="468" height="283" fill="none" stroke="#B8960C" stroke-width="1.2"/>
+  <!-- Inner border -->
+  <rect x="11" y="11" width="458" height="273" fill="none" stroke="#B8960C" stroke-width="0.4" stroke-opacity="0.5"/>
+
+  <!-- Corner accent squares -->
+  <rect x="4"  y="4"  width="5" height="5" fill="#B8960C"/>
+  <rect x="471" y="4"  width="5" height="5" fill="#B8960C"/>
+  <rect x="471" y="286" width="5" height="5" fill="#B8960C"/>
+  <rect x="4"  y="286" width="5" height="5" fill="#B8960C"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- COMPASS BACKGROUND RINGS                       -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Subtle glow background behind rose -->
+  <circle cx="240" cy="122" r="62" fill="#F2E8C9" fill-opacity="0.06"/>
+
+  <!-- Inner reference ring -->
+  <circle cx="240" cy="122" r="67" stroke="#F2E8C9" stroke-width="0.4" fill="none" stroke-opacity="0.4"/>
+
+  <!-- Outer degree ring -->
+  <circle cx="240" cy="122" r="72" stroke="#B8960C" stroke-width="1.2" fill="none"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- DEGREE TICK MARKS (72 ticks at 5° intervals)  -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Major ticks at N/NE/E/SE/S/SW/W/NW (every 45°) -->
+  <!-- Minor ticks at all other 5° positions           -->
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(0,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(5,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(10,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(15,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(20,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(25,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(30,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(35,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(40,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(45,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(50,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(55,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(60,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(65,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(70,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(75,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(80,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(85,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(90,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(95,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(100,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(105,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(110,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(115,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(120,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(125,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(130,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(135,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(140,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(145,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(150,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(155,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(160,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(165,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(170,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(175,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(180,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(185,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(190,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(195,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(200,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(205,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(210,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(215,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(220,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(225,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(230,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(235,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(240,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(245,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(250,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(255,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(260,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(265,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(270,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(275,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(280,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(285,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(290,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(295,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(300,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(305,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(310,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="57" stroke="#B8960C" stroke-width="1.2" transform="rotate(315,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(320,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(325,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(330,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(335,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(340,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(345,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(350,240,122)"/>
+  <line x1="240" y1="50" x2="240" y2="53" stroke="#F2E8C9" stroke-width="0.6" opacity="0.7" transform="rotate(355,240,122)"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- 16-POINT COMPASS ROSE (static)                 -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- 8 Intercardinal points (22.5° positions) — drawn first, behind ordinals -->
+  <!-- NNE --><polygon points="252.2,92.4 249.2,106.3 243.1,114.6 244.6,104.4" fill="#F2E8C9" opacity="0.5"/>
+  <!-- ENE --><polygon points="269.6,109.8 257.6,117.4 247.4,118.9 255.7,112.8" fill="#F2E8C9" opacity="0.5"/>
+  <!-- ESE --><polygon points="269.6,134.2 255.7,131.2 247.4,125.1 257.6,126.6" fill="#F2E8C9" opacity="0.5"/>
+  <!-- SSE --><polygon points="252.2,151.6 244.6,139.6 243.1,129.4 249.2,137.7" fill="#F2E8C9" opacity="0.5"/>
+  <!-- SSW --><polygon points="227.8,151.6 230.8,137.7 236.9,129.4 235.4,139.6" fill="#F2E8C9" opacity="0.5"/>
+  <!-- WSW --><polygon points="210.4,134.2 222.4,126.6 232.6,125.1 224.3,131.2" fill="#F2E8C9" opacity="0.5"/>
+  <!-- WNW --><polygon points="210.4,109.8 224.3,112.8 232.6,118.9 222.4,117.4" fill="#F2E8C9" opacity="0.5"/>
+  <!-- NNW --><polygon points="227.8,92.4 235.4,104.4 236.9,114.6 230.8,106.3" fill="#F2E8C9" opacity="0.5"/>
+
+  <!-- 4 Ordinal points (NE/SE/SW/NW at 45°) — medium kite -->
+  <!-- NE --><polygon points="271,91 258,109 254,115 245,106" fill="#F2E8C9" opacity="0.78"/>
+  <!-- SE --><polygon points="271,153 258,135 254,129 245,138" fill="#F2E8C9" opacity="0.78"/>
+  <!-- SW --><polygon points="209,153 222,135 226,129 235,138" fill="#F2E8C9" opacity="0.78"/>
+  <!-- NW --><polygon points="209,91 222,109 226,115 235,106" fill="#F2E8C9" opacity="0.78"/>
+
+  <!-- 4 Cardinal points (N/S/E/W) — large kites -->
+  <!-- N --><polygon points="240,64 245,112 240,120 235,112" fill="#F2E8C9"/>
+  <!-- S --><polygon points="240,180 245,132 240,124 235,132" fill="#F2E8C9"/>
+  <!-- E --><polygon points="298,122 250,117 242,122 250,127" fill="#F2E8C9"/>
+  <!-- W --><polygon points="182,122 230,117 238,122 230,127" fill="#F2E8C9"/>
+
+  <!-- Cardinal direction labels -->
+  <text x="240" y="46"  text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#B8960C" letter-spacing="1">N</text>
+  <text x="240" y="205" text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#B8960C" letter-spacing="1">S</text>
+  <text x="306" y="126" text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#B8960C" letter-spacing="1">E</text>
+  <text x="174" y="126" text-anchor="middle" font-size="9" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#B8960C" letter-spacing="1">W</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ANIMATED NORTH NEEDLE                          -->
+  <!-- Drawn at absolute viewport coordinates.        -->
+  <!-- transform-origin anchored to compass center.   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <g class="needle" style="transform-box: view-box; transform-origin: 240px 122px;">
+    <!-- North arm: Vermillion tip -->
+    <polygon points="240,72 246,116 240,123 234,116" fill="#C0392B"/>
+    <!-- South arm: Parchment -->
+    <polygon points="240,172 245,128 240,121 235,128" fill="#F2E8C9" opacity="0.9"/>
+    <!-- Pivot circle: Brass Gold with parchment stroke -->
+    <circle cx="240" cy="122" r="5" fill="#B8960C" stroke="#F2E8C9" stroke-width="0.7"/>
+    <!-- Inner pivot dot -->
+    <circle cx="240" cy="122" r="2" fill="#1B2A4A"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- LOGOTYPE                                       -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Primary wordmark: NOMADIC -->
+  <text
+    x="240" y="220"
+    text-anchor="middle"
+    font-size="32"
+    font-weight="700"
+    font-family="Cormorant Garamond,Georgia,serif"
+    letter-spacing="6"
+    fill="#F2E8C9">NOMADIC</text>
+
+  <!-- Decorative rule: line — diamond — line -->
+  <line x1="140" y1="232" x2="215" y2="232" stroke="#B8960C" stroke-width="0.8"/>
+  <polygon points="240,228 244,232 240,236 236,232" fill="#B8960C"/>
+  <line x1="265" y1="232" x2="340" y2="232" stroke="#B8960C" stroke-width="0.8"/>
+
+  <!-- Secondary wordmark: ALMANAC -->
+  <text
+    x="240" y="256"
+    text-anchor="middle"
+    font-size="24"
+    font-weight="600"
+    font-family="Cormorant Garamond,Georgia,serif"
+    letter-spacing="8"
+    fill="#B8960C">ALMANAC</text>
+
+  <!-- Bottom tagline -->
+  <text
+    x="240" y="276"
+    text-anchor="middle"
+    font-size="8"
+    font-weight="400"
+    font-style="italic"
+    font-family="Cormorant Garamond,Georgia,serif"
+    letter-spacing="2.8"
+    fill="#F2E8C9"
+    opacity="0.6">WORLD TRAVEL INTELLIGENCE</text>
+
+</svg>

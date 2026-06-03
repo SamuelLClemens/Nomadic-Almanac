@@ -1203,8 +1203,8 @@ html, body {
   background: var(--na-glass-navy);
   backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
   -webkit-backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
-  border-bottom: var(--na-border-glass);
-  box-shadow: inset 0 0 0 1px rgba(200,168,75,0.10), 0 2px 16px rgba(0,0,0,0.4);
+  /* border-bottom intentionally removed — clean edge, no rule line */
+  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
   z-index: 1500;
 }
 
@@ -1477,44 +1477,84 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   font-weight: 700;
 }
 
-/* ── Sidebar — LAPTOP (1024–1279px): collapsed icon rail, expands on hover ── */
+/* ── Sidebar — LAPTOP (1024–1279px): icon rail, expands smoothly on hover ─── */
 @media (min-width: 1024px) and (max-width: 1279px) {
   #na-sidebar {
-    width: var(--sidebar-w-sm);
-    overflow: visible;
+    /* max-width drives expansion — width stays at full value so layout shifts
+       don't jump. Only the clamp animates. */
+    width: var(--sidebar-w);
+    max-width: var(--sidebar-w-sm);
+    overflow: hidden;
+    transition: max-width var(--dur-mid) var(--ease-panel),
+                box-shadow var(--dur-mid) var(--ease-panel);
+    will-change: max-width;
   }
   #na-sidebar:hover,
   #na-sidebar:focus-within {
-    width: var(--sidebar-w);
+    max-width: var(--sidebar-w);
     box-shadow: inset 0 0 0 1px rgba(200,168,75,0.10), 4px 0 24px rgba(0,0,0,0.5);
   }
   #na-sidebar-inner { padding: var(--sp-3); }
-  .na-sidebar-brand  { display: none; }
-  .na-nav-item-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; transition: opacity var(--dur-mid) var(--ease-panel), width var(--dur-mid) var(--ease-panel); }
+  .na-sidebar-brand { display: none; }
+  /* Labels animate via max-width — avoids the width:auto jump */
+  .na-nav-item-label {
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity var(--dur-mid) var(--ease-panel),
+                max-width var(--dur-mid) var(--ease-panel);
+  }
   #na-sidebar:hover .na-nav-item-label,
-  #na-sidebar:focus-within .na-nav-item-label { opacity: 1; width: auto; }
+  #na-sidebar:focus-within .na-nav-item-label { opacity: 1; max-width: 180px; }
   .na-nav-group-label { opacity: 0; transition: opacity var(--dur-mid); }
   #na-sidebar:hover .na-nav-group-label,
   #na-sidebar:focus-within .na-nav-group-label { opacity: 1; }
   #na-sidebar-footer { display: none; }
   #na-sidebar:hover #na-sidebar-footer,
   #na-sidebar:focus-within #na-sidebar-footer { display: block; }
-  .na-accordion-body { display: none; }
+  /* Accordion: use max-height so it can animate in when sidebar expands */
+  .na-accordion-body { max-height: 0 !important; overflow: hidden; }
   #na-sidebar:hover .na-accordion-body.open,
-  #na-sidebar:focus-within .na-accordion-body.open { display: block; }
+  #na-sidebar:focus-within .na-accordion-body.open { max-height: 600px !important; }
 }
 
-/* ── Sidebar — TABLET (768–1023px): icon rail, 72px, flyout on tap ────────── */
+/* ── Sidebar — TABLET (768–1023px): 72 px icon rail ────────────────────────── */
 @media (min-width: 768px) and (max-width: 1023px) {
-  #na-sidebar { width: var(--rail-w); }
+  #na-sidebar {
+    width: var(--rail-w);
+    overflow: hidden;
+  }
   #na-sidebar-inner { padding: var(--sp-2); align-items: center; }
   .na-sidebar-brand  { display: none; }
   .na-nav-item-label { display: none; }
   .na-nav-group-label { display: none; }
+  /* Centre icons in the 72 px column; keep 44 px tap target */
   .na-nav-item { justify-content: center; padding: var(--sp-3) 0; }
+  /* Tooltip via title attr rendered by OS — supplement with CSS tooltip */
+  .na-nav-item[aria-label]::after {
+    content: attr(aria-label);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%; transform: translateY(-50%);
+    background: rgba(11,22,40,0.96);
+    border: 1px solid rgba(200,168,75,0.3);
+    color: var(--na-text-primary);
+    font-family: var(--font-label);
+    font-size: var(--ts-micro);
+    letter-spacing: var(--track-wide);
+    text-transform: uppercase;
+    padding: 4px 8px;
+    white-space: nowrap;
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-fast);
+    z-index: 2000;
+  }
+  .na-nav-item[aria-label]:hover::after { opacity: 1; }
   #na-sidebar-footer { display: none; }
   #na-sidebar-logo { justify-content: center; }
-  /* Scope to sidebar only — do not hide gold rules in map panels or tooltips */
   #na-sidebar .gold-rule { display: none; }
   .na-accordion-body { display: none; }
   .na-accordion-arrow { display: none; }
@@ -1526,10 +1566,42 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   #na-layout { flex-direction: column; }
 }
 
-/* At desktop (1280px+) the existing #topbar can be hidden — the sidebar
-   has the controls. Keep it visible on smaller sizes. */
+/* At desktop (1280px+) show only the transport strip — sidebar handles layers.
+   Hide tb-row1 (logo/months/search — duplicated in sidebar) and hide the #layers
+   div (also in sidebar). Keep transport + visa/passport accessible. */
 @media (min-width: 1280px) {
-  #topbar { display: none; }
+  #tb-row1 { display: none !important; }
+  #topbar {
+    background: rgba(10,16,28,0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  /* Layers live in the sidebar here — hide from topbar to avoid duplication.
+     div:nth-child(2) is the .tb-div divider between #layers and #transport. */
+  #topbar #layers,
+  #topbar #tb-row2 > div:nth-child(2) { display: none; }
+  #tb-row2 { height: 38px; padding: 0 16px; }
+}
+
+/* ── Topbar logo: contain the SVG so it never overflows into layer controls ── */
+/* The #na-logo SVG has intrinsic height 110 px; topbar row-1 is 58 px.
+   Clipping here prevents it spilling over #tb-row2 (layer options). */
+#logo-wrap {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+#na-logo {
+  /* SVG aspect: 480 / 165 ≈ 2.91 — let height drive width */
+  height: 46px;
+  width: auto;
+}
+/* At very narrow viewports, keep it from squeezing the month buttons */
+@media (max-width: 767px) {
+  #na-logo { height: 36px; }
+  #logo-wrap { height: 36px; }
 }
 
 /* ── Bottom Navigation (mobile ≤767px) ───────────────────────────────────── */

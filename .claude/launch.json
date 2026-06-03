@@ -4,8 +4,8 @@
     {
       "name": "nomadic-almanac",
       "runtimeExecutable": "/usr/bin/python3",
-      "runtimeArgs": ["/Users/zim/Desktop/Claude Code/serve.py"],
-      "port": 7433
+      "runtimeArgs": ["/tmp/almanac_server.py"],
+      "port": 7432
     }
   ]
 }

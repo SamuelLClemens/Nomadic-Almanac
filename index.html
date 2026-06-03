@@ -354,21 +354,10 @@
 <defs>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap');
-    /* Compass bezel rocks with swell; needle seeks magnetic north independently */
-    .naml-cring { transform-box:view-box; transform-origin:82px 82px; animation:namlBoatRoll 5.5s ease-in-out infinite; }
-    .naml-needle{ transform-box:view-box; transform-origin:82px 82px; animation:namlSettle 2.4s cubic-bezier(0.34,1.2,0.64,1) forwards, namlSeek 8s ease-in-out 2.4s infinite; will-change:transform; }
-    /* Sailing ship — heave + roll combined via a wrapper/inner split */
-    .naml-ship  { transform-box:view-box; transform-origin:293px 115px; animation:namlShipHull 4s ease-in-out infinite; }
-    .naml-sail  { transform-box:view-box; transform-origin:292px 105px; animation:namlSailBow 2.1s ease-in-out infinite alternate; }
-    .naml-wv    { animation:namlWave 2.6s ease-in-out infinite; }
-    /* Dragon — body coils with phase-delayed segments */
-    .naml-drg   { animation:namlDrgSwim 5s ease-in-out infinite; }
-    .naml-dtail { transform-box:view-box; transform-origin:460px 140px; animation:namlTailSwish 1.6s ease-in-out infinite alternate; }
-    .naml-fire  { transform-box:view-box; transform-origin:399px 133px; animation:namlFlicker 0.38s ease-in-out infinite alternate; }
-    .naml-fire2 { animation-delay:0.13s; }
-    .naml-fire3 { animation-delay:0.25s; }
-    .naml-fglow { animation:namlGlow 0.7s ease-in-out infinite alternate; }
-    /* Compass needle: settle from 90deg east, overshoot, damp to idle micro-oscillation */
+    /* Only the compass needle animates — all other elements are static */
+    .naml-cring  { transform-box:view-box; transform-origin:82px 82px; }
+    .naml-needle { transform-box:view-box; transform-origin:82px 82px; animation:namlSettle 2.4s cubic-bezier(0.34,1.2,0.64,1) forwards, namlSeek 8s ease-in-out 2.4s infinite; will-change:transform; }
+    /* Compass needle: settle from east, overshoot north, damp to micro-oscillation */
     @keyframes namlSettle {
       0%   { transform: rotate(90deg); }
       35%  { transform: rotate(-15deg); }
@@ -380,33 +369,11 @@
     }
     @keyframes namlSeek {
       0%,100% { transform: rotate(0.3deg); }
-      33%      { transform: rotate(-0.4deg); }
-      67%      { transform: rotate(0.6deg); }
+      33%     { transform: rotate(-0.4deg); }
+      67%     { transform: rotate(0.6deg); }
     }
-    @keyframes namlBoatRoll { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
-    /* Ship hull: combined heave + 8deg heel to starboard */
-    @keyframes namlShipHull {
-      0%  { transform: translateY(0px) rotate(-8deg); }
-      25% { transform: translateY(-1px) rotate(-9.5deg); }
-      50% { transform: translateY(-3px) rotate(-8deg); }
-      75% { transform: translateY(-1px) rotate(-6.5deg); }
-      100%{ transform: translateY(0px) rotate(-8deg); }
-    }
-    @keyframes namlSailBow  { 0%{transform:scaleX(0.91) skewY(-0.8deg)} 100%{transform:scaleX(1.05) skewY(0.8deg)} }
-    @keyframes namlWave     { 0%,100%{transform:translateX(0)} 50%{transform:translateX(3px)} }
-    @keyframes namlDrgSwim  {
-      0%  { transform: translateY(0px) rotate(-1deg); }
-      25% { transform: translateY(-2.5px) rotate(1.5deg); }
-      50% { transform: translateY(-0.5px) rotate(-0.8deg); }
-      75% { transform: translateY(-2.8px) rotate(2deg); }
-      100%{ transform: translateY(0px) rotate(-1deg); }
-    }
-    @keyframes namlTailSwish{ 0%{transform:rotate(-9deg)} 100%{transform:rotate(9deg)} }
-    @keyframes namlFlicker  { 0%{transform:scale(0.78,0.82); opacity:0.45} 100%{transform:scale(1.18,1.12) translateX(2px); opacity:1} }
-    @keyframes namlGlow     { 0%{opacity:0.15} 100%{opacity:0.5} }
     @media (prefers-reduced-motion:reduce){
-      .naml-cring,.naml-needle,.naml-ship,.naml-sail,.naml-wv,.naml-drg,.naml-dtail,.naml-fire,.naml-fglow{
-        animation:none!important; transform:none!important; }
+      .naml-needle { animation:none!important; transform:none!important; }
     }
   </style>
 
@@ -440,12 +407,12 @@
 <rect x="8"  y="8"  width="464" height="149" fill="none" stroke="#C9A820" stroke-width="0.5"/>
 <rect x="11" y="11" width="458" height="143" fill="none" stroke="#C9A820" stroke-width="0.2" opacity="0.5"/>
 
-<!-- 4-point compass-star corner ornaments (no crosses) -->
+<!-- Maltese cross corner ornaments — arms flare to 7.2px wide at tip, narrow to 3.6px at stem -->
 <g fill="#C9A820">
-  <g transform="translate(19,19)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
-  <g transform="translate(461,19)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
-  <g transform="translate(19,146)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
-  <g transform="translate(461,146)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
+  <g transform="translate(19,19)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
+  <g transform="translate(461,19)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
+  <g transform="translate(19,146)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
+  <g transform="translate(461,146)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
 </g>
 
 <!-- ══ RIGHT PANEL — antique map ══ -->
@@ -477,32 +444,52 @@
   <!-- Equator curve (dashed) -->
   <path d="M 164,85 Q 318,79 474,85" fill="none" stroke="#2A50A0" stroke-width="0.7" stroke-dasharray="3 2" opacity="0.9"/>
 
-  <!-- Continent fills -->
-  <g fill="#1B3565" opacity="0.75">
-    <!-- Eurasia -->
-    <path d="M 244,36 Q 272,28 300,35 Q 325,29 352,38 Q 380,44 398,56 Q 406,70 392,79 Q 372,86 348,82 Q 320,88 294,82 Q 269,77 258,64 Q 246,50 244,36 Z"/>
-    <!-- India -->
-    <path d="M 293,79 Q 299,85 301,96 Q 296,102 290,97 Q 288,88 293,79 Z"/>
-    <!-- Africa horn -->
-    <path d="M 322,85 Q 335,89 339,104 Q 336,120 327,128 Q 318,132 312,122 Q 310,106 317,93 Z"/>
-    <!-- Arabia -->
-    <path d="M 308,75 Q 320,75 321,85 Q 314,89 308,85 Z"/>
+  <!-- Continent fills — Old World landmasses with archaic cartographic outlines -->
+  <g fill="#1B3565" opacity="0.78">
+    <!-- Europe (Iberia to Balkans, including Scandinavia peninsula) -->
+    <path d="M 186,38 Q 196,30 210,30 Q 222,30 228,34 Q 236,34 244,36 Q 258,64 250,70 Q 236,68 220,62 Q 204,58 192,50 Z"/>
+    <!-- Scandinavia -->
+    <path d="M 200,27 Q 208,20 216,22 Q 220,28 214,32 Q 206,32 200,27 Z"/>
+    <!-- Asia (Persia through China) -->
+    <path d="M 244,36 Q 272,28 300,33 Q 328,28 355,36 Q 382,42 400,54 Q 408,68 394,78 Q 374,86 348,82 Q 320,88 294,82 Q 268,76 256,64 Q 246,50 244,36 Z"/>
+    <!-- Arabian Peninsula -->
+    <path d="M 260,62 Q 264,58 272,60 Q 286,62 292,68 Q 294,76 288,82 Q 280,86 272,82 Q 264,80 260,72 Z"/>
+    <!-- Indian Subcontinent -->
+    <path d="M 286,76 Q 296,72 308,74 Q 316,80 314,90 Q 308,100 300,104 Q 292,100 288,90 Q 285,82 286,76 Z"/>
+    <!-- Africa — full continent, North Africa to Cape of Good Hope -->
+    <path d="M 190,56 Q 228,50 256,56 Q 266,62 266,74 Q 265,88 260,100 Q 253,118 242,132 Q 234,138 224,133 Q 214,118 212,102 Q 214,90 220,88 Q 210,86 202,88 Q 194,85 185,79 Q 180,72 183,63 Z"/>
+    <!-- SE Asia peninsula -->
+    <path d="M 352,82 Q 360,80 368,84 Q 372,92 366,100 Q 358,104 352,98 Q 348,90 352,82 Z"/>
+    <!-- SE Asian islands -->
+    <ellipse cx="378" cy="100" rx="5" ry="3"/>
+    <ellipse cx="390" cy="106" rx="6" ry="2.5"/>
+    <ellipse cx="404" cy="108" rx="4" ry="2"/>
+    <ellipse cx="412" cy="103" rx="3" ry="2"/>
     <!-- Australia -->
-    <path d="M 412,118 Q 435,112 450,120 Q 456,131 440,137 Q 420,137 410,127 Z"/>
-    <!-- Islands -->
-    <ellipse cx="402" cy="108" rx="2.2" ry="1.3"/>
-    <ellipse cx="410" cy="112" rx="1.6" ry="1"/>
-    <ellipse cx="396" cy="115" rx="1.3" ry="0.9"/>
+    <path d="M 408,118 Q 430,110 450,118 Q 458,130 446,140 Q 428,142 414,134 Q 406,128 408,118 Z"/>
+    <!-- New Zealand (simplified) -->
+    <ellipse cx="462" cy="138" rx="2.5" ry="4"/>
+    <!-- Japan islands -->
+    <path d="M 398,46 Q 404,42 408,46 Q 406,52 400,52 Z"/>
+    <!-- Ceylon / Sri Lanka -->
+    <ellipse cx="304" cy="107" rx="2" ry="2.8"/>
   </g>
 
-  <!-- Archaic map labels -->
-  <g fill="#4A80C8" opacity="0.9" font-family="'IM Fell English',Georgia,serif" font-style="italic" font-size="5.2" letter-spacing="0.9">
-    <text x="173" y="43">OCEANUS OCCIDENTALIS</text>
-    <text x="295" y="52">CATAY</text>
-    <text x="292" y="108">INDIA</text>
-    <text x="174" y="140">TERRA   INCOGNITA</text>
-    <text x="414" y="150">NEW HOLLAND</text>
-    <text x="472" y="30" text-anchor="end">RUSSIA</text>
+  <!-- Archaic cartographic labels — italic, period blue-gold, matching reference image -->
+  <g fill="#5A8AD0" opacity="0.92" font-family="'IM Fell English',Georgia,serif" font-style="italic" letter-spacing="0.8">
+    <text x="172" y="43" font-size="5">OCEANUS OCCIDENTALIS</text>
+    <text x="296" y="50" font-size="5.5">CATAY</text>
+    <text x="294" y="108" font-size="5">INDIA</text>
+    <text x="172" y="143" font-size="5">TERRA   INCOGNITA</text>
+    <text x="418" y="152" font-size="4.8">NEW HOLLAND</text>
+    <text x="468" y="28" text-anchor="end" font-size="5">RUSSIA</text>
+    <text x="228" y="103" font-size="4.2">AFRICA</text>
+    <text x="195" y="72" font-size="4">SAHARA</text>
+    <text x="270" y="72" font-size="4.5">ARABIA</text>
+    <text x="272" y="93" font-size="4">MARE ARABICUM</text>
+    <text x="310" y="118" font-size="4">MARE INDICUM</text>
+    <text x="342" y="92" font-size="4.5">SIAM</text>
+    <text x="354" y="55" font-size="4.8">CHINA</text>
   </g>
 
   <!-- Rhumb lines from inset rose -->
@@ -722,25 +709,25 @@
 </g>
 
 <!-- ══ WORDMARK ══ -->
-<text x="178" y="62"
+<text x="178" y="73"
       font-family="'Cinzel Decorative','Cinzel',Georgia,serif"
-      font-size="26" font-weight="700" letter-spacing="5"
+      font-size="48" font-weight="700" letter-spacing="3"
       fill="#C9A820">NOMADIC</text>
 
-<!-- Decorative divider + diamond -->
-<line x1="178" y1="74" x2="258" y2="74" stroke="#C9A820" stroke-width="0.85"/>
-<polygon points="281,70 286,74 281,78 276,74" fill="#C9A820"/>
-<line x1="299" y1="74" x2="379" y2="74" stroke="#C9A820" stroke-width="0.85"/>
+<!-- Decorative divider + diamond centred in wordmark column -->
+<line x1="178" y1="90" x2="312" y2="90" stroke="#C9A820" stroke-width="0.9"/>
+<polygon points="320,84 327,90 320,96 313,90" fill="#C9A820"/>
+<line x1="328" y1="90" x2="462" y2="90" stroke="#C9A820" stroke-width="0.9"/>
 
-<text x="178" y="97"
+<text x="178" y="130"
       font-family="'Cinzel','Cinzel Decorative',Georgia,serif"
-      font-size="22" font-weight="600" letter-spacing="7"
+      font-size="42" font-weight="600" letter-spacing="5"
       fill="#C9A820">ALMANAC</text>
 
-<text x="178" y="119"
+<text x="178" y="147"
       font-family="'Cinzel',Georgia,serif"
-      font-size="8.5" letter-spacing="3.2"
-      fill="#E2C06A" opacity="0.75">WORLD TRAVEL INTELLIGENCE</text>
+      font-size="8" letter-spacing="3.5"
+      fill="#E2C06A" opacity="0.80">WORLD TRAVEL INTELLIGENCE</text>
 </svg></div>
     </div>
 

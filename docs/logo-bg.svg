@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 38" width="200" height="38" shape-rendering="crispEdges">
+
+  <!-- Background -->
+  <rect width="200" height="38" rx="2" fill="#0a0804"/>
+
+  <!-- Graticule — Longitude lines every 30° -->
+  <!-- 150W x=16.67 -->
+  <line x1="16.67" y1="0" x2="16.67" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 120W x=33.33 -->
+  <line x1="33.33" y1="0" x2="33.33" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 90W x=50 -->
+  <line x1="50" y1="0" x2="50" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 60W x=66.67 -->
+  <line x1="66.67" y1="0" x2="66.67" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 30W x=83.33 -->
+  <line x1="83.33" y1="0" x2="83.33" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- Prime meridian x=100 -->
+  <line x1="100" y1="0" x2="100" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 30E x=116.67 -->
+  <line x1="116.67" y1="0" x2="116.67" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 60E x=133.33 -->
+  <line x1="133.33" y1="0" x2="133.33" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 90E x=150 -->
+  <line x1="150" y1="0" x2="150" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 120E x=166.67 -->
+  <line x1="166.67" y1="0" x2="166.67" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 150E x=183.33 -->
+  <line x1="183.33" y1="0" x2="183.33" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+
+  <!-- Graticule — Latitude lines -->
+  <!-- 60N y=4.22 -->
+  <line x1="0" y1="4.22" x2="200" y2="4.22" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 45N y=8.44 -->
+  <line x1="0" y1="8.44" x2="200" y2="8.44" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- 30N y=12.67 -->
+  <line x1="0" y1="12.67" x2="200" y2="12.67" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+  <!-- Tropic of Cancer 23.5N y=14.50, dashed -->
+  <line x1="0" y1="14.50" x2="200" y2="14.50" stroke="#c9a84c" stroke-width="0.4" stroke-dasharray="2,3" opacity="0.14"/>
+  <!-- Equator y=21.11 — emphasized -->
+  <line x1="0" y1="21.11" x2="200" y2="21.11" stroke="#c9a84c" stroke-width="0.6" opacity="0.20"/>
+  <!-- Tropic of Capricorn 23.5S y=27.73, dashed -->
+  <line x1="0" y1="27.73" x2="200" y2="27.73" stroke="#c9a84c" stroke-width="0.4" stroke-dasharray="2,3" opacity="0.14"/>
+  <!-- 30S y=29.56 -->
+  <line x1="0" y1="29.56" x2="200" y2="29.56" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
+
+  <!-- Continent fills -->
+
+  <!-- Greenland -->
+  <path d="M76.11,0 L88.89,0 L90.0,1.41 L86.11,3.38 L76.11,4.22 L71.11,2.53 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- North America -->
+  <path d="M6.67,1.97 L23.33,0.84 L47.22,0.84 L69.44,7.04 L70.56,7.88 L63.33,8.73 L58.33,11.26 L54.44,14.36 L50.0,15.48 L52.22,18.3 L57.22,18.86 L55.56,18.58 L53.89,18.3 L50.0,16.61 L46.11,13.79 L41.67,15.48 L35.0,12.1 L31.11,7.32 L27.78,5.07 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- South America -->
+  <path d="M58.89,17.73 L72.22,19.7 L80.56,22.52 L80.56,27.3 L71.11,30.68 L63.89,36.59 L61.11,35.19 L58.33,29.56 L55.0,22.52 L55.56,18.58 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Europe -->
+  <path d="M95.0,10.98 L95.0,8.73 L98.89,6.47 L102.78,4.22 L108.33,1.41 L115.56,1.41 L116.67,4.22 L123.33,9.57 L120.0,10.98 L115.56,10.98 L112.22,10.7 L108.33,10.41 L105.56,10.41 L101.67,9.01 L97.22,10.98 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Africa -->
+  <path d="M97.22,10.98 L105.56,10.7 L120.56,12.39 L128.33,17.73 L124.44,24.49 L118.89,27.3 L114.44,30.68 L110.0,30.96 L104.44,22.52 L97.22,19.7 L90.56,16.89 L90.56,14.92 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Asia (main landmass) -->
+  <path d="M115.0,9.29 L120.56,0.84 L138.89,0.84 L172.22,1.41 L194.44,2.81 L180.56,8.44 L166.67,14.92 L157.78,20.83 L144.44,18.86 L133.33,14.92 L123.33,17.73 L120.56,12.39 L115.56,10.98 L123.33,9.57 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Australia -->
+  <path d="M163.33,27.3 L167.78,26.18 L176.11,24.49 L181.67,26.46 L186.11,28.43 L183.33,31.81 L177.78,31.81 L172.78,30.12 L168.89,30.68 L163.33,30.68 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Japan (small polygon) -->
+  <path d="M172.22,12.39 L178.33,9.85 L180.56,8.73 L178.33,8.73 L172.22,11.82 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- New Zealand -->
+  <path d="M195.56,30.68 L196.67,32.65 L193.33,34.06 L192.78,33.5 Z"
+        fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Small island masses as ellipses -->
+  <!-- Iceland: lon=-18, lat=65 -->
+  <ellipse cx="90.0" cy="2.81" rx="2.5" ry="1.2" fill="#c9a84c" opacity="0.14"/>
+  <!-- United Kingdom: lon=-2, lat=54 -->
+  <ellipse cx="98.89" cy="5.91" rx="1.5" ry="2.5" fill="#c9a84c" opacity="0.14"/>
+  <!-- Madagascar: lon=47, lat=-20 -->
+  <ellipse cx="126.11" cy="26.74" rx="1.0" ry="3.0" fill="#c9a84c" opacity="0.14"/>
+
+  <!-- Equator label -->
+  <text x="1" y="21.8" font-size="3" font-family="Georgia, serif" letter-spacing="0.2"
+        fill="#c9a84c" opacity="0.35">EQ</text>
+
+  <!-- 30N tick mark label -->
+  <text x="1" y="12.3" font-size="2.6" font-family="Georgia, serif"
+        fill="#c9a84c" opacity="0.28">30°N</text>
+
+  <!-- 60N tick mark label -->
+  <text x="1" y="4.1" font-size="2.6" font-family="Georgia, serif"
+        fill="#c9a84c" opacity="0.28">60°N</text>
+
+  <!-- Ornamental border inset 1px -->
+  <rect x="1" y="1" width="198" height="36" rx="1.5"
+        stroke="#c9a84c" stroke-width="0.5" opacity="0.20" fill="none"/>
+
+</svg>
