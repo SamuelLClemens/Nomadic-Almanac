@@ -48883,3 +48883,77 @@ const TIPPING_DETAIL_DATA = {
     quickTip: 'At all-inclusive resorts USD tips are expected and deeply appreciated by resort workers.'
   }
 };
+
+// ─── CD_CANNABIS gap-fill — 63 remaining UN member states ────────────────────
+// Sources: HRI Global Drug Policy Index 2024, EMCDDA, individual country legislation
+// Traveller perspective: reflects realistic risk to a foreign visitor.
+if (typeof CD_CANNABIS !== 'undefined') Object.assign(CD_CANNABIS, {
+  // ── Tier 1: Medical/Decrim — personal possession formally or effectively tolerated ──
+  AG:1,   // Antigua & Barbuda: decriminalised personal possession 2018
+  DM:1,   // Dominica: Drugs (Prevention of Misuse) (Amendment) Act 2023 — up to 28g decrim
+  GD:1,   // Grenada: Cannabis (Amendment) Act 2019 — up to 14g decriminalised
+  KN:1,   // St Kitts & Nevis: decriminalised 2023 (up to 14g)
+  LC:1,   // Saint Lucia: Misuse of Drugs (Amendment) Act 2022 — personal amounts decrim
+  LS:1,   // Lesotho: first African country to license medicinal cultivation (2017); personal rarely prosecuted
+  MW:1,   // Malawi: Cannabis Regulation Act 2020 — licensed production; personal use decriminalised
+  VC:1,   // St Vincent & the Grenadines: decriminalised 2018; medical scheme active
+  VE:1,   // Venezuela: Supreme Court (TSJ) ruled personal consumption not punishable
+
+  // ── Tier 2: Minor penalties — technically illegal; small amounts = fine / caution ──
+  AD:2,   // Andorra: follows broadly European norms; possession = administrative fine
+  AO:2,   // Angola: illegal; police rarely enforce for personal amounts
+  BI:2,   // Burundi: illegal; enforcement minimal outside Bujumbura
+  BJ:2,   // Benin: illegal; minor fine in practice
+  BS:2,   // Bahamas: illegal; tourists typically receive fine for minor possession
+  BW:2,   // Botswana: Drugs and Related Substances Act — fine or short sentence, rarely applied
+  CD:2,   // DR Congo: illegal; enforcement highly irregular
+  CF:2,   // Central African Republic: illegal; state capacity limits enforcement
+  CG:2,   // Republic of Congo: illegal; minor penalties in practice
+  CI:2,   // Côte d'Ivoire: illegal; minor fine common
+  CM:2,   // Cameroon: illegal; minor possession = fine; widespread use in rural north
+  CV:2,   // Cape Verde: illegal; minor penalty; significant transit country
+  FJ:2,   // Fiji: Illicit Drugs Control Act — possession = fine; enforcement inconsistent
+  FM:2,   // Micronesia: illegal; enforcement extremely limited
+  GA:2,   // Gabon: illegal; minor penalties; traditional use tolerated outside Libreville
+  GN:2,   // Guinea: illegal; enforcement minimal; widespread rural cultivation
+  GQ:2,   // Equatorial Guinea: illegal; minor enforcement
+  GW:2,   // Guinea-Bissau: major transit country; personal possession rarely prosecuted
+  IS:2,   // Iceland: illegal; possession = fine (no criminal record for small amounts)
+  KG:2,   // Kyrgyzstan: illegal; traditionally grown; enforcement inconsistent
+  KI:2,   // Kiribati: illegal; minimal enforcement capacity
+  LI:2,   // Liechtenstein: aligned with Swiss law; possession ≤10g = fine; no criminal record
+  LR:2,   // Liberia: illegal; enforcement minimal
+  MC:2,   // Monaco: French law applies; possession = fine
+  MG:2,   // Madagascar: illegal; widely cultivated; enforcement inconsistent
+  MH:2,   // Marshall Islands: illegal; minimal enforcement
+  NA:2,   // Namibia: illegal; personal amounts = fine; rarely prosecuted
+  NR:2,   // Nauru: illegal; minimal enforcement capacity
+  PG:2,   // Papua New Guinea: illegal; traditional betel use dominant; cannabis enforcement minimal
+  PW:2,   // Palau: illegal; minor enforcement
+  SB:2,   // Solomon Islands: illegal; minimal enforcement
+  SL:2,   // Sierra Leone: illegal; enforcement minimal
+  SM:2,   // San Marino: Italian-aligned; minor administrative fine
+  ST:2,   // São Tomé and Príncipe: illegal; minimal enforcement
+  SZ:2,   // Eswatini: significant cannabis producer; possession illegal but rarely enforced
+  TG:2,   // Togo: illegal; minor fine
+  TL:2,   // Timor-Leste: illegal; enforcement very limited
+  TO:2,   // Tonga: illegal; enforcement minimal
+  TV:2,   // Tuvalu: illegal; minimal enforcement capacity
+  VU:2,   // Vanuatu: illegal; traditional kava culture dominant; cannabis minor penalties
+  WS:2,   // Samoa: illegal; minor penalties
+  XK:2,   // Kosovo: aligned broadly with Balkans; minor fine
+  ZM:2,   // Zambia: Cannabis Licensing Act 2021 allows export; personal possession still illegal but rarely enforced
+  ZW:2,   // Zimbabwe: licensed cultivation for export (2018); possession still illegal
+
+  // ── Tier 3: Severe penalties — significant prison time; foreigners regularly prosecuted ──
+  DJ:3,   // Djibouti: up to 10 years for possession; strictly enforced
+  GM:3,   // Gambia: Islamic penal influences; up to 5 years; foreigners prosecuted
+  KM:3,   // Comoros: Islamic law; strict prosecution; significant sentences
+  MU:3,   // Mauritius: Dangerous Drugs Act — up to 5 years for possession; strictly enforced; foreigners targeted
+  PS:3,   // Palestine: illegal in both PA and Hamas-controlled areas; strict Hamas enforcement in Gaza
+  SC:3,   // Seychelles: Misuse of Drugs Act — up to 10 years; regularly enforced against tourists
+  SN:3,   // Senegal: mandatory 2+ years for first offence; widespread arrests; tourists prosecuted
+  TJ:3,   // Tajikistan: Criminal Code — 5-12 years for possession; strict enforcement
+  TM:3,   // Turkmenistan: among world's strictest drug laws; long sentences for any amount
+  TW:3,   // Taiwan: Narcotics Hazard Prevention Act — 3-7 years possession; zero tolerance enforcement
+});

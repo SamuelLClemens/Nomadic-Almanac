@@ -39,8 +39,12 @@ let _holidayMarkers = [];
 // Click-toggle tooltip: tracks which feature's popup is currently open.
 // Clicking the same feature again closes the tooltip (toggle behavior).
 let _activeTooltipKey = null;
-let _tempUnit         = 'C';   // 'C' or 'F' — toggled by the weather info window button
-var _distUnit = localStorage.getItem('na_dist') || 'km';
+let _tempUnit         = localStorage.getItem('na_temp') || 'C';   // 'C' or 'F' — persisted
+var _distUnit         = localStorage.getItem('na_dist') || 'km';  // 'km' or 'mi' — persisted
+var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // basemap style
+var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
+var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
+var _basemapLayer     = null;  // reference to the current basemap tile layer
 let climateZoneLayer  = null;
 let _elevationTileLayer = null;
 let _climateRenderer  = null;
@@ -886,10 +890,32 @@ function initMap() {
   // change, panel resize) so tiles fill the new dimensions cleanly.
   window.addEventListener('resize', () => { if (map) map.invalidateSize(); }, { passive: true });
 
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri | Admin-2 boundaries: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)',
-    maxZoom: 19,
-    // Fallback: if Esri tiles fail to load, error events are silent (best effort)
+  // Basemap tile configurations — satellite is the default; user can switch in Preferences.
+  var BASEMAP_CONFIGS = {
+    satellite: {
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri | Admin-2 boundaries: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)',
+      maxZoom: 19,
+    },
+    streets: {
+      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 20, subdomains: 'abcd',
+    },
+    dark: {
+      url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 20, subdomains: 'abcd',
+    },
+  };
+  window._BASEMAP_CONFIGS = BASEMAP_CONFIGS;  // expose for na_setBasemap
+
+  var style = (_mapStyle && BASEMAP_CONFIGS[_mapStyle]) ? _mapStyle : 'satellite';
+  var bc    = BASEMAP_CONFIGS[style];
+  _basemapLayer = L.tileLayer(bc.url, {
+    attribution: bc.attribution,
+    maxZoom:     bc.maxZoom     || 19,
+    subdomains:  bc.subdomains  || '',
     errorTileUrl: '',
   }).addTo(map);
 
@@ -3748,6 +3774,7 @@ function buildCompositeScore(dataObj, iso2) {
 // Works by updating data-celsius spans in-place — no full re-render needed.
 function toggleTempUnit() {
   _tempUnit = _tempUnit === 'C' ? 'F' : 'C';
+  localStorage.setItem('na_temp', _tempUnit);
   document.querySelectorAll('.tt-temp-val').forEach(el => {
     const c = parseFloat(el.dataset.celsius);
     if (!isNaN(c)) {
@@ -7027,7 +7054,7 @@ function na_initNavItems() {
           if (tp2) tp2.click();
           break;
         case 'preferences':
-          na_toast('Preferences panel coming soon.');
+          na_openPrefsSheet();
           break;
         default:
           break;
@@ -7080,6 +7107,107 @@ function na_initLayersSheet() {
       if (e.changedTouches[0].clientY - startY > 60) na_closeLayersSheet();
     }, {passive:true});
   }
+}
+
+// ── Preferences Sheet ─────────────────────────────────────────────────────
+function na_setBasemap(style) {
+  var configs = window._BASEMAP_CONFIGS;
+  if (!configs || !configs[style] || !_basemapLayer || !map) return;
+  var bc = configs[style];
+  _basemapLayer.setUrl(bc.url);
+  map.attributionControl.getContainer().innerHTML = bc.attribution;
+  _mapStyle = style;
+  localStorage.setItem('na_mapstyle', style);
+}
+
+function na_openPrefsSheet() {
+  var sheet = document.getElementById('na-prefs-sheet');
+  if (!sheet) return;
+  sheet.hidden = false;
+  na_syncPrefsUI();
+  document.body.style.overflow = 'hidden';
+  setTimeout(function() {
+    var first = sheet.querySelector('.pref-opt');
+    if (first) first.focus();
+  }, 50);
+}
+
+function na_closePrefsSheet() {
+  var sheet = document.getElementById('na-prefs-sheet');
+  if (!sheet) return;
+  sheet.hidden = true;
+  document.body.style.overflow = '';
+}
+
+// Refresh active states on all pref-opt buttons to match current values.
+function na_syncPrefsUI() {
+  var map_pref = {
+    'pref-temp':       _tempUnit,
+    'pref-dist':       _distUnit,
+    'pref-basemap':    _mapStyle,
+    'pref-dateformat': _dateFormat,
+    'pref-clock':      _clockFormat,
+  };
+  Object.keys(map_pref).forEach(function(id) {
+    var grp = document.getElementById(id);
+    if (!grp) return;
+    var val = map_pref[id];
+    grp.querySelectorAll('.pref-opt').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.val === val);
+    });
+  });
+}
+
+function na_initPrefsSheet() {
+  var sheet = document.getElementById('na-prefs-sheet');
+  if (!sheet) return;
+
+  // Overlay click to close
+  var overlay = document.getElementById('na-prefs-overlay');
+  if (overlay) overlay.addEventListener('click', na_closePrefsSheet);
+
+  // Swipe-down to close
+  var panel = document.getElementById('na-prefs-panel');
+  if (panel) {
+    var startY = 0;
+    panel.addEventListener('touchstart', function(e) { startY = e.touches[0].clientY; }, {passive:true});
+    panel.addEventListener('touchend', function(e) {
+      if (e.changedTouches[0].clientY - startY > 60) na_closePrefsSheet();
+    }, {passive:true});
+  }
+
+  // Wire all pref-opt buttons
+  sheet.querySelectorAll('.pref-opt').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var grp = btn.closest('.pref-toggle-group');
+      if (!grp) return;
+      var id  = grp.id;
+      var val = btn.dataset.val;
+
+      if (id === 'pref-temp') {
+        if (_tempUnit !== val) toggleTempUnit();
+        // sync prefs panel btn to the in-page toggle (in case user flipped it there)
+      } else if (id === 'pref-dist') {
+        if (_distUnit !== val) {
+          _distUnit = val;
+          localStorage.setItem('na_dist', _distUnit);
+          var distBtn = document.getElementById('btn-dist-unit');
+          if (distBtn) distBtn.textContent = _distUnit === 'km' ? 'km' : 'mi';
+        }
+      } else if (id === 'pref-basemap') {
+        na_setBasemap(val);
+      } else if (id === 'pref-dateformat') {
+        _dateFormat = val;
+        localStorage.setItem('na_datefmt', _dateFormat);
+      } else if (id === 'pref-clock') {
+        _clockFormat = val;
+        localStorage.setItem('na_clockfmt', _clockFormat);
+      }
+      na_syncPrefsUI();
+    });
+  });
+
+  na_syncPrefsUI();
 }
 
 // ── Global search overlay ─────────────────────────────────────────────────
@@ -7199,6 +7327,8 @@ function na_initKeyboard() {
       if (searchOverlay && !searchOverlay.hidden) { na_closeSearch(); return; }
       var sheet = document.getElementById('na-layers-sheet');
       if (sheet && !sheet.hidden) { na_closeLayersSheet(); return; }
+      var prefsSheet = document.getElementById('na-prefs-sheet');
+      if (prefsSheet && !prefsSheet.hidden) { na_closePrefsSheet(); return; }
       var compare = document.getElementById('compare-panel');
       if (compare && compare.classList.contains('open')) {
         compare.classList.remove('open');
@@ -7409,6 +7539,7 @@ function navInit() {
   na_initLayerItems();
   na_initNavItems();
   na_initLayersSheet();
+  na_initPrefsSheet();
   na_initSearch();
   na_initKeyboard();
   na_initHeaderActions();
