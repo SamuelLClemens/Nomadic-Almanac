@@ -9,7 +9,7 @@
 set -euo pipefail
 
 PROJ="/Users/zim/Desktop/Claude Code"
-LOG="$PROJ/.claude/scripts/deploy.log"
+LOG="/tmp/na_deploy.log"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
 log() { echo "[$TIMESTAMP] $*" | tee -a "$LOG"; }
