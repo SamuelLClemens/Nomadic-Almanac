@@ -45450,3 +45450,3172 @@ const NYPD_PRECINCTS = [
   {p:122,b:"Staten Island", lat:40.5725,lng:-74.1046,ci:2},
   {p:123,b:"Staten Island", lat:40.5428,lng:-74.1778,ci:1},
 ];
+// GATE 2 — VISA_DATA additions (appended via Object.assign)
+const VISA_DATA_ADDITIONS = {
+  // ── Europe (remaining) ──────────────────────────────────────────────────────
+  // Schengen / EU members not yet covered
+  RO: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  BG: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  LU: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  MT: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  CY: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // Western Balkans
+  BA: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  ME: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  MK: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  AL: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // Moldova & Belarus
+  MD: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'evisa',d:30,c:60}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  BY: { US:{t:'evisa',d:30,c:65}, GB:{t:'evisa',d:30,c:65}, DE:{t:'evisa',d:30,c:65}, AU:{t:'evisa',d:30,c:65}, CA:{t:'evisa',d:30,c:65}, JP:{t:'evisa',d:30,c:65}, NZ:{t:'evisa',d:30,c:65}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:30,c:65}, IL:{t:'req',d:0,c:0} },
+  // Central Asia
+  KZ: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  UZ: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  TM: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  KG: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  TJ: { US:{t:'evisa',d:45,c:20}, GB:{t:'evisa',d:45,c:20}, DE:{t:'evisa',d:45,c:20}, AU:{t:'evisa',d:45,c:20}, CA:{t:'evisa',d:45,c:20}, JP:{t:'evisa',d:45,c:20}, NZ:{t:'evisa',d:45,c:20}, ZA:{t:'req',d:0,c:0}, IN:{t:'evisa',d:45,c:20}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:45,c:20}, IL:{t:'req',d:0,c:0} },
+  AF: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  // ── East Asia ──────────────────────────────────────────────────────────────
+  MN: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  KP: { US:{t:'banned',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  // ── Southeast Asia (remaining) ─────────────────────────────────────────────
+  TL: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  // ── South Asia ─────────────────────────────────────────────────────────────
+  BT: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'free',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  MV: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  // ── Middle East (remaining) ────────────────────────────────────────────────
+  PS: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'free',d:0,c:0} },
+  // ── Sub-Saharan Africa ─────────────────────────────────────────────────────
+  // West Africa
+  SN: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:90,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  CI: { US:{t:'evisa',d:90,c:80}, GB:{t:'evisa',d:90,c:80}, DE:{t:'evisa',d:90,c:80}, AU:{t:'evisa',d:90,c:80}, CA:{t:'evisa',d:90,c:80}, JP:{t:'evisa',d:90,c:80}, NZ:{t:'evisa',d:90,c:80}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'evisa',d:90,c:80} },
+  CM: { US:{t:'req',d:0,c:120}, GB:{t:'req',d:0,c:120}, DE:{t:'req',d:0,c:120}, AU:{t:'req',d:0,c:120}, CA:{t:'req',d:0,c:120}, JP:{t:'req',d:0,c:120}, NZ:{t:'req',d:0,c:120}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  GN: { US:{t:'voa',d:90,c:100}, GB:{t:'voa',d:90,c:100}, DE:{t:'voa',d:90,c:100}, AU:{t:'voa',d:90,c:100}, CA:{t:'voa',d:90,c:100}, JP:{t:'voa',d:90,c:100}, NZ:{t:'voa',d:90,c:100}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  ML: { US:{t:'req',d:0,c:131}, GB:{t:'req',d:0,c:131}, DE:{t:'req',d:0,c:131}, AU:{t:'req',d:0,c:131}, CA:{t:'req',d:0,c:131}, JP:{t:'req',d:0,c:131}, NZ:{t:'req',d:0,c:131}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  BF: { US:{t:'evisa',d:90,c:85}, GB:{t:'evisa',d:90,c:85}, DE:{t:'evisa',d:90,c:85}, AU:{t:'evisa',d:90,c:85}, CA:{t:'evisa',d:90,c:85}, JP:{t:'evisa',d:90,c:85}, NZ:{t:'evisa',d:90,c:85}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  NE: { US:{t:'req',d:0,c:100}, GB:{t:'req',d:0,c:100}, DE:{t:'req',d:0,c:100}, AU:{t:'req',d:0,c:100}, CA:{t:'req',d:0,c:100}, JP:{t:'req',d:0,c:100}, NZ:{t:'req',d:0,c:100}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  TG: { US:{t:'voa',d:7,c:35}, GB:{t:'voa',d:7,c:35}, DE:{t:'voa',d:7,c:35}, AU:{t:'voa',d:7,c:35}, CA:{t:'voa',d:7,c:35}, JP:{t:'voa',d:7,c:35}, NZ:{t:'voa',d:7,c:35}, ZA:{t:'voa',d:7,c:35}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  BJ: { US:{t:'evisa',d:30,c:50}, GB:{t:'evisa',d:30,c:50}, DE:{t:'evisa',d:30,c:50}, AU:{t:'evisa',d:30,c:50}, CA:{t:'evisa',d:30,c:50}, JP:{t:'evisa',d:30,c:50}, NZ:{t:'evisa',d:30,c:50}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  // Central Africa
+  CD: { US:{t:'req',d:0,c:185}, GB:{t:'req',d:0,c:185}, DE:{t:'req',d:0,c:185}, AU:{t:'req',d:0,c:185}, CA:{t:'req',d:0,c:185}, JP:{t:'req',d:0,c:185}, NZ:{t:'req',d:0,c:185}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  CG: { US:{t:'req',d:0,c:130}, GB:{t:'req',d:0,c:130}, DE:{t:'req',d:0,c:130}, AU:{t:'req',d:0,c:130}, CA:{t:'req',d:0,c:130}, JP:{t:'req',d:0,c:130}, NZ:{t:'req',d:0,c:130}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  GA: { US:{t:'evisa',d:90,c:85}, GB:{t:'evisa',d:90,c:85}, DE:{t:'evisa',d:90,c:85}, AU:{t:'evisa',d:90,c:85}, CA:{t:'evisa',d:90,c:85}, JP:{t:'evisa',d:90,c:85}, NZ:{t:'evisa',d:90,c:85}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  TD: { US:{t:'req',d:0,c:100}, GB:{t:'req',d:0,c:100}, DE:{t:'req',d:0,c:100}, AU:{t:'req',d:0,c:100}, CA:{t:'req',d:0,c:100}, JP:{t:'req',d:0,c:100}, NZ:{t:'req',d:0,c:100}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  CF: { US:{t:'req',d:0,c:150}, GB:{t:'req',d:0,c:150}, DE:{t:'req',d:0,c:150}, AU:{t:'req',d:0,c:150}, CA:{t:'req',d:0,c:150}, JP:{t:'req',d:0,c:150}, NZ:{t:'req',d:0,c:150}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  // East Africa (remaining)
+  UG: { US:{t:'evisa',d:90,c:52}, GB:{t:'evisa',d:90,c:52}, DE:{t:'evisa',d:90,c:52}, AU:{t:'evisa',d:90,c:52}, CA:{t:'evisa',d:90,c:52}, JP:{t:'evisa',d:90,c:52}, NZ:{t:'evisa',d:90,c:52}, ZA:{t:'free',d:90,c:0}, IN:{t:'evisa',d:90,c:52}, CN:{t:'evisa',d:90,c:52}, BR:{t:'evisa',d:90,c:52}, IL:{t:'evisa',d:90,c:52} },
+  RW: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  BI: { US:{t:'evisa',d:30,c:40}, GB:{t:'evisa',d:30,c:40}, DE:{t:'evisa',d:30,c:40}, AU:{t:'evisa',d:30,c:40}, CA:{t:'evisa',d:30,c:40}, JP:{t:'evisa',d:30,c:40}, NZ:{t:'evisa',d:30,c:40}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  SO: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  DJ: { US:{t:'evisa',d:30,c:35}, GB:{t:'evisa',d:30,c:35}, DE:{t:'evisa',d:30,c:35}, AU:{t:'evisa',d:30,c:35}, CA:{t:'evisa',d:30,c:35}, JP:{t:'evisa',d:30,c:35}, NZ:{t:'evisa',d:30,c:35}, ZA:{t:'evisa',d:30,c:35}, IN:{t:'evisa',d:30,c:35}, CN:{t:'evisa',d:30,c:35}, BR:{t:'evisa',d:30,c:35}, IL:{t:'evisa',d:30,c:35} },
+  ER: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  SS: { US:{t:'req',d:0,c:100}, GB:{t:'req',d:0,c:100}, DE:{t:'req',d:0,c:100}, AU:{t:'req',d:0,c:100}, CA:{t:'req',d:0,c:100}, JP:{t:'req',d:0,c:100}, NZ:{t:'req',d:0,c:100}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  SD: { US:{t:'req',d:0,c:0}, GB:{t:'req',d:0,c:0}, DE:{t:'req',d:0,c:0}, AU:{t:'req',d:0,c:0}, CA:{t:'req',d:0,c:0}, JP:{t:'req',d:0,c:0}, NZ:{t:'req',d:0,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'banned',d:0,c:0} },
+  // Southern Africa
+  MZ: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'evisa',d:30,c:75}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  ZW: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'evisa',d:30,c:75}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  ZM: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'evisa',d:30,c:75}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  BW: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  NA: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  LS: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  SZ: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  AO: { US:{t:'evisa',d:30,c:120}, GB:{t:'evisa',d:30,c:120}, DE:{t:'evisa',d:30,c:120}, AU:{t:'evisa',d:30,c:120}, CA:{t:'evisa',d:30,c:120}, JP:{t:'evisa',d:30,c:120}, NZ:{t:'evisa',d:30,c:120}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'evisa',d:30,c:120}, BR:{t:'evisa',d:30,c:120}, IL:{t:'req',d:0,c:0} },
+  // Island nations
+  MG: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  MU: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:90,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  SC: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  CV: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  ST: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  KM: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  // ── Caribbean ──────────────────────────────────────────────────────────────
+  JM: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  TT: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'free',d:90,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  DO: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  HT: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'req',d:0,c:0} },
+  BB: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'free',d:90,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  BS: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'free',d:90,c:0} },
+  VC: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  GD: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  LC: { US:{t:'free',d:42,c:0}, GB:{t:'free',d:42,c:0}, DE:{t:'free',d:42,c:0}, AU:{t:'free',d:42,c:0}, CA:{t:'free',d:42,c:0}, JP:{t:'free',d:42,c:0}, NZ:{t:'free',d:42,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:42,c:0}, IL:{t:'free',d:42,c:0} },
+  AG: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  KN: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // ── Central America ────────────────────────────────────────────────────────
+  GT: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  BZ: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  HN: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  SV: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  NI: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  CR: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  PA: { US:{t:'free',d:180,c:0}, GB:{t:'free',d:180,c:0}, DE:{t:'free',d:180,c:0}, AU:{t:'free',d:180,c:0}, CA:{t:'free',d:180,c:0}, JP:{t:'free',d:180,c:0}, NZ:{t:'free',d:180,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:180,c:0}, IL:{t:'free',d:180,c:0} },
+  // ── South America (remaining) ──────────────────────────────────────────────
+  VE: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  GY: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  SR: { US:{t:'evisa',d:90,c:25}, GB:{t:'evisa',d:90,c:25}, DE:{t:'evisa',d:90,c:25}, AU:{t:'evisa',d:90,c:25}, CA:{t:'evisa',d:90,c:25}, JP:{t:'evisa',d:90,c:25}, NZ:{t:'evisa',d:90,c:25}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'evisa',d:90,c:25} },
+  // ── Pacific ────────────────────────────────────────────────────────────────
+  FJ: { US:{t:'free',d:120,c:0}, GB:{t:'free',d:120,c:0}, DE:{t:'free',d:120,c:0}, AU:{t:'free',d:120,c:0}, CA:{t:'free',d:120,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:120,c:0}, ZA:{t:'free',d:120,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:120,c:0}, IL:{t:'free',d:120,c:0} },
+  PG: { US:{t:'free',d:60,c:0}, GB:{t:'free',d:60,c:0}, DE:{t:'free',d:60,c:0}, AU:{t:'free',d:60,c:0}, CA:{t:'free',d:60,c:0}, JP:{t:'free',d:60,c:0}, NZ:{t:'free',d:60,c:0}, ZA:{t:'free',d:60,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:60,c:0}, BR:{t:'free',d:60,c:0}, IL:{t:'free',d:60,c:0} },
+  SB: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  VU: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  WS: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  TO: { US:{t:'free',d:31,c:0}, GB:{t:'free',d:31,c:0}, DE:{t:'free',d:31,c:0}, AU:{t:'free',d:31,c:0}, CA:{t:'free',d:31,c:0}, JP:{t:'free',d:31,c:0}, NZ:{t:'free',d:31,c:0}, ZA:{t:'free',d:31,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:31,c:0}, IL:{t:'free',d:31,c:0} },
+  TV: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  KI: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  PW: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  FM: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  MH: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  NR: { US:{t:'free',d:30,c:0}, GB:{t:'free',d:30,c:0}, DE:{t:'free',d:30,c:0}, AU:{t:'free',d:30,c:0}, CA:{t:'free',d:30,c:0}, JP:{t:'free',d:30,c:0}, NZ:{t:'free',d:30,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:30,c:0}, IL:{t:'free',d:30,c:0} },
+  // ── North Africa (remaining) ───────────────────────────────────────────────
+  MR: { US:{t:'evisa',d:30,c:55}, GB:{t:'evisa',d:30,c:55}, DE:{t:'evisa',d:30,c:55}, AU:{t:'evisa',d:30,c:55}, CA:{t:'evisa',d:30,c:55}, JP:{t:'evisa',d:30,c:55}, NZ:{t:'evisa',d:30,c:55}, ZA:{t:'evisa',d:30,c:55}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'evisa',d:30,c:55}, IL:{t:'banned',d:0,c:0} },
+  // ── Additional Asia ────────────────────────────────────────────────────────
+  // Macau SAR
+  MO: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // ── Remaining Schengen ─────────────────────────────────────────────────────
+  // Liechtenstein (Schengen associated)
+  LI: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // San Marino
+  SM: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // Andorra
+  AD: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // Monaco
+  MC: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // Vatican
+  VA: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:90,c:0}, CN:{t:'free',d:90,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // ── Africa (additional) ────────────────────────────────────────────────────
+  LR: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  SL: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'req',d:0,c:0} },
+  GW: { US:{t:'evisa',d:90,c:60}, GB:{t:'evisa',d:90,c:60}, DE:{t:'evisa',d:90,c:60}, AU:{t:'evisa',d:90,c:60}, CA:{t:'evisa',d:90,c:60}, JP:{t:'evisa',d:90,c:60}, NZ:{t:'evisa',d:90,c:60}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'req',d:0,c:0} },
+  GM: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  GQ: { US:{t:'req',d:0,c:150}, GB:{t:'req',d:0,c:150}, DE:{t:'req',d:0,c:150}, AU:{t:'req',d:0,c:150}, CA:{t:'req',d:0,c:150}, JP:{t:'req',d:0,c:150}, NZ:{t:'req',d:0,c:150}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
+  MW: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+};
+
+if(typeof VISA_DATA!=="undefined"&&typeof VISA_DATA_ADDITIONS!=="undefined")Object.assign(VISA_DATA,VISA_DATA_ADDITIONS);
+// GATE 3 — COST_DETAILS additions
+const COST_DETAILS_ADDITIONS = {
+  // Europe
+  AD: { hostel:60, meal:14, transport:5,  coffee:3, beer:4,  note:'No VAT makes electronics and tobacco cheap; hotels are pricey' },
+  AL: { hostel:12, meal:4,  transport:2,  coffee:1, beer:2,  note:'One of Europe cheapest; Tirana affordable; Albanian Riviera rising' },
+  AM: { hostel:15, meal:4,  transport:1,  coffee:2, beer:2,  note:'Yerevan affordable; strong cafe culture; taxis very cheap' },
+  AT: { hostel:28, meal:12, transport:9,  coffee:4, beer:5,  note:'Vienna expensive by EU standards; regions more affordable' },
+  AZ: { hostel:18, meal:5,  transport:1,  coffee:2, beer:2,  note:'Baku pricier than regions; oil wealth raises some prices' },
+  BA: { hostel:14, meal:5,  transport:2,  coffee:2, beer:2,  note:'Sarajevo excellent value; Mostar tourist area slightly higher' },
+  BE: { hostel:28, meal:12, transport:8,  coffee:3, beer:4,  note:'Brussels expensive; Belgian beer culture offers outstanding value' },
+  BG: { hostel:12, meal:4,  transport:2,  coffee:2, beer:2,  note:'One of EU cheapest; Sofia affordable; Black Sea rises in summer' },
+  BY: { hostel:20, meal:6,  transport:2,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; sanctions limit card use' },
+  CH: { hostel:45, meal:20, transport:12, coffee:6, beer:8,  note:'Among world most expensive; budget carefully; tap water free' },
+  CY: { hostel:20, meal:9,  transport:4,  coffee:3, beer:4,  note:'EU island; Nicosia affordable; beach resorts pricier in summer' },
+  DK: { hostel:35, meal:18, transport:12, coffee:5, beer:8,  note:'Copenhagen consistently among world most expensive cities' },
+  EE: { hostel:20, meal:8,  transport:4,  coffee:3, beer:3,  note:'Tallinn Old Town popular; digital-first society; mid-range EU' },
+  FI: { hostel:30, meal:15, transport:10, coffee:4, beer:7,  note:'Helsinki expensive; Allemansratten free-camping rights help' },
+  GE: { hostel:12, meal:4,  transport:2,  coffee:2, beer:2,  note:'Tbilisi excellent value; wine culture; Batumi slightly pricier' },
+  HR: { hostel:18, meal:8,  transport:4,  coffee:3, beer:3,  note:'Dubrovnik most expensive; islands pricier; interior affordable' },
+  IE: { hostel:25, meal:13, transport:8,  coffee:4, beer:7,  note:'Dublin among Europe most expensive; rural Ireland more modest' },
+  IS: { hostel:50, meal:20, transport:10, coffee:6, beer:12, note:'Extremely expensive; self-catering and wild camping reduce costs' },
+  LI: { hostel:80, meal:20, transport:8,  coffee:5, beer:7,  note:'One of world priciest micro-states; best as day-trip from Zurich' },
+  LT: { hostel:18, meal:6,  transport:3,  coffee:3, beer:2,  note:'Vilnius excellent value by EU standards; Old Town very walkable' },
+  LU: { hostel:30, meal:13, transport:5,  coffee:3, beer:5,  note:'High wages drive up all prices; Europe most expensive small capital' },
+  LV: { hostel:18, meal:6,  transport:3,  coffee:3, beer:2,  note:'Riga underrated budget EU capital; Art Nouveau architecture free' },
+  MC: { hostel:0,  meal:25, transport:0,  coffee:6, beer:10, note:'No budget accommodation; luxury only; day-trip from Nice advised' },
+  MD: { hostel:12, meal:4,  transport:1,  coffee:1, beer:1,  note:'One of Europe cheapest destinations; Chisinau very affordable' },
+  ME: { hostel:16, meal:6,  transport:3,  coffee:2, beer:3,  note:'Bay of Kotor popular; coastal areas pricier than interior' },
+  MK: { hostel:14, meal:5,  transport:2,  coffee:2, beer:2,  note:'Skopje excellent value; one of Balkans most affordable capitals' },
+  MT: { hostel:22, meal:9,  transport:3,  coffee:2, beer:3,  note:'Affordable Mediterranean island; Valletta pricier than Gozo' },
+  NL: { hostel:30, meal:12, transport:9,  coffee:3, beer:5,  note:'Amsterdam one of pricier EU cities; cycling infrastructure free' },
+  NO: { hostel:35, meal:18, transport:12, coffee:5, beer:10, note:'Among world most expensive; supermarkets essential for budget' },
+  RO: { hostel:13, meal:5,  transport:2,  coffee:2, beer:2,  note:'Bucharest excellent value by EU standards; Transylvania cheaper' },
+  RS: { hostel:14, meal:5,  transport:2,  coffee:2, beer:2,  note:'Belgrade top-value European capital; nightlife very affordable' },
+  SE: { hostel:30, meal:15, transport:10, coffee:5, beer:7,  note:'Stockholm expensive; Allemansratten free-camping law helps' },
+  SI: { hostel:18, meal:8,  transport:4,  coffee:3, beer:3,  note:'Ljubljana walkable and affordable; Lake Bled pricier in summer' },
+  SK: { hostel:16, meal:6,  transport:3,  coffee:3, beer:2,  note:'Bratislava affordable EU capital; Tatra Mountains good value' },
+  SM: { hostel:0,  meal:14, transport:3,  coffee:3, beer:4,  note:'No hostels; ideal day-trip from Rimini; restaurants tourist-priced' },
+  UA: { hostel:10, meal:4,  transport:2,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; western regions more stable' },
+  VA: { hostel:0,  meal:15, transport:0,  coffee:4, beer:0,  note:'No overnight stays; day-visit only; use Rome accommodation' },
+  XK: { hostel:14, meal:4,  transport:2,  coffee:1, beer:2,  note:'Pristina very affordable; one of Balkans cheapest destinations' },
+  // Central Asia
+  KG: { hostel:10, meal:3,  transport:1,  coffee:1, beer:2,  note:'Bishkek very affordable; yurt camp stays add cost in summer' },
+  KZ: { hostel:15, meal:4,  transport:2,  coffee:2, beer:2,  note:'Almaty and Astana pricier; rural steppe regions very affordable' },
+  TJ: { hostel:10, meal:3,  transport:2,  coffee:1, beer:2,  note:'Dushanbe cheap; Pamir Highway requires significant transport budget' },
+  TM: { hostel:20, meal:5,  transport:3,  coffee:2, beer:2,  note:'Visa very difficult to obtain; state-controlled economy distorts prices' },
+  UZ: { hostel:10, meal:3,  transport:2,  coffee:1, beer:2,  note:'Tashkent affordable; Silk Road cities of Samarkand exceptional value' },
+  // Middle East / West Asia
+  AF: { hostel:15, meal:4,  transport:3,  coffee:1, beer:0,  note:'Conflict-affected prices unreliable; travel not recommended' },
+  BH: { hostel:35, meal:10, transport:5,  coffee:4, beer:8,  note:'Alcohol in licensed venues; Manama more affordable than Dubai' },
+  IL: { hostel:30, meal:12, transport:7,  coffee:5, beer:8,  note:'Tel Aviv among Middle East priciest; Jerusalem slightly cheaper' },
+  IQ: { hostel:20, meal:5,  transport:3,  coffee:2, beer:0,  note:'Conflict-affected prices unreliable; Kurdistan region more stable' },
+  IR: { hostel:12, meal:3,  transport:2,  coffee:1, beer:0,  note:'Sanctions complicate payments; no alcohol; exchange rate volatile' },
+  JO: { hostel:18, meal:6,  transport:3,  coffee:3, beer:4,  note:'Amman mid-range; Jordan Pass covers major sites and visa fee' },
+  KW: { hostel:0,  meal:10, transport:5,  coffee:4, beer:0,  note:'No hostels; no alcohol; hotels expensive; food courts affordable' },
+  LB: { hostel:20, meal:6,  transport:3,  coffee:3, beer:4,  note:'Conflict-affected prices unreliable; currency crisis ongoing' },
+  OM: { hostel:30, meal:8,  transport:5,  coffee:3, beer:6,  note:'More affordable than UAE; alcohol in licensed hotels only' },
+  PS: { hostel:20, meal:6,  transport:3,  coffee:2, beer:0,  note:'Conflict-affected prices unreliable; access highly restricted' },
+  QA: { hostel:0,  meal:12, transport:5,  coffee:5, beer:10, note:'No hostels; alcohol in licensed venues only; hotels expensive' },
+  SA: { hostel:30, meal:8,  transport:5,  coffee:4, beer:0,  note:'No alcohol; Riyadh and Jeddah mid-range; Mecca closed to non-Muslims' },
+  SY: { hostel:15, meal:4,  transport:2,  coffee:1, beer:2,  note:'Conflict-affected prices unreliable; most areas inaccessible' },
+  YE: { hostel:10, meal:3,  transport:3,  coffee:1, beer:0,  note:'Conflict-affected prices unreliable; travel not recommended' },
+  // South Asia
+  BD: { hostel:7,  meal:2,  transport:1,  coffee:1, beer:1,  note:'Dhaka very affordable; one of South Asia cheapest destinations' },
+  BN: { hostel:0,  meal:8,  transport:3,  coffee:3, beer:0,  note:'No hostels; no alcohol; Bandar Seri Begawan mid-range hotels' },
+  BT: { hostel:0,  meal:0,  transport:0,  coffee:0, beer:0,  note:'Mandatory $100/day sustainable development fee covers most costs' },
+  MV: { hostel:0,  meal:15, transport:10, coffee:5, beer:12, note:'Budget travel near-impossible; local islands far cheaper than resorts' },
+  TL: { hostel:15, meal:5,  transport:4,  coffee:2, beer:3,  note:'Dili pricier due to UN legacy; Atauro island relatively cheaper' },
+  // East Asia
+  KP: { hostel:0,  meal:0,  transport:0,  coffee:0, beer:0,  note:'Conflict-affected prices unreliable; tourism effectively suspended' },
+  MN: { hostel:12, meal:4,  transport:3,  coffee:2, beer:2,  note:'Ulaanbaatar affordable; ger camp stays add to rural travel costs' },
+  TW: { hostel:18, meal:5,  transport:4,  coffee:3, beer:3,  note:'Excellent value; night markets among world best cheap eats' },
+  // Pacific / Oceania
+  FJ: { hostel:20, meal:8,  transport:5,  coffee:3, beer:4,  note:'Budget resorts exist; inter-island transport adds up fast' },
+  FM: { hostel:25, meal:10, transport:5,  coffee:3, beer:4,  note:'Remote Micronesia; limited budget options; diving expensive' },
+  KI: { hostel:30, meal:10, transport:8,  coffee:3, beer:4,  note:'Very remote; inter-island flights dominate the travel budget' },
+  MH: { hostel:35, meal:12, transport:8,  coffee:4, beer:5,  note:'Majuro limited cheap options; US military presence raises prices' },
+  NR: { hostel:60, meal:15, transport:5,  coffee:4, beer:6,  note:'Tiny island; very limited accommodation; most goods imported' },
+  PG: { hostel:25, meal:8,  transport:5,  coffee:3, beer:4,  note:'Port Moresby expensive for region; plan security costs carefully' },
+  PW: { hostel:50, meal:14, transport:6,  coffee:4, beer:6,  note:'Diving paradise but expensive; most food is imported' },
+  SB: { hostel:25, meal:8,  transport:5,  coffee:3, beer:4,  note:'Honiara mid-range; outer islands require charter transport' },
+  TO: { hostel:25, meal:8,  transport:5,  coffee:3, beer:4,  note:'Affordable for Pacific; local food cheap; imports expensive' },
+  TV: { hostel:40, meal:12, transport:5,  coffee:4, beer:5,  note:'One of world smallest nations; very limited facilities' },
+  VU: { hostel:20, meal:8,  transport:5,  coffee:3, beer:4,  note:'Port Vila affordable; outer islands add significant transport cost' },
+  WS: { hostel:25, meal:8,  transport:5,  coffee:3, beer:4,  note:'Apia relaxed; fale beach stays offer affordable accommodation' },
+  // Sub-Saharan Africa
+  AO: { hostel:30, meal:8,  transport:5,  coffee:3, beer:3,  note:'Luanda historically one of world most expensive cities' },
+  BF: { hostel:12, meal:3,  transport:2,  coffee:1, beer:2,  note:'Conflict-affected prices unreliable; northern areas inaccessible' },
+  BI: { hostel:15, meal:4,  transport:3,  coffee:2, beer:2,  note:'Bujumbura affordable; political instability creates uncertainty' },
+  BJ: { hostel:12, meal:4,  transport:2,  coffee:2, beer:2,  note:'Cotonou affordable; stable West Africa hub with good transport' },
+  BW: { hostel:25, meal:8,  transport:5,  coffee:3, beer:3,  note:'Safari lodges premium; Gaborone mid-range; good infrastructure' },
+  CD: { hostel:20, meal:5,  transport:4,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; Kinshasa logistics costly' },
+  CF: { hostel:20, meal:5,  transport:4,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; travel not recommended' },
+  CG: { hostel:20, meal:6,  transport:4,  coffee:2, beer:2,  note:'Brazzaville mid-range; oil economy keeps some prices elevated' },
+  CI: { hostel:15, meal:5,  transport:3,  coffee:2, beer:2,  note:'Abidjan West Africa commercial hub; mid-range prices' },
+  CM: { hostel:15, meal:4,  transport:3,  coffee:2, beer:2,  note:'Yaounde and Douala affordable; English and French regions accessible' },
+  CV: { hostel:20, meal:7,  transport:4,  coffee:2, beer:3,  note:'Island nation; inter-island flights add cost; Sal tourist-priced' },
+  DJ: { hostel:25, meal:8,  transport:4,  coffee:3, beer:4,  note:'Djibouti City expensive for East Africa; strategic port economy' },
+  DZ: { hostel:15, meal:4,  transport:2,  coffee:1, beer:2,  note:'Algiers affordable; alcohol limited to some venues; Sahara tours pricey' },
+  EH: { hostel:15, meal:5,  transport:3,  coffee:2, beer:0,  note:'Western Sahara status disputed; Laayoune mid-range; alcohol rare' },
+  ER: { hostel:15, meal:4,  transport:3,  coffee:1, beer:2,  note:'Asmara colonial architecture affordable; visa and banking very limited' },
+  ET: { hostel:8,  meal:3,  transport:2,  coffee:1, beer:2,  note:'Addis Ababa excellent value; historical northern circuit affordable' },
+  GA: { hostel:25, meal:8,  transport:5,  coffee:3, beer:3,  note:'Libreville expensive for Africa; oil wealth raises city prices' },
+  GM: { hostel:15, meal:4,  transport:2,  coffee:2, beer:2,  note:'Banjul very affordable; popular budget beach destination' },
+  GN: { hostel:15, meal:4,  transport:3,  coffee:2, beer:2,  note:'Conakry mid-range; infrastructure costs add up outside capital' },
+  GQ: { hostel:50, meal:15, transport:8,  coffee:5, beer:5,  note:'Malabo extremely expensive; oil-driven economy; few budget options' },
+  GW: { hostel:15, meal:4,  transport:3,  coffee:1, beer:2,  note:'One of West Africa cheapest; Bissau very affordable' },
+  KM: { hostel:25, meal:7,  transport:5,  coffee:2, beer:0,  note:'Moroni mid-range; alcohol limited; inter-island ferries add cost' },
+  LR: { hostel:20, meal:5,  transport:4,  coffee:2, beer:2,  note:'Monrovia uses USD; mid-range costs; infrastructure limited' },
+  LS: { hostel:20, meal:5,  transport:3,  coffee:2, beer:3,  note:'Maseru affordable; landlocked within South Africa; stable prices' },
+  LY: { hostel:20, meal:5,  transport:3,  coffee:1, beer:0,  note:'Conflict-affected prices unreliable; travel not recommended' },
+  MG: { hostel:12, meal:4,  transport:3,  coffee:2, beer:2,  note:'Antananarivo affordable; remote national parks require costly logistics' },
+  ML: { hostel:15, meal:4,  transport:3,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; Bamako still partially accessible' },
+  MR: { hostel:15, meal:4,  transport:3,  coffee:1, beer:2,  note:'Nouakchott affordable; Saharan desert tours require significant budget' },
+  MU: { hostel:0,  meal:10, transport:4,  coffee:3, beer:4,  note:'No hostels; guesthouses available; luxury resorts very expensive' },
+  MW: { hostel:10, meal:3,  transport:3,  coffee:2, beer:2,  note:'One of Africa most affordable; Lake Malawi budget-friendly' },
+  MZ: { hostel:12, meal:4,  transport:3,  coffee:2, beer:2,  note:'Maputo affordable; northern Mozambique islands add transport cost' },
+  NA: { hostel:20, meal:7,  transport:5,  coffee:3, beer:3,  note:'Windhoek mid-range; self-drive camping in national parks affordable' },
+  NE: { hostel:15, meal:4,  transport:3,  coffee:1, beer:2,  note:'Niamey affordable; Sahara expeditions are budget-intensive' },
+  RW: { hostel:15, meal:5,  transport:3,  coffee:2, beer:2,  note:'Kigali clean and mid-range; mountain gorilla permits $1,500 per person' },
+  SC: { hostel:0,  meal:15, transport:6,  coffee:4, beer:5,  note:'No hostels; guesthouses from $50; island paradise at premium price' },
+  SD: { hostel:15, meal:4,  transport:3,  coffee:1, beer:0,  note:'Conflict-affected prices unreliable; travel not recommended' },
+  SL: { hostel:20, meal:5,  transport:4,  coffee:2, beer:2,  note:'Freetown mid-range; beautiful beaches accessible; infrastructure limited' },
+  SN: { hostel:15, meal:5,  transport:3,  coffee:2, beer:2,  note:'Dakar mid-range for West Africa; Casamance region very affordable' },
+  SO: { hostel:25, meal:6,  transport:5,  coffee:2, beer:0,  note:'Conflict-affected prices unreliable; travel not recommended' },
+  SS: { hostel:20, meal:5,  transport:5,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; Juba logistics very costly' },
+  ST: { hostel:30, meal:10, transport:5,  coffee:3, beer:3,  note:'Small island nation; most goods imported; eco-tourism premium' },
+  SZ: { hostel:20, meal:5,  transport:3,  coffee:2, beer:3,  note:'Mbabane affordable; rand-linked economy; great hiking trails' },
+  TD: { hostel:20, meal:5,  transport:4,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; limited tourist infrastructure' },
+  TG: { hostel:12, meal:4,  transport:2,  coffee:2, beer:2,  note:'Lome beach strip tourist-priced; interior and markets very cheap' },
+  TN: { hostel:12, meal:4,  transport:2,  coffee:1, beer:3,  note:'Excellent value Mediterranean destination; Tunis highly affordable' },
+  UG: { hostel:12, meal:4,  transport:3,  coffee:2, beer:2,  note:'Kampala affordable; gorilla permits add significantly to budget' },
+  ZM: { hostel:15, meal:5,  transport:4,  coffee:2, beer:2,  note:'Lusaka mid-range; Victoria Falls area notably pricier for tourists' },
+  ZW: { hostel:15, meal:5,  transport:3,  coffee:2, beer:2,  note:'Harare mid-range; USD economy; Victoria Falls area more expensive' },
+  // Caribbean
+  AG: { hostel:0,  meal:15, transport:5,  coffee:4, beer:5,  note:'No hostels; Antigua guesthouses mid-range; Caribbean standard pricing' },
+  AW: { hostel:50, meal:15, transport:6,  coffee:4, beer:6,  note:'Aruba one of Caribbean most expensive; Dutch-level prices' },
+  BB: { hostel:0,  meal:15, transport:6,  coffee:4, beer:5,  note:'No hostels; one of Caribbean most expensive islands' },
+  BS: { hostel:0,  meal:15, transport:5,  coffee:4, beer:5,  note:'Nassau expensive; Out Islands require careful ferry budget planning' },
+  CW: { hostel:40, meal:12, transport:5,  coffee:4, beer:5,  note:'Curacao mid-to-high range; colourful Willemstad popular' },
+  DM: { hostel:20, meal:10, transport:5,  coffee:3, beer:4,  note:'Nature island; eco-lodges mid-range; hiking trails are free' },
+  GD: { hostel:25, meal:10, transport:5,  coffee:3, beer:4,  note:'Grenada affordable Caribbean; spice island good value' },
+  HT: { hostel:20, meal:5,  transport:4,  coffee:2, beer:2,  note:'Conflict-affected prices unreliable; travel advisory active' },
+  JM: { hostel:25, meal:8,  transport:5,  coffee:3, beer:3,  note:'Resort corridors expensive; local towns much more affordable' },
+  KN: { hostel:0,  meal:15, transport:5,  coffee:4, beer:5,  note:'No hostels; Nevis more exclusive than St Kitts; both mid-to-high' },
+  LC: { hostel:25, meal:10, transport:5,  coffee:3, beer:4,  note:'St Lucia mid-range Caribbean; Rodney Bay is the priciest area' },
+  TT: { hostel:25, meal:10, transport:5,  coffee:3, beer:4,  note:'Trinidad more affordable than Tobago; Carnival drives up prices' },
+  VC: { hostel:25, meal:9,  transport:5,  coffee:3, beer:4,  note:'Grenadines expensive for yachting; St Vincent main island modest' },
+  // Central America
+  BZ: { hostel:15, meal:7,  transport:4,  coffee:2, beer:3,  note:'Pricier than Central American neighbours; uses Belize dollar' },
+  CR: { hostel:16, meal:6,  transport:4,  coffee:2, beer:3,  note:'Pricier than regional neighbours; eco-tourism drives up park costs' },
+  GT: { hostel:10, meal:4,  transport:3,  coffee:2, beer:2,  note:'Excellent budget destination; Antigua tourist area slightly pricier' },
+  HN: { hostel:10, meal:4,  transport:3,  coffee:2, beer:2,  note:'Bay Islands pricier for diving; mainland cities very affordable' },
+  NI: { hostel:9,  meal:4,  transport:2,  coffee:1, beer:2,  note:'Among Central America cheapest; Granada excellent budget value' },
+  PA: { hostel:14, meal:6,  transport:4,  coffee:2, beer:2,  note:'Panama City pricier; Bocas del Toro and highlands more affordable' },
+  SV: { hostel:12, meal:4,  transport:2,  coffee:2, beer:2,  note:'El Salvador uses USD; surf coast pricier; inland cities affordable' },
+  // South America
+  BO: { hostel:8,  meal:3,  transport:2,  coffee:1, beer:2,  note:'One of South America cheapest; altitude of La Paz unique challenge' },
+  DO: { hostel:18, meal:6,  transport:4,  coffee:2, beer:2,  note:'All-inclusive resorts dominate; local towns much more affordable' },
+  GY: { hostel:20, meal:6,  transport:5,  coffee:2, beer:3,  note:'Georgetown mid-range; interior jungle eco-lodges expensive' },
+  PY: { hostel:10, meal:4,  transport:2,  coffee:2, beer:2,  note:'Asuncion very affordable; one of continent cheapest capitals' },
+  SR: { hostel:20, meal:7,  transport:5,  coffee:2, beer:3,  note:'Paramaribo mid-range; interior Amazonia requires charter transport' },
+  UY: { hostel:18, meal:8,  transport:5,  coffee:3, beer:3,  note:'Most expensive in Southern Cone after Chile; Montevideo walkable' },
+  VE: { hostel:8,  meal:3,  transport:2,  coffee:1, beer:2,  note:'Hyperinflation history; USD accepted widely; prices volatile' },
+};
+
+if(typeof COST_DETAILS!=="undefined"&&typeof COST_DETAILS_ADDITIONS!=="undefined")Object.assign(COST_DETAILS,COST_DETAILS_ADDITIONS);
+// GATE 7 — CD_CLIMATE additions
+const CD_CLIMATE_ADDITIONS = {
+  // Europe — Nordic
+  NO: { temp:[-4,-4, 0, 5,11,16,18,17,13, 7, 2,-2], rain:[ 55, 40, 46, 41, 45, 58, 68, 80, 86, 93, 75, 64] },
+  IS: { temp:[ 0, 1, 1, 4, 8,11,13,13,10, 6,  2, 1], rain:[ 76, 65, 62, 59, 42, 44, 52, 63, 72, 87, 81, 80] },
+  // Europe — Western
+  LU: { temp:[ 1, 2, 6,10,15,18,20,20,17,12,  6, 2], rain:[ 72, 60, 64, 59, 64, 75, 68, 72, 63, 67, 70, 76] },
+  MT: { temp:[13,13,15,18,22,26,30,30,27,23, 18,14], rain:[ 80, 46, 37, 19,  6,  2,  0,  4, 27, 76,103, 96] },
+  // Europe — Eastern / Balkans
+  RO: { temp:[-3,-1, 4,11,17,21,23,23,18,12,  5,-1], rain:[ 37, 35, 31, 37, 58, 73, 62, 58, 40, 27, 40, 42] },
+  BG: { temp:[ 1, 3, 8,13,18,22,25,25,21,15,  8, 3], rain:[ 36, 28, 31, 42, 56, 65, 52, 38, 33, 31, 44, 51] },
+  MK: { temp:[ 1, 4, 8,13,18,22,25,25,21,14,  8, 2], rain:[ 30, 28, 31, 38, 46, 45, 31, 26, 32, 38, 44, 39] },
+  AL: { temp:[ 6, 8,10,14,19,23,26,26,22,17, 12, 7], rain:[119,100, 93, 73, 60, 28,  9,  8, 49,107,152,140] },
+  BA: { temp:[ 1, 3, 7,12,17,21,23,23,19,13,  7, 2], rain:[ 76, 65, 67, 74, 71, 79, 52, 60, 73, 87, 97, 87] },
+  ME: { temp:[ 5, 6, 9,13,18,22,25,25,21,15, 10, 6], rain:[204,157,138,131,116, 92, 45, 53,136,185,222,234] },
+  XK: { temp:[-1, 1, 5,10,15,19,22,22,18,11,  5, 0], rain:[ 35, 36, 38, 49, 57, 65, 43, 40, 43, 52, 51, 43] },
+  BY: { temp:[-6,-6,-2, 6,13,17,19,18,13, 7,  1,-4], rain:[ 36, 30, 31, 39, 45, 63, 84, 79, 58, 47, 48, 43] },
+  MD: { temp:[-3,-1, 4,11,17,21,23,23,18,11,  5,-1], rain:[ 33, 28, 28, 39, 51, 74, 65, 53, 36, 28, 37, 39] },
+  // Middle East
+  SA: { temp:[14,17,22,27,33,36,38,38,35,29, 22,16], rain:[  3,  1,  1,  0,  0,  0,  0,  0,  0,  0,  2,  5] },
+  IQ: { temp:[10,12,17,23,31,37,41,40,37,29, 20,13], rain:[ 28, 21, 22, 10,  3,  0,  0,  0,  0,  3, 13, 29] },
+  IR: { temp:[ 3, 5, 9,16,22,28,32,31,28,21, 13, 6], rain:[ 37, 28, 40, 29, 11,  2,  0,  1,  1,  5, 26, 43] },
+  SY: { temp:[ 7, 8,12,17,22,27,29,29,27,22, 15, 9], rain:[ 43, 33, 27, 11,  5,  0,  0,  0,  0,  2, 19, 43] },
+  YE: { temp:[25,26,27,28,28,27,28,30,29,27, 27,26], rain:[  4,  3,  2,  5,  2,  7, 37, 13, 18, 15,  5,  5] },
+  PS: { temp:[11,12,15,19,23,25,28,29,27,24, 19,13], rain:[ 91, 70, 41, 13,  2,  0,  0,  0,  0,  5, 23, 75] },
+  // Central Asia
+  AF: { temp:[-1, 2, 9,14,19,24,25,23,19,13,  5, 0], rain:[ 25, 30, 55, 37, 13,  1,  1,  1,  1,  1,  9, 26] },
+  KZ: { temp:[-14,-12,-6, 7,15,21,24,22,15, 6, -3,-10], rain:[ 18, 17, 22, 25, 36, 30, 22, 18, 23, 31, 28, 22] },
+  UZ: { temp:[ 0, 3, 9,16,22,28,31,29,24,15,  7, 1], rain:[ 48, 43, 56, 39, 19,  5,  2,  2,  4, 19, 37, 49] },
+  TM: { temp:[ 3, 5,11,18,24,30,32,30,24,16,  9, 4], rain:[ 13, 12, 18, 10,  5,  1,  0,  0,  1,  6, 11, 16] },
+  TJ: { temp:[-1, 2, 8,14,19,24,27,25,20,13,  6, 1], rain:[ 47, 53, 75, 62, 42, 14,  5,  4,  5, 23, 41, 44] },
+  KG: { temp:[-6,-4, 3,11,17,22,25,23,18,10,  2,-4], rain:[ 17, 16, 21, 29, 37, 27, 15, 11, 10, 15, 15, 17] },
+  // South / East Asia
+  BD: { temp:[18,21,26,29,30,30,29,29,29,27, 22,18], rain:[ 14, 26, 60,135,312,378,430,345,253,148, 38, 12] },
+  MN: { temp:[-22,-17,-10, 0, 9,15,18,16, 9,-1,-13,-20], rain:[  2,  2,  3,  5, 11, 29, 59, 66, 24,  6,  4,  2] },
+  TW: { temp:[16,16,18,22,26,29,31,31,29,26, 22,18], rain:[ 71, 87,112,131,211,320,207,302,395,121, 66, 59] },
+  HK: { temp:[16,16,19,23,27,29,29,29,28,25, 21,17], rain:[ 30, 44, 72,135,304,371,367,457,253,100, 35, 28] },
+  KP: { temp:[-8,-5, 1, 9,15,20,24,25,20,12,  2,-6], rain:[  9, 12, 21, 44, 64, 96,271,195, 80, 37, 21, 12] },
+  TL: { temp:[26,27,27,27,27,25,24,24,25,26, 27,27], rain:[123, 95, 87,105,131,123, 95, 68, 59, 78,126,147] },
+  BT: { temp:[ 4, 6, 9,13,16,19,20,20,19,15, 10, 5], rain:[ 15, 20, 46, 92,208,308,356,320,229, 89, 18,  9] },
+  MV: { temp:[27,28,29,30,30,29,28,28,28,28, 28,27], rain:[111, 60, 73,119,235,188,175,192,212,200,231,195] },
+  BN: { temp:[27,27,28,28,29,29,29,29,28,28, 27,27], rain:[149, 96,112,126,204,288,261,213,204,230,301,277] },
+  // North Africa
+  DZ: { temp:[ 9,11,14,17,22,26,30,29,25,20, 14,10], rain:[ 26, 17, 18,  9,  5,  1,  0,  0,  4, 12, 24, 28] },
+  LY: { temp:[12,14,17,21,25,28,28,28,26,22, 17,13], rain:[ 22,  9,  7,  2,  1,  0,  0,  0,  0,  2, 10, 24] },
+  // Sub-Saharan Africa — East
+  SD: { temp:[22,24,28,33,38,40,38,38,37,35, 28,23], rain:[  0,  0,  0,  0,  0,  1, 17, 30, 11,  1,  0,  0] },
+  SS: { temp:[27,28,31,33,32,30,28,28,28,29, 28,27], rain:[  2,  3, 19, 62,130,122,127,127,100, 66, 18,  4] },
+  ER: { temp:[17,18,21,25,28,32,33,32,30,26, 22,18], rain:[  2,  4,  4,  3,  5, 11, 37, 62, 31, 11,  4,  2] },
+  DJ: { temp:[25,26,28,30,32,36,41,42,38,33, 29,26], rain:[ 25, 19,  4,  9,  4,  0,  6,  5,  5, 17, 28, 31] },
+  SO: { temp:[28,28,28,28,27,27,26,25,25,26, 27,27], rain:[ 10,  5,  4, 66, 94, 51, 21, 25, 50, 47, 54, 15] },
+  UG: { temp:[24,25,25,24,23,21,20,21,22,22, 23,23], rain:[ 52, 63, 97,157,119, 67, 44, 51, 88,117, 93, 60] },
+  RW: { temp:[20,20,20,19,19,18,18,19,20,20, 19,19], rain:[ 68, 92,132,146, 75, 18,  9, 20, 76,106, 96, 63] },
+  BI: { temp:[21,21,20,19,19,18,18,19,20,21, 20,20], rain:[ 84, 90,143,130, 73, 15,  9, 12, 57,105,108, 77] },
+  // Sub-Saharan Africa — Southern
+  MZ: { temp:[28,28,27,25,22,20,19,20,22,24, 26,28], rain:[154,148,101, 53, 23, 18, 13, 11, 17, 37, 74,132] },
+  ZM: { temp:[22,22,22,22,22,19,18,20,23,25, 25,23], rain:[195,191,134, 44,  4,  0,  0,  0,  0,  8, 75,170] },
+  ZW: { temp:[23,22,22,21,18,15,14,16,19,23, 23,22], rain:[166,149, 90, 35,  8,  3,  2,  2,  5, 26, 94,152] },
+  BW: { temp:[28,26,24,21,17,13,12,15,21,25, 27,28], rain:[ 96, 88, 56, 23,  4,  0,  1,  1,  2, 19, 56, 89] },
+  NA: { temp:[23,23,21,19,15,12,11,14,18,22, 24,24], rain:[ 65, 77, 78, 35, 13,  2,  1,  1,  4, 14, 29, 47] },
+  AO: { temp:[28,28,27,26,23,20,19,20,23,26, 28,29], rain:[125, 93, 96, 69,  9,  0,  0,  1,  7, 27, 85,124] },
+  SZ: { temp:[23,22,20,17,14,11,11,13,16,19, 21,22], rain:[116,102, 78, 39, 23, 12, 11, 16, 29, 63, 84,110] },
+  LS: { temp:[22,22,20,16,11, 7, 7, 9,14,18, 20,21], rain:[114, 89, 90, 55, 19,  9,  8, 10, 27, 65, 78,110] },
+  MW: { temp:[26,26,25,24,22,19,18,19,22,25, 27,27], rain:[168,155,104, 34,  7,  1,  1,  1,  3, 10, 65,157] },
+  MG: { temp:[27,27,26,26,24,21,20,21,23,25, 26,27], rain:[339,280,175, 61, 21,  8,  8,  7, 16, 48,115,232] },
+  MU: { temp:[27,28,27,26,23,22,21,21,22,23, 24,26], rain:[157,172,133, 87, 76, 59, 64, 63, 45, 47, 53, 95] },
+  SC: { temp:[28,29,29,29,28,27,26,26,27,27, 27,27], rain:[385,268,147, 77, 63, 55, 52, 75, 92,150,262,374] },
+  KM: { temp:[28,29,29,28,27,25,24,24,25,26, 27,28], rain:[293,224,191,138, 79, 33, 15, 15, 28, 71,147,247] },
+  // Sub-Saharan Africa — Central
+  CD: { temp:[26,26,26,27,26,24,23,24,25,26, 26,26], rain:[125,111,155,183,139, 38, 14, 28, 81,151,195,139] },
+  CG: { temp:[26,27,27,27,25,23,22,23,25,26, 26,26], rain:[105,127,150,169, 80, 11,  4, 12, 58,134,184,132] },
+  CF: { temp:[24,25,27,27,27,26,25,25,26,26, 25,24], rain:[  8, 18, 63,114,139,113, 93,116,155,118, 45, 12] },
+  CM: { temp:[25,26,27,26,26,24,23,24,24,25, 25,25], rain:[ 17, 33,104,154,216,182,212,281,312,222,100, 32] },
+  GA: { temp:[26,27,27,27,27,24,23,24,25,25, 26,26], rain:[247,221,285,276,210, 43, 15, 47,198,320,333,235] },
+  GQ: { temp:[26,26,26,26,27,25,24,24,25,26, 26,26], rain:[ 84, 89,166,198,194, 89, 47, 61,201,279,216,118] },
+  ST: { temp:[27,27,28,28,27,25,23,23,24,25, 27,27], rain:[ 99, 72, 73,131,210,251,135, 53, 73,214,266,180] },
+  // Sub-Saharan Africa — West
+  TD: { temp:[17,21,26,33,37,35,31,30,32,33, 24,18], rain:[  0,  0,  2, 12, 31, 52, 82,107, 52, 11,  1,  0] },
+  NE: { temp:[22,25,30,35,38,36,32,30,33,36, 28,22], rain:[  0,  0,  1,  4, 28, 65, 98, 91, 48, 11,  1,  0] },
+  ML: { temp:[23,26,30,34,38,35,32,31,33,35, 28,23], rain:[  0,  0,  1,  3, 25, 58,117,107, 77, 18,  2,  0] },
+  BF: { temp:[25,27,31,34,35,31,28,27,29,32, 29,25], rain:[  2,  2,  5, 14, 67,112,176,196,122, 44,  9,  3] },
+  GN: { temp:[26,28,29,29,28,26,25,25,26,27, 27,26], rain:[  6,  8, 15, 70,179,352,520,456,418,213, 52,  8] },
+  SN: { temp:[22,23,24,25,27,28,29,28,28,28, 24,22], rain:[  0,  2,  0,  0, 10, 39,190,258,197, 52,  6,  1] },
+  GM: { temp:[22,24,26,27,28,29,28,27,28,28, 24,22], rain:[  0,  0,  0,  0,  5, 66,256,311,199, 53,  4,  0] },
+  GW: { temp:[24,26,28,29,29,28,27,26,27,28, 26,24], rain:[  1,  2,  4, 11, 60,253,474,427,315,111, 24,  3] },
+  SL: { temp:[27,27,28,28,28,26,25,25,26,26, 27,27], rain:[  9, 11, 35,118,245,476,658,617,484,240, 71, 17] },
+  LR: { temp:[27,27,28,28,27,26,24,24,25,26, 27,27], rain:[ 28, 43, 95,181,353,583,509,347,381,375,185, 72] },
+  CI: { temp:[27,28,29,28,28,25,24,24,25,26, 27,27], rain:[ 28, 49, 90,127,262,458,194, 95,121,173, 85, 35] },
+  TG: { temp:[27,28,30,30,29,27,26,26,27,28, 28,27], rain:[ 36, 55, 90,109,131,145, 72, 45, 86,100, 60, 40] },
+  BJ: { temp:[27,28,30,31,30,28,27,26,27,28, 28,27], rain:[ 18, 36, 75,112,125,181,119, 71,113,126, 29, 14] },
+  // Sub-Saharan Africa — Indian Ocean islands
+  CV: { temp:[22,22,22,23,24,26,27,28,28,27, 25,23], rain:[  2,  1,  0,  0,  0,  2, 13, 28, 46, 30,  6,  1] },
+  // South America
+  VE: { temp:[26,27,28,29,28,27,27,27,27,27, 26,26], rain:[ 23, 12, 15, 33, 85,124,124,119,108, 94, 62, 36] },
+  GY: { temp:[26,27,28,28,28,27,27,27,27,27, 27,26], rain:[198,101, 82,105,240,250,256,166,116,135,166,202] },
+  SR: { temp:[27,27,28,29,28,27,27,27,27,27, 28,27], rain:[176,136,140,181,275,256,218,112,106,129,166,171] },
+  // Caribbean
+  JM: { temp:[25,25,26,27,28,29,29,29,29,27, 26,25], rain:[ 28, 24, 24, 39,109,114,107, 99,108, 96, 71, 39] },
+  HT: { temp:[24,24,25,26,27,27,27,27,27,26, 25,24], rain:[ 71, 41, 68, 99,186,177, 83,171,244,241,183,103] },
+  DO: { temp:[24,24,25,26,27,28,28,28,27,27, 26,24], rain:[ 74, 67, 57, 81,181,161, 97,168,190,189,165,111] },
+  TT: { temp:[26,26,26,27,27,27,26,27,27,27, 27,26], rain:[ 64, 32, 36, 46, 74,178,203,215,183,134, 87, 91] },
+  BB: { temp:[26,26,26,27,28,28,28,28,28,27, 27,26], rain:[ 66, 38, 43, 37, 69,113,113,128,144,157,136,101] },
+  // Central America
+  GT: { temp:[17,18,20,21,20,19,19,19,19,18, 17,17], rain:[  8, 10, 10, 28,100,222,182,179,225,166, 38, 11] },
+  BZ: { temp:[23,24,26,28,29,29,28,28,28,27, 25,24], rain:[124, 79, 48, 56,100,161,120,177,240,243,195,162] },
+  HN: { temp:[22,22,23,24,24,23,22,22,22,22, 22,22], rain:[ 10, 12, 13, 30, 75,125,110,148,191,104, 52, 15] },
+  SV: { temp:[24,25,26,27,27,26,26,26,26,25, 24,23], rain:[  5,  5,  8, 31,157,274,278,257,313,215, 57,  8] },
+  NI: { temp:[26,27,29,30,30,29,28,28,28,28, 27,26], rain:[  5,  3,  5, 22,143,210,143,177,192,213, 75, 17] },
+  CR: { temp:[22,22,23,23,23,22,21,22,22,22, 22,22], rain:[ 13, 10, 14, 40,222,286,239,302,333,282,121, 31] },
+  PA: { temp:[26,26,27,27,27,27,27,27,27,26, 26,26], rain:[ 46, 25, 20, 61,152,143,128,138,146,189,229,145] },
+  // Pacific — Oceania
+  PG: { temp:[28,28,28,27,27,26,26,26,26,27, 28,28], rain:[148,149,162,172,180,187,144,109,111,130,157,162] },
+  SB: { temp:[28,28,28,27,27,26,26,26,26,27, 28,28], rain:[267,218,230,264,260,203,163,135,144,161,184,219] },
+  VU: { temp:[29,29,28,27,25,23,22,22,23,25, 27,28], rain:[355,303,358,300,193, 92, 69, 78,118,149,147,198] },
+  WS: { temp:[28,29,29,28,27,26,26,26,26,27, 27,28], rain:[450,425,396,249,142, 95, 81, 73, 82,151,225,363] },
+  TO: { temp:[29,29,29,28,26,24,23,24,25,26, 27,28], rain:[195,174,197,148, 90, 73, 62, 57, 60, 75,119,179] },
+  FJ: { temp:[26,26,26,25,23,22,21,21,22,23, 24,25], rain:[318,309,312,179,132, 93, 85, 75, 83, 96,118,222] },
+};
+
+if(typeof CD_CLIMATE!=="undefined"&&typeof CD_CLIMATE_ADDITIONS!=="undefined")Object.assign(CD_CLIMATE,CD_CLIMATE_ADDITIONS);
+const PHRASEBOOK_DATA = {
+  // ── ROMANCE ──────────────────────────────────────────────────────────────
+  ES: {
+    lang: 'Spanish',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hola / Buenos días',           pron: 'OH-lah / BWEH-nos DEE-as' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Gracias',                       pron: 'GRAH-syahs' },
+      { id: 'please',     en: 'Please',                    local: 'Por favor',                     pron: 'por fah-VOR' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Disculpe / Lo siento',          pron: 'dees-KOOL-peh / lo SYEN-toh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Sí',                            pron: 'see' },
+      { id: 'no',         en: 'No',                        local: 'No',                            pron: 'noh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: '¿Cuánto cuesta esto?',          pron: 'KWAN-toh KWES-tah ES-toh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: '¿Dónde está el baño?',          pron: 'DON-deh es-TAH el BAH-nyoh' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'No entiendo',                   pron: 'noh en-TYEN-doh' },
+      { id: 'english',    en: 'Do you speak English?',     local: '¿Habla inglés?',                pron: 'AH-blah een-GLES' },
+      { id: 'help',       en: 'Help!',                     local: '¡Ayuda!',                       pron: 'ah-YOO-dah' },
+      { id: 'water',      en: 'Water, please',             local: 'Agua, por favor',               pron: 'AH-gwah por fah-VOR' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'La cuenta, por favor',          pron: 'lah KWEN-tah por fah-VOR' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bueno / Muy bueno',             pron: 'BWEH-noh / mwee BWEH-noh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Adiós / Hasta luego',           pron: 'ah-DYOS / AHS-tah LWEH-goh' },
+    ]
+  },
+  FR: {
+    lang: 'French',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Bonjour',                       pron: 'bon-ZHOOR' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Merci',                         pron: 'mair-SEE' },
+      { id: 'please',     en: 'Please',                    local: 'S\'il vous plaît',              pron: 'seel voo PLEH' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Excusez-moi / Pardon',          pron: 'ex-koo-ZAY mwah / par-DON' },
+      { id: 'yes',        en: 'Yes',                       local: 'Oui',                           pron: 'wee' },
+      { id: 'no',         en: 'No',                        local: 'Non',                           pron: 'noh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Combien ça coûte?',             pron: 'kom-BYAN sah KOOT' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Où sont les toilettes?',        pron: 'oo son lay twa-LET' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Je ne comprends pas',           pron: 'zhuh nuh kom-PRAHN pah' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Parlez-vous anglais?',          pron: 'par-LAY voo ahn-GLEH' },
+      { id: 'help',       en: 'Help!',                     local: 'Au secours!',                   pron: 'oh suh-KOOR' },
+      { id: 'water',      en: 'Water, please',             local: 'De l\'eau, s\'il vous plaît',   pron: 'duh LOH seel voo PLEH' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'L\'addition, s\'il vous plaît', pron: 'lah-dee-SYON seel voo PLEH' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bien / Très bien',              pron: 'byan / treh byan' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Au revoir',                     pron: 'oh ruh-VWAHR' },
+    ]
+  },
+  IT: {
+    lang: 'Italian',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Ciao / Buongiorno',             pron: 'chow / bwon-JOR-noh' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Grazie',                        pron: 'GRAH-tsyeh' },
+      { id: 'please',     en: 'Please',                    local: 'Per favore',                    pron: 'pehr fah-VOH-reh' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Mi scusi / Mi dispiace',        pron: 'mee SKOO-zee / mee dees-PYA-cheh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Sì',                            pron: 'see' },
+      { id: 'no',         en: 'No',                        local: 'No',                            pron: 'noh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Quanto costa?',                 pron: 'KWAN-toh KOS-tah' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Dov\'è il bagno?',              pron: 'doh-VEH eel BAH-nyoh' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Non capisco',                   pron: 'non kah-PEE-skoh' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Parla inglese?',                pron: 'PAR-lah een-GLEH-zeh' },
+      { id: 'help',       en: 'Help!',                     local: 'Aiuto!',                        pron: 'ah-YOO-toh' },
+      { id: 'water',      en: 'Water, please',             local: 'Acqua, per favore',             pron: 'AH-kwah pehr fah-VOH-reh' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Il conto, per favore',          pron: 'eel KON-toh pehr fah-VOH-reh' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bene / Molto bene',             pron: 'BEH-neh / MOL-toh BEH-neh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Arrivederci',                   pron: 'ar-ree-veh-DEHR-chee' },
+    ]
+  },
+  PT: {
+    lang: 'Portuguese',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Olá / Bom dia',                 pron: 'oh-LAH / bom JEE-ah' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Obrigado / Obrigada',           pron: 'oh-bree-GAH-doo / oh-bree-GAH-dah' },
+      { id: 'please',     en: 'Please',                    local: 'Por favor',                     pron: 'por fah-VOR' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Com licença / Desculpe',        pron: 'kom lee-SEN-sah / desh-KOOL-peh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Sim',                           pron: 'seem' },
+      { id: 'no',         en: 'No',                        local: 'Não',                           pron: 'nowng' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Quanto custa?',                 pron: 'KWAN-too KOOS-tah' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Onde fica o banheiro?',         pron: 'ON-jee FEE-kah oo ban-YEH-roo' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Não entendo',                   pron: 'nowng en-TEN-doo' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Fala inglês?',                  pron: 'FAH-lah een-GLESH' },
+      { id: 'help',       en: 'Help!',                     local: 'Socorro!',                      pron: 'soh-KOH-hoo' },
+      { id: 'water',      en: 'Water, please',             local: 'Água, por favor',               pron: 'AH-gwah por fah-VOR' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'A conta, por favor',            pron: 'ah KON-tah por fah-VOR' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bom / Muito bom',               pron: 'bom / MWEE-too bom' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Tchau / Até logo',              pron: 'chow / ah-TEH LOH-goo' },
+    ]
+  },
+  RO: {
+    lang: 'Romanian',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Bună ziua / Salut',             pron: 'BOO-nah ZEE-wah / sah-LOOT' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Mulțumesc',                     pron: 'mool-tsoo-MESK' },
+      { id: 'please',     en: 'Please',                    local: 'Vă rog',                        pron: 'vah rog' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Scuzați / Îmi pare rău',        pron: 'skoo-ZAH-tsee / eem PAH-reh row' },
+      { id: 'yes',        en: 'Yes',                       local: 'Da',                            pron: 'dah' },
+      { id: 'no',         en: 'No',                        local: 'Nu',                            pron: 'noo' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Cât costă asta?',               pron: 'kuht KOS-tah AHS-tah' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Unde este toaleta?',            pron: 'OON-deh YES-teh twah-LEH-tah' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Nu înțeleg',                    pron: 'noo uhn-TSEH-leg' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Vorbiți engleză?',              pron: 'vor-BEETS eng-LEH-zah' },
+      { id: 'help',       en: 'Help!',                     local: 'Ajutor!',                       pron: 'ah-zhoo-TOR' },
+      { id: 'water',      en: 'Water, please',             local: 'Apă, vă rog',                   pron: 'AH-pah vah rog' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Nota de plată, vă rog',         pron: 'NOH-tah deh PLAH-tah vah rog' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bine / Foarte bine',            pron: 'BEE-neh / FWAHR-teh BEE-neh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'La revedere',                   pron: 'lah reh-veh-DEH-reh' },
+    ]
+  },
+  // ── GERMANIC ─────────────────────────────────────────────────────────────
+  DE: {
+    lang: 'German',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hallo / Guten Tag',             pron: 'HAH-loh / GOO-ten tahk' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Danke',                         pron: 'DAHN-keh' },
+      { id: 'please',     en: 'Please',                    local: 'Bitte',                         pron: 'BIT-teh' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Entschuldigung / Es tut mir leid', pron: 'ent-SHOOL-dee-goong / es toot meer lyte' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ja',                            pron: 'yah' },
+      { id: 'no',         en: 'No',                        local: 'Nein',                          pron: 'nine' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Was kostet das?',               pron: 'vas KOS-tet dahs' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Wo ist die Toilette?',          pron: 'voh ist dee toy-LET-teh' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Ich verstehe nicht',            pron: 'ikh fer-SHTEH-eh nikht' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Sprechen Sie Englisch?',        pron: 'SHPREH-khen zee ENG-lish' },
+      { id: 'help',       en: 'Help!',                     local: 'Hilfe!',                        pron: 'HIL-feh' },
+      { id: 'water',      en: 'Water, please',             local: 'Wasser, bitte',                 pron: 'VAH-ser BIT-teh' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Die Rechnung, bitte',           pron: 'dee REKH-noong BIT-teh' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Gut / Sehr gut',                pron: 'goot / zehr goot' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Auf Wiedersehen / Tschüss',     pron: 'owf VEE-der-zayn / chyoos' },
+    ]
+  },
+  NL: {
+    lang: 'Dutch',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hallo / Goedendag',             pron: 'HAH-loh / KHOO-den-dakh' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Dank u / Bedankt',              pron: 'dahnk oo / beh-DAHNKT' },
+      { id: 'please',     en: 'Please',                    local: 'Alstublieft',                   pron: 'AHL-stoo-bleeft' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Excuseer me / Sorry',           pron: 'ex-koo-ZAYR meh / SOH-ree' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ja',                            pron: 'yah' },
+      { id: 'no',         en: 'No',                        local: 'Nee',                           pron: 'nay' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Hoeveel kost dit?',             pron: 'HOO-vayl kost dit' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Waar is het toilet?',           pron: 'vaar is het twa-LET' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Ik begrijp het niet',           pron: 'ik beh-KHRAYP het neet' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Spreekt u Engels?',             pron: 'spreykt oo ENG-els' },
+      { id: 'help',       en: 'Help!',                     local: 'Help!',                         pron: 'help' },
+      { id: 'water',      en: 'Water, please',             local: 'Water, alstublieft',            pron: 'VAH-ter AHL-stoo-bleeft' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'De rekening, alstublieft',      pron: 'deh RAY-keh-ning AHL-stoo-bleeft' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Goed / Heel goed',              pron: 'khoot / hayl khoot' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Tot ziens',                     pron: 'tot zeens' },
+    ]
+  },
+  SE: {
+    lang: 'Swedish',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hej / God dag',                 pron: 'hay / goo dahg' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Tack',                          pron: 'tahk' },
+      { id: 'please',     en: 'Please',                    local: 'Snälla / Tack',                 pron: 'SNEL-ah / tahk' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Ursäkta / Förlåt',              pron: 'OOR-sek-tah / fer-LAWT' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ja',                            pron: 'yah' },
+      { id: 'no',         en: 'No',                        local: 'Nej',                           pron: 'nay' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Hur mycket kostar det?',        pron: 'hoor MYK-eh KOS-tar deh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Var är toaletten?',             pron: 'vaar air twah-ah-LET-en' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Jag förstår inte',              pron: 'yahg fer-STOR IN-teh' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Talar du engelska?',            pron: 'TAH-lar doo ENG-el-skah' },
+      { id: 'help',       en: 'Help!',                     local: 'Hjälp!',                        pron: 'yelp' },
+      { id: 'water',      en: 'Water, please',             local: 'Vatten, tack',                  pron: 'VAT-en tahk' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Notan, tack',                   pron: 'NOO-tan tahk' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bra / Mycket bra',              pron: 'brah / MYK-eh brah' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Hej då / Adjö',                 pron: 'hay doh / ah-YER' },
+    ]
+  },
+  NO: {
+    lang: 'Norwegian',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hei / God dag',                 pron: 'hay / goo dahg' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Takk',                          pron: 'tahk' },
+      { id: 'please',     en: 'Please',                    local: 'Vær så snill',                  pron: 'vair soh snil' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Unnskyld / Beklager',           pron: 'OON-sheel / beh-KLAH-ger' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ja',                            pron: 'yah' },
+      { id: 'no',         en: 'No',                        local: 'Nei',                           pron: 'nay' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Hvor mye koster dette?',        pron: 'vor MEE-eh KOS-ter DET-eh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Hvor er toalettet?',            pron: 'vor air twah-ah-LET-eh' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Jeg forstår ikke',              pron: 'yay for-STOR IK-eh' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Snakker du engelsk?',           pron: 'SNAH-ker doo ENG-elsk' },
+      { id: 'help',       en: 'Help!',                     local: 'Hjelp!',                        pron: 'yelp' },
+      { id: 'water',      en: 'Water, please',             local: 'Vann, takk',                    pron: 'vahn tahk' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Regningen, takk',               pron: 'RAY-ning-en tahk' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Bra / Veldig bra',              pron: 'brah / VEL-dee brah' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Ha det bra / Adjø',             pron: 'hah deh brah / ah-YER' },
+    ]
+  },
+  DK: {
+    lang: 'Danish',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hej / God dag',                 pron: 'hi / go day' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Tak',                           pron: 'tahg' },
+      { id: 'please',     en: 'Please',                    local: 'Vær venlig',                    pron: 'vair VEN-lee' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Undskyld',                      pron: 'OON-skool' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ja',                            pron: 'yah' },
+      { id: 'no',         en: 'No',                        local: 'Nej',                           pron: 'ni' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Hvad koster det?',              pron: 'vel KOS-ter deh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Hvor er toilettet?',            pron: 'vor air toy-LET-eh' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Jeg forstår ikke',              pron: 'yi for-STOR IK-eh' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Taler du engelsk?',             pron: 'TAY-ler doo ENG-elsk' },
+      { id: 'help',       en: 'Help!',                     local: 'Hjælp!',                        pron: 'yelb' },
+      { id: 'water',      en: 'Water, please',             local: 'Vand, tak',                     pron: 'van tahg' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Regningen, tak',                pron: 'RYE-ning-en tahg' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Godt / Meget godt',             pron: 'got / MY-et got' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Farvel / Hej hej',              pron: 'far-VEL / hi hi' },
+    ]
+  },
+  FI: {
+    lang: 'Finnish',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Hei / Hyvää päivää',            pron: 'hay / HOO-vaa PAI-vaa' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Kiitos',                        pron: 'KEE-tos' },
+      { id: 'please',     en: 'Please',                    local: 'Ole hyvä',                      pron: 'OH-leh HOO-vah' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Anteeksi',                      pron: 'AN-tayk-see' },
+      { id: 'yes',        en: 'Yes',                       local: 'Kyllä / Joo',                   pron: 'KOOL-lah / yoh' },
+      { id: 'no',         en: 'No',                        local: 'Ei',                            pron: 'ay' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Paljonko tämä maksaa?',         pron: 'PAL-yon-koh TAH-mah MAK-saa' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Missä on vessa?',               pron: 'MIS-sah on VES-sah' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'En ymmärrä',                    pron: 'en OOM-mar-rah' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Puhutko englantia?',            pron: 'POO-hoot-koh ENG-lan-tee-ah' },
+      { id: 'help',       en: 'Help!',                     local: 'Apua!',                         pron: 'AH-poo-ah' },
+      { id: 'water',      en: 'Water, please',             local: 'Vettä, kiitos',                 pron: 'VET-tah KEE-tos' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Lasku, kiitos',                 pron: 'LAHS-koo KEE-tos' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Hyvä / Erittäin hyvä',         pron: 'HOO-vah / eh-RIT-ain HOO-vah' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Näkemiin / Hei hei',            pron: 'NAH-keh-meen / hay hay' },
+    ]
+  },
+  // ── SLAVIC ────────────────────────────────────────────────────────────────
+  RU: {
+    lang: 'Russian',
+    script: 'Cyrillic',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Здравствуйте / Привет',         pron: 'ZDRAH-stvooy-tye / pree-VYET' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Спасибо',                       pron: 'spah-SEE-bah' },
+      { id: 'please',     en: 'Please',                    local: 'Пожалуйста',                    pron: 'pah-ZHAH-loo-stah' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Извините / Простите',           pron: 'eez-vee-NEE-tyeh / prahs-TEE-tyeh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Да',                            pron: 'dah' },
+      { id: 'no',         en: 'No',                        local: 'Нет',                           pron: 'nyet' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Сколько это стоит?',            pron: 'SKOL-kah EH-tah STOH-eet' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Где туалет?',                   pron: 'gdyeh too-ah-LYET' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Я не понимаю',                  pron: 'yah nye pah-nee-MAH-yoo' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Вы говорите по-английски?',     pron: 'vy gah-vah-REE-tyeh pah-ahng-LYEE-skee' },
+      { id: 'help',       en: 'Help!',                     local: 'Помогите!',                     pron: 'pah-mah-GEE-tyeh' },
+      { id: 'water',      en: 'Water, please',             local: 'Воду, пожалуйста',              pron: 'VOH-doo pah-ZHAH-loo-stah' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Счёт, пожалуйста',              pron: 'shyot pah-ZHAH-loo-stah' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Хорошо / Очень хорошо',         pron: 'khah-rah-SHOH / OH-chen khah-rah-SHOH' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'До свидания / Пока',            pron: 'dah svee-DAH-nyah / pah-KAH' },
+    ]
+  },
+  UA: {
+    lang: 'Ukrainian',
+    script: 'Cyrillic',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Привіт / Добрий день',          pron: 'pree-VEET / DOH-bree den' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Дякую',                         pron: 'DYAH-koo-yoo' },
+      { id: 'please',     en: 'Please',                    local: 'Будь ласка',                    pron: 'bood LAHS-kah' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Вибачте / Пробачте',            pron: 'VEE-bah-chteh / proh-BAH-chteh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Так',                           pron: 'tahk' },
+      { id: 'no',         en: 'No',                        local: 'Ні',                            pron: 'nee' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Скільки це коштує?',            pron: 'SKEEL-kee tseh kosh-TOO-yeh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Де туалет?',                    pron: 'deh too-ah-LET' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Я не розумію',                  pron: 'yah neh roh-zoo-MEE-yoo' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Ви говорите по-англійськи?',    pron: 'vee goh-voh-REE-teh poh-ang-LEES-kee' },
+      { id: 'help',       en: 'Help!',                     local: 'Допоможіть!',                   pron: 'doh-poh-moh-ZHEET' },
+      { id: 'water',      en: 'Water, please',             local: 'Води, будь ласка',              pron: 'doh-VEE bood LAHS-kah' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Рахунок, будь ласка',           pron: 'rah-KHOO-nok bood LAHS-kah' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Добре / Дуже добре',            pron: 'DOH-breh / DOO-zheh DOH-breh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'До побачення / Бувай',          pron: 'doh poh-BAH-chen-nyah / boo-VAY' },
+    ]
+  },
+  PL: {
+    lang: 'Polish',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Cześć / Dzień dobry',           pron: 'cheshch / jyen DOH-bree' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Dziękuję',                      pron: 'jen-KOO-yeh' },
+      { id: 'please',     en: 'Please',                    local: 'Proszę',                        pron: 'PROH-sheh' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Przepraszam',                   pron: 'psheh-PRAH-shahm' },
+      { id: 'yes',        en: 'Yes',                       local: 'Tak',                           pron: 'tahk' },
+      { id: 'no',         en: 'No',                        local: 'Nie',                           pron: 'nyeh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Ile to kosztuje?',              pron: 'EE-leh toh kosh-TOO-yeh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Gdzie jest toaleta?',           pron: 'gdjeh yest toh-ah-LEH-tah' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Nie rozumiem',                  pron: 'nyeh roh-ZOO-myem' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Czy mówi pan/pani po angielsku?', pron: 'chee MOO-vee pahn/PAH-nee poh ahn-GYEL-skoo' },
+      { id: 'help',       en: 'Help!',                     local: 'Pomocy!',                       pron: 'poh-MOH-tsee' },
+      { id: 'water',      en: 'Water, please',             local: 'Wodę, proszę',                  pron: 'VOH-deh PROH-sheh' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Rachunek, proszę',              pron: 'rah-KHOO-nek PROH-sheh' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Dobrze / Bardzo dobrze',        pron: 'DOH-bzheh / BAR-dzoh DOH-bzheh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Do widzenia / Cześć',           pron: 'doh vee-DZEN-yah / cheshch' },
+    ]
+  },
+  CZ: {
+    lang: 'Czech',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Ahoj / Dobrý den',              pron: 'AH-hoy / DOH-bree den' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Děkuji',                        pron: 'DYEH-koo-yee' },
+      { id: 'please',     en: 'Please',                    local: 'Prosím',                        pron: 'PROH-seem' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Promiňte / Omlouvám se',        pron: 'PROH-meen-teh / ohm-LOO-vahm seh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ano',                           pron: 'AH-noh' },
+      { id: 'no',         en: 'No',                        local: 'Ne',                            pron: 'neh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Kolik to stojí?',               pron: 'KOH-lik toh STOH-yee' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Kde je toaleta?',               pron: 'gdeh yeh toh-ah-LEH-tah' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Nerozumím',                     pron: 'neh-roh-ZOO-meem' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Mluvíte anglicky?',             pron: 'mloo-VEE-teh AHN-glits-kee' },
+      { id: 'help',       en: 'Help!',                     local: 'Pomoc!',                        pron: 'POH-mots' },
+      { id: 'water',      en: 'Water, please',             local: 'Vodu, prosím',                  pron: 'VOH-doo PROH-seem' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Účet, prosím',                  pron: 'OO-chet PROH-seem' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Dobře / Velmi dobře',           pron: 'DOH-bzheh / VEL-mee DOH-bzheh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Na shledanou / Ahoj',           pron: 'nah SHLEH-dah-noh / AH-hoy' },
+    ]
+  },
+  HR: {
+    lang: 'Croatian',
+    script: 'Latin',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Bok / Dobar dan',               pron: 'bok / DOH-bar dahn' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Hvala',                         pron: 'HVAH-lah' },
+      { id: 'please',     en: 'Please',                    local: 'Molim',                         pron: 'MOH-leem' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Oprostite / Žao mi je',         pron: 'oh-PROHS-tee-teh / ZHAH-oh mee yeh' },
+      { id: 'yes',        en: 'Yes',                       local: 'Da',                            pron: 'dah' },
+      { id: 'no',         en: 'No',                        local: 'Ne',                            pron: 'neh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Koliko ovo košta?',             pron: 'KOH-lee-koh OH-voh KOSH-tah' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Gdje je zahod?',                pron: 'gdyeh yeh ZAH-hod' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Ne razumijem',                  pron: 'neh rah-ZOO-mee-yem' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Govorite li engleski?',         pron: 'goh-VOH-ree-teh lee ENG-les-kee' },
+      { id: 'help',       en: 'Help!',                     local: 'Upomoć!',                       pron: 'OO-poh-moch' },
+      { id: 'water',      en: 'Water, please',             local: 'Vodu, molim',                   pron: 'VOH-doo MOH-leem' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Račun, molim',                  pron: 'RAH-choon MOH-leem' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Dobro / Izvrsno',               pron: 'DOH-broh / EEZ-vrs-noh' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Doviđenja / Bok',               pron: 'doh-vee-JEN-yah / bok' },
+    ]
+  },
+  BG: {
+    lang: 'Bulgarian',
+    script: 'Cyrillic',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Здравейте / Добър ден',         pron: 'ZDRAH-vay-teh / DOH-bur den' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Благодаря',                     pron: 'blah-goh-dah-RYAH' },
+      { id: 'please',     en: 'Please',                    local: 'Моля',                          pron: 'MOH-lyah' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Извинете / Съжалявам',          pron: 'eez-vee-NEH-teh / sah-zhah-LYAH-vahm' },
+      { id: 'yes',        en: 'Yes',                       local: 'Да',                            pron: 'dah' },
+      { id: 'no',         en: 'No',                        local: 'Не',                            pron: 'neh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Колко струва това?',            pron: 'KOL-koh STROO-vah TOH-vah' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Къде е тоалетната?',            pron: 'kuh-DEH eh toh-ah-LET-nah-tah' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Не разбирам',                   pron: 'neh rahz-BEE-rahm' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Говорите ли английски?',        pron: 'goh-VOH-ree-teh lee AHN-glee-skee' },
+      { id: 'help',       en: 'Help!',                     local: 'Помощ!',                        pron: 'POH-mosht' },
+      { id: 'water',      en: 'Water, please',             local: 'Вода, моля',                    pron: 'voh-DAH MOH-lyah' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Сметката, моля',                pron: 'SMET-kah-tah MOH-lyah' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Добре / Много добре',           pron: 'doh-BREH / MNOH-goh doh-BREH' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Довиждане / Чао',               pron: 'doh-VEEZH-dah-neh / chow' },
+    ]
+  },
+  // ── HELLENIC ──────────────────────────────────────────────────────────────
+  GR: {
+    lang: 'Greek',
+    script: 'Greek',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'Γεια σας / Καλημέρα',           pron: 'YAH sahs / kah-lee-MEH-rah' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'Ευχαριστώ',                     pron: 'ef-khah-rees-TOH' },
+      { id: 'please',     en: 'Please',                    local: 'Παρακαλώ',                      pron: 'pah-rah-kah-LOH' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'Συγγνώμη',                      pron: 'seeg-NOH-mee' },
+      { id: 'yes',        en: 'Yes',                       local: 'Ναι',                           pron: 'neh' },
+      { id: 'no',         en: 'No',                        local: 'Όχι',                           pron: 'OH-khee' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'Πόσο κοστίζει αυτό;',           pron: 'POH-soh kos-TEE-zee ahf-TOH' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'Πού είναι η τουαλέτα;',         pron: 'poo EE-neh ee too-ah-LEH-tah' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'Δεν καταλαβαίνω',               pron: 'den kah-tah-lah-VEH-noh' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'Μιλάτε αγγλικά;',               pron: 'mee-LAH-teh ahng-lee-KAH' },
+      { id: 'help',       en: 'Help!',                     local: 'Βοήθεια!',                      pron: 'voh-EE-thee-ah' },
+      { id: 'water',      en: 'Water, please',             local: 'Νερό, παρακαλώ',                pron: 'neh-ROH pah-rah-kah-LOH' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'Τον λογαριασμό, παρακαλώ',      pron: 'ton loh-gah-ryahz-MOH pah-rah-kah-LOH' },
+      { id: 'good',       en: 'Good / Very good',          local: 'Καλά / Πολύ καλά',              pron: 'kah-LAH / poh-LEE kah-LAH' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'Αντίο / Γεια σας',              pron: 'AHN-dee-oh / YAH sahs' },
+    ]
+  },
+  // ── SEMITIC ───────────────────────────────────────────────────────────────
+  AR: {
+    lang: 'Arabic (Modern Standard)',
+    script: 'Arabic',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'مرحبا / السلام عليكم',          pron: 'mar-HA-ban / as-sah-LAH-moo ah-LAY-koom' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'شكراً',                         pron: 'SHOK-ran' },
+      { id: 'please',     en: 'Please',                    local: 'من فضلك',                       pron: 'min FAD-lak' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'عفواً / آسف',                   pron: 'AHF-wan / AH-sef' },
+      { id: 'yes',        en: 'Yes',                       local: 'نعم',                           pron: 'NAH-am' },
+      { id: 'no',         en: 'No',                        local: 'لا',                            pron: 'lah' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'بكم هذا؟',                      pron: 'bi-KAM HAH-thah' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'أين الحمام؟',                   pron: 'AY-na al-ham-MAM' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'لا أفهم',                       pron: 'lah AF-ham' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'هل تتكلم الإنجليزية؟',          pron: 'hal ta-TAK-al-lam al-in-GLEE-zee-yah' },
+      { id: 'help',       en: 'Help!',                     local: 'النجدة! / مساعدة!',             pron: 'an-NAJ-dah / mo-SAH-ah-dah' },
+      { id: 'water',      en: 'Water, please',             local: 'ماء، من فضلك',                  pron: 'MAH min FAD-lak' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'الفاتورة، من فضلك',             pron: 'al-fah-TOO-rah min FAD-lak' },
+      { id: 'good',       en: 'Good / Very good',          local: 'جيد / ممتاز',                   pron: 'JAY-id / mom-TAZ' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'مع السلامة',                    pron: 'mah-ah as-sah-LAH-mah' },
+    ]
+  },
+  IL: {
+    lang: 'Hebrew',
+    script: 'Hebrew',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'שלום',                          pron: 'sha-LOM' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'תודה',                          pron: 'toh-DAH' },
+      { id: 'please',     en: 'Please',                    local: 'בבקשה',                         pron: 'be-vah-kah-SHAH' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'סליחה',                         pron: 'slee-KHAH' },
+      { id: 'yes',        en: 'Yes',                       local: 'כן',                            pron: 'ken' },
+      { id: 'no',         en: 'No',                        local: 'לא',                            pron: 'loh' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'כמה זה עולה?',                  pron: 'KAH-mah zeh OH-leh' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'איפה השירותים?',                pron: 'AY-foh ha-sheh-roo-TEEM' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'אני לא מבין / מבינה',           pron: 'AH-nee loh me-VEEN / me-vee-NAH' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'אתה מדבר אנגלית?',              pron: 'AH-tah me-da-BEHR ahng-LEET' },
+      { id: 'help',       en: 'Help!',                     local: 'עזרה!',                         pron: 'ez-RAH' },
+      { id: 'water',      en: 'Water, please',             local: 'מים, בבקשה',                    pron: 'MY-im be-vah-kah-SHAH' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'החשבון, בבקשה',                 pron: 'ha-khesh-BON be-vah-kah-SHAH' },
+      { id: 'good',       en: 'Good / Very good',          local: 'טוב / מצוין',                   pron: 'tov / me-tsoo-YAN' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'להתראות / שלום',                pron: 'le-hit-ra-OT / sha-LOM' },
+    ]
+  },
+  // ── INDO-IRANIAN ──────────────────────────────────────────────────────────
+  IN: {
+    lang: 'Hindi',
+    script: 'Devanagari',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'नमस्ते',                        pron: 'nah-MAS-tay' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'धन्यवाद / शुक्रिया',            pron: 'DHAN-yah-vahd / SHOOK-ree-yah' },
+      { id: 'please',     en: 'Please',                    local: 'कृपया',                         pron: 'kri-PAY-ah' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'माफ़ करें / क्षमा करें',         pron: 'MAAF ka-REN / KSHA-mah ka-REN' },
+      { id: 'yes',        en: 'Yes',                       local: 'हाँ',                           pron: 'haan' },
+      { id: 'no',         en: 'No',                        local: 'नहीं',                          pron: 'nah-HEEN' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'यह कितने का है?',               pron: 'yeh KIT-nay kah hay' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'शौचालय कहाँ है?',               pron: 'SHOW-cha-lay ka-HAAN hay' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'मुझे समझ नहीं आया',             pron: 'MOO-jhay SAM-jh na-HEEN AH-yah' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'क्या आप अंग्रेज़ी बोलते हैं?',  pron: 'kyah aap ANG-reh-zee BOL-tay hain' },
+      { id: 'help',       en: 'Help!',                     local: 'मदद करो!',                      pron: 'MA-dad ka-RO' },
+      { id: 'water',      en: 'Water, please',             local: 'पानी, कृपया',                   pron: 'PAH-nee kri-PAY-ah' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'बिल लाइए, कृपया',               pron: 'bil LAH-ee-yeh kri-PAY-ah' },
+      { id: 'good',       en: 'Good / Very good',          local: 'अच्छा / बहुत अच्छा',            pron: 'AH-chha / bah-HOT AH-chha' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'अलविदा / नमस्ते',               pron: 'al-VEE-dah / nah-MAS-tay' },
+    ]
+  },
+  IR: {
+    lang: 'Persian (Farsi)',
+    script: 'Arabic',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'سلام / روز بخیر',               pron: 'sa-LAHM / rooz be-KHAYR' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'ممنون / متشکرم',                pron: 'mam-NOON / mo-SHAK-ke-ram' },
+      { id: 'please',     en: 'Please',                    local: 'لطفاً',                         pron: 'LOT-fan' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'ببخشید',                        pron: 'be-bakh-SHEED' },
+      { id: 'yes',        en: 'Yes',                       local: 'بله / آره',                     pron: 'BA-leh / AH-reh' },
+      { id: 'no',         en: 'No',                        local: 'نه',                            pron: 'na' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'این چقدر است؟',                 pron: 'een che-QADR ast' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'دستشویی کجاست؟',               pron: 'dast-shu-EE ko-JAAST' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'نمی‌فهمم',                      pron: 'ne-mi-FAH-mam' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'آیا انگلیسی بلدید؟',            pron: 'AH-yah ang-lee-SEE bal-a-DEED' },
+      { id: 'help',       en: 'Help!',                     local: 'کمک!',                          pron: 'KO-mak' },
+      { id: 'water',      en: 'Water, please',             local: 'آب، لطفاً',                     pron: 'aab LOT-fan' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'صورتحساب، لطفاً',               pron: 'su-rat-he-SAAB LOT-fan' },
+      { id: 'good',       en: 'Good / Very good',          local: 'خوب / خیلی خوب',                pron: 'khoob / KHAY-lee khoob' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'خداحافظ',                       pron: 'kho-daa-HAA-fez' },
+    ]
+  },
+  PK: {
+    lang: 'Urdu',
+    script: 'Arabic',
+    phrases: [
+      { id: 'hello',      en: 'Hello / Good day',          local: 'السلام علیکم',                  pron: 'as-sa-LAA-mu a-LAY-kum' },
+      { id: 'thanks',     en: 'Thank you',                 local: 'شکریہ',                         pron: 'SHUK-ree-yah' },
+      { id: 'please',     en: 'Please',                    local: 'برائے مہربانی',                 pron: 'ba-RAA-ey meh-ra-BAA-nee' },
+      { id: 'sorry',      en: 'Excuse me / Sorry',         local: 'معاف کیجیے',                    pron: 'ma-AAF kee-JEE-yeh' },
+      { id: 'yes',        en: 'Yes',                       local: 'جی ہاں',                        pron: 'jee haan' },
+      { id: 'no',         en: 'No',                        local: 'نہیں',                          pron: 'na-HEEN' },
+      { id: 'howmuch',    en: 'How much does this cost?',  local: 'یہ کتنے کا ہے؟',               pron: 'yeh KIT-nay kaa hay' },
+      { id: 'toilet',     en: 'Where is the toilet?',      local: 'بیت الخلاء کہاں ہے؟',          pron: 'bayt-ul-kha-LAA ka-HAAN hay' },
+      { id: 'understand', en: 'I don\'t understand',       local: 'مجھے سمجھ نہیں آیا',           pron: 'MOO-jhay SAM-jh na-HEEN AH-yah' },
+      { id: 'english',    en: 'Do you speak English?',     local: 'کیا آپ انگریزی بولتے ہیں؟',    pron: 'kyah aap ang-RAY-zee BOL-tay hain' },
+      { id: 'help',       en: 'Help!',                     local: 'مدد!',                          pron: 'MA-dad' },
+      { id: 'water',      en: 'Water, please',             local: 'پانی، برائے مہربانی',           pron: 'PAA-nee ba-RAA-ey meh-ra-BAA-nee' },
+      { id: 'bill',       en: 'The bill / check, please',  local: 'بل لائیں، برائے مہربانی',      pron: 'bil LA-in ba-RAA-ey meh-ra-BAA-nee' },
+      { id: 'good',       en: 'Good / Very good',          local: 'اچھا / بہت اچھا',               pron: 'AH-chha / ba-HOT AH-chha' },
+      { id: 'bye',        en: 'Goodbye',                   local: 'خدا حافظ',                      pron: 'khu-DAA HAA-fiz' },
+    ]
+  },,
+// PHRASEBOOK extension — Asian + African + other languages
+  CN: { lang: 'Mandarin Chinese', script: 'CJK', phrases: [
+    ['Hello', '你好', 'Nǐ hǎo'],
+    ['Thank you', '谢谢', 'Xièxiè'],
+    ['Please', '请', 'Qǐng'],
+    ['Excuse me / Sorry', '对不起', 'Duìbuqǐ'],
+    ['Yes', '是', 'Shì'],
+    ['No', '不', 'Bù'],
+    ['How much?', '多少钱？', 'Duōshǎo qián?'],
+    ['Where is...?', '...在哪里？', '...zài nǎlǐ?'],
+    ['Help!', '救命！', 'Jiùmìng!'],
+    ['I don't understand', '我不明白', 'Wǒ bù míngbái'],
+    ['Do you speak English?', '你会说英语吗？', 'Nǐ huì shuō Yīngyǔ ma?'],
+    ['Water', '水', 'Shuǐ'],
+    ['Food / Restaurant', '餐厅', 'Cāntīng'],
+    ['Hospital', '医院', 'Yīyuàn'],
+    ['Good morning', '早上好', 'Zǎoshang hǎo']
+  ] },
+  TW: { lang: 'Mandarin Chinese (Taiwan)', script: 'CJK', phrases: [
+    ['Hello', '你好', 'Nǐ hǎo'],
+    ['Thank you', '謝謝', 'Xièxiè'],
+    ['Please', '請', 'Qǐng'],
+    ['Excuse me / Sorry', '對不起', 'Duìbuqǐ'],
+    ['Yes', '是', 'Shì'],
+    ['No', '不', 'Bù'],
+    ['How much?', '多少錢？', 'Duōshǎo qián?'],
+    ['Where is...?', '...在哪裡？', '...zài nǎlǐ?'],
+    ['Help!', '救命！', 'Jiùmìng!'],
+    ['I don't understand', '我不明白', 'Wǒ bù míngbái'],
+    ['Do you speak English?', '你會說英語嗎？', 'Nǐ huì shuō Yīngyǔ ma?'],
+    ['Water', '水', 'Shuǐ'],
+    ['Food / Restaurant', '餐廳', 'Cāntīng'],
+    ['Hospital', '醫院', 'Yīyuàn'],
+    ['Good morning', '早上好', 'Zǎoshang hǎo']
+  ] },
+  JP: { lang: 'Japanese', script: 'Kana', phrases: [
+    ['Hello', 'こんにちは', 'Konnichiwa'],
+    ['Thank you', 'ありがとうございます', 'Arigatou gozaimasu'],
+    ['Please', 'お願いします', 'Onegaishimasu'],
+    ['Excuse me / Sorry', 'すみません', 'Sumimasen'],
+    ['Yes', 'はい', 'Hai'],
+    ['No', 'いいえ', 'Iie'],
+    ['How much?', 'いくらですか？', 'Ikura desu ka?'],
+    ['Where is...?', '...はどこですか？', '...wa doko desu ka?'],
+    ['Help!', '助けて！', 'Tasukete!'],
+    ['I don't understand', 'わかりません', 'Wakarimasen'],
+    ['Do you speak English?', '英語を話せますか？', 'Eigo wo hanasemasu ka?'],
+    ['Water', '水', 'Mizu'],
+    ['Food / Restaurant', 'レストラン', 'Resutoran'],
+    ['Hospital', '病院', 'Byouin'],
+    ['Good morning', 'おはようございます', 'Ohayou gozaimasu']
+  ] },
+  KR: { lang: 'Korean', script: 'Hangul', phrases: [
+    ['Hello', '안녕하세요', 'Annyeonghaseyo'],
+    ['Thank you', '감사합니다', 'Gamsahamnida'],
+    ['Please', '부탁드립니다', 'Butakdeurimnida'],
+    ['Excuse me / Sorry', '죄송합니다', 'Joesonghamnida'],
+    ['Yes', '네', 'Ne'],
+    ['No', '아니요', 'Aniyo'],
+    ['How much?', '얼마예요？', 'Eolmayeyo?'],
+    ['Where is...?', '...어디예요？', '...eodiyeyo?'],
+    ['Help!', '도와주세요！', 'Dowajuseyo!'],
+    ['I don't understand', '모르겠습니다', 'Moreugesseumnida'],
+    ['Do you speak English?', '영어 할 수 있어요？', 'Yeongeo hal su isseoyo?'],
+    ['Water', '물', 'Mul'],
+    ['Food / Restaurant', '식당', 'Sikdang'],
+    ['Hospital', '병원', 'Byeongwon'],
+    ['Good morning', '좋은 아침이에요', 'Joheun achimieyo']
+  ] },
+  TH: { lang: 'Thai', script: 'Thai', phrases: [
+    ['Hello', 'สวัสดี', 'Sawasdee'],
+    ['Thank you', 'ขอบคุณ', 'Khob khun'],
+    ['Please', 'กรุณา', 'Garuna'],
+    ['Excuse me / Sorry', 'ขอโทษ', 'Kho thot'],
+    ['Yes', 'ใช่', 'Chai'],
+    ['No', 'ไม่', 'Mai'],
+    ['How much?', 'ราคาเท่าไหร่？', 'Raka thao rai?'],
+    ['Where is...?', '...อยู่ที่ไหน？', '...yu thi nai?'],
+    ['Help!', 'ช่วยด้วย！', 'Chuay duay!'],
+    ['I don't understand', 'ไม่เข้าใจ', 'Mai khao chai'],
+    ['Do you speak English?', 'คุณพูดภาษาอังกฤษได้ไหม？', 'Khun phut phasa Angkrit dai mai?'],
+    ['Water', 'น้ำ', 'Nam'],
+    ['Food / Restaurant', 'ร้านอาหาร', 'Ran ahan'],
+    ['Hospital', 'โรงพยาบาล', 'Rong phayaban'],
+    ['Good morning', 'อรุณสวัสดิ์', 'Arun sawasdee']
+  ] },
+  VN: { lang: 'Vietnamese', script: 'Latin', phrases: [
+    ['Hello', 'Xin chào', 'Sin chao'],
+    ['Thank you', 'Cảm ơn', 'Kahm uhn'],
+    ['Please', 'Xin', 'Sin'],
+    ['Excuse me / Sorry', 'Xin lỗi', 'Sin loy'],
+    ['Yes', 'Vâng / Có', 'Vung / Kaw'],
+    ['No', 'Không', 'Khome'],
+    ['How much?', 'Bao nhiêu tiền？', 'Bao nyew tyen?'],
+    ['Where is...?', '...ở đâu？', '...uh dow?'],
+    ['Help!', 'Cứu tôi！', 'Kew toy!'],
+    ['I don't understand', 'Tôi không hiểu', 'Toy khome hyew'],
+    ['Do you speak English?', 'Bạn có nói tiếng Anh không？', 'Ban kaw noy tyeng Anh khome?'],
+    ['Water', 'Nước', 'Noo-uk'],
+    ['Food / Restaurant', 'Nhà hàng', 'Nyah hang'],
+    ['Hospital', 'Bệnh viện', 'Ben vyen'],
+    ['Good morning', 'Chào buổi sáng', 'Chao buoy sang']
+  ] },
+  ID: { lang: 'Indonesian', script: 'Latin', phrases: [
+    ['Hello', 'Halo / Selamat', 'Hah-lo / Seh-lah-mat'],
+    ['Thank you', 'Terima kasih', 'Teh-ree-mah kah-see'],
+    ['Please', 'Tolong', 'Toh-long'],
+    ['Excuse me / Sorry', 'Maaf', 'Mah-af'],
+    ['Yes', 'Ya', 'Yah'],
+    ['No', 'Tidak', 'Tee-dak'],
+    ['How much?', 'Berapa harganya？', 'Beh-rah-pah har-gah-nyah?'],
+    ['Where is...?', 'Di mana...？', 'Dee mah-nah?'],
+    ['Help!', 'Tolong！', 'Toh-long!'],
+    ['I don't understand', 'Saya tidak mengerti', 'Sah-yah tee-dak men-ger-tee'],
+    ['Do you speak English?', 'Apakah Anda berbicara bahasa Inggris？', 'Ah-pah-kah An-dah ber-bee-cha-rah?'],
+    ['Water', 'Air', 'Ah-eer'],
+    ['Food / Restaurant', 'Restoran', 'Res-toh-ran'],
+    ['Hospital', 'Rumah sakit', 'Roo-mah sah-kit'],
+    ['Good morning', 'Selamat pagi', 'Seh-lah-mat pah-gee']
+  ] },
+  MY: { lang: 'Malay', script: 'Latin', phrases: [
+    ['Hello', 'Helo / Selamat datang', 'Heh-lo / Seh-lah-mat dah-tang'],
+    ['Thank you', 'Terima kasih', 'Teh-ree-mah kah-see'],
+    ['Please', 'Tolong / Sila', 'Toh-long / See-lah'],
+    ['Excuse me / Sorry', 'Maaf', 'Mah-af'],
+    ['Yes', 'Ya', 'Yah'],
+    ['No', 'Tidak', 'Tee-dak'],
+    ['How much?', 'Berapa harga？', 'Beh-rah-pah har-gah?'],
+    ['Where is...?', 'Di mana...？', 'Dee mah-nah?'],
+    ['Help!', 'Tolong！', 'Toh-long!'],
+    ['I don't understand', 'Saya tidak faham', 'Sah-yah tee-dak fah-ham'],
+    ['Do you speak English?', 'Boleh cakap bahasa Inggeris？', 'Boh-leh cha-kap bah-hah-sah Ing-ge-ris?'],
+    ['Water', 'Air', 'Ah-eer'],
+    ['Food / Restaurant', 'Restoran', 'Res-toh-ran'],
+    ['Hospital', 'Hospital', 'Hos-pee-tal'],
+    ['Good morning', 'Selamat pagi', 'Seh-lah-mat pah-gee']
+  ] },
+  PH: { lang: 'Filipino (Tagalog)', script: 'Latin', phrases: [
+    ['Hello', 'Kumusta', 'Koo-moos-tah'],
+    ['Thank you', 'Salamat', 'Sah-lah-mat'],
+    ['Please', 'Pakiusap', 'Pah-kee-oo-sap'],
+    ['Excuse me / Sorry', 'Pasensya na / Paumanhin', 'Pah-sen-sha nah'],
+    ['Yes', 'Oo / Opo', 'Oh-oh / Oh-poh'],
+    ['No', 'Hindi', 'Hin-dee'],
+    ['How much?', 'Magkano？', 'Mag-kah-no?'],
+    ['Where is...?', 'Nasaan ang...？', 'Nah-sah-an ang?'],
+    ['Help!', 'Saklolo！', 'Sak-lo-lo!'],
+    ['I don't understand', 'Hindi ko naiintindihan', 'Hin-dee ko na-in-tin-dee-han'],
+    ['Do you speak English?', 'Marunong ka bang mag-Ingles？', 'Mah-roo-nong kah bang mag-Ing-les?'],
+    ['Water', 'Tubig', 'Too-big'],
+    ['Food / Restaurant', 'Kainan / Restawran', 'Ka-ee-nan'],
+    ['Hospital', 'Ospital', 'Os-pee-tal'],
+    ['Good morning', 'Magandang umaga', 'Mah-gan-dang oo-mah-gah']
+  ] },
+  KH: { lang: 'Khmer', script: 'Khmer', phrases: [
+    ['Hello', 'សួស្តី', 'Suosdei'],
+    ['Thank you', 'អរគុណ', 'Arkun'],
+    ['Please', 'សូម', 'Soum'],
+    ['Excuse me / Sorry', 'សុំទោស', 'Som toah'],
+    ['Yes', 'បាទ / ចាស', 'Bat / Jas'],
+    ['No', 'ទេ', 'Te'],
+    ['How much?', 'តំលៃប៉ុន្មាន？', 'Domlai ponman?'],
+    ['Where is...?', '...នៅឯណា？', '...nov ae na?'],
+    ['Help!', 'ជួយផង！', 'Chuoy phong!'],
+    ['I don't understand', 'ខ្ញុំមិនយល់ទេ', 'Khnhom min yol te'],
+    ['Do you speak English?', 'តើអ្នកនិយាយភាសាអង់គ្លេសបានទេ？', 'Tae neak niyeay phiasaa Angkles ban te?'],
+    ['Water', 'ទឹក', 'Teuk'],
+    ['Food / Restaurant', 'ភោជនីយដ្ឋាន', 'Phochaniyatan'],
+    ['Hospital', 'មន្ទីរពេទ្យ', 'Montir pet'],
+    ['Good morning', 'អរុណសួស្តី', 'Arun suosdei']
+  ] },
+  MM: { lang: 'Burmese', script: 'Myanmar', phrases: [
+    ['Hello', 'မင်္ဂလာပါ', 'Mingalaba'],
+    ['Thank you', 'ကျေးဇူးတင်ပါတယ်', 'Kyeizu tinbadeh'],
+    ['Please', 'ကျေးဇူးပြု၍', 'Kyeizu pyu i'],
+    ['Excuse me / Sorry', 'တောင်းပန်ပါတယ်', 'Taunpan badeh'],
+    ['Yes', 'ဟုတ်ကဲ့', 'Hotkeh'],
+    ['No', 'မဟုတ်ဘူး', 'Ma hout bu'],
+    ['How much?', 'ဘယ်လောက်လဲ？', 'Beh laut leh?'],
+    ['Where is...?', '...ဘယ်မှာလဲ？', '...beh hma leh?'],
+    ['Help!', 'ကူညီပါ！', 'Ku nyi ba!'],
+    ['I don't understand', 'နားမလည်ဘူး', 'Nar ma leh bu'],
+    ['Do you speak English?', 'အင်္ဂလိပ်စကားပြောတတ်သလား？', 'Ingalit zaga pyaw tat tha lar?'],
+    ['Water', 'ရေ', 'Yay'],
+    ['Food / Restaurant', 'စားသောက်ဆိုင်', 'Sa thout hsine'],
+    ['Hospital', 'ဆေးရုံ', 'Hsay yone'],
+    ['Good morning', 'မင်္ဂလာနံနက်ခင်းပါ', 'Mingalaba nan nek khin ba']
+  ] },
+  LA: { lang: 'Lao', script: 'Lao', phrases: [
+    ['Hello', 'ສະບາຍດີ', 'Sabaidee'],
+    ['Thank you', 'ຂອບໃຈ', 'Khop chai'],
+    ['Please', 'ກະລຸນາ', 'Ga lu na'],
+    ['Excuse me / Sorry', 'ຂໍໂທດ', 'Kho thot'],
+    ['Yes', 'ແມ່ນ', 'Men'],
+    ['No', 'ບໍ່', 'Bo'],
+    ['How much?', 'ລາຄາເທົ່າໃດ？', 'Laka thao dai?'],
+    ['Where is...?', '...ຢູ່ໃສ？', '...yu sai?'],
+    ['Help!', 'ຊ່ວຍດ້ວຍ！', 'Suay duay!'],
+    ['I don't understand', 'ຂ້ອຍບໍ່ເຂົ້າໃຈ', 'Khoy bo khao chai'],
+    ['Do you speak English?', 'ທ່ານເວົ້າພາສາອັງກິດໄດ້ບໍ？', 'Than vao phasa Angkit dai bo?'],
+    ['Water', 'ນ້ຳ', 'Nam'],
+    ['Food / Restaurant', 'ຮ້ານອາຫານ', 'Han ahan'],
+    ['Hospital', 'ໂຮງໝໍ', 'Hong mo'],
+    ['Good morning', 'ສະບາຍດີຕອນເຊົ້າ', 'Sabaidee ton sao']
+  ] },
+  NP: { lang: 'Nepali', script: 'Devanagari', phrases: [
+    ['Hello', 'नमस्ते', 'Namaste'],
+    ['Thank you', 'धन्यवाद', 'Dhanyabad'],
+    ['Please', 'कृपया', 'Kripaya'],
+    ['Excuse me / Sorry', 'माफ गर्नुहोस्', 'Maaf garnuhos'],
+    ['Yes', 'हो', 'Ho'],
+    ['No', 'होइन', 'Hoina'],
+    ['How much?', 'कति पर्छ？', 'Kati parcha?'],
+    ['Where is...?', '...कहाँ छ？', '...kahan cha?'],
+    ['Help!', 'मद्दत！', 'Maddat!'],
+    ['I don't understand', 'मलाई बुझेन', 'Malai bujhena'],
+    ['Do you speak English?', 'तपाईंले अंग्रेजी बोल्नुहुन्छ？', 'Tapainle Angrezi bolnuhuncha?'],
+    ['Water', 'पानी', 'Pani'],
+    ['Food / Restaurant', 'रेस्टुरेन्ट', 'Resturent'],
+    ['Hospital', 'अस्पताल', 'Aspatal'],
+    ['Good morning', 'शुभ प्रभात', 'Subha prabhat']
+  ] },
+  LK: { lang: 'Sinhala', script: 'Sinhala', phrases: [
+    ['Hello', 'ආයුබෝවන්', 'Ayubowan'],
+    ['Thank you', 'ස්තූතියි', 'Stuthi'],
+    ['Please', 'කරුණාකර', 'Karuna kara'],
+    ['Excuse me / Sorry', 'සමාවෙන්න', 'Samawenna'],
+    ['Yes', 'ඔව්', 'Ow'],
+    ['No', 'නෑ', 'Nae'],
+    ['How much?', 'මිල කීයද？', 'Mila kiyada?'],
+    ['Where is...?', '...කොහේද？', '...koheda?'],
+    ['Help!', 'උදව් කරන්න！', 'Udaw karanna!'],
+    ['I don't understand', 'මට තේරෙන්නේ නෑ', 'Mata therenney nae'],
+    ['Do you speak English?', 'ඔබ ඉංග්‍රීසි කතා කරනවාද？', 'Oba Ingrisi katha karanavada?'],
+    ['Water', 'වතුර', 'Watura'],
+    ['Food / Restaurant', 'අවන්හල', 'Awanhala'],
+    ['Hospital', 'රෝහල', 'Rohala'],
+    ['Good morning', 'සුභ උදෑසනක්', 'Subha udaesanak']
+  ] },
+  ET: { lang: 'Amharic', script: 'Ethiopic', phrases: [
+    ['Hello', 'ሰላም', 'Selam'],
+    ['Thank you', 'አመሰግናለሁ', 'Amesegnalehu'],
+    ['Please', 'እባክዎ', 'Ibako'],
+    ['Excuse me / Sorry', 'ይቅርታ', 'Yikirta'],
+    ['Yes', 'አዎ', 'Awo'],
+    ['No', 'አይ', 'Ay'],
+    ['How much?', 'ዋጋ ስንት ነው？', 'Waga sint new?'],
+    ['Where is...?', '...የት ነው？', '...yet new?'],
+    ['Help!', 'እርዳታ！', 'Irdata!'],
+    ['I don't understand', 'አልገባኝም', 'Algegbanim'],
+    ['Do you speak English?', 'እንግሊዝኛ ትናገራለህ？', 'Inglizigna tinageraleh?'],
+    ['Water', 'ውሃ', 'Wiha'],
+    ['Food / Restaurant', 'ምግብ ቤት', 'Migib bet'],
+    ['Hospital', 'ሆስፒታል', 'Hospital'],
+    ['Good morning', 'እንደምን አደሩ', 'Indemin aderu']
+  ] },
+  TZ: { lang: 'Swahili', script: 'Latin', phrases: [
+    ['Hello', 'Hujambo / Habari', 'Hoo-jam-bo / Hah-bah-ree'],
+    ['Thank you', 'Asante', 'Ah-san-teh'],
+    ['Please', 'Tafadhali', 'Tah-fah-dha-lee'],
+    ['Excuse me / Sorry', 'Samahani', 'Sah-mah-hah-nee'],
+    ['Yes', 'Ndiyo', 'Ndee-yo'],
+    ['No', 'Hapana', 'Hah-pah-nah'],
+    ['How much?', 'Bei gani？', 'Bay gah-nee?'],
+    ['Where is...?', '...iko wapi？', '...ee-ko wah-pee?'],
+    ['Help!', 'Msaada！', 'M-sah-ah-dah!'],
+    ['I don't understand', 'Sielewi', 'See-eh-leh-wee'],
+    ['Do you speak English?', 'Unasema Kiingereza？', 'Oo-nah-seh-mah Kee-in-geh-reh-za?'],
+    ['Water', 'Maji', 'Mah-jee'],
+    ['Food / Restaurant', 'Mkahawa', 'M-kah-hah-wah'],
+    ['Hospital', 'Hospitali', 'Hos-pee-tah-lee'],
+    ['Good morning', 'Habari za asubuhi', 'Hah-bah-ree zah ah-soo-boo-hee']
+  ] },
+  RW: { lang: 'Kinyarwanda', script: 'Latin', phrases: [
+    ['Hello', 'Muraho', 'Moo-rah-ho'],
+    ['Thank you', 'Murakoze', 'Moo-rah-ko-zeh'],
+    ['Please', 'Ndakumusaba', 'N-dah-koo-moo-sah-bah'],
+    ['Excuse me / Sorry', 'Mbabarira', 'M-bah-bah-ree-rah'],
+    ['Yes', 'Yego', 'Yeh-go'],
+    ['No', 'Oya', 'Oh-yah'],
+    ['How much?', 'Bingahe？', 'Bin-gah-heh?'],
+    ['Where is...?', '...iri he？', '...ee-ree heh?'],
+    ['Help!', 'Fungura！', 'Foon-goo-rah!'],
+    ['I don't understand', 'Sinumva', 'See-noom-vah'],
+    ['Do you speak English?', 'Uvuga Icyongereza？', 'Oo-voo-gah Ee-chon-geh-reh-za?'],
+    ['Water', 'Amazi', 'Ah-mah-zee'],
+    ['Food / Restaurant', 'Resitora', 'Reh-see-to-rah'],
+    ['Hospital', 'Ibitaro', 'Ee-bee-tah-ro'],
+    ['Good morning', 'Mwaramutse', 'M-wah-rah-moot-seh']
+  ] },
+  NG: { lang: 'Hausa', script: 'Latin', phrases: [
+    ['Hello', 'Sannu', 'San-noo'],
+    ['Thank you', 'Na gode', 'Nah go-deh'],
+    ['Please', 'Don Allah', 'Don Al-lah'],
+    ['Excuse me / Sorry', 'Yi hakuri', 'Yee hah-koo-ree'],
+    ['Yes', 'I / Eh', 'Ee / Eh'],
+    ['No', 'A'a', 'Ah-ah'],
+    ['How much?', 'Nawa ne？', 'Nah-wah neh?'],
+    ['Where is...?', '...yana ina？', '...yah-nah ee-nah?'],
+    ['Help!', 'Taimako！', 'Tie-mah-ko!'],
+    ['I don't understand', 'Ban fahimta ba', 'Ban fah-him-tah bah'],
+    ['Do you speak English?', 'Kana jin Turanci？', 'Kah-nah jin Too-ran-chee?'],
+    ['Water', 'Ruwa', 'Roo-wah'],
+    ['Food / Restaurant', 'Gidan abinci', 'Gee-dan ah-bin-chee'],
+    ['Hospital', 'Asibitin', 'Ah-see-bee-tin'],
+    ['Good morning', 'Ina kwana', 'Ee-nah kwah-nah']
+  ] },
+  MN: { lang: 'Mongolian', script: 'Cyrillic', phrases: [
+    ['Hello', 'Сайн байна уу', 'Sain baina uu'],
+    ['Thank you', 'Баярлалаа', 'Bayarlalaa'],
+    ['Please', 'Гуйя', 'Guiya'],
+    ['Excuse me / Sorry', 'Уучлаарай', 'Uuchlarai'],
+    ['Yes', 'Тийм', 'Tiim'],
+    ['No', 'Үгүй', 'Ugui'],
+    ['How much?', 'Хэд вэ？', 'Khed ve?'],
+    ['Where is...?', '...хаана байна？', '...khaana baina?'],
+    ['Help!', 'Туслаарай！', 'Tuslarai!'],
+    ['I don't understand', 'Би ойлгохгүй байна', 'Bi oilgokhgui baina'],
+    ['Do you speak English?', 'Та англиар ярьдаг уу？', 'Ta angliar yardag uu?'],
+    ['Water', 'Ус', 'Us'],
+    ['Food / Restaurant', 'Ресторан', 'Restoran'],
+    ['Hospital', 'Эмнэлэг', 'Emneleg'],
+    ['Good morning', 'Өглөөний мэнд', 'Ugluunii mend']
+  ] },
+  HU: { lang: 'Hungarian', script: 'Latin', phrases: [
+    ['Hello', 'Szia / Jó napot', 'See-ah / Yo nah-pot'],
+    ['Thank you', 'Köszönöm', 'Kuh-suh-nuhm'],
+    ['Please', 'Kérem', 'Kay-rem'],
+    ['Excuse me / Sorry', 'Elnézést', 'El-nay-zaysht'],
+    ['Yes', 'Igen', 'Ee-gen'],
+    ['No', 'Nem', 'Nem'],
+    ['How much?', 'Mennyibe kerül？', 'Men-yee-beh keh-ruhl?'],
+    ['Where is...?', 'Hol van...？', 'Hol van?'],
+    ['Help!', 'Segítség！', 'Sheh-geet-shayg!'],
+    ['I don't understand', 'Nem értem', 'Nem ayr-tem'],
+    ['Do you speak English?', 'Beszél angolul？', 'Beh-sayl ahn-go-lool?'],
+    ['Water', 'Víz', 'Veez'],
+    ['Food / Restaurant', 'Étterem', 'Ayt-teh-rem'],
+    ['Hospital', 'Kórház', 'Kor-haz'],
+    ['Good morning', 'Jó reggelt', 'Yo reg-gelt']
+  ] },
+  UG: { lang: 'Luganda', script: 'Latin', phrases: [
+    ['Hello', 'Oli otya', 'Oh-lee oh-tyah'],
+    ['Thank you', 'Webale', 'Weh-bah-leh'],
+    ['Please', 'Nsaba', 'N-sah-bah'],
+    ['Excuse me / Sorry', 'Nsonyiwa', 'N-sohn-yee-wah'],
+    ['Yes', 'Yee', 'Yeh-eh'],
+    ['No', 'Nedda', 'Neh-dah'],
+    ['How much?', 'Emiwendo mekka？', 'Eh-mee-wen-do meh-kah?'],
+    ['Where is...?', '...eri wa？', '...eh-ree wah?'],
+    ['Help!', 'Nnyamba！', 'N-nyam-bah!'],
+    ['I don't understand', 'Simanyi', 'See-mahn-yee'],
+    ['Do you speak English?', 'Oyogera Olungereza？', 'Oh-yo-geh-rah Oh-lun-geh-reh-za?'],
+    ['Water', 'Amazzi', 'Ah-mah-zee'],
+    ['Food / Restaurant', 'Oottya', 'Oh-tyah'],
+    ['Hospital', 'Eddwaliro', 'Eh-dwah-lee-ro'],
+    ['Good morning', 'Wasuze otya', 'Wah-soo-zeh oh-tyah']
+  ] }
+};// Nomadic Almanac — Health Data
+// VACCINE_DATA and ALTITUDE_DATA
+// Generated 2026-06-04
+
+const VACCINE_DATA = {
+  // Countries where Yellow Fever vaccination is required for entry (or endemic)
+  YF_ENDEMIC: ['AO','BJ','BF','BI','CM','CF','TD','CG','CD','CI','GQ','ET','GA','GH','GN','GW','KE','LR','ML','MR','MZ','NE','NG','RW','SN','SL','SS','SD','TZ','TG','UG','ZM'],
+
+  BY_COUNTRY: {
+    // ── Africa ───────────────────────────────────────────────────────────────
+    AO: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: 'Yellow Fever certificate required for all travellers.'
+    },
+    BJ: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    BF: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    BI: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    CM: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    CF: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    TD: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    CG: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    CD: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: 'DRC has one of the highest malaria burdens globally.'
+    },
+    CI: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    GQ: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    ET: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Meningitis ACWY'],
+      malaria: 'moderate',
+      notes: 'Malaria risk low at altitude (Addis Ababa > 2000m). Yellow Fever certificate required if arriving from endemic country.'
+    },
+    GA: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    GH: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    GN: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    GW: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    KE: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Meningitis ACWY'],
+      malaria: 'moderate',
+      notes: 'Yellow Fever certificate required if arriving from endemic country. Malaria risk lower in Nairobi highlands.'
+    },
+    LR: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    ML: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Meningitis ACWY','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    MR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Meningitis ACWY','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    MZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: 'Yellow Fever certificate required if arriving from endemic country.'
+    },
+    NE: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Meningitis ACWY','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    NG: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Meningitis ACWY','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    RW: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    SN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Meningitis ACWY','Rabies'],
+      malaria: 'high',
+      notes: 'Yellow Fever certificate required if arriving from endemic country.'
+    },
+    SL: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    SS: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Meningitis ACWY','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    SD: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Meningitis ACWY','Rabies'],
+      malaria: 'high',
+      notes: 'Yellow Fever certificate required if arriving from endemic country.'
+    },
+    TZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'high',
+      notes: 'Yellow Fever certificate required if arriving from endemic country. Kilimanjaro altitude sickness risk.'
+    },
+    TG: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    UG: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    ZM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: 'Yellow Fever certificate required if arriving from endemic country.'
+    },
+    DZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    EG: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'low',
+      notes: 'Malaria risk confined to El Faiyum area.'
+    },
+    LY: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    MA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    TN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    ZA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Malaria risk in Limpopo, Mpumalanga, and KwaZulu-Natal border areas.'
+    },
+    BW: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Malaria risk in northern regions (Okavango, Chobe).'
+    },
+    NA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Malaria risk in northern Namibia (Caprivi Strip, Kavango).'
+    },
+    ZW: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'moderate',
+      notes: 'Yellow Fever certificate required if arriving from endemic country.'
+    },
+    MW: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    MG: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    SZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'low',
+      notes: null
+    },
+    LS: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    SO: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Meningitis ACWY'],
+      malaria: 'high',
+      notes: null
+    },
+    DJ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    ER: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Meningitis ACWY'],
+      malaria: 'moderate',
+      notes: null
+    },
+    SC: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    MU: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    CV: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'low',
+      notes: 'Dengue (Dengvaxia) not indicated; risk present for individual travellers.'
+    },
+    ST: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'moderate',
+      notes: null
+    },
+    KM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'moderate',
+      notes: null
+    },
+    // ── Asia — Southeast ─────────────────────────────────────────────────────
+    TH: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria mainly in forested border regions. Dengue prevalent nationwide.'
+    },
+    VN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria risk in remote highland areas. Dengue prevalent.'
+    },
+    KH: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'moderate',
+      notes: 'Malaria mainly in forested western and northern provinces.'
+    },
+    LA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Japanese Encephalitis'],
+      malaria: 'moderate',
+      notes: null
+    },
+    MM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Japanese Encephalitis'],
+      malaria: 'moderate',
+      notes: 'Malaria risk in rural and forested areas.'
+    },
+    MY: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria risk in forested areas of Borneo (Sabah, Sarawak). Dengue prevalent.'
+    },
+    SG: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: 'Periodic dengue outbreaks.'
+    },
+    ID: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'moderate',
+      notes: 'Malaria risk outside Java and Bali. Dengue prevalent. No malaria risk in major tourist destinations on Java and Bali.'
+    },
+    PH: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria risk in Palawan and parts of Mindanao. Dengue prevalent.'
+    },
+    TL: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    BN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    // ── Asia — South ─────────────────────────────────────────────────────────
+    IN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Japanese Encephalitis'],
+      malaria: 'moderate',
+      notes: 'Japanese Encephalitis risk in rural areas. Dengue prevalent. Malaria varies significantly by region.'
+    },
+    NP: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria in Terai lowlands. Altitude sickness is a major risk for trekkers above 2500m.'
+    },
+    LK: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Dengue prevalent. Malaria risk in northern and eastern rural areas.'
+    },
+    BD: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Japanese Encephalitis'],
+      malaria: 'moderate',
+      notes: 'Malaria risk in Chittagong Hill Tracts. Dengue prevalent.'
+    },
+    PK: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Polio booster'],
+      malaria: 'moderate',
+      notes: 'Polio-endemic country — booster required for long-stay travellers per WHO guidance.'
+    },
+    AF: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Meningitis ACWY','Polio booster'],
+      malaria: 'moderate',
+      notes: 'Polio-endemic country.'
+    },
+    MV: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: 'Dengue risk present.'
+    },
+    BT: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria risk in southern lowland areas.'
+    },
+    // ── Asia — East ──────────────────────────────────────────────────────────
+    CN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria risk in Yunnan and Hainan. Japanese Encephalitis risk in rural areas. Altitude sickness risk on Tibetan Plateau.'
+    },
+    JP: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Japanese Encephalitis'],
+      malaria: 'none',
+      notes: 'Japanese Encephalitis risk mainly in rural areas during summer months.'
+    },
+    KR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Japanese Encephalitis'],
+      malaria: 'low',
+      notes: 'Malaria risk in northern border regions.'
+    },
+    KP: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'low',
+      notes: null
+    },
+    MN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    TW: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Japanese Encephalitis'],
+      malaria: 'none',
+      notes: 'Dengue risk in southern Taiwan.'
+    },
+    // ── Asia — Central ───────────────────────────────────────────────────────
+    KZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    UZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: null
+    },
+    TM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    KG: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: null
+    },
+    TJ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    // ── Middle East ──────────────────────────────────────────────────────────
+    SA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Meningitis ACWY'],
+      malaria: 'low',
+      notes: 'Meningitis ACWY required for Hajj and Umrah pilgrims. Malaria risk in south-western Asir province.'
+    },
+    AE: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    JO: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    IL: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    IQ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'low',
+      notes: null
+    },
+    IR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Malaria risk in south-eastern provinces (Sistan va Baluchestan, Hormozgan).'
+    },
+    YE: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'high',
+      notes: 'Active cholera outbreak ongoing. Malaria prevalent nationwide.'
+    },
+    OM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'low',
+      notes: 'Malaria risk in Musandam and parts of southern provinces.'
+    },
+    QA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    KW: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B'],
+      malaria: 'none',
+      notes: null
+    },
+    BH: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B'],
+      malaria: 'none',
+      notes: null
+    },
+    SY: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    LB: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    // ── Europe / Caucasus ────────────────────────────────────────────────────
+    TR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: 'Malaria historically present in southern plains; currently negligible.'
+    },
+    GE: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    AM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    AZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Malaria risk in rural lowland areas near the Azerbaijani-Armenian border.'
+    },
+    UA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    BY: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    MD: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    RS: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    BA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    AL: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    MK: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    ME: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    XK: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Rabies'],
+      malaria: 'none',
+      notes: null
+    },
+    RU: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'none',
+      notes: 'Tick-borne encephalitis risk in forested areas of Siberia and the Urals; consider vaccination.'
+    },
+    // ── Americas — Latin America ──────────────────────────────────────────────
+    MX: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Malaria risk in rural Chiapas, Oaxaca, Guerrero, Sinaloa. Dengue prevalent in coastal areas.'
+    },
+    GT: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Dengue prevalent. Malaria mainly in rural lowlands.'
+    },
+    BZ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: null
+    },
+    HN: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'moderate',
+      notes: 'Dengue prevalent.'
+    },
+    SV: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'low',
+      notes: 'Dengue prevalent.'
+    },
+    NI: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    CR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Dengue risk. Malaria in Caribbean lowlands.'
+    },
+    PA: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Malaria risk in Darien, San Blas, Bocas del Toro. Dengue prevalent.'
+    },
+    CO: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Yellow Fever recommended for jungle areas east of the Andes. Dengue prevalent. Malaria in Pacific and Amazon lowlands.'
+    },
+    VE: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Malaria risk in Bolivar and Amazonas states. Dengue prevalent.'
+    },
+    GY: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    SR: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    GF: {
+      required: ['Yellow Fever'],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'high',
+      notes: 'French Guiana — Yellow Fever required for entry.'
+    },
+    BR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Yellow Fever recommended for Amazon Basin and centre-west states. Malaria in Amazon region. Dengue prevalent nationwide.'
+    },
+    EC: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Yellow Fever recommended for jungle areas. Malaria in coastal and Amazon lowlands. Altitude risk in Quito and Andes.'
+    },
+    PE: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Yellow Fever recommended for Amazon jungle areas. Malaria in Loreto region. Altitude sickness significant in Cusco and Machu Picchu.'
+    },
+    BO: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'moderate',
+      notes: 'Malaria in lowland Amazon and Beni areas. Altitude sickness critical — La Paz 3640m, Uyuni salt flats ~3656m.'
+    },
+    PY: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Dengue prevalent.'
+    },
+    UY: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    AR: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'low',
+      notes: 'Malaria risk in northern border provinces (Salta, Jujuy). Dengue in north-eastern provinces.'
+    },
+    CL: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    CU: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: 'Dengue risk present.'
+    },
+    DO: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'moderate',
+      notes: 'Malaria (Plasmodium falciparum) present on Hispaniola. Dengue prevalent.'
+    },
+    HT: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies'],
+      malaria: 'moderate',
+      notes: null
+    },
+    JM: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: 'Dengue risk.'
+    },
+    TT: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: 'Dengue risk.'
+    },
+    BB: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    // ── Oceania ───────────────────────────────────────────────────────────────
+    PG: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Japanese Encephalitis'],
+      malaria: 'high',
+      notes: 'One of the highest malaria burdens in Oceania. Yellow Fever certificate required if arriving from endemic country.'
+    },
+    FJ: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: 'Dengue risk. Typhoid risk in rural areas.'
+    },
+    SB: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
+      malaria: 'high',
+      notes: null
+    },
+    VU: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'moderate',
+      notes: null
+    },
+    WS: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    TO: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+    PW: {
+      required: [],
+      recommended: ['Hepatitis A','Hepatitis B','Typhoid'],
+      malaria: 'none',
+      notes: null
+    },
+  }
+};
+
+const ALTITUDE_DATA = {
+  // ── Latin America ─────────────────────────────────────────────────────────
+  BO: 3640,   // La Paz (seat of government); Sucre 2810m; Uyuni 3660m
+  PE: 3399,   // Cusco (primary tourist destination); Lima is at sea level
+  CO: 2625,   // Bogota
+  EC: 2850,   // Quito
+  MX: 2240,   // Mexico City
+  GT: 1500,   // Guatemala City
+  CR: 1161,   // San Jose
+  HN: 1000,   // Tegucigalpa
+  SV: 658,    // San Salvador
+  VE: 900,    // Caracas
+  AR: 1782,   // Mendoza (primary Andes tourist region); Buenos Aires sea level
+  // ── Africa — East & Horn ──────────────────────────────────────────────────
+  ET: 2355,   // Addis Ababa
+  ER: 2325,   // Asmara
+  RW: 1567,   // Kigali
+  KE: 1661,   // Nairobi
+  UG: 1190,   // Kampala
+  BI: 776,    // Bujumbura
+  MG: 1276,   // Antananarivo
+  LS: 1600,   // Maseru
+  ZM: 1280,   // Lusaka
+  ZW: 1490,   // Harare
+  MW: 1030,   // Lilongwe
+  // ── Africa — West & Central ───────────────────────────────────────────────
+  CM: 760,    // Yaounde
+  // ── Africa — North ────────────────────────────────────────────────────────
+  MA: 1750,   // Marrakech (Atlas gateway); Rabat is at sea level
+  DZ: 728,    // Algiers (Tell Atlas; Tamanrasset 1400m)
+  // ── Middle East ───────────────────────────────────────────────────────────
+  YE: 2250,   // Sana'a
+  SA: 950,    // Riyadh; Abha (Asir) ~2200m primary tourist altitude
+  JO: 775,    // Amman
+  // ── Asia — Caucasus ───────────────────────────────────────────────────────
+  AM: 990,    // Yerevan
+  GE: 490,    // Tbilisi (just under threshold; Kazbegi 1700m is primary tourist destination)
+  // ── Asia — Central ────────────────────────────────────────────────────────
+  KG: 760,    // Bishkek (Tian Shan peaks 3000-7000m)
+  TJ: 800,    // Dushanbe (Pamir Highway primary route > 4000m)
+  AF: 1791,   // Kabul
+  KZ: 1050,   // Nur-Sultan (Astana)
+  // ── Asia — South ─────────────────────────────────────────────────────────
+  NP: 1300,   // Kathmandu; trekking areas up to 5000m+
+  BT: 2334,   // Thimphu
+  // ── Asia — East ──────────────────────────────────────────────────────────
+  CN: 3490,   // Lhasa (Tibet; primary high-altitude tourist destination)
+  MN: 1350,   // Ulaanbaatar
+  // ── Europe ────────────────────────────────────────────────────────────────
+  AD: 1023,   // Andorra la Vella
+  ES: 650,    // Madrid
+  CH: 549,    // Bern (Swiss Alps tourist areas much higher)
+  AT: 542,    // Vienna (Alps tourist areas much higher)
+  // ── Oceania ───────────────────────────────────────────────────────────────
+  PG: 1500,   // Papua New Guinea highlands (primary inland tourist destination)
+};
+const TIPPING_DETAIL_DATA = {
+  US: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '18-20%', cash: false, note: 'Expected at sit-down restaurants; 15% minimum considered poor' },
+      cafe:         { tip: '10-15%', cash: false, note: 'Tip jars common at counters; optional but appreciated' },
+      bar:          { tip: '$1-2/drink', cash: false, note: 'Per drink or 15-20% on tab; bartenders rely on tips' },
+      taxi:         { tip: '15-20%', cash: true, note: 'Also applies to rideshare; prompts on screen are common' },
+      hotel_porter: { tip: '$2-3/bag', cash: true, note: 'Hand directly; $5 minimum for short stays' },
+      housekeeping: { tip: '$3-5/night', cash: true, note: 'Leave daily with note; staff often changes day to day' },
+      spa:          { tip: '15-20%', cash: false, note: 'Standard for all spa and salon services' },
+      haircut:      { tip: '15-20%', cash: false, note: 'Tip stylist directly; separate tip for shampoo staff' },
+      tour_guide:   { tip: '$10-20/day', cash: true, note: 'Per person per day; more for exceptional service' },
+      delivery:     { tip: '15-20%', cash: false, note: 'App prompts standard; delivery workers depend on tips' },
+    },
+    quickTip: 'Tipping is mandatory in culture; 20% at restaurants is the baseline expectation.'
+  },
+  CA: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '15-20%', cash: false, note: 'Pre-tax or post-tax; POS terminals default to 18-20%' },
+      cafe:         { tip: '10-15%', cash: false, note: 'Counter service tips increasingly expected' },
+      bar:          { tip: '15%', cash: false, note: 'Per round or on tab; similar to restaurant norms' },
+      taxi:         { tip: '10-15%', cash: true, note: 'Rideshare tips also expected; less pressure than US' },
+      hotel_porter: { tip: '$2/bag', cash: true, note: 'Standard; slightly lower expectation than US' },
+      housekeeping: { tip: '$2-3/night', cash: true, note: 'Less common than US but appreciated' },
+      spa:          { tip: '15%', cash: false, note: 'Standard across provinces' },
+      haircut:      { tip: '15%', cash: false, note: 'Consistent with restaurant norms' },
+      tour_guide:   { tip: '$10-15/day', cash: true, note: 'Per person; common in tourism-heavy areas' },
+      delivery:     { tip: '10-15%', cash: false, note: 'App-based tipping standard' },
+    },
+    quickTip: 'Tipping culture mirrors the US; 15-18% at restaurants is the accepted baseline.'
+  },
+  GB: {
+    serviceCharge: true,
+    scNote: 'Optional 12.5% service charge often added; legally you may remove it',
+    industries: {
+      restaurant:   { tip: '10-12.5%', cash: false, note: 'Service charge often included; check bill before tipping extra' },
+      cafe:         { tip: 'none', cash: false, note: 'Tipping at cafes is rare and never expected' },
+      bar:          { tip: 'none', cash: true, note: 'Buying bartender a drink is traditional over cash tip' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round to nearest pound; 10% for helpful drivers' },
+      hotel_porter: { tip: '£1-2/bag', cash: true, note: 'Modest tip expected at upscale hotels' },
+      housekeeping: { tip: '£1-2/night', cash: true, note: 'Less common than in North America' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated but not mandatory' },
+      haircut:      { tip: '10%', cash: false, note: 'Common but not obligatory' },
+      tour_guide:   { tip: '£5-10/day', cash: true, note: 'Per person for guided tours' },
+      delivery:     { tip: 'none', cash: false, note: 'Not culturally embedded; app prompts exist but rarely used' },
+    },
+    quickTip: 'Check if service charge is already on the bill before adding any extra tip.'
+  },
+  IE: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: false, note: 'Appreciated but less pressured than North America' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected at cafes or coffee shops' },
+      bar:          { tip: 'none', cash: true, note: 'Offering to buy a round is the local custom' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up or add €1-2; not mandatory' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Appreciated at upscale properties' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Optional; less expected than in US' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated for good service' },
+      haircut:      { tip: '10%', cash: false, note: 'Common at upscale salons' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Standard for guided experiences' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely practiced' },
+    },
+    quickTip: 'Tipping is appreciated but relaxed; 10-15% at restaurants is generous and sufficient.'
+  },
+  AU: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: false, note: 'Not expected; staff earn minimum wage. Tip for standout service only' },
+      cafe:         { tip: 'none', cash: false, note: 'Virtually never expected; tap-and-go screens may prompt' },
+      bar:          { tip: 'none', cash: false, note: 'Tipping at bars is rare; not part of culture' },
+      taxi:         { tip: 'round up', cash: true, note: 'Rounding up is polite; not obligatory' },
+      hotel_porter: { tip: 'none', cash: true, note: 'Not expected; small tip for exceptional service OK' },
+      housekeeping: { tip: 'none', cash: true, note: 'Not customary; workers paid award wages' },
+      spa:          { tip: 'none', cash: false, note: 'Not expected; leave a positive review instead' },
+      haircut:      { tip: 'none', cash: false, note: 'Not customary in Australia' },
+      tour_guide:   { tip: 'none', cash: true, note: 'Not expected; appreciated for exceptional guides' },
+      delivery:     { tip: 'none', cash: false, note: 'Not customary; platforms may prompt but rarely used' },
+    },
+    quickTip: 'Tipping is not expected in Australia; workers receive regulated minimum wages.'
+  },
+  NZ: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Not expected; staff paid living wage. Tip if truly impressed' },
+      cafe:         { tip: 'none', cash: false, note: 'Counter tip jars exist but deposit is entirely optional' },
+      bar:          { tip: 'none', cash: false, note: 'Not part of New Zealand bar culture' },
+      taxi:         { tip: 'round up', cash: true, note: 'Optional; rounding up is a polite gesture' },
+      hotel_porter: { tip: 'none', cash: true, note: 'Not expected; appreciated at luxury properties' },
+      housekeeping: { tip: 'none', cash: true, note: 'Not customary' },
+      spa:          { tip: 'none', cash: false, note: 'Not expected' },
+      haircut:      { tip: 'none', cash: false, note: 'Not customary' },
+      tour_guide:   { tip: 'none', cash: true, note: 'Appreciated for excellent experience but not obligatory' },
+      delivery:     { tip: 'none', cash: false, note: 'Not culturally practiced' },
+    },
+    quickTip: 'Tipping is not expected; New Zealand has strong wage protections for service workers.'
+  },
+  DE: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: true, note: 'Round up or say desired amount when paying; never leave on table' },
+      cafe:         { tip: 'round up', cash: true, note: 'Round to nearest euro; not mandatory' },
+      bar:          { tip: 'round up', cash: true, note: 'Leave small change or round up; tipping not heavy' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round to nearest euro; 5-10% for longer rides' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at mid-range and luxury hotels' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Leave daily with note' },
+      spa:          { tip: '5-10%', cash: true, note: 'Cash preferred; tip handed directly to therapist' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Round up or add a few euros; give directly' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person for guided tours' },
+      delivery:     { tip: '€1-2', cash: false, note: 'Small tip appreciated; app-based tipping common' },
+    },
+    quickTip: 'Tell the server the total you want to pay (including tip) rather than leaving change on the table.'
+  },
+  FR: {
+    serviceCharge: true,
+    scNote: 'Service compris (15%) is legally included in all restaurant prices',
+    industries: {
+      restaurant:   { tip: 'none', cash: true, note: 'Service is included by law; extra tip optional for good service' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small coins if you wish; never expected' },
+      bar:          { tip: 'none', cash: true, note: 'Not customary; leave coins at most' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up to nearest euro; 5-10% for helpful drivers' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at hotels; give directly' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Leave at end of stay with note' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at upscale spas' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Common at salons; given directly to stylist' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person; appreciated for quality guides' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely expected' },
+    },
+    quickTip: 'Service is legally included in prices; any extra tip is a genuine bonus, not an obligation.'
+  },
+  IT: {
+    serviceCharge: true,
+    scNote: 'Coperto (cover charge) of €1-3 per person is standard; separate from service tip',
+    industries: {
+      restaurant:   { tip: 'none', cash: true, note: 'Coperto covers service; extra tip optional and appreciated' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small coins on counter; espresso bars rarely tipped' },
+      bar:          { tip: 'none', cash: true, note: 'Not customary; leave coins if you like' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up to nearest euro; not obligatory' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at three-star and above' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Leave at end of stay' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at resort and hotel spas' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Small tip appreciated; not mandatory' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person; very common for licensed guides' },
+      delivery:     { tip: 'none', cash: false, note: 'Not customary' },
+    },
+    quickTip: 'The coperto cover charge is mandatory; an additional tip is a genuine sign of appreciation.'
+  },
+  ES: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: true, note: 'Not obligatory; leaving coins is fine. No guilt for not tipping' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small change if you wish; not expected' },
+      bar:          { tip: 'none', cash: true, note: 'Leave coins; tapas culture means small tabs anyway' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 5-10% for longer journeys' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Appreciated at hotels' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Leave daily or at end of stay' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at upscale spas' },
+      haircut:      { tip: '5%', cash: true, note: 'Small tip appreciated; not mandatory' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person; tourism is major industry' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely practiced' },
+    },
+    quickTip: 'Tipping is optional and modest; locals leave small change rather than percentage-based amounts.'
+  },
+  PT: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: true, note: 'Not obligatory; appreciated for good service' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small coins; pastelaria tips minimal' },
+      bar:          { tip: 'none', cash: true, note: 'Not customary; leave coins if you like' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 5-10% acceptable' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Appreciated; leave with note' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at resort spas' },
+      haircut:      { tip: '5%', cash: true, note: 'Small tip for good service' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person; guides appreciate it' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely expected' },
+    },
+    quickTip: 'Tipping is appreciated but modest; 5-10% cash at restaurants is more than sufficient.'
+  },
+  NL: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: false, note: 'Rounding up is common; percentage tipping less prevalent' },
+      cafe:         { tip: 'round up', cash: false, note: 'Leave small change; not required' },
+      bar:          { tip: 'round up', cash: false, note: 'Rounding up is the norm; heavy tipping uncommon' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up to nearest euro; not obligatory' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at full-service hotels' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Not commonly practiced but appreciated' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated at upscale establishments' },
+      haircut:      { tip: '5-10%', cash: false, note: 'Common at salons' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person for guided tours' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely expected' },
+    },
+    quickTip: 'Tipping is appreciated but modest; rounding up the bill is the typical Dutch approach.'
+  },
+  BE: {
+    serviceCharge: true,
+    scNote: 'Service charge (16%) is legally included in restaurant bills',
+    industries: {
+      restaurant:   { tip: 'none', cash: true, note: 'Service included by law; round up for extra appreciation' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small coins if you wish' },
+      bar:          { tip: 'none', cash: true, note: 'Not customary' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round to nearest euro' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Appreciated; not obligatory' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at upscale spas' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person for quality guides' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely expected' },
+    },
+    quickTip: 'Service is legally included in restaurant bills; any extra amount is purely optional goodwill.'
+  },
+  CH: {
+    serviceCharge: true,
+    scNote: 'Service charge is included in prices by law; additional tipping is discretionary',
+    industries: {
+      restaurant:   { tip: 'none', cash: true, note: 'Service included; round up or leave CHF 1-5 for good service' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small coins; not expected' },
+      bar:          { tip: 'round up', cash: true, note: 'Round to nearest franc' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 5-10% for helpful drivers' },
+      hotel_porter: { tip: 'CHF 2-3/bag', cash: true, note: 'Switzerland is expensive; tips reflect that' },
+      housekeeping: { tip: 'CHF 2-3/night', cash: true, note: 'Leave daily with note' },
+      spa:          { tip: 'CHF 10-20', cash: true, note: 'Appreciated at upscale Alpine spas' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Give directly to stylist' },
+      tour_guide:   { tip: 'CHF 10-20/day', cash: true, note: 'Per person; Switzerland has high cost of living' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely expected' },
+    },
+    quickTip: 'Service is included by law; round up generously given Switzerland\'s high cost of living.'
+  },
+  AT: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: true, note: 'Tell waiter desired total when paying; do not leave on table' },
+      cafe:         { tip: 'round up', cash: true, note: 'Vienna coffee house culture: leave small coins' },
+      bar:          { tip: 'round up', cash: true, note: 'Round up to nearest euro' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 5-10% for good service' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Appreciated; leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at Alpine wellness resorts' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person for guided tours' },
+      delivery:     { tip: '€1-2', cash: false, note: 'Small tip via app appreciated' },
+    },
+    quickTip: 'Tell the server the exact total you want to pay including tip when they come to collect.'
+  },
+  SE: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: false, note: 'Not obligatory; Swedes rarely tip but tourists may' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected; tip prompts on card terminals exist' },
+      bar:          { tip: 'none', cash: false, note: 'Not customary in Sweden' },
+      taxi:         { tip: 'round up', cash: false, note: 'Round up; tipping apps now prompt for tips' },
+      hotel_porter: { tip: 'SEK 20-50/bag', cash: true, note: 'Not common; appreciated at luxury hotels' },
+      housekeeping: { tip: 'SEK 20-50/night', cash: true, note: 'Not widely practiced' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated but not expected' },
+      haircut:      { tip: '5-10%', cash: false, note: 'Increasingly common with card terminals' },
+      tour_guide:   { tip: 'SEK 50-100/day', cash: true, note: 'Per person; appreciated' },
+      delivery:     { tip: 'none', cash: false, note: 'Not culturally established' },
+    },
+    quickTip: 'Tipping is not expected in Sweden; workers earn living wages and tips are always optional.'
+  },
+  NO: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '5-10%', cash: false, note: 'Not obligatory; staff earn high wages. Tip for great service' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: 'none', cash: false, note: 'Not customary' },
+      taxi:         { tip: 'round up', cash: false, note: 'Round up; not obligatory' },
+      hotel_porter: { tip: 'NOK 20-50/bag', cash: true, note: 'Appreciated at upscale hotels' },
+      housekeeping: { tip: 'NOK 20-50/night', cash: true, note: 'Not widely practiced' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated but not expected' },
+      haircut:      { tip: '5-10%', cash: false, note: 'Becoming more common' },
+      tour_guide:   { tip: 'NOK 50-100/day', cash: true, note: 'Per person; appreciated' },
+      delivery:     { tip: 'none', cash: false, note: 'Not customary' },
+    },
+    quickTip: 'Norway has strong wages; tipping is never obligatory but welcomed for exceptional service.'
+  },
+  DK: {
+    serviceCharge: true,
+    scNote: 'Service charge typically included in restaurant bills',
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Service included; round up if service was exceptional' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: 'none', cash: false, note: 'Not customary' },
+      taxi:         { tip: 'round up', cash: false, note: 'Round to nearest krone; not obligatory' },
+      hotel_porter: { tip: 'DKK 20-40/bag', cash: true, note: 'Appreciated at upscale hotels' },
+      housekeeping: { tip: 'DKK 20-40/night', cash: true, note: 'Not widely expected' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated' },
+      haircut:      { tip: '5-10%', cash: false, note: 'Becoming more common' },
+      tour_guide:   { tip: 'DKK 50-100/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'none', cash: false, note: 'Not culturally established' },
+    },
+    quickTip: 'Service is typically included; tipping is optional and any extra is a genuine gift.'
+  },
+  FI: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Not expected; Finns rarely tip. Round up to be polite' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: 'none', cash: false, note: 'Not customary' },
+      taxi:         { tip: 'none', cash: false, note: 'Not expected; round up occasionally' },
+      hotel_porter: { tip: 'none', cash: true, note: 'Not expected; small tip at luxury hotels' },
+      housekeeping: { tip: 'none', cash: true, note: 'Not customary' },
+      spa:          { tip: 'none', cash: false, note: 'Not expected' },
+      haircut:      { tip: 'none', cash: false, note: 'Not customary in Finland' },
+      tour_guide:   { tip: '€5/day', cash: true, note: 'Per person; increasingly accepted' },
+      delivery:     { tip: 'none', cash: false, note: 'Not expected' },
+    },
+    quickTip: 'Finland has minimal tipping culture; workers earn regulated wages and tips are never expected.'
+  },
+  PL: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Say kwota when paying to indicate tip; do not leave on table' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small change; appreciated' },
+      bar:          { tip: 'round up', cash: true, note: 'Round to nearest zloty' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 5-10% for longer rides' },
+      hotel_porter: { tip: 'PLN 5-10/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'PLN 5-10/night', cash: true, note: 'Leave with note' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at spas' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'PLN 20-50/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'PLN 3-5', cash: false, note: 'App tipping becoming common' },
+    },
+    quickTip: 'Tell the server the total you want to pay including tip; do not leave coins on the table.'
+  },
+  CZ: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Tell the server the total when paying; don\'t leave on table' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small coins; appreciated' },
+      bar:          { tip: 'round up', cash: true, note: 'Round up; common in Prague tourist areas' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 10% for tourist areas' },
+      hotel_porter: { tip: 'CZK 20-50/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'CZK 20-50/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at spa resorts' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'CZK 100-200/day', cash: true, note: 'Per person; important in tourist industry' },
+      delivery:     { tip: 'CZK 20-30', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'State the total amount you wish to pay when handing over cash; the change is the tip.'
+  },
+  HU: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: true, note: 'State total when paying; never leave on table after waiter collects' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small change' },
+      bar:          { tip: 'round up', cash: true, note: 'Round up to nearest hundred forint' },
+      taxi:         { tip: '10%', cash: true, note: '10% expected; Budapest taxis commonly expect tips' },
+      hotel_porter: { tip: 'HUF 500-1000/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'HUF 500-1000/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10-15%', cash: true, note: 'Hungary famous for thermal spas; tip therapists' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'HUF 1000-2000/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'HUF 200-500', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Always state the full amount including tip when paying; do not leave money on the table.'
+  },
+  RO: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Tell server the amount when paying; tipping norms growing' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small change' },
+      bar:          { tip: 'round up', cash: true, note: 'Round up; appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; not obligatory' },
+      hotel_porter: { tip: 'RON 5-10/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'RON 5-10/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'RON 20-40/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'RON 5-10', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tipping norms are growing; 10% cash at restaurants is a respectful and appreciated amount.'
+  },
+  GR: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Leave cash on table; appreciated but not obligatory' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small coins; Greek cafe culture is relaxed' },
+      bar:          { tip: 'round up', cash: true, note: 'Leave coins; not mandatory' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for luggage help' },
+      hotel_porter: { tip: '€1-2/bag', cash: true, note: 'Standard especially in tourist areas' },
+      housekeeping: { tip: '€1-2/night', cash: true, note: 'Leave with note daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at resort spas' },
+      haircut:      { tip: '5-10%', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: '€5-10/day', cash: true, note: 'Per person; important in Greek tourism economy' },
+      delivery:     { tip: '€1-2', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Leave cash on the table at restaurants; tipping is appreciated but the amount is your choice.'
+  },
+  TR: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: true, note: 'Leave cash; card tips may not reach staff' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small coins; appreciated' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash on table' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for luggage help' },
+      hotel_porter: { tip: 'TRY 20-50/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'TRY 20-50/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10-15%', cash: true, note: 'Hamam attendants expect tips; give cash directly' },
+      haircut:      { tip: '10%', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'TRY 50-100/day', cash: true, note: 'Per person; guides depend on tips' },
+      delivery:     { tip: 'TRY 10-20', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Always tip in cash; at Turkish baths (hamam) tip the attendant directly after the service.'
+  },
+  RU: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Leave cash; tipping culture established in cities' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave small change; appreciated' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated in Moscow and St. Petersburg bars' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; app-based services less tip-reliant' },
+      hotel_porter: { tip: 'RUB 100-200/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'RUB 100-200/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: '10%', cash: true, note: 'Common in cities' },
+      tour_guide:   { tip: 'RUB 300-500/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'RUB 50-100', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tipping is established in major Russian cities; 10% cash is a respectful gesture.'
+  },
+  JP: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Tipping is considered rude; staff may chase you to return money' },
+      cafe:         { tip: 'none', cash: false, note: 'Never tip; exceptional service is a cultural standard' },
+      bar:          { tip: 'none', cash: false, note: 'Do not tip; bottle service at clubs has separate pricing' },
+      taxi:         { tip: 'none', cash: false, note: 'Never tip; drivers may be offended by the offer' },
+      hotel_porter: { tip: 'none', cash: false, note: 'Do not tip individual staff; tip via envelope at checkout if staying long' },
+      housekeeping: { tip: 'none', cash: false, note: 'Do not leave loose change; it may be mistaken for forgotten money' },
+      spa:          { tip: 'none', cash: false, note: 'Never tip at onsen or massage establishments' },
+      haircut:      { tip: 'none', cash: false, note: 'Do not tip; it is offensive in Japan' },
+      tour_guide:   { tip: 'none', cash: false, note: 'Do not tip; group tip envelopes for multi-day tours are exception' },
+      delivery:     { tip: 'none', cash: false, note: 'Never tip delivery workers in Japan' },
+    },
+    quickTip: 'Tipping is considered rude in Japan; great service is the cultural baseline, not a bonus.'
+  },
+  KR: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Tipping is not practiced and can cause awkwardness' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected or practiced' },
+      bar:          { tip: 'none', cash: false, note: 'Do not tip; table service is included in pricing' },
+      taxi:         { tip: 'none', cash: false, note: 'Not expected; meters are strictly followed' },
+      hotel_porter: { tip: 'none', cash: false, note: 'Not customary; luxury international hotels may accept' },
+      housekeeping: { tip: 'none', cash: false, note: 'Not practiced' },
+      spa:          { tip: 'none', cash: false, note: 'Not expected' },
+      haircut:      { tip: 'none', cash: false, note: 'Not customary' },
+      tour_guide:   { tip: 'none', cash: false, note: 'Not traditional; some tourist-oriented guides accept' },
+      delivery:     { tip: 'none', cash: false, note: 'Not practiced' },
+    },
+    quickTip: 'Tipping is not part of Korean culture; attempting to tip can create awkwardness for staff.'
+  },
+  CN: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Not customary and sometimes refused; high-end hotels differ' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: 'none', cash: false, note: 'Not customary except in Western-style bars in Shanghai/Beijing' },
+      taxi:         { tip: 'none', cash: false, note: 'Not expected; DiDi app rides do not prompt for tips' },
+      hotel_porter: { tip: 'none', cash: false, note: 'Not expected; international luxury hotels may accept' },
+      housekeeping: { tip: 'none', cash: false, note: 'Not customary' },
+      spa:          { tip: 'none', cash: false, note: 'Not expected in local spas' },
+      haircut:      { tip: 'none', cash: false, note: 'Not customary' },
+      tour_guide:   { tip: 'none', cash: false, note: 'May be expected on international tourist packages' },
+      delivery:     { tip: 'none', cash: false, note: 'Not practiced' },
+    },
+    quickTip: 'Tipping is not practiced in China and can be refused; international hotels are the main exception.'
+  },
+  TH: {
+    serviceCharge: true,
+    scNote: '10% service charge added at tourist-area restaurants and hotels',
+    industries: {
+      restaurant:   { tip: 'THB 20-50', cash: true, note: 'Leave coins from change; percentage less common' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected; leave coins if you wish' },
+      bar:          { tip: 'THB 20-50', cash: true, note: 'Leave cash on bar; appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round to nearest 10-20 baht; for metered taxis' },
+      hotel_porter: { tip: 'THB 20-50/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'THB 20-50/night', cash: true, note: 'Leave daily on pillow' },
+      spa:          { tip: 'THB 50-100', cash: true, note: 'Give directly to therapist; Thai massage workers rely on tips' },
+      haircut:      { tip: 'THB 50-100', cash: true, note: 'Appreciated; give directly' },
+      tour_guide:   { tip: 'THB 100-200/day', cash: true, note: 'Per person; guides depend on tips' },
+      delivery:     { tip: 'THB 10-20', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Always tip Thai massage therapists in cash directly; it forms a significant part of their income.'
+  },
+  VN: {
+    serviceCharge: true,
+    scNote: '5-10% service charge at tourist restaurants and hotels',
+    industries: {
+      restaurant:   { tip: 'VND 10000-50000', cash: true, note: 'Not expected at local pho shops; appreciated at tourist venues' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: 'VND 20000-50000', cash: true, note: 'Leave cash; appreciated in tourist bars' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for honest metered service' },
+      hotel_porter: { tip: 'VND 20000-50000/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'VND 20000-50000/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: 'VND 50000-100000', cash: true, note: 'Give directly to therapist; important for income' },
+      haircut:      { tip: 'VND 20000-50000', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'VND 100000-200000/day', cash: true, note: 'Per person; USD also accepted' },
+      delivery:     { tip: 'VND 10000-20000', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tip spa and massage therapists directly in cash; USD is widely accepted for tips.'
+  },
+  ID: {
+    serviceCharge: true,
+    scNote: '10% service charge plus 10% VAT common at restaurants and hotels',
+    industries: {
+      restaurant:   { tip: '5-10%', cash: true, note: 'Leave cash if service charge not already included' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated in tourist bars in Bali and Jakarta' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for Blue Bird metered taxis' },
+      hotel_porter: { tip: 'IDR 10000-20000/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'IDR 10000-20000/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: 'IDR 20000-50000', cash: true, note: 'Give directly; important in Bali spa culture' },
+      haircut:      { tip: 'IDR 10000-20000', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'IDR 50000-100000/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'IDR 5000-10000', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Check if service charge is already added before tipping; in Bali tip spa staff directly in cash.'
+  },
+  MY: {
+    serviceCharge: true,
+    scNote: '10% service charge standard at restaurants; 6% SST also applies',
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Service charge included; extra tip optional at upscale venues' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; Grab app less tip-reliant' },
+      hotel_porter: { tip: 'MYR 2-5/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'MYR 2-5/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'If not included in bill; give directly' },
+      haircut:      { tip: 'MYR 3-5', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'MYR 10-20/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'MYR 1-2', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Service charge is usually included in Malaysia; check your bill before adding anything extra.'
+  },
+  SG: {
+    serviceCharge: true,
+    scNote: '10% service charge plus 9% GST applied at most restaurants and hotels',
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Service charge legally mandated; additional tipping not expected' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: 'none', cash: false, note: 'Service charge covers it; leave cash if impressed' },
+      taxi:         { tip: 'none', cash: false, note: 'Not expected; metered fares are transparent' },
+      hotel_porter: { tip: 'none', cash: false, note: 'Not expected; service charge applies' },
+      housekeeping: { tip: 'none', cash: false, note: 'Not expected' },
+      spa:          { tip: 'none', cash: false, note: 'Service charge covers gratuity' },
+      haircut:      { tip: 'none', cash: false, note: 'Not customary' },
+      tour_guide:   { tip: 'SGD 5-10/day', cash: true, note: 'Per person; appreciated for excellent guides' },
+      delivery:     { tip: 'none', cash: false, note: 'Not practiced' },
+    },
+    quickTip: 'Singapore\'s mandatory 10% service charge means additional tipping is never expected.'
+  },
+  PH: {
+    serviceCharge: true,
+    scNote: '10% service charge common at restaurants and hotels in cities',
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'If no service charge; leave cash for staff directly' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'PHP 20-50', cash: true, note: 'Round up; Grab is less tip-reliant but appreciated' },
+      hotel_porter: { tip: 'PHP 50-100/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'PHP 50-100/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: 'PHP 100-200', cash: true, note: 'Give directly; Filipino masseurs rely on tips' },
+      haircut:      { tip: 'PHP 50-100', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'PHP 200-500/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'PHP 20-50', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tip in cash directly to service staff; gratuity is an important supplement to low base wages.'
+  },
+  IN: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Leave cash; card tips often do not reach staff' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected at chain cafes; leave change if you wish' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash on table' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; Ola/Uber users can tip in app' },
+      hotel_porter: { tip: 'INR 50-100/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'INR 50-100/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10-15%', cash: true, note: 'Give directly to therapist; important to their income' },
+      haircut:      { tip: 'INR 20-50', cash: true, note: 'Appreciated; give directly' },
+      tour_guide:   { tip: 'INR 200-500/day', cash: true, note: 'Per person; USD also accepted' },
+      delivery:     { tip: 'INR 20-50', cash: false, note: 'In-app tipping appreciated' },
+    },
+    quickTip: 'Always tip in cash directly to the individual; card or desk tips often do not reach the staff.'
+  },
+  LK: {
+    serviceCharge: true,
+    scNote: '10% service charge common at tourist restaurants and hotels',
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'If not included; leave cash for staff' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for helpful drivers' },
+      hotel_porter: { tip: 'LKR 200-500/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'LKR 200-500/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Give directly to therapist' },
+      haircut:      { tip: 'LKR 100-200', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'LKR 500-1000/day', cash: true, note: 'Per person; USD welcomed' },
+      delivery:     { tip: 'LKR 100-200', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Check your bill for service charge; cash tips given directly to staff are most appreciated.'
+  },
+  NP: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Standard at tourist restaurants in Kathmandu and Pokhara' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected; leave change if you wish' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated in tourist areas' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for helping with luggage' },
+      hotel_porter: { tip: 'NPR 200-500/bag', cash: true, note: 'Standard; trekking porters have higher expectations' },
+      housekeeping: { tip: 'NPR 200-300/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Give directly' },
+      haircut:      { tip: 'NPR 100-200', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: '$5-10/day', cash: true, note: 'Per person; USD preferred. Trekking guides expect more' },
+      delivery:     { tip: 'NPR 50-100', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'For trekking guides and porters, USD tips are preferred and culturally expected as part of their income.'
+  },
+  AE: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: false, note: 'Expected at sit-down restaurants; most staff are migrant workers' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected at chain cafes; leave change for small venues' },
+      bar:          { tip: '10-15%', cash: false, note: 'Appreciated at licensed venues in Dubai and Abu Dhabi' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for helpful service' },
+      hotel_porter: { tip: 'AED 5-10/bag', cash: true, note: 'Standard at luxury Dubai hotels' },
+      housekeeping: { tip: 'AED 10-20/night', cash: true, note: 'Leave daily; important for low-wage migrant workers' },
+      spa:          { tip: '15%', cash: false, note: 'Expected at hotel spas' },
+      haircut:      { tip: '10-15%', cash: false, note: 'Appreciated at salons' },
+      tour_guide:   { tip: 'AED 30-50/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'AED 5-10', cash: false, note: 'Appreciated; delivery workers earn very low wages' },
+    },
+    quickTip: 'Tipping is culturally embedded in UAE; service staff are predominantly low-wage migrant workers.'
+  },
+  SA: {
+    serviceCharge: true,
+    scNote: '15% service charge applies at restaurants under Saudi VAT rules',
+    industries: {
+      restaurant:   { tip: 'none', cash: true, note: 'Service charge included; extra tip appreciated but not expected' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: 'none', cash: false, note: 'Alcohol is banned; concept does not apply' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for helpful drivers' },
+      hotel_porter: { tip: 'SAR 5-10/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'SAR 10-20/night', cash: true, note: 'Appreciated; leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated at hotel spas' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'SAR 30-50/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'SAR 5-10', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Service charges are applied at restaurants; additional tipping is a gesture of appreciation, not required.'
+  },
+  IL: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: true, note: 'Important to restaurant staff; Israelis tip routinely' },
+      cafe:         { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      bar:          { tip: '10-15%', cash: true, note: 'Expected in Tel Aviv bar culture' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; 10% for helpful service' },
+      hotel_porter: { tip: 'ILS 5-10/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'ILS 10-20/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10-15%', cash: true, note: 'Expected' },
+      haircut:      { tip: '10-15%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'ILS 30-50/day', cash: true, note: 'Per person; Israeli guides are very professional' },
+      delivery:     { tip: 'ILS 5-10', cash: false, note: 'App tipping appreciated' },
+    },
+    quickTip: 'Tipping is an established Israeli norm; 10-15% at restaurants is expected by staff.'
+  },
+  EG: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Baksheesh culture; cash essential. Staff wages are very low' },
+      cafe:         { tip: 'EGP 5-10', cash: true, note: 'Leave small change; appreciated' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for AC and helpful service' },
+      hotel_porter: { tip: 'EGP 20-50/bag', cash: true, note: 'Standard; USD also accepted' },
+      housekeeping: { tip: 'EGP 20-50/night', cash: true, note: 'Leave daily; important for low-wage staff' },
+      spa:          { tip: '10-15%', cash: true, note: 'Give directly to therapist' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: '$5-10/day', cash: true, note: 'Per person; USD preferred. Essential for guides\' income' },
+      delivery:     { tip: 'EGP 10-20', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Baksheesh (small tips) are deeply embedded in Egyptian culture; carry small bills for all services.'
+  },
+  MA: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Leave cash; restaurant staff earn low wages' },
+      cafe:         { tip: 'MAD 5-10', cash: true, note: 'Leave coins; appreciated' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated in tourist-area establishments' },
+      taxi:         { tip: 'round up', cash: true, note: 'Petit taxi: round up. Tour drivers tip more generously' },
+      hotel_porter: { tip: 'MAD 10-20/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'MAD 10-20/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10-15%', cash: true, note: 'Hammam attendants expect tips; give directly' },
+      haircut:      { tip: 'MAD 10-20', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'MAD 50-100/day', cash: true, note: 'Per person; important in tourism-dependent economy' },
+      delivery:     { tip: 'MAD 5-10', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tip hammam attendants directly in cash; carry small dirhams for all service encounters.'
+  },
+  TN: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Appreciated; leave cash on table or hand directly' },
+      cafe:         { tip: 'TND 0.5-1', cash: true, note: 'Leave coins; very common in Tunisian cafe culture' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; common practice' },
+      hotel_porter: { tip: 'TND 1-2/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'TND 1-2/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated; hammam tipping similar to Morocco' },
+      haircut:      { tip: 'TND 1-3', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'TND 5-10/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'TND 0.5-1', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tipping is part of daily life in Tunisia; keep small dinar notes and coins on hand at all times.'
+  },
+  KE: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Leave cash; important supplement to low wages' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected; leave small change if you wish' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for Uber drivers via app' },
+      hotel_porter: { tip: 'KES 100-200/bag', cash: true, note: 'Standard at hotels and lodges' },
+      housekeeping: { tip: 'KES 100-200/night', cash: true, note: 'Leave daily; important for safari lodge staff' },
+      spa:          { tip: '10%', cash: true, note: 'Give directly to therapist' },
+      haircut:      { tip: 'KES 50-100', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: '$10-20/day', cash: true, note: 'Per person; USD standard in safari industry' },
+      delivery:     { tip: 'KES 50-100', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'On safari, tip guides and camp staff in USD; it is a critical part of their compensation.'
+  },
+  ZA: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: false, note: 'Expected; South Africans tip routinely. Never leave nothing' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected at coffee shops' },
+      bar:          { tip: '10%', cash: false, note: 'Appreciated; leave tip when paying tab' },
+      taxi:         { tip: 'none', cash: true, note: 'Uber standard; tip car guards in parking lots (ZAR 5-10)' },
+      hotel_porter: { tip: 'ZAR 10-20/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'ZAR 10-20/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10-15%', cash: false, note: 'Expected' },
+      haircut:      { tip: '10-15%', cash: false, note: 'Common practice' },
+      tour_guide:   { tip: 'ZAR 100-200/day', cash: true, note: 'Per person; important in tourism economy' },
+      delivery:     { tip: 'ZAR 10-20', cash: false, note: 'App tipping common' },
+    },
+    quickTip: 'Tip 10-15% at restaurants; also tip parking lot car guards (ZAR 5-10) — it is culturally expected.'
+  },
+  NG: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Appreciated at sit-down restaurants in Lagos and Abuja' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for Bolt/Uber via app' },
+      hotel_porter: { tip: 'NGN 500-1000/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'NGN 500-1000/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: 'NGN 200-500', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'NGN 2000-5000/day', cash: true, note: 'Per person; USD also accepted' },
+      delivery:     { tip: 'NGN 200-500', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tipping is appreciated in urban Nigeria; cash is king and giving directly to staff is the norm.'
+  },
+  ET: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Appreciated at tourist restaurants in Addis Ababa' },
+      cafe:         { tip: 'none', cash: true, note: 'Coffee ceremony is cultural ritual; tip optional' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; negotiate fares beforehand' },
+      hotel_porter: { tip: 'ETB 50-100/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'ETB 50-100/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: 'ETB 20-50', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: '$5-10/day', cash: true, note: 'Per person; USD preferred in tourism sector' },
+      delivery:     { tip: 'ETB 20-50', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'USD tips are preferred by tour guides; carry small birr notes for everyday service encounters.'
+  },
+  MX: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: false, note: 'Expected; Mexican dining culture embraces tipping' },
+      cafe:         { tip: '10%', cash: false, note: 'Tip jars common; tip at sit-down cafe service' },
+      bar:          { tip: '10-15%', cash: false, note: 'Appreciated; tab tipping common' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for luggage help. Uber less expected' },
+      hotel_porter: { tip: 'MXN 20-50/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'MXN 20-50/night', cash: true, note: 'Leave daily; important for resort staff' },
+      spa:          { tip: '15%', cash: false, note: 'Expected at resort and hotel spas' },
+      haircut:      { tip: '10-15%', cash: false, note: 'Common practice' },
+      tour_guide:   { tip: 'MXN 100-200/day', cash: true, note: 'Per person; USD also accepted' },
+      delivery:     { tip: 'MXN 20-30', cash: false, note: 'App tipping common' },
+    },
+    quickTip: 'Tipping is culturally ingrained in Mexico; 15% at restaurants is the respectful baseline.'
+  },
+  BR: {
+    serviceCharge: true,
+    scNote: '10% service charge (taxa de servico) is common but voluntary; you may decline it',
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Taxa de servico covers it; declining is common and acceptable' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'If no service charge; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; not obligatory' },
+      hotel_porter: { tip: 'BRL 5-10/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'BRL 5-10/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated; give directly' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'BRL 30-50/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'BRL 5-10', cash: false, note: 'App tipping appreciated' },
+    },
+    quickTip: 'The 10% service charge is optional and listed on the bill; you are legally entitled to decline it.'
+  },
+  AR: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Leave cash due to inflation; card tips may lose value' },
+      cafe:         { tip: 'round up', cash: true, note: 'Leave coins; appreciated' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; tip for helpful service' },
+      hotel_porter: { tip: 'ARS 200-500/bag', cash: true, note: 'Standard; USD also appreciated' },
+      housekeeping: { tip: 'ARS 200-500/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'ARS 500-1000/day', cash: true, note: 'Per person; USD strongly preferred due to inflation' },
+      delivery:     { tip: 'ARS 100-300', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Due to inflation, USD tips are highly valued; always tip in cash rather than on a card.'
+  },
+  CO: {
+    serviceCharge: true,
+    scNote: '10% propina (tip) is added to bills but legally optional — you may ask to remove it',
+    industries: {
+      restaurant:   { tip: 'none', cash: false, note: 'Propina is included; you may legally decline it' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; Uber tip via app' },
+      hotel_porter: { tip: 'COP 5000-10000/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'COP 5000-10000/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: '10%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: 'COP 20000-50000/day', cash: true, note: 'Per person; USD also accepted' },
+      delivery:     { tip: 'COP 2000-5000', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'The 10% propina on restaurant bills is optional by law; you may politely ask to remove it.'
+  },
+  PE: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'Not obligatory but common; leave cash for staff' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; negotiate price beforehand in Lima' },
+      hotel_porter: { tip: 'PEN 5-10/bag', cash: true, note: 'Standard at hotels' },
+      housekeeping: { tip: 'PEN 5-10/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: true, note: 'Appreciated' },
+      haircut:      { tip: 'PEN 3-5', cash: true, note: 'Appreciated' },
+      tour_guide:   { tip: 'PEN 30-50/day', cash: true, note: 'Per person; USD also accepted' },
+      delivery:     { tip: 'PEN 3-5', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'Tipping is appreciated but not obligatory in Peru; 10% cash is a respectful and sufficient gesture.'
+  },
+  CL: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10%', cash: false, note: 'Common practice; expected at sit-down restaurants in Santiago' },
+      cafe:         { tip: 'none', cash: false, note: 'Not expected' },
+      bar:          { tip: '10%', cash: false, note: 'Appreciated' },
+      taxi:         { tip: 'round up', cash: true, note: 'Round up; Uber tip via app' },
+      hotel_porter: { tip: 'CLP 1000-2000/bag', cash: true, note: 'Standard' },
+      housekeeping: { tip: 'CLP 1000-2000/night', cash: true, note: 'Leave daily' },
+      spa:          { tip: '10%', cash: false, note: 'Appreciated' },
+      haircut:      { tip: '10%', cash: false, note: 'Common practice' },
+      tour_guide:   { tip: 'CLP 5000-10000/day', cash: true, note: 'Per person' },
+      delivery:     { tip: 'CLP 500-1000', cash: false, note: 'Appreciated' },
+    },
+    quickTip: 'A 10% tip at sit-down restaurants is the standard expectation across Chile.'
+  },
+  CU: {
+    serviceCharge: false,
+    scNote: null,
+    industries: {
+      restaurant:   { tip: '10-15%', cash: true, note: 'CUC or USD essential; tips are a primary income source' },
+      cafe:         { tip: 'none', cash: true, note: 'Leave small change; appreciated' },
+      bar:          { tip: '1 CUC/drink', cash: true, note: 'Cash tip per drink; bartenders rely heavily on tips' },
+      taxi:         { tip: '1-2 CUC', cash: true, note: 'Tip for classic car taxis; standard in Havana' },
+      hotel_porter: { tip: '1-2 CUC/bag', cash: true, note: 'Essential; CUC or USD' },
+      housekeeping: { tip: '1-2 CUC/night', cash: true, note: 'Leave daily; very important to staff income' },
+      spa:          { tip: '10-15%', cash: true, note: 'CUC or USD' },
+      haircut:      { tip: '1-2 CUC', cash: true, note: 'Appreciated; hard currency preferred' },
+      tour_guide:   { tip: '5-10 CUC/day', cash: true, note: 'Per person; USD or EUR welcome' },
+      delivery:     { tip: 'none', cash: false, note: 'Delivery infrastructure limited' },
+    },
+    quickTip: 'In Cuba, USD and CUC tips are a critical supplement to state wages; always tip in hard currency.'
+  },
+  JM: {
+    serviceCharge: true,
+    scNote: '10% service charge typically added at tourist hotels and restaurants',
+    industries: {
+      restaurant:   { tip: '10%', cash: true, note: 'If no service charge; leave additional cash for staff' },
+      cafe:         { tip: 'none', cash: true, note: 'Not expected' },
+      bar:          { tip: '10%', cash: true, note: 'Appreciated; leave cash on the bar' },
+      taxi:         { tip: '10-15%', cash: true, note: 'Expected for taxi and shuttle drivers' },
+      hotel_porter: { tip: '$1-2/bag', cash: true, note: 'USD standard at all-inclusive resorts' },
+      housekeeping: { tip: '$2-3/night', cash: true, note: 'Leave daily; USD standard at resorts' },
+      spa:          { tip: '15%', cash: true, note: 'Expected at resort spas' },
+      haircut:      { tip: '10-15%', cash: true, note: 'Common practice' },
+      tour_guide:   { tip: '$5-10/day', cash: true, note: 'Per person; USD standard' },
+      delivery:     { tip: 'none', cash: false, note: 'Not widely practiced' },
+    },
+    quickTip: 'At all-inclusive resorts USD tips are expected and deeply appreciated by resort workers.'
+  }
+};
