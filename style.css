@@ -1933,3 +1933,50 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
     animation: none !important;
   }
 }
+/* === TIPPING PANEL === */
+.tt-tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 9px; }
+.tt-tip-industry { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
+.tt-tip-amount { color: #c9a84c; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+.tt-tip-note { color: #7a8a5a; font-size: 8px; font-style: italic; }
+.tt-tip-service-charge { background: rgba(239,108,0,0.08); border-left: 2px solid #c9a84c; padding: 4px 6px; font-size: 8.5px; margin: 4px 0; }
+.tt-tip-quick { border-left: 3px solid #c9a84c; background: rgba(201,168,76,0.06); padding: 6px 8px; font-size: 9px; margin-top: 6px; }
+.tt-tip-calculator { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 9px; }
+.tt-tip-calculator input { width: 70px; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,168,76,0.3); color: #e8d5a3; font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 6px; border-radius: 3px; }
+.tt-tip-result { color: #c9a84c; font-weight: 700; font-size: 11px; }
+
+/* === SAFETY ETHICS === */
+.tt-safety-ethics { background: rgba(14,11,6,0.6); border-left: 3px solid #c9a84c; padding: 8px 10px; margin-top: 8px; font-size: 8.5px; line-height: 1.5; color: #a89060; }
+.tt-safety-reliability { display: inline-block; padding: 2px 5px; border-radius: 2px; font-size: 8px; font-weight: 600; }
+.tt-safety-reliability.high { background: rgba(46,125,50,0.15); color: #a5d6a7; border: 1px solid rgba(46,125,50,0.3); }
+.tt-safety-reliability.moderate { background: rgba(239,108,0,0.12); color: #ffcc80; border: 1px solid rgba(239,108,0,0.3); }
+.tt-safety-reliability.low { background: rgba(198,40,40,0.12); color: #ef9a9a; border: 1px solid rgba(198,40,40,0.3); }
+
+/* === PHRASEBOOK === */
+.tt-phrasebook { margin-top: 6px; }
+.tt-phrasebook details { border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; }
+.tt-phrasebook summary { cursor: pointer; padding: 6px 8px; font-size: 9px; color: #c9a84c; list-style: none; user-select: none; }
+.tt-phrasebook summary::-webkit-details-marker { display: none; }
+.tt-phrase-table { width: 100%; border-collapse: collapse; font-size: 8.5px; margin-top: 4px; }
+.tt-phrase-table td { padding: 3px 6px; border-bottom: 1px solid rgba(201,168,76,0.07); vertical-align: top; }
+.tt-phrase-local { color: #e8d5a3; font-weight: 500; }
+.tt-phrase-pron { color: #7a8a5a; font-style: italic; }
+
+/* === VACCINE & ALTITUDE === */
+.tt-vaccine-required { display: inline-block; background: rgba(198,40,40,0.12); color: #ef9a9a; border: 1px solid rgba(198,40,40,0.3); padding: 2px 6px; border-radius: 2px; font-size: 8px; }
+.tt-vaccine-recommended { display: inline-block; background: rgba(239,108,0,0.12); color: #ffcc80; border: 1px solid rgba(239,108,0,0.3); padding: 2px 6px; border-radius: 2px; font-size: 8px; }
+.tt-altitude-warning { border-left: 3px solid #C62828; background: rgba(198,40,40,0.08); padding: 8px 10px; margin-top: 8px; font-size: 9px; color: #ef9a9a; line-height: 1.5; }
+
+/* === VERDICT ROW === */
+.tt-verdict-row td { background: rgba(201,168,76,0.10); border-top: 2px solid #c9a84c; padding: 6px 8px; }
+.tt-verdict-winner { color: #c9a84c; font-weight: 700; font-size: 10px; }
+.tt-verdict-behind { color: #7a8a5a; font-size: 9px; }
+.tt-verdict-insight td { font-size: 8.5px; color: #a89060; padding: 4px 8px; border-top: 1px solid rgba(201,168,76,0.1); font-style: italic; }
+
+/* === PASSPORT RANK === */
+.tt-passport-rank { border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; padding: 8px; margin-top: 8px; }
+.tt-passport-rank-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin: 4px 0; position: relative; overflow: hidden; }
+.tt-passport-rank-fill { height: 100%; background: #c9a84c; border-radius: 2px; transition: width 0.4s ease; }
+
+/* === ENTRY DENIED === */
+.tt-entry-denied { border-left: 3px solid #C62828; background: rgba(198,40,40,0.08); padding: 8px 10px; margin-top: 8px; }
+.tt-entry-denied-title { color: #ef9a9a; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }

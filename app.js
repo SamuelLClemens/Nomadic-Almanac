@@ -2922,27 +2922,140 @@ function _buildTippingTooltip(iso2) {
     "A 10-15% tip is appreciated in restaurants and for personal services.",
     "Server wages depend on tips. 18-20% is standard; 15% is the minimum considered polite."
   ];
-  // Dot indicator: filled dots up to tier level
+
+  // Dot indicator
   var dots = "";
   for (var d = 0; d < 4; d++) { dots += d <= v ? "●" : "○"; }
-  // Compact header (always shown when tipping layer is active)
-  var header = '<div style="margin:6px 0 2px 0;padding:4px 6px;border-top:1px solid rgba(201,168,76,0.25);border-bottom:1px solid rgba(201,168,76,0.10);">'
-    + '<span style="font-size:8px;font-weight:700;color:var(--gold);letter-spacing:0.04em;">' + _esc(labels[v]) + '</span>'
-    + '<span style="font-size:8px;color:var(--gold);opacity:0.7;margin-left:6px;letter-spacing:0.12em;">' + _esc(dots) + '</span>'
+
+  // Compact header
+  var header = '<div class="tt-tip-header">'
+    + '<span class="tt-tip-label">' + _esc(labels[v]) + '</span>'
+    + '<span class="tt-tip-dots">' + _esc(dots) + '</span>'
     + '</div>';
-  // Industry rows: [icon, label, amounts per tier 0-3]
-  var industries = [
-    ["🍽", "Restaurants",   ["Not expected","Round up","10-15%","18-20%"]],
-    ["🚕", "Taxis / Rides", ["Not expected","Round up","10%","15-20%"]],
-    ["🏨", "Hotels",        ["Not expected","€1-2/bag optional","$1-2/bag","$2-5/bag"]],
+
+  // ── Rich panel when TIPPING_DETAIL_DATA is available ───────────────────────
+  if (typeof TIPPING_DETAIL_DATA !== "undefined" && TIPPING_DETAIL_DATA[iso2] != null) {
+    var detail = TIPPING_DETAIL_DATA[iso2];
+
+    // Industry icon map
+    var iconMap = {
+      restaurant:   "restaurant",
+      cafe:         "cafe",
+      bar:          "bar",
+      taxi:         "taxi",
+      hotel_porter: "hotel",
+      housekeeping: "bed",
+      spa:          "spa",
+      haircut:      "scissors",
+      tour_guide:   "backpack",
+      delivery:     "package"
+    };
+    var industryLabels = {
+      restaurant:   "Restaurant",
+      cafe:         "Cafe",
+      bar:          "Bar",
+      taxi:         "Taxi / Ride",
+      hotel_porter: "Hotel Porter",
+      housekeeping: "Housekeeping",
+      spa:          "Spa",
+      haircut:      "Haircut",
+      tour_guide:   "Tour Guide",
+      delivery:     "Delivery"
+    };
+    var industryOrder = ["restaurant","cafe","bar","taxi","hotel_porter","housekeeping","spa","haircut","tour_guide","delivery"];
+
+    // Build 2-col grid rows
+    var gridCells = "";
+    var industries = (detail && typeof detail.industries === "object" && detail.industries !== null) ? detail.industries : {};
+    for (var k = 0; k < industryOrder.length; k++) {
+      var key = industryOrder[k];
+      var icon = iconMap[key] || key;
+      var lbl  = industryLabels[key] || key;
+      var tipVal = "";
+      if (industries[key] != null) {
+        var ind = industries[key];
+        if (typeof ind === "object" && ind !== null) {
+          if (ind.tip != null)    tipVal = ind.tip;
+          else if (ind.amount != null) tipVal = ind.amount;
+          else if (ind.pct != null) tipVal = ind.pct;
+        } else {
+          tipVal = String(ind);
+        }
+      } else {
+        tipVal = "—";
+      }
+      gridCells += '<div class="tt-tip-industry-cell">'
+        + '<span class="tt-tip-ind-icon">' + _esc(icon) + '</span>'
+        + '<span class="tt-tip-ind-name">' + _esc(lbl) + '</span>'
+        + '<span class="tt-tip-ind-val">' + _esc(String(tipVal)) + '</span>'
+        + '</div>';
+    }
+
+    var industryGrid = '<div class="tt-tip-industry-grid">' + gridCells + '</div>';
+
+    // Service charge notice
+    var scNotice = "";
+    if (detail && detail.serviceCharge === true) {
+      scNotice = '<div class="tt-tip-sc-notice">'
+        + '<span class="tt-tip-sc-icon">!</span>'
+        + '<span class="tt-tip-sc-text">Service charge may be included — check before tipping.</span>'
+        + '</div>';
+    }
+
+    // Quick tip box
+    var quickTipBox = "";
+    var quickTipText = (detail && typeof detail.quickTip === "string" && detail.quickTip) ? detail.quickTip : "";
+    if (quickTipText) {
+      quickTipBox = '<div class="tt-tip-quicktip">' + _esc(quickTipText) + '</div>';
+    }
+
+    // Tip calculator — uses restaurant tip pct if available
+    var calcPct = 0;
+    if (industries.restaurant != null && typeof industries.restaurant === "object" && industries.restaurant !== null) {
+      var rval = industries.restaurant.tip || industries.restaurant.pct || industries.restaurant.amount || "";
+      var match = String(rval).match(/(\d+)/);
+      if (match) calcPct = parseInt(match[1], 10);
+    }
+    if (!calcPct && v === 3) calcPct = 18;
+    else if (!calcPct && v === 2) calcPct = 12;
+    else if (!calcPct && v === 1) calcPct = 5;
+
+    var calcId = "tc-result-" + iso2.replace(/[^a-zA-Z0-9]/g, "_");
+    var calculator = '<div class="tt-tip-calc">'
+      + '<span class="tt-tip-calc-label">Tip calc (' + calcPct + '%):</span>'
+      + '<input class="tt-tip-calc-input" type="number" min="0" step="0.01" placeholder="Bill amount"'
+      + ' oninput="(function(el){'
+      +   'var bill=parseFloat(el.value);'
+      +   'var res=document.getElementById(\'' + calcId + '\');'
+      +   'if(!res)return;'
+      +   'if(isNaN(bill)||bill<=0){res.textContent=\'\';return;}'
+      +   'res.textContent=\'Tip: \'+(bill*' + calcPct + '/100).toFixed(2);'
+      + '})(this)">'
+      + '<span class="tt-tip-calc-result" id="' + calcId + '"></span>'
+      + '</div>';
+
+    return '<div class="tt-section">'
+      + header
+      + industryGrid
+      + scNotice
+      + quickTipBox
+      + calculator
+      + '</div>';
+  }
+
+  // ── Fallback: original minimal display ─────────────────────────────────────
+  var industries_fallback = [
+    ["🍽", "Restaurants",    ["Not expected","Round up","10-15%","18-20%"]],
+    ["🚕", "Taxis / Rides",  ["Not expected","Round up","10%","15-20%"]],
+    ["🏨", "Hotels",         ["Not expected","€1-2/bag optional","$1-2/bag","$2-5/bag"]],
     ["💆", "Spas / Haircuts",["Not expected","5-10% optional","15%","20%"]],
-    ["🗺", "Tour Guides",   ["Not expected","€5-10 optional","$5-10/day","$10-20/day"]]
+    ["🗺", "Tour Guides",    ["Not expected","€5-10 optional","$5-10/day","$10-20/day"]]
   ];
   var gridRows = "";
-  for (var i = 0; i < industries.length; i++) {
-    var row = industries[i];
+  for (var i = 0; i < industries_fallback.length; i++) {
+    var row = industries_fallback[i];
     gridRows += '<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;">'
-      + '<span style="font-size:7.5px;color:rgba(255,255,255,0.65);">' + _esc(row[0]) + " " + _esc(row[1]) + '</span>'
+      + '<span style="font-size:7.5px;color:rgba(255,255,255,0.65);">' + _esc(row[0]) + " " + _esc(row[1]) + '</span>'
       + '<span style="font-size:7.5px;font-weight:600;color:var(--sand);text-align:right;">' + _esc(row[2][v]) + '</span>'
       + '</div>';
   }
@@ -2955,6 +3068,7 @@ function _buildTippingTooltip(iso2) {
   var note = '<p class="tt-note">' + _esc(notes[v]) + '</p>';
   return '<div class="tt-section">' + header + grid + note + '</div>';
 }
+
 
 // ─── Country Intelligence (AI) ───────────────────────────────────────────────
 
@@ -4824,7 +4938,6 @@ function buildVisaSection(iso2) {
     : null;
 
   if (!selectedNationality) {
-    // Visa or strength layer active but no passport chosen — prompt
     return needsPassport
       ? `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10);font-size:7.5px;color:rgba(201,168,76,0.6)">
            ✈ Select your passport in the menu to see passport strength &amp; visa requirements.
@@ -4865,7 +4978,8 @@ function buildVisaSection(iso2) {
   const m = TYPE_META[entry.t] || TYPE_META.req;
   const cost = entry.c > 0 ? `&nbsp;&middot;&nbsp;<span style="color:#c9a84c">~$${entry.c} USD</span>` : `&nbsp;&middot;&nbsp;<span style="color:#43A047">Free</span>`;
   const days = entry.d > 0 ? `&nbsp;&middot;&nbsp;Up to <strong>${entry.d} days</strong>` : '';
-  // Passport coverage bar — honestly scoped to the destinations in this almanac.
+
+  // Passport coverage bar
   const cov = visaCoverage(selectedNationality);
   const covPct = cov.total ? Math.round((cov.free / cov.total) * 100) : 0;
   const coverageHtml = cov.total ? `
@@ -4879,6 +4993,83 @@ function buildVisaSection(iso2) {
       </div>
       <div style="font-size:8px;color:#7a8a5a;margin-top:4px">Visa-free to <strong style="color:#43A047">${cov.free}</strong> of ${cov.total} almanac destinations (${covPct}%).</div>
     </div>` : '';
+
+  // Passport Rank widget
+  let passportRankHtml = '';
+  if (
+    typeof selectedNationality !== 'undefined' &&
+    selectedNationality &&
+    typeof VISA_DATA !== 'undefined' &&
+    typeof PASSPORT_NATIONALITIES !== 'undefined'
+  ) {
+    const passportCodes = Object.keys(PASSPORT_NATIONALITIES);
+    const allDests = Object.keys(VISA_DATA);
+    const M = allDests.length;
+
+    // Count free+eta destinations for a given passport code
+    function countFreeEta(passCode) {
+      let count = 0;
+      allDests.forEach(function(d) {
+        const row = VISA_DATA[d];
+        if (row && typeof row[passCode] !== 'undefined') {
+          const t = row[passCode].t;
+          if (t === 'free' || t === 'eta') count++;
+        }
+      });
+      return count;
+    }
+
+    const selfCount = countFreeEta(selectedNationality);
+
+    // Compute scores for all 12 passports
+    const scores = passportCodes.map(function(code) {
+      return { code: code, count: countFreeEta(code) };
+    });
+    scores.sort(function(a, b) { return b.count - a.count; });
+
+    // Find rank (1-based) of selectedNationality
+    let rankPos = -1;
+    for (let i = 0; i < scores.length; i++) {
+      if (scores[i].code === selectedNationality) { rankPos = i + 1; break; }
+    }
+
+    if (rankPos > 0) {
+      const totalPassports = passportCodes.length;
+      const betterThan = totalPassports - rankPos;
+      const weakerThan = rankPos - 1;
+      const fillPct = M > 0 ? Math.round((selfCount / M) * 100) : 0;
+
+      passportRankHtml = `
+        <div class="tt-passport-rank" style="margin-top:7px;padding:8px;border:1px solid rgba(201,168,76,0.2);border-radius:4px">
+          <div style="font-size:6.5px;color:#c9a84c;letter-spacing:1.6px;text-transform:small-caps;font-variant:small-caps;margin-bottom:5px">YOUR PASSPORT — GLOBAL REACH</div>
+          <div style="font-size:8px;color:#a0b080;margin-bottom:4px">Visa-free access to <strong style="color:#c9a84c">${selfCount}</strong> of <strong>${M}</strong> destinations tracked</div>
+          <div class="tt-passport-rank-bar" style="height:5px;border-radius:2px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:5px">
+            <div class="tt-passport-rank-fill" style="height:100%;width:${fillPct}%;background:#c9a84c;border-radius:2px"></div>
+          </div>
+          <div style="font-size:8px;color:#a0b080;margin-bottom:2px">Rank <strong style="color:#c9a84c">${rankPos}</strong> of ${totalPassports} tracked passports</div>
+          <div style="font-size:7.5px;color:#6a7a5a">Better than <strong>${betterThan}</strong> passport${betterThan !== 1 ? 's' : ''} &nbsp;/&nbsp; Weaker than <strong>${weakerThan}</strong> passport${weakerThan !== 1 ? 's' : ''}</div>
+        </div>`;
+    }
+  }
+
+  // Entry denied block
+  let entryDeniedHtml = '';
+  if (
+    typeof VISA_DATA !== 'undefined' &&
+    VISA_DATA[iso2] &&
+    typeof selectedNationality !== 'undefined' &&
+    selectedNationality &&
+    VISA_DATA[iso2][selectedNationality] &&
+    VISA_DATA[iso2][selectedNationality].t === 'banned'
+  ) {
+    entryDeniedHtml = `
+      <div class="tt-entry-denied" style="margin-top:7px;padding:8px;border-left:3px solid #C62828;background:rgba(198,40,40,0.08)">
+        <div class="tt-entry-denied-title" style="font-size:8px;color:#C62828;text-transform:uppercase;font-weight:700;letter-spacing:1.4px;margin-bottom:4px">ENTRY DENIED</div>
+        <div style="font-size:8px;color:#c08080;margin-bottom:3px">This destination does not permit entry to holders of this passport.</div>
+        <div style="font-size:7.5px;color:#a06060">Do not attempt travel. Detention risk is real.</div>
+      </div>`;
+  }
+
   return `<div style="margin-top:6px;padding-top:7px;border-top:1px solid rgba(201,168,76,0.10)">
     <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">VISA &middot; ${natName}</div>
     <div class="ttr" style="margin-bottom:0">
@@ -4890,9 +5081,10 @@ function buildVisaSection(iso2) {
         <div class="ttdesc" style="margin-top:3px;color:#7a8a5a">${days ? days.trim() : ''}${cost}</div>
         <div class="ttdesc" style="margin-top:4px;color:#4a3a18">Always verify with your country's official government travel site before booking.</div>
       </div>
-    </div>${coverageHtml}
+    </div>${coverageHtml}${entryDeniedHtml}${passportRankHtml}
   </div>`;
 }
+
 
 // ─── Nationality Selector ─────────────────────────────────────────────────────
 function initNationalitySelector() {
@@ -5096,13 +5288,56 @@ function buildHealthSection(iso2) {
     ? `<div style="margin-top:5px;padding:4px 6px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.20);border-radius:4px;font-size:7px;color:rgba(56,189,248,0.85);line-height:1.5">💧 Drink bottled or purified water only.</div>`
     : '';
 
+  // ── Vaccine block ────────────────────────────────────────────────────────────
+  let vaccineBlock = '';
+  if (typeof VACCINE_DATA !== 'undefined' && VACCINE_DATA.BY_COUNTRY && VACCINE_DATA.BY_COUNTRY[iso2]) {
+    const vEntry = VACCINE_DATA.BY_COUNTRY[iso2];
+
+    const requiredList = (Array.isArray(vEntry.required) && vEntry.required.length > 0)
+      ? vEntry.required.map(v => `<span class="tt-vaccine-required" style="display:inline-block;padding:1px 5px;margin:1px 2px 1px 0;border-radius:3px;background:rgba(198,40,40,0.18);border:1px solid rgba(198,40,40,0.40);font-size:7px;color:#ef9a9a;font-weight:600">${_esc(v)}</span>`).join(' ')
+      : `<span class="tt-vaccine-required" style="display:inline-block;padding:1px 5px;border-radius:3px;background:rgba(67,160,71,0.12);border:1px solid rgba(67,160,71,0.30);font-size:7px;color:#a5d6a7">None required for entry</span>`;
+
+    const recommendedList = (Array.isArray(vEntry.recommended) && vEntry.recommended.length > 0)
+      ? `<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;flex-wrap:wrap">
+          <div style="font-size:7.5px;color:rgba(232,213,163,0.7);flex-shrink:0;padding-top:2px">Recommended</div>
+          <div style="flex:1">${vEntry.recommended.map(v => `<span class="tt-vaccine-recommended" style="display:inline-block;padding:1px 5px;margin:1px 2px 1px 0;border-radius:3px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.30);font-size:7px;color:#e8d5a3">${_esc(v)}</span>`).join(' ')}</div>
+        </div>`
+      : '';
+
+    vaccineBlock = `<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.08)">
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;font-variant:small-caps;text-transform:uppercase;margin-bottom:6px">Vaccinations</div>
+      <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;flex-wrap:wrap">
+        <div style="font-size:7.5px;color:rgba(232,213,163,0.7);flex-shrink:0;padding-top:2px">Required</div>
+        <div style="flex:1">${requiredList}</div>
+      </div>
+      ${recommendedList}
+      <div style="margin-top:4px;font-size:7px;color:rgba(201,168,76,0.50);line-height:1.5">Consult a travel health clinic 4-6 weeks before departure.</div>
+    </div>`;
+  }
+
+  // ── Altitude warning block ───────────────────────────────────────────────────
+  let altitudeBlock = '';
+  if (typeof ALTITUDE_DATA !== 'undefined' && ALTITUDE_DATA[iso2] != null && ALTITUDE_DATA[iso2] >= 2500) {
+    const altM = ALTITUDE_DATA[iso2];
+    const diamoxLine = (altM >= 3500)
+      ? `<div style="margin-top:3px;font-size:7px;color:#ef9a9a;line-height:1.5">Consult a doctor about acetazolamide (Diamox) before travel.</div>`
+      : '';
+
+    altitudeBlock = `<div class="tt-altitude-warning" style="margin-top:7px;padding:5px 7px;background:rgba(198,40,40,0.09);border-left:3px solid #C62828;border-radius:0 4px 4px 0">
+      <div style="font-size:7.5px;font-weight:700;color:#ef9a9a;letter-spacing:0.8px;text-transform:uppercase">HIGH ALTITUDE: ${_esc(String(altM))}m above sea level</div>
+      <div style="margin-top:3px;font-size:7px;color:rgba(239,154,154,0.85);line-height:1.5">Risk of altitude sickness. Ascend gradually. Acclimatise before exertion.</div>
+      ${diamoxLine}
+    </div>`;
+  }
+
   const advisory = `<div style="margin-top:6px;padding:4px 6px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);border-radius:4px;font-size:7px;color:rgba(201,168,76,0.6);line-height:1.5">Always consult a travel health clinic 4–6 weeks before departure for current vaccination requirements.</div>`;
 
   return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
     <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">🏥 HEALTH &amp; SAFETY ESSENTIALS</div>
-    ${rows}${malariaWarn}${waterWarn}${advisory}
+    ${rows}${malariaWarn}${waterWarn}${advisory}${vaccineBlock}${altitudeBlock}
   </div>`;
 }
+
 
 // ─── Language & Connectivity Section ─────────────────────────────────────────
 function buildLanguageSection(iso2) {
@@ -5159,41 +5394,134 @@ function buildLanguageSection(iso2) {
       }</div>`
     : '';
 
+  // Phrasebook section
+  let phrasebookHtml = '';
+  if (typeof PHRASEBOOK_DATA !== 'undefined' && PHRASEBOOK_DATA[iso2]) {
+    const pb = PHRASEBOOK_DATA[iso2];
+    const langName = pb.lang || iso2;
+    const scriptName = pb.script || '';
+    const phrases = Array.isArray(pb.phrases) ? pb.phrases : [];
+
+    let phraseRows = '';
+    for (let i = 0; i < phrases.length; i++) {
+      const p = phrases[i];
+      const eng = _esc(p.en || '');
+      const local = p.local || '';
+      const pron = p.pron ? ` <span class="tt-phrase-pron">(${_esc(p.pron)})</span>` : '';
+      phraseRows += `<tr>
+        <td style="padding:3px 6px 3px 0;font-size:7.5px;color:rgba(232,213,163,0.7);vertical-align:top;white-space:nowrap">${eng}</td>
+        <td style="padding:3px 0;font-size:7.5px;vertical-align:top"><span class="tt-phrase-local">${_esc(local)}</span>${pron}</td>
+      </tr>`;
+    }
+
+    const scriptBadge = scriptName
+      ? `<div style="margin-top:5px;font-size:6.5px;color:rgba(201,168,76,0.5);letter-spacing:0.8px">Script: ${_esc(scriptName)}</div>`
+      : '';
+
+    phrasebookHtml = `<div class="tt-phrasebook" style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.10)">
+      <details>
+        <summary style="cursor:pointer;font-size:7px;color:#c9a84c;letter-spacing:0.8px;text-transform:uppercase;font-weight:700;list-style:none;outline:none">Phrasebook &mdash; ${_esc(langName)}</summary>
+        <div style="margin-top:5px">
+          <table class="tt-phrase-table" style="width:100%;border-collapse:collapse">
+            <tbody>${phraseRows}</tbody>
+          </table>
+          ${scriptBadge}
+        </div>
+      </details>
+    </div>`;
+  }
+
   return `<div style="margin-top:8px;padding:8px 10px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.10);border-radius:7px">
     <div style="font-size:6.5px;color:rgba(201,168,76,0.6);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px;font-weight:700">&#x1F5E3; LANGUAGE &amp; CONNECTIVITY</div>
     <div>${rows}</div>
     ${notesHtml}
+    ${phrasebookHtml}
   </div>`;
 }
+
 
 // ─── Climate Wheel Section ────────────────────────────────────────────────────
 function buildClimateWheelSection(iso2) {
   if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '';
   const d = CD_CLIMATE[iso2];
+  if (!Array.isArray(d.temp) || !Array.isArray(d.rain) || d.temp.length < 12 || d.rain.length < 12) return '';
+
   const temps = d.temp;
   const rains = d.rain;
   const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  const now = new Date();
-  const curMon = now.getMonth(); // 0-11
+  const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // activeMonth is 1-indexed (Jan=1); fall back to current real month
+  const activeMonth = (typeof window !== 'undefined' && window.activeMonth != null)
+    ? window.activeMonth
+    : (new Date().getMonth() + 1);
+  const curMon = activeMonth - 1; // convert to 0-indexed
+
+  // Temperature unit
+  const useFahrenheit = (typeof window !== 'undefined' && window._tempUnit === 'F');
+  function displayTemp(c) {
+    if (useFahrenheit) return Math.round(c * 9 / 5 + 32) + '&deg;F';
+    return c + '&deg;C';
+  }
+  function displayTempShort(c) {
+    if (useFahrenheit) return Math.round(c * 9 / 5 + 32) + '&deg;';
+    return c + '&deg;';
+  }
 
   // Scale rain bars: max bar = 32px
   const maxRain = Math.max(...rains, 1);
   const BAR_MAX = 32;
 
-  // Determine best travel months: rain in lowest third AND temp 20-28°C
-  const rainThresh = maxRain * 0.35;
-  const bestMonths = MONTHS.filter((_, i) => rains[i] <= rainThresh && temps[i] >= 20 && temps[i] <= 28);
+  // --- ENHANCE 1: Best / Shoulder / Avoid computation ---
+  // Percentile helpers
+  const sortedRain = rains.slice().sort((a, b) => a - b);
+  function percentileVal(arr, p) {
+    const idx = (p / 100) * (arr.length - 1);
+    const lo = Math.floor(idx);
+    const hi = Math.ceil(idx);
+    if (lo === hi) return arr[lo];
+    return arr[lo] + (arr[hi] - arr[lo]) * (idx - lo);
+  }
+  const rain35 = percentileVal(sortedRain, 35);
+  const rain50 = percentileVal(sortedRain, 50);
 
-  // Build 12-column bar chart
+  // Classify each month (use Celsius for classification regardless of display unit)
+  const classification = rains.map((r, i) => {
+    const t = temps[i];
+    if (r <= rain35 && t >= 18 && t <= 30) return 'best';
+    if (r <= rain50 && t >= 14 && t <= 33) return 'shoulder';
+    return 'avoid';
+  });
+
+  // --- ENHANCE 3: Dry season summary ---
+  const dryMonths = MONTH_SHORT.filter((_, i) => rains[i] < 30);
+  const seasonLine = dryMonths.length > 0
+    ? `DRY: ${dryMonths.join(' ')}`
+    : 'YEAR-ROUND RAIN';
+
+  // --- Build 12-column bar chart ---
   let bars = '';
   for (let i = 0; i < 12; i++) {
     const h = Math.max(2, Math.round((rains[i] / maxRain) * BAR_MAX));
-    const isActive = i === curMon;
-    const border = isActive ? 'border:1px solid rgba(201,168,76,0.9);' : 'border:1px solid transparent;';
-    const tempLabel = isActive
-      ? `<div style="font-size:6px;color:rgba(251,191,36,0.9);text-align:center;margin-bottom:1px">${temps[i]}&deg;</div>`
-      : `<div style="font-size:6px;color:rgba(232,213,163,0.35);text-align:center;margin-bottom:1px">${temps[i]}&deg;</div>`;
+    const isActive = (i === curMon);
+    const border = isActive
+      ? 'border:1px solid rgba(201,168,76,0.9);'
+      : 'border:1px solid transparent;';
+
+    // Temperature label colour
+    const tempColor = isActive
+      ? 'rgba(251,191,36,0.9)'
+      : 'rgba(232,213,163,0.35)';
+
+    // ENHANCE 2: NOW indicator — gold "v" above the active column
+    const nowIndicator = isActive
+      ? `<div style="font-size:7px;color:#c9a84c;text-align:center;line-height:1;margin-bottom:1px;font-weight:700">v</div>`
+      : `<div style="font-size:7px;line-height:1;margin-bottom:1px">&nbsp;</div>`;
+
+    const tempLabel = `<div style="font-size:6px;color:${tempColor};text-align:center;margin-bottom:1px">${displayTempShort(temps[i])}</div>`;
+
     bars += `<div style="display:flex;flex-direction:column;align-items:center;width:14px">
+      ${nowIndicator}
       ${tempLabel}
       <div style="width:10px;height:${BAR_MAX}px;display:flex;align-items:flex-end;${border}border-radius:2px;box-sizing:border-box">
         <div style="width:100%;height:${h}px;background:rgba(56,189,248,0.6);border-radius:1px"></div>
@@ -5202,18 +5530,50 @@ function buildClimateWheelSection(iso2) {
     </div>`;
   }
 
-  const bestLine = bestMonths.length
-    ? `<div style="margin-top:5px;font-size:7px;color:rgba(232,213,163,0.55)">Best: <span style="color:#43A047;font-weight:700">${bestMonths.join(' ')}</span></div>`
-    : '';
+  // --- ENHANCE 1: Coloured month chips ---
+  const chipColors = { best: '#c9a84c', shoulder: '#7a8a5a', avoid: 'rgba(232,213,163,0.15)' };
+  const chipTextColors = { best: '#1a1710', shoulder: '#d4dcb8', avoid: 'rgba(232,213,163,0.35)' };
+
+  let bestChips = '', shoulderChips = '', avoidChips = '';
+  classification.forEach((cls, i) => {
+    const chip = `<span style="display:inline-block;background:${chipColors[cls]};color:${chipTextColors[cls]};border-radius:2px;padding:1px 3px;font-size:5.5px;letter-spacing:0.4px;margin:1px 1px">${MONTHS[i]}</span>`;
+    if (cls === 'best') bestChips += chip;
+    else if (cls === 'shoulder') shoulderChips += chip;
+    else avoidChips += chip;
+  });
+
+  const hasBest = bestChips.length > 0;
+  const hasShoulder = shoulderChips.length > 0;
+  const hasAvoid = avoidChips.length > 0;
+
+  const labelStyle = 'font-size:5.5px;color:rgba(201,168,76,0.5);letter-spacing:0.8px;text-transform:uppercase;margin-right:3px;min-width:46px;display:inline-block';
+
+  let chipsSection = `<div style="margin-top:6px;font-size:0;line-height:1.6">`;
+  if (hasBest) {
+    chipsSection += `<div style="display:flex;align-items:center;margin-bottom:2px"><span style="${labelStyle}">BEST</span>${bestChips}</div>`;
+  }
+  if (hasShoulder) {
+    chipsSection += `<div style="display:flex;align-items:center;margin-bottom:2px"><span style="${labelStyle}">SHOULDER</span>${shoulderChips}</div>`;
+  }
+  if (hasAvoid) {
+    chipsSection += `<div style="display:flex;align-items:center;margin-bottom:2px"><span style="${labelStyle}">AVOID</span>${avoidChips}</div>`;
+  }
+  chipsSection += `</div>`;
+
+  // --- ENHANCE 3: Season summary line ---
+  const seasonSummary = `<div style="margin-top:4px;font-size:6px;color:rgba(232,213,163,0.45);letter-spacing:0.8px">${seasonLine}</div>`;
 
   return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
-    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL mm</div>
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL mm / TEMP ${useFahrenheit ? '&deg;F' : '&deg;C'}</div>
     <div style="display:flex;gap:1px;align-items:flex-end">${bars}</div>
-    ${bestLine}
+    ${chipsSection}
+    ${seasonSummary}
   </div>`;
 }
 
+
 // ─── Safety Section ──────────────────────────────────────────────────────────
+// ETHICS-SIGN-OFF: Mandatory context tab — framing reviewed. No red-dominant palette.
 function buildSafetySection(iso2) {
   if (!activeLayers.has('safety')) return '';
   const safetyVal   = (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[iso2] != null)   ? CD_SAFETY[iso2]   : null;
@@ -5253,6 +5613,29 @@ function buildSafetySection(iso2) {
     ? `<div style="margin-top:6px;padding-top:5px;border-top:1px solid rgba(201,168,76,0.08);font-size:7.5px;color:rgba(232,213,163,0.6);line-height:1.45;font-style:italic"><span style="color:rgba(201,168,76,0.5);font-style:normal">Local context: </span>${_esc(SAFETY_NOTES[iso2])}</div>`
     : '';
 
+  // Data reliability badge — derived from CD_SAFETY index value
+  let reliabilityBadge = '';
+  if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[iso2] != null) {
+    const rv = CD_SAFETY[iso2];
+    if (rv <= 1) {
+      reliabilityBadge = `<span class="tt-safety-reliability high" style="font-size:7px;color:#43A047;background:rgba(67,160,71,0.10);border:1px solid rgba(67,160,71,0.25);border-radius:3px;padding:1px 5px;white-space:nowrap">Data: HIGH reliability</span>`;
+    } else if (rv === 2) {
+      reliabilityBadge = `<span class="tt-safety-reliability moderate" style="font-size:7px;color:#EF6C00;background:rgba(239,108,0,0.10);border:1px solid rgba(239,108,0,0.25);border-radius:3px;padding:1px 5px;white-space:nowrap">Data: MODERATE reliability</span>`;
+    } else {
+      reliabilityBadge = `<span class="tt-safety-reliability low" style="font-size:7px;color:rgba(232,213,163,0.65);background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.18);border-radius:3px;padding:1px 5px;white-space:nowrap">Data: LOW — conflict/authoritarian context</span>`;
+    }
+  }
+
+  // Mandatory traveller advisory ethics context block
+  const ethicsHtml = `<div class="tt-safety-ethics" style="margin-top:8px;padding:8px 10px;background:rgba(14,11,6,0.6);border-left:3px solid #c9a84c;border-radius:0 3px 3px 0">
+    <div style="font-size:9px;color:rgba(201,168,76,0.75);letter-spacing:0.12em;text-transform:small-caps;font-variant:small-caps;margin-bottom:4px;font-weight:700">TRAVELLER ADVISORY</div>
+    <div style="font-size:7.5px;color:rgba(232,213,163,0.65);line-height:1.5;margin-bottom:5px">Index-based estimates only. Always check your government travel advisory before travel.</div>
+    <div style="font-size:7px;color:rgba(201,168,76,0.45);line-height:1.6">
+      travel.state.gov &nbsp;/&nbsp; gov.uk/foreign-travel-advice &nbsp;/&nbsp; smartraveller.gov.au
+    </div>
+    ${reliabilityBadge ? `<div style="margin-top:5px">${reliabilityBadge}</div>` : ''}
+  </div>`;
+
   return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase">SAFETY INDEX</div>
@@ -5263,8 +5646,10 @@ function buildSafetySection(iso2) {
     ${_metricRow('Female Solo Safety', femaleVal, femaleLabels)}
     ${_metricRow('Scam Risk', scamVal, scamLabels)}
     ${noteHtml}
+    ${ethicsHtml}
   </div>`;
 }
+
 
 // ─── Travel Journal Section ───────────────────────────────────────────────────
 function buildJournalSection(iso2) {
@@ -5972,6 +6357,8 @@ function renderComparePanel() {
   var countries = pinnedCountries.slice(0, 4);
   var RCOL = ['#43A047','#FDD835','#EF6C00','#C62828'];
 
+  // ── Layer rating helpers ──────────────────────────────────────────────────
+
   function ratingChip(iso2, layerKey, labels) {
     var prev = new Set(activeLayers);
     activeLayers.clear();
@@ -5996,6 +6383,158 @@ function renderComparePanel() {
     var d = COST_DETAILS[iso2];
     return _money((d.hostel||0) + (d.meal||0)*3 + (d.transport||0)) + '/day';
   }
+
+  // ── Verdict computation ───────────────────────────────────────────────────
+
+  // Scorable layer keys and their backing data objects; lower value = better on 0-3 scale
+  var SCORABLE = [
+    { key: 'cost',       src: function(iso2){ return (typeof CD_COST       !== 'undefined' && CD_COST[iso2]       != null) ? CD_COST[iso2]       : null; }, label: 'Cost' },
+    { key: 'safety',     src: function(iso2){ return (typeof CD_SAFETY     !== 'undefined' && CD_SAFETY[iso2]     != null) ? CD_SAFETY[iso2]     : null; }, label: 'Safety' },
+    { key: 'internet',   src: function(iso2){ return (typeof CD_INTERNET   !== 'undefined' && CD_INTERNET[iso2]   != null) ? CD_INTERNET[iso2]   : null; }, label: 'Internet' },
+    { key: 'healthcare', src: function(iso2){ return (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[iso2] != null) ? CD_HEALTHCARE[iso2] : null; }, label: 'Healthcare' },
+    { key: 'scam',       src: function(iso2){ return (typeof CD_SCAM       !== 'undefined' && CD_SCAM[iso2]       != null) ? CD_SCAM[iso2]       : null; }, label: 'Scam Risk' },
+    { key: 'malaria',    src: function(iso2){ return (typeof CD_MALARIA    !== 'undefined' && CD_MALARIA[iso2]    != null) ? CD_MALARIA[iso2]    : null; }, label: 'Malaria' },
+    // Generic CD-array layers — resolved via activeLayers context
+    { key: 'health',    src: null, label: 'Health' },
+    { key: 'crowds',    src: null, label: 'Crowds' },
+    { key: 'disaster',  src: null, label: 'Disaster' },
+    { key: 'road',      src: null, label: 'Road' },
+  ];
+
+  // Helper: get score for a single iso2/layer combination without mutating activeLayers
+  function getScore(iso2, layer) {
+    if (layer.src !== null) {
+      return layer.src(iso2);
+    }
+    // Generic path: temporarily scope activeLayers to the single key
+    var prev = new Set(activeLayers);
+    activeLayers.clear();
+    activeLayers.add(layer.key);
+    var r = getCountryRating(iso2);
+    activeLayers.clear();
+    prev.forEach(function(k){ activeLayers.add(k); });
+    return (r !== null && r !== undefined) ? r : null;
+  }
+
+  // Find active scorable layers (those present in activeLayers)
+  var activeScorable = SCORABLE.filter(function(s){ return activeLayers.has(s.key); });
+
+  // Compute per-country averages over active scorable layers that have data
+  var countryAverages = countries.map(function(iso2) {
+    var vals = [];
+    activeScorable.forEach(function(s) {
+      var v = getScore(iso2, s);
+      if (v !== null && v !== undefined) vals.push(v);
+    });
+    return {
+      iso2: iso2,
+      avg: vals.length > 0 ? vals.reduce(function(a, b){ return a + b; }, 0) / vals.length : null,
+      scoredLayers: activeScorable.filter(function(s){
+        var v = getScore(iso2, s);
+        return v !== null && v !== undefined;
+      })
+    };
+  });
+
+  // Determine whether we have enough data to show a verdict
+  var enoughLayers = activeScorable.length >= 2;
+  var enoughCountries = countries.length >= 2;
+  var allHaveData = countryAverages.filter(function(c){ return c.avg !== null; }).length >= 2;
+  var canShowVerdict = enoughLayers && enoughCountries && allHaveData;
+
+  // Build verdict row HTML
+  var verdictRow = '';
+  var verdictInsightRow = '';
+
+  if (!canShowVerdict) {
+    // Single cell spanning all country columns + label column
+    var colSpan = countries.length + 1;
+    verdictRow = '<tr class="tt-verdict-row" style="background:rgba(201,168,76,0.10);border-top:2px solid #c9a84c">' +
+      '<td colspan="' + colSpan + '" style="padding:5px 10px;font-size:7.5px;color:rgba(255,255,255,0.35);font-style:italic;text-align:center">' +
+      'Activate 2 or more layers to compare' +
+      '</td></tr>';
+  } else {
+    // Sort to find winner (lowest average = best)
+    var ranked = countryAverages.filter(function(c){ return c.avg !== null; }).slice().sort(function(a, b){ return a.avg - b.avg; });
+    var winner = ranked[0];
+
+    // Label cell
+    var verdictLabel = '<td style="padding:5px 8px;font-size:7.5px;font-variant:small-caps;color:#c9a84c;font-weight:700;border-bottom:1px solid rgba(201,168,76,0.15);white-space:nowrap">Verdict</td>';
+
+    // Per-country cells
+    var verdictCells = countries.map(function(iso2) {
+      var entry = countryAverages.find(function(c){ return c.iso2 === iso2; });
+      if (!entry || entry.avg === null) {
+        return '<td style="padding:5px 8px;text-align:center;border-bottom:1px solid rgba(201,168,76,0.15);font-size:7.5px;color:rgba(255,255,255,0.25)">—</td>';
+      }
+      if (iso2 === winner.iso2) {
+        return '<td class="tt-verdict-winner" style="padding:5px 8px;text-align:center;border-bottom:1px solid rgba(201,168,76,0.15)">' +
+          '<span style="background:rgba(201,168,76,0.20);border:1px solid #c9a84c;border-radius:4px;color:#c9a84c;font-size:7px;padding:2px 6px;font-weight:700;letter-spacing:0.5px">BEST MATCH</span>' +
+          '</td>';
+      }
+      var diff = entry.avg - winner.avg;
+      return '<td class="tt-verdict-behind" style="padding:5px 8px;text-align:center;border-bottom:1px solid rgba(201,168,76,0.15);font-size:8px;color:rgba(255,255,255,0.45)">+' + diff.toFixed(1) + ' pts</td>';
+    }).join('');
+
+    verdictRow = '<tr class="tt-verdict-row" style="background:rgba(201,168,76,0.10);border-top:2px solid #c9a84c">' +
+      verdictLabel + verdictCells + '</tr>';
+
+    // ── Verdict insight row ─────────────────────────────────────────────────
+    // Determine which active scorable layers each country leads on
+    var layerLeaders = {};  // layerKey → iso2 of leader (lowest score)
+    activeScorable.forEach(function(s) {
+      var best = null;
+      var bestVal = Infinity;
+      var tied = false;
+      countries.forEach(function(iso2) {
+        var v = getScore(iso2, s);
+        if (v === null || v === undefined) return;
+        if (v < bestVal) { bestVal = v; best = iso2; tied = false; }
+        else if (v === bestVal) { tied = true; }
+      });
+      if (best !== null && !tied) layerLeaders[s.key] = best;
+    });
+
+    // Collect layers each non-winner leads on
+    var winnerLeadLayers = [];
+    var otherLeads = {};  // iso2 → [label, ...]
+    activeScorable.forEach(function(s) {
+      var leader = layerLeaders[s.key];
+      if (!leader) return;
+      if (leader === winner.iso2) {
+        winnerLeadLayers.push(s.label);
+      } else {
+        if (!otherLeads[leader]) otherLeads[leader] = [];
+        otherLeads[leader].push(s.label);
+      }
+    });
+
+    var winnerName = (typeof countryNames !== 'undefined' && countryNames[winner.iso2]) || winner.iso2;
+    var natNote = (typeof selectedNationality === 'string' && selectedNationality)
+      ? 'For ' + selectedNationality + ' passport holders: '
+      : '';
+
+    var insightParts = [];
+    if (winnerLeadLayers.length > 0) {
+      insightParts.push(_esc(winnerName) + ' leads on ' + winnerLeadLayers.slice(0,3).map(_esc).join(', ') + '.');
+    }
+
+    Object.keys(otherLeads).forEach(function(iso2) {
+      var cName = (typeof countryNames !== 'undefined' && countryNames[iso2]) || iso2;
+      var layerList = otherLeads[iso2].slice(0,2).map(_esc).join(' &amp; ');
+      insightParts.push(_esc(cName) + ' scores best on ' + layerList + '.');
+    });
+
+    var insightText = natNote + (insightParts.length > 0 ? insightParts.join(' ') : _esc(winnerName) + ' is the strongest overall match.');
+
+    var insightColSpan = countries.length + 1;
+    verdictInsightRow = '<tr class="tt-verdict-insight">' +
+      '<td colspan="' + insightColSpan + '" style="padding:4px 10px 6px;font-size:7.5px;color:rgba(255,255,255,0.45);font-style:italic;border-bottom:1px solid rgba(201,168,76,0.08)">' +
+      insightText +
+      '</td></tr>';
+  }
+
+  // ── Standard layer rows ───────────────────────────────────────────────────
 
   var ROWS = [
     { key:'weather',  label:'Weather',     labels: typeof LAYER_LABELS!=='undefined'?LAYER_LABELS.weather:null },
@@ -6032,10 +6571,14 @@ function renderComparePanel() {
     countries.map(function(iso2){ return '<td style="padding:4px 8px;text-align:center;font-size:9px;color:#4ade80">' + budgetCell(iso2) + '</td>'; }).join('') + '</tr>';
 
   panel.innerHTML = '<div style="padding:6px 10px 4px;font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12)">⚖ COUNTRY COMPARISON</div>' +
-    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' + dataRows + climateRow + budgetRow + '</tbody></table></div>' +
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' +
+    verdictRow + verdictInsightRow +
+    dataRows + climateRow + budgetRow +
+    '</tbody></table></div>' +
     '<div style="padding:6px 10px 8px;font-size:7.5px;color:var(--dim);border-top:1px solid rgba(201,168,76,0.08);margin-top:4px">💡 Pin countries on the map to compare them. Click a country name to fly there.</div>' +
     '<div style="padding:4px 10px 8px;text-align:right"><button onclick="_shareCompareURL()" style="font-size:7px;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:4px;color:var(--gold);cursor:pointer;padding:3px 8px;font-family:var(--fm)">⎘ Copy Comparison URL</button></div>';
 }
+
 
 function closeComparePanel() {
   const panel = document.getElementById('compare-panel');
