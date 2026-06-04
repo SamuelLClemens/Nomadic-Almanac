@@ -864,6 +864,60 @@
   </div>
 </div>
 
+<!-- ─── Preferences Sheet ─────────────────────────────────────────────────── -->
+<div id="na-prefs-sheet" role="dialog" aria-modal="true" aria-label="Preferences" hidden>
+  <div id="na-prefs-overlay"></div>
+  <div id="na-prefs-panel" class="glass-panel">
+    <div id="na-prefs-handle" aria-hidden="true"></div>
+    <h2 id="na-prefs-title">Preferences</h2>
+    <hr class="gold-rule">
+    <div id="na-prefs-body">
+
+      <div class="pref-row">
+        <span class="pref-label">🌡 Temperature</span>
+        <div class="pref-toggle-group" id="pref-temp">
+          <button class="pref-opt" data-val="C" aria-label="Celsius">°C</button>
+          <button class="pref-opt" data-val="F" aria-label="Fahrenheit">°F</button>
+        </div>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">📏 Distance</span>
+        <div class="pref-toggle-group" id="pref-dist">
+          <button class="pref-opt" data-val="km" aria-label="Kilometres">km</button>
+          <button class="pref-opt" data-val="mi" aria-label="Miles">mi</button>
+        </div>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">🗺 Map Style</span>
+        <div class="pref-toggle-group" id="pref-basemap">
+          <button class="pref-opt" data-val="satellite" aria-label="Satellite basemap">Satellite</button>
+          <button class="pref-opt" data-val="streets"   aria-label="Street map basemap">Street</button>
+          <button class="pref-opt" data-val="dark"      aria-label="Dark basemap">Dark</button>
+        </div>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">📅 Date Format</span>
+        <div class="pref-toggle-group" id="pref-dateformat">
+          <button class="pref-opt" data-val="DMY" aria-label="Day Month Year">DD/MM</button>
+          <button class="pref-opt" data-val="MDY" aria-label="Month Day Year">MM/DD</button>
+        </div>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">🕐 Clock</span>
+        <div class="pref-toggle-group" id="pref-clock">
+          <button class="pref-opt" data-val="24h" aria-label="24-hour clock">24 h</button>
+          <button class="pref-opt" data-val="12h" aria-label="12-hour clock">12 h</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ─── Toast notification container ─────────────────────────────────────── -->
 <div id="na-toast-container" aria-live="polite" aria-atomic="true"></div>
 

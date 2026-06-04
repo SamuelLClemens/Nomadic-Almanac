@@ -2003,3 +2003,80 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   .tt-panel           { max-width: 100vw; }
   #topbar             { padding: 0 var(--sp-2); }
 }
+
+/* ─── Preferences Sheet ──────────────────────────────────────────────────── */
+#na-prefs-sheet {
+  position: fixed; inset: 0; z-index: 2200;
+  display: flex; align-items: flex-end;
+}
+#na-prefs-sheet[hidden] { display: none; }
+
+#na-prefs-overlay {
+  position: absolute; inset: 0;
+  background: rgba(5,8,20,0.72); backdrop-filter: blur(2px);
+}
+
+#na-prefs-panel {
+  position: relative; z-index: 1;
+  width: 100%; max-height: 85vh; overflow-y: auto;
+  background: var(--na-glass-navy, rgba(8,15,40,0.97));
+  border: 1px solid rgba(201,168,76,0.18);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  padding: var(--sp-3) var(--sp-5) var(--sp-6);
+}
+
+#na-prefs-handle {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: rgba(201,168,76,0.35);
+  margin: 0 auto var(--sp-3);
+}
+
+#na-prefs-title {
+  font-family: var(--font-label); font-size: 11px;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--na-gold-mid, #c9a84c);
+  text-align: center; margin-bottom: var(--sp-2);
+}
+
+#na-prefs-body { padding-top: var(--sp-3); }
+
+.pref-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+}
+.pref-row:last-child { border-bottom: none; }
+
+.pref-label {
+  font-family: var(--font-label); font-size: 9px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--na-text-secondary, rgba(232,213,163,0.65));
+}
+
+.pref-toggle-group {
+  display: flex; gap: 4px;
+}
+
+.pref-opt {
+  font-family: var(--font-label); font-size: 9px;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--na-text-secondary, rgba(232,213,163,0.55));
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.18);
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.pref-opt:hover {
+  background: rgba(201,168,76,0.14);
+  color: var(--na-text-primary, #e8d5a3);
+  border-color: rgba(201,168,76,0.35);
+}
+.pref-opt.active {
+  background: rgba(201,168,76,0.22);
+  color: var(--na-gold-mid, #c9a84c);
+  border-color: rgba(201,168,76,0.6);
+  font-weight: 700;
+}
