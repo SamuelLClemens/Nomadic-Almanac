@@ -6895,14 +6895,21 @@ function na_initAccordion() {
       try { sessionStorage.setItem('na_accordion_' + id, isOpen ? '0' : '1'); } catch(e) {}
     });
 
-    // Restore state
+    // Restore state — layers accordion defaults to open; others default to closed
     var id = trigger.getAttribute('aria-controls');
     var saved = null;
     try { saved = sessionStorage.getItem('na_accordion_' + id); } catch(e) {}
-    if (saved === '1') {
+    var defaultOpen = (id === 'na-layers-list'); // layers always start open unless user closed it
+    var shouldOpen = (saved === '1') || (saved === null && defaultOpen);
+    if (shouldOpen) {
       trigger.setAttribute('aria-expanded', 'true');
       var body = document.getElementById(id);
       if (body) { body.setAttribute('aria-hidden', 'false'); body.classList.add('open'); }
+    } else if (saved === '0' && defaultOpen) {
+      // User explicitly closed the layers accordion — respect that
+      trigger.setAttribute('aria-expanded', 'false');
+      var body = document.getElementById(id);
+      if (body) { body.setAttribute('aria-hidden', 'true'); body.classList.remove('open'); }
     }
   });
 }
