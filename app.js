@@ -1926,11 +1926,17 @@ async function initChoropleth() {
   let data;
   try {
     // Self-hosted in data/countries.geojson — eliminates external CDN dependency.
-    // Abort after 30 s as a safety valve for very slow connections.
+    // Abort after 60 s (generous for slow 3G connections).
+    // Show a status message after 5 s so users know why the map has no colours.
     const ctrl    = new AbortController();
-    const timeout = setTimeout(() => ctrl.abort(), 30000);
+    const timeout = setTimeout(() => ctrl.abort(), 60000);
+    const slowTimer = setTimeout(() => {
+      const st = document.getElementById('map-status');
+      if (st) { st.textContent = '⏳ Loading map data… This may take a moment on slower connections.'; st.style.display = 'block'; }
+    }, 5000);
     const res = await fetch('data/countries.geojson', { signal: ctrl.signal });
     clearTimeout(timeout);
+    clearTimeout(slowTimer);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
   } catch (e) {
@@ -2014,9 +2020,10 @@ function renderAdmin2Styles() {
 // Loads Natural Earth 10 m admin-1 GeoJSON and creates the sub-national choropleth.
 // Runs after initChoropleth so _geoData / geojsonLayer already exist.
 async function initAdmin1Choropleth() {
-  // Two CDNs tried in order.  raw.githubusercontent.com is fastest when available;
-  // jsDelivr mirrors the same repo and is more reliably globally cached.
+  // Self-hosted first (data/admin1.geojson), CDN fallbacks for resilience.
+  // Each attempt aborts after 20 s so a hanging connection cannot block forever.
   const ADMIN1_URLS = [
+    'data/admin1.geojson',
     'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson',
     'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_10m_admin_1_states_provinces.geojson',
   ];
@@ -2024,12 +2031,15 @@ async function initAdmin1Choropleth() {
     let res, lastErr;
     for (const url of ADMIN1_URLS) {
       try {
-        res = await fetch(url);
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), 20000);
+        res = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(tid);
         if (res.ok) break;
         lastErr = new Error('HTTP ' + res.status + ' from ' + url);
       } catch (e) { lastErr = e; }
     }
-    if (!res || !res.ok) throw lastErr || new Error('All admin-1 CDN sources failed');
+    if (!res || !res.ok) throw lastErr || new Error('All admin-1 sources failed');
     _admin1GeoData = await res.json();
 
     // IMPORTANT: only suppress the country-level choropleth polygon for countries
@@ -6346,9 +6356,23 @@ function _shareCompareURL() {
 function renderComparePanel() {
   var panel = document.getElementById('compare-panel');
   if (!panel) return;
-  if (!pinnedCountries || pinnedCountries.length < 2) {
-    panel.style.display = 'none';
-    panel.innerHTML = '';
+  if (!pinnedCountries || pinnedCountries.length === 0) {
+    panel.style.display = 'flex';
+    panel.classList.add('open');
+    panel.innerHTML = '<div class="compare-empty-state">' +
+      '<svg width="32" height="32" viewBox="0 0 24 24" style="opacity:0.4;margin-bottom:10px"><use href="#icon-compare"/></svg>' +
+      '<p style="font-family:var(--font-label);font-size:10px;color:var(--na-text-primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Compare Countries</p>' +
+      '<p style="font-size:9px;color:var(--na-text-secondary);line-height:1.6;max-width:240px">Click any country on the map, then tap the <strong style="color:var(--na-gold-mid)">⊕ pin</strong> button in its panel to add it here. Add 2–4 countries to compare.</p>' +
+      '</div>';
+    return;
+  }
+  if (pinnedCountries.length < 2) {
+    panel.style.display = 'flex';
+    panel.classList.add('open');
+    panel.innerHTML = '<div class="compare-empty-state">' +
+      '<p style="font-family:var(--font-label);font-size:10px;color:var(--na-text-primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">One More Country</p>' +
+      '<p style="font-size:9px;color:var(--na-text-secondary);line-height:1.6;max-width:240px">You have <strong style="color:var(--na-gold-mid)">1 of 2</strong> countries pinned. Click a second country on the map and tap ⊕ to begin comparing.</p>' +
+      '</div>';
     return;
   }
   panel.style.display = 'block';
@@ -6969,6 +6993,10 @@ function na_initNavItems() {
     if (!nav) return;
     item.addEventListener('click', function() {
       switch(nav) {
+        case 'worldmap':
+          // Return to the default world-map view
+          if (typeof map !== 'undefined' && map) map.setView([20, 0], 2);
+          break;
         case 'bestmonth':
           // Toggle best-panel visibility (existing widget)
           var bestToggle = document.getElementById('best-toggle');
