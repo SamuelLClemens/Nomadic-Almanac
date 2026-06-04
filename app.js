@@ -1925,13 +1925,11 @@ function renderPoliticalLayers() {
 async function initChoropleth() {
   let data;
   try {
-    // Abort after 15 s so a stalled CDN response never blocks the rest of boot.
+    // Self-hosted in data/countries.geojson — eliminates external CDN dependency.
+    // Abort after 30 s as a safety valve for very slow connections.
     const ctrl    = new AbortController();
-    const timeout = setTimeout(() => ctrl.abort(), 15000);
-    const res = await fetch(
-      'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
-      { signal: ctrl.signal }
-    );
+    const timeout = setTimeout(() => ctrl.abort(), 30000);
+    const res = await fetch('data/countries.geojson', { signal: ctrl.signal });
     clearTimeout(timeout);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
