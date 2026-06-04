@@ -13,11 +13,12 @@
   --color-accent-deep: #9b1c2e;   /* north-needle crimson */
   --color-water:       #1b2a4a;   /* prussian map water */
 
-  /* Typography */
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body:    'IBM Plex Mono', monospace;
-  --font-data:    'IBM Plex Mono', monospace;
-  --font-label:   'IBM Plex Mono', monospace;
+  /* Typography — period-accurate stacks (overridden by NA token block below,
+     but kept here so legacy var(--fm) aliases resolve to the correct face) */
+  --font-display: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+  --font-body:    'IM Fell English', 'EB Garamond', Georgia, serif;
+  --font-data:    'EB Garamond', Georgia, serif;
+  --font-label:   'Cinzel', Georgia, serif;
 
   /* Spacing scale */
   --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
@@ -1936,12 +1937,12 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 /* === TIPPING PANEL === */
 .tt-tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 9px; }
 .tt-tip-industry { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
-.tt-tip-amount { color: #c9a84c; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+.tt-tip-amount { color: var(--na-gold-mid); font-family: var(--font-data); font-weight: 700; }
 .tt-tip-note { color: #7a8a5a; font-size: 8px; font-style: italic; }
 .tt-tip-service-charge { background: rgba(239,108,0,0.08); border-left: 2px solid #c9a84c; padding: 4px 6px; font-size: 8.5px; margin: 4px 0; }
 .tt-tip-quick { border-left: 3px solid #c9a84c; background: rgba(201,168,76,0.06); padding: 6px 8px; font-size: 9px; margin-top: 6px; }
 .tt-tip-calculator { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 9px; }
-.tt-tip-calculator input { width: 70px; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,168,76,0.3); color: #e8d5a3; font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 6px; border-radius: 3px; }
+.tt-tip-calculator input { width: 70px; background: rgba(255,255,255,0.05); border: 1px solid var(--na-glass-border); color: var(--na-parchment); font-family: var(--font-data); font-size: 10px; padding: 3px 6px; border-radius: 3px; }
 .tt-tip-result { color: #c9a84c; font-weight: 700; font-size: 11px; }
 
 /* === SAFETY ETHICS === */
@@ -1980,3 +1981,25 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 /* === ENTRY DENIED === */
 .tt-entry-denied { border-left: 3px solid #C62828; background: rgba(198,40,40,0.08); padding: 8px 10px; margin-top: 8px; }
 .tt-entry-denied-title { color: #ef9a9a; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+
+/* ─── Compare Panel Empty State ─────────────────────────────────────────── */
+.compare-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--sp-6) var(--sp-5);
+  min-height: 160px;
+  color: var(--na-text-secondary);
+}
+.compare-empty-state strong { font-style: normal; }
+
+/* ─── 320 px breakpoint — smallest Android / fold devices ───────────────── */
+@media (max-width: 359px) {
+  #na-header-wordmark { display: none; }
+  .na-nav-item-label  { font-size: 8px; }
+  #na-sidebar         { width: 200px; }
+  .tt-panel           { max-width: 100vw; }
+  #topbar             { padding: 0 var(--sp-2); }
+}

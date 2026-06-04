@@ -492,7 +492,36 @@ const CD_TAPWATER = {DE:0,CH:0,AT:0,SE:0,NO:0,DK:0,FI:0,NL:0,BE:0,LU:0,FR:0,GB:0
 const CD_AIRQUALITY = {IS:0,NO:0,FI:0,SE:0,AU:0,NZ:0,CA:0,IE:0,EE:0,LV:0,LT:0,PT:0,US:1,DE:1,GB:1,FR:1,NL:1,AT:1,CH:1,BE:1,DK:1,JP:1,SG:1,KR:1,TW:1,CL:1,AR:1,ZA:1,IL:1,GR:1,ES:1,IT:1,CY:1,MT:1,LU:1,SI:1,SK:1,HR:1,CN:2,TH:2,VN:2,ID:2,PH:2,MX:2,CO:2,PE:2,EC:2,TR:2,RU:2,UA:2,PL:2,CZ:2,HU:2,RO:2,BG:2,EG:2,MA:2,TN:2,KE:2,NG:2,ET:2,AM:2,GE:2,RS:2,IN:2,BD:3,PK:3,AF:3,IQ:3,IR:3,KW:3,QA:3,SA:3,AE:3,MN:3,MM:3,KH:3,LA:3,NP:3,LK:3,SD:3,LY:3,CM:3};
 
 // ── Female Solo Safety (composite index | 0=Very Safe → 3=High Caution) ────
-const CD_FEMALE_SAFETY = {IS:0,NO:0,FI:0,SE:0,DK:0,NL:0,NZ:0,AU:0,CH:0,AT:0,IE:0,CA:0,JP:0,SG:0,LU:0,DE:1,GB:1,FR:1,ES:1,PT:1,BE:1,US:1,KR:1,TW:1,CZ:1,SK:1,EE:1,LV:1,LT:1,SI:1,HR:1,MT:1,CY:1,IL:1,UY:1,AR:1,CL:1,GE:1,IT:2,GR:2,PL:2,HU:2,RO:2,BG:2,TR:2,RU:2,UA:2,MX:2,BR:2,CO:2,TH:2,VN:2,MY:2,ID:2,PH:2,MN:2,AM:2,AZ:2,ZA:2,KE:2,GH:2,TZ:2,MA:2,TN:2,JO:2,BO:2,PE:2,EC:2,LB:2,AE:2,ME:2,RS:2,BA:2,IN:3,PK:3,BD:3,NP:3,AF:3,IQ:3,SY:3,YE:3,IR:3,SA:3,KW:3,QA:3,BH:3,EG:3,LY:3,SD:3,SO:3,NG:3,ET:3,MM:3,KH:3,LA:3,GT:3,HN:3,SV:3,CD:3};
+const CD_FEMALE_SAFETY = {
+  // 0 = Very safe — minimal extra caution needed
+  IS:0,NO:0,FI:0,SE:0,DK:0,NL:0,NZ:0,AU:0,CH:0,AT:0,IE:0,CA:0,JP:0,SG:0,LU:0,
+  AD:0,LI:0,MC:0,SM:0,   // European micro-states — essentially host-country safe
+  RW:0,CV:0,MU:0,SC:0,   // Africa safest: Rwanda (actively policed), island states
+  CR:0,CU:0,BB:0,         // Americas: Costa Rica, Cuba, Barbados
+  // 1 = Generally safe — standard awareness recommended
+  DE:1,GB:1,FR:1,ES:1,PT:1,BE:1,US:1,KR:1,TW:1,CZ:1,SK:1,EE:1,LV:1,LT:1,
+  SI:1,HR:1,MT:1,CY:1,IL:1,UY:1,AR:1,CL:1,GE:1,
+  AL:1,MK:1,XK:1,MD:1,BY:1, // Balkans/Eastern Europe — caution but not elevated
+  // 2 = Use caution — heightened awareness, avoid solo night travel
+  IT:2,GR:2,PL:2,HU:2,RO:2,BG:2,TR:2,RU:2,UA:2,MX:2,BR:2,CO:2,TH:2,VN:2,
+  MY:2,ID:2,PH:2,MN:2,AM:2,AZ:2,ZA:2,KE:2,GH:2,TZ:2,MA:2,TN:2,JO:2,BO:2,
+  PE:2,EC:2,LB:2,AE:2,ME:2,RS:2,BA:2,
+  BT:1,                                   // Bhutan — regulated tourism, generally safe
+  KP:3,                                   // North Korea — authoritarian; extremely limited freedoms
+  BN:2,KZ:2,KG:2,OM:2,TJ:2,TL:2,UZ:2, // Central/Southeast Asia
+  BJ:2,BW:2,KM:2,DJ:2,SZ:2,GA:2,GM:2,CI:2,LS:2,MG:2,MW:2,MZ:2,NA:2,
+  ST:2,TG:2,ZM:2,ZW:2,                  // Africa moderate
+  AG:2,BS:2,DM:2,DO:2,GD:2,GY:2,KN:2,LC:2,PA:2,PY:2,SR:2,TT:2,VC:2, // Caribbean/SA
+  FJ:2,PW:2,WS:2,SB:2,TO:2,TV:2,VU:2,FJ:2, // Pacific islands
+  KI:2,MH:2,FM:2,NR:2,PG:2,             // Micronesia/PNG
+  // 3 = High risk — serious safety concerns for solo female travelers
+  IN:3,PK:3,BD:3,NP:3,AF:3,IQ:3,SY:3,YE:3,IR:3,SA:3,KW:3,QA:3,BH:3,
+  EG:3,LY:3,SD:3,SO:3,NG:3,ET:3,MM:3,KH:3,LA:3,GT:3,HN:3,SV:3,CD:3,
+  PS:3,TM:3,MV:3,                        // Palestine, Turkmenistan, Maldives (strict laws)
+  DZ:3,AO:3,BF:3,BI:3,CM:3,CF:3,TD:3,CG:3,ER:3,GN:3,GW:3,LR:3,ML:3,
+  MR:3,NE:3,SL:3,SS:3,UG:3,             // High-risk African states
+  NI:3,HT:3,JM:3,VE:3,BZ:3,            // Americas high risk
+};
 
 // ── Nightlife & Social Scene (0=World-class → 3=Restricted) ─────────────────
 const CD_NIGHTLIFE = {DE:0,ES:0,CO:0,AR:0,TH:0,PT:0,NL:0,GB:0,US:0,AU:0,JP:0,CZ:0,BR:0,FR:1,IT:1,GR:1,TR:1,MX:1,RU:1,UA:1,RO:1,RS:1,HR:1,BA:1,ME:1,PH:1,MY:1,SG:1,KR:1,TW:1,CH:1,AT:1,BE:1,SE:1,DK:1,NO:1,FI:1,IE:1,CA:1,NZ:1,ZA:1,LB:1,IL:1,IN:2,ID:2,VN:2,CN:2,PE:2,CL:2,EC:2,BO:2,PL:2,HU:2,SK:2,BG:2,EE:2,LV:2,LT:2,CY:2,MT:2,GE:2,AM:2,TN:2,MA:2,EG:2,NP:2,KH:2,LA:2,JO:2,SA:3,IR:3,AF:3,PK:3,SD:3,LY:3,SY:3,YE:3,IQ:3,KW:3,QA:3,BH:3,AE:3,UZ:3,TM:3,TJ:3,MM:3,MV:3,BN:3,BD:3};
@@ -45586,6 +45615,16 @@ const VISA_DATA_ADDITIONS = {
   GM: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
   GQ: { US:{t:'req',d:0,c:150}, GB:{t:'req',d:0,c:150}, DE:{t:'req',d:0,c:150}, AU:{t:'req',d:0,c:150}, CA:{t:'req',d:0,c:150}, JP:{t:'req',d:0,c:150}, NZ:{t:'req',d:0,c:150}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0}, IL:{t:'req',d:0,c:0} },
   MW: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:90,c:0}, IN:{t:'free',d:30,c:0}, CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  // ── Final 9 gap-fill entries ───────────────────────────────────────────────
+  DM: { US:{t:'free',d:21,c:0},  GB:{t:'free',d:21,c:0},  DE:{t:'free',d:21,c:0},  AU:{t:'free',d:21,c:0},  CA:{t:'free',d:21,c:0},  JP:{t:'free',d:21,c:0},  NZ:{t:'free',d:21,c:0},  ZA:{t:'req',d:0,c:0},  IN:{t:'req',d:0,c:0},  CN:{t:'req',d:0,c:0},  BR:{t:'free',d:21,c:0},  IL:{t:'free',d:21,c:0} },
+  GM: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0},  IL:{t:'free',d:90,c:0} },
+  GQ: { US:{t:'req',d:0,c:150},  GB:{t:'req',d:0,c:150},  DE:{t:'req',d:0,c:150},  AU:{t:'req',d:0,c:150},  CA:{t:'req',d:0,c:150},  JP:{t:'req',d:0,c:150},  NZ:{t:'req',d:0,c:150},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},  CN:{t:'free',d:30,c:0}, BR:{t:'req',d:0,c:0},   IL:{t:'req',d:0,c:0} },
+  GW: { US:{t:'evisa',d:90,c:60},GB:{t:'evisa',d:90,c:60},DE:{t:'evisa',d:90,c:60},AU:{t:'evisa',d:90,c:60},CA:{t:'evisa',d:90,c:60},JP:{t:'evisa',d:90,c:60},NZ:{t:'evisa',d:90,c:60},ZA:{t:'req',d:0,c:0},  IN:{t:'req',d:0,c:0},  CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'req',d:0,c:0} },
+  LR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},  CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  MW: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:30,c:0},CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  SL: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'req',d:0,c:0},  CN:{t:'free',d:30,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'req',d:0,c:0} },
+  VA: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},CN:{t:'free',d:90,c:0},  BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
+  XK: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'req',d:0,c:0},   IN:{t:'req',d:0,c:0},  CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
 };
 
 if(typeof VISA_DATA!=="undefined"&&typeof VISA_DATA_ADDITIONS!=="undefined")Object.assign(VISA_DATA,VISA_DATA_ADDITIONS);
@@ -45753,6 +45792,63 @@ const COST_DETAILS_ADDITIONS = {
   SR: { hostel:20, meal:7,  transport:5,  coffee:2, beer:3,  note:'Paramaribo mid-range; interior Amazonia requires charter transport' },
   UY: { hostel:18, meal:8,  transport:5,  coffee:3, beer:3,  note:'Most expensive in Southern Cone after Chile; Montevideo walkable' },
   VE: { hostel:8,  meal:3,  transport:2,  coffee:1, beer:2,  note:'Hyperinflation history; USD accepted widely; prices volatile' },
+  // ── Gap-fill: 48 remaining countries ──────────────────────────────────────
+  // Gulf / Middle East
+  AE: { hostel:35, meal:10, transport:4,  coffee:4, beer:0,  note:'Alcohol only in licensed hotels/bars; dining range is wide' },
+  // East/Southeast Asia
+  KR: { hostel:18, meal:6,  transport:2,  coffee:4, beer:3,  note:'Seoul has excellent budget street food; transport very cheap' },
+  PH: { hostel:9,  meal:2,  transport:1,  coffee:2, beer:1,  note:'Very affordable; island-hopping adds boat fares; Manila pricier' },
+  SG: { hostel:28, meal:7,  transport:3,  coffee:5, beer:8,  note:'Most expensive city in SE Asia; excellent street hawker centres' },
+  // Europe
+  AE: { hostel:35, meal:10, transport:4,  coffee:4, beer:0,  note:'Alcohol only in licensed venues; wide price range' },
+  CZ: { hostel:15, meal:5,  transport:2,  coffee:2, beer:2,  note:'Prague among Europas best-value capitals; beer famously cheap' },
+  HU: { hostel:14, meal:5,  transport:2,  coffee:2, beer:2,  note:'Budapest excellent value; thermal baths budget-friendly' },
+  PL: { hostel:13, meal:4,  transport:2,  coffee:2, beer:2,  note:'Warsaw and Krakow very affordable by EU standards' },
+  // Caribbean
+  AG: { hostel:60, meal:15, transport:6,  coffee:4, beer:5,  note:'Antigua pricey island resort prices; Barbuda wilder and cheaper' },
+  BB: { hostel:55, meal:14, transport:8,  coffee:4, beer:5,  note:'Barbados most expensive Eastern Caribbean island' },
+  BS: { hostel:80, meal:18, transport:6,  coffee:5, beer:6,  note:'Bahamas expensive; Nassau and Exuma luxury-oriented' },
+  CU: { hostel:15, meal:4,  transport:2,  coffee:2, beer:2,  note:'Two-currency legacy; CUP now unified; USD welcome in tourist zones' },
+  DM: { hostel:40, meal:12, transport:5,  coffee:3, beer:4,  note:'Dominica eco-tourism; modest infrastructure keeps costs mid-range' },
+  DO: { hostel:20, meal:5,  transport:3,  coffee:2, beer:2,  note:'Santo Domingo affordable; resorts (Punta Cana) add-on more' },
+  GD: { hostel:45, meal:12, transport:5,  coffee:3, beer:4,  note:'Grenada small island; St. George charming and mid-range' },
+  HT: { hostel:25, meal:6,  transport:3,  coffee:2, beer:2,  note:'Cheapest in Caribbean; security constraints limit tourism options' },
+  JM: { hostel:30, meal:7,  transport:4,  coffee:3, beer:3,  note:'Resorts expensive; local guesthouses and jerk stalls very cheap' },
+  KN: { hostel:55, meal:14, transport:5,  coffee:4, beer:5,  note:'St. Kitts resort-oriented; Nevis quieter and slightly cheaper' },
+  LC: { hostel:50, meal:13, transport:6,  coffee:3, beer:4,  note:'Saint Lucia mid-luxury; volcanic scenery commands premium' },
+  TT: { hostel:35, meal:8,  transport:4,  coffee:3, beer:3,  note:'Trinidad commercial hub; Tobago resort-pricier' },
+  VC: { hostel:40, meal:10, transport:4,  coffee:3, beer:3,  note:'Saint Vincent quietest Windwards; Bequia is pricier sailing hub' },
+  // Central America
+  BZ: { hostel:18, meal:5,  transport:4,  coffee:3, beer:3,  note:'USD accepted; cheaper mainland vs expensive island (Caye Caulker)' },
+  CR: { hostel:18, meal:6,  transport:3,  coffee:2, beer:3,  note:'Costa Rica priciest in Central America; eco-lodges add premium' },
+  GT: { hostel:9,  meal:3,  transport:2,  coffee:2, beer:2,  note:'Guatemala cheapest in Central America; Antigua touristy but fair' },
+  HN: { hostel:12, meal:3,  transport:2,  coffee:2, beer:2,  note:'Honduras budget; Bay Islands (diving) much more expensive' },
+  NI: { hostel:10, meal:3,  transport:1,  coffee:2, beer:2,  note:'Cheapest in Central America; infrastructure impacts options' },
+  PA: { hostel:18, meal:6,  transport:3,  coffee:3, beer:3,  note:'Panama City modern and pricier; Bocas del Toro mid-range' },
+  SV: { hostel:14, meal:4,  transport:2,  coffee:2, beer:2,  note:'El Salvador uses USD; budget Central America; surf towns popular' },
+  // South America
+  BO: { hostel:8,  meal:2,  transport:1,  coffee:1, beer:2,  note:'Bolivian staples (salteñas, api) very cheap; altitude adds needs' },
+  GY: { hostel:20, meal:6,  transport:4,  coffee:2, beer:3,  note:'Georgetown urban; Rupununi eco-lodges expensive' },
+  PY: { hostel:15, meal:4,  transport:2,  coffee:2, beer:2,  note:'Asuncion cheapest S. American capital; triple-frontier bargains' },
+  SR: { hostel:20, meal:7,  transport:5,  coffee:2, beer:3,  note:'Paramaribo charming; interior Amazon requires charter transport' },
+  // Africa
+  SC: { hostel:60, meal:16, transport:8,  coffee:5, beer:6,  note:'Seychelles among world most expensive island destinations' },
+  SD: { hostel:20, meal:4,  transport:3,  coffee:2, beer:0,  note:'Sudan dry; no alcohol; Khartoum mid-range; limited tourist infrastructure' },
+  SL: { hostel:20, meal:4,  transport:3,  coffee:2, beer:2,  note:'Sierra Leone Freetown mid-range; beach tourism growing' },
+  SN: { hostel:18, meal:4,  transport:2,  coffee:2, beer:2,  note:'Dakar West Africa hub; pricier than neighbours but good value' },
+  SO: { hostel:30, meal:5,  transport:5,  coffee:2, beer:0,  note:'Mogadishu; no alcohol; security constraints limit tourism severely' },
+  SS: { hostel:30, meal:6,  transport:5,  coffee:2, beer:0,  note:'Juba; infrastructure limited; conflict zones; security surcharges' },
+  ST: { hostel:45, meal:12, transport:6,  coffee:3, beer:3,  note:'São Tomé island premium; excellent cacao and seafood' },
+  SZ: { hostel:25, meal:6,  transport:3,  coffee:2, beer:3,  note:'Eswatini compact; Mbabane affordable by Southern Africa standards' },
+  TD: { hostel:25, meal:5,  transport:5,  coffee:2, beer:2,  note:'Ndjamena; conflict zones; expensive for limited tourism services' },
+  TG: { hostel:18, meal:4,  transport:2,  coffee:2, beer:2,  note:'Lomé West Africa hub; affordable; beach hotels good value' },
+  TN: { hostel:18, meal:5,  transport:2,  coffee:2, beer:2,  note:'Tunisia excellent value; Tunis medina food very cheap' },
+  UG: { hostel:20, meal:4,  transport:2,  coffee:2, beer:2,  note:'Kampala affordable; gorilla permits ($800) are the big cost spike' },
+  ZM: { hostel:20, meal:5,  transport:4,  coffee:2, beer:3,  note:'Lusaka mid-range; Victoria Falls side costly for safari/activities' },
+  ZW: { hostel:18, meal:5,  transport:3,  coffee:2, beer:3,  note:'Harare recovering; USD used; Victoria Falls tourist zone pricier' },
+  // Pacific Islands
+  SB: { hostel:35, meal:8,  transport:6,  coffee:3, beer:4,  note:'Solomon Islands; limited infrastructure; diving premium' },
+  TO: { hostel:35, meal:8,  transport:6,  coffee:3, beer:4,  note:'Tonga; small tourism sector; accommodation limited options' },
 };
 
 if(typeof COST_DETAILS!=="undefined"&&typeof COST_DETAILS_ADDITIONS!=="undefined")Object.assign(COST_DETAILS,COST_DETAILS_ADDITIONS);
@@ -45873,6 +45969,58 @@ const CD_CLIMATE_ADDITIONS = {
   WS: { temp:[28,29,29,28,27,26,26,26,26,27, 27,28], rain:[450,425,396,249,142, 95, 81, 73, 82,151,225,363] },
   TO: { temp:[29,29,29,28,26,24,23,24,25,26, 27,28], rain:[195,174,197,148, 90, 73, 62, 57, 60, 75,119,179] },
   FJ: { temp:[26,26,26,25,23,22,21,21,22,23, 24,25], rain:[318,309,312,179,132, 93, 85, 75, 83, 96,118,222] },
+  // ── 43 gap-fill entries ────────────────────────────────────────────────────
+  // Europe
+  AD: { temp:[ 2, 3, 6,10,14,19,22,22,18,12, 6, 3], rain:[ 55, 50, 50, 70, 75, 55, 40, 50, 65, 75, 80, 60] },
+  AM: { temp:[-3,-2, 3, 9,14,19,22,22,18,12, 5, 0], rain:[ 34, 28, 42, 58, 62, 35, 17, 17, 23, 38, 42, 35] },
+  AT: { temp:[-1, 1, 5,10,15,19,21,21,17,11, 5, 1], rain:[ 40, 40, 48, 55, 70, 75, 80, 75, 55, 55, 55, 45] },
+  AZ: { temp:[ 3, 4, 8,14,19,24,27,26,22,15, 9, 5], rain:[ 25, 24, 30, 30, 30, 20, 10, 10, 25, 35, 35, 30] },
+  BE: { temp:[ 3, 4, 7,10,14,17,19,19,16,12, 7, 4], rain:[ 75, 65, 70, 55, 65, 75, 85, 80, 70, 80, 90, 85] },
+  CH: { temp:[ 1, 2, 6,10,15,18,21,21,17,11, 5, 2], rain:[ 65, 60, 65, 70, 85, 95, 90, 90, 80, 70, 70, 60] },
+  DK: { temp:[ 2, 2, 4, 8,13,16,18,18,15,10, 6, 3], rain:[ 55, 38, 40, 38, 44, 53, 66, 72, 65, 75, 65, 58] },
+  EE: { temp:[-5,-5,-2, 4,10,15,17,16,12, 7, 2,-2], rain:[ 43, 35, 35, 35, 40, 55, 75, 75, 70, 70, 68, 55] },
+  FI: { temp:[-7,-8,-4, 2, 9,14,17,15,11, 5,-1,-5], rain:[ 40, 30, 30, 35, 40, 50, 60, 65, 60, 65, 65, 50] },
+  GE: { temp:[ 2, 3, 7,13,17,22,25,25,21,15, 9, 4], rain:[ 37, 39, 45, 58, 80, 85, 62, 47, 44, 46, 51, 44] },
+  HR: { temp:[ 5, 6,10,14,19,23,26,26,22,16,11, 6], rain:[ 65, 55, 55, 55, 68, 65, 55, 55, 65, 90, 95, 75] },
+  IE: { temp:[ 5, 5, 7, 9,12,15,17,17,14,11, 8, 6], rain:[85,67,70,55,60,70,70,79,90,95,90,85] },
+  LI: { temp:[ 0, 1, 5,10,15,18,21,20,16,11, 5, 1], rain:[ 45, 42, 48, 56, 72, 90, 80, 80, 60, 65, 60, 52] },
+  LT: { temp:[-5,-5,-1, 5,11,15,17,16,12, 7, 2,-3], rain:[ 45, 35, 38, 38, 44, 65, 75, 75, 70, 65, 60, 52] },
+  LV: { temp:[-5,-5,-2, 4,10,15,17,16,12, 7, 2,-3], rain:[ 42, 35, 36, 35, 43, 62, 75, 72, 65, 67, 62, 48] },
+  MC: { temp:[ 9,10,12,15,18,22,25,25,22,18,13,10], rain:[ 75, 55, 50, 55, 42, 28, 10, 18, 50, 90, 90, 75] },
+  ME: { temp:[ 5, 6,10,14,19,24,27,27,22,16,11, 7], rain:[ 87, 75, 70, 68, 65, 42, 22, 25, 55, 95,135,125] },
+  MK: { temp:[ 1, 3, 8,13,18,22,26,26,21,14, 8, 2], rain:[ 42, 37, 40, 42, 52, 42, 27, 25, 35, 50, 60, 52] },
+  NL: { temp:[ 3, 4, 7,10,14,17,19,19,16,12, 7, 4], rain:[ 76, 57, 63, 48, 58, 70, 75, 80, 76, 80, 82, 80] },
+  RS: { temp:[ 1, 3, 8,13,18,22,25,25,20,14, 7, 2], rain:[ 45, 42, 42, 52, 65, 75, 52, 45, 45, 48, 52, 52] },
+  SE: { temp:[-3,-3, 0, 5,12,16,18,17,13, 7, 2,-2], rain:[ 45, 33, 32, 35, 38, 50, 62, 72, 65, 62, 60, 52] },
+  SI: { temp:[ 0, 2, 6,11,16,19,22,22,17,11, 5, 1], rain:[ 79, 75, 82, 96,103, 97, 88, 99,108,118, 97, 92] },
+  SK: { temp:[-3,-1, 4,10,15,18,21,21,16,10, 4,-1], rain:[ 37, 37, 40, 42, 55, 70, 72, 65, 45, 42, 45, 42] },
+  SM: { temp:[ 4, 5, 9,13,18,22,26,26,21,15, 9, 5], rain:[ 68, 55, 55, 60, 58, 42, 28, 35, 62, 75, 82, 72] },
+  UA: { temp:[-3,-2, 3, 9,16,19,22,22,17,10, 4,-1], rain:[ 35, 32, 35, 40, 50, 60, 68, 60, 45, 35, 42, 40] },
+  VA: { temp:[ 8,10,13,16,20,25,28,28,24,18,13, 9], rain:[ 73, 62, 57, 57, 45, 22,  8, 21, 58, 92,100, 80] },
+  XK: { temp:[-1, 1, 6,11,16,19,23,23,18,12, 6, 1], rain:[ 42, 40, 45, 52, 65, 62, 38, 38, 42, 52, 62, 52] },
+  // Caribbean / Atlantic
+  AG: { temp:[26,26,27,28,29,30,30,30,30,29,28,27], rain:[ 55, 40, 38, 55, 85,70,  90, 90,130,155,100, 65] },
+  BB: { temp:[25,25,26,27,28,28,28,29,29,28,27,26], rain:[ 70, 50, 48, 45, 58, 85, 105,125,160,160,100, 80] },
+  BS: { temp:[21,22,24,25,27,28,29,29,28,26,24,22], rain:[ 35, 35, 38, 58,115,160,155,155,175,165, 70, 35] },
+  DM: { temp:[25,25,26,27,28,28,28,29,29,28,27,26], rain:[ 80, 70, 65, 80,135,175,215,225,250,215,150, 95] },
+  GD: { temp:[25,25,26,27,28,28,28,29,28,27,27,26], rain:[ 65, 45, 52, 65,110,175,200,210,200,185,130, 80] },
+  KN: { temp:[24,24,25,26,27,28,28,28,28,27,26,24], rain:[ 55, 45, 48, 55, 75, 80, 85, 90,120,140, 95, 65] },
+  LC: { temp:[25,25,26,27,28,28,28,29,28,27,27,26], rain:[ 85, 68, 65, 75,120,175,195,195,195,180,125, 90] },
+  VC: { temp:[25,25,26,27,28,28,29,29,28,27,27,26], rain:[ 90, 70, 65, 85,135,185,200,215,200,185,135,100] },
+  // South America
+  BO: { temp:[21,21,20,19,16,13,13,14,16,18,19,20], rain:[135,107,65,38,10,  4,  3,  5,16,38,68,112] },
+  PY: { temp:[27,27,25,21,18,15,15,17,19,22,24,26], rain:[120,120,97,68,70,50, 45, 45,60,78,98,102] },
+  UY: { temp:[22,22,20,17,13,10,10,11,13,16,19,21], rain:[ 85, 80, 90, 80, 80, 72, 72, 65,70,80, 82, 80] },
+  // Pacific Islands (micro-states)
+  FM: { temp:[27,27,27,27,27,27,27,27,27,27,27,27], rain:[280,240,245,305,320,310,295,280,270,295,295,295] },
+  KI: { temp:[28,28,28,28,28,28,28,28,28,28,28,28], rain:[280,210,175,115,105,105,105,105,155,175,200,245] },
+  MH: { temp:[27,27,28,28,28,28,28,28,28,28,27,27], rain:[105, 95, 95,140,235,290,310,320,305,280,215,140] },
+  NR: { temp:[28,28,28,29,29,28,28,28,28,28,28,28], rain:[280,210,135,100, 80, 60, 65, 80,100,140,195,230] },
+  PW: { temp:[28,28,28,28,28,28,28,28,28,28,28,28], rain:[285,240,275,305,340,330,315,320,325,345,350,315] },
+  TV: { temp:[28,28,28,29,29,29,29,29,28,28,28,28], rain:[310,255,190,165,145,155,145,145,175,215,250,290] },
+  ET: { temp:[16,17,19,21,21,20,18,18,18,18,16,15], rain:[ 15, 22, 48, 65, 83,135,270,285,180, 35,  8, 10] },
+  MR: { temp:[21,22,26,30,34,36,36,35,34,30,25,21], rain:[  3,  1,  1,  0,  3,  6, 33, 61, 57, 10,  2,  3] },
+  TN: { temp:[11,12,14,17,21,26,29,29,25,20,15,12], rain:[ 52, 44, 44, 37, 26, 14,  4,  7, 32, 52, 66, 58] },
 };
 
 if(typeof CD_CLIMATE!=="undefined"&&typeof CD_CLIMATE_ADDITIONS!=="undefined")Object.assign(CD_CLIMATE,CD_CLIMATE_ADDITIONS);
@@ -46723,6 +46871,92 @@ const PHRASEBOOK_DATA = {
     ['Food / Restaurant', 'Oottya', 'Oh-tyah'],
     ['Hospital', 'Eddwaliro', 'Eh-dwah-lee-ro'],
     ['Good morning', 'Wasuze otya', 'Wah-soo-zeh oh-tyah']
+  ] },
+  // ── Gap-fill: 25 European micro-states + small islands ────────────────────
+  // These use the national / regional language of the host nation
+  AD: { lang:'Catalan', script:'Latin', efTier:1, getByEnglish:'Yes — Spanish and French also widely spoken', phrases:[
+    ['Hello','Hola','OH-lah'],['Goodbye','Adéu','Ah-DAY-oo'],['Please','Si us plau','Sees-PLOW'],['Thank you','Gràcies','GRAH-syess'],['Yes','Sí','SEE'],['No','No','NOH'],['Excuse me','Perdona','Per-DOH-nah'],['I don\'t understand','No entenc','No-en-TENK'],['Where is...?','On és...?','On-ESS'],['How much?','Quant costa?','KWANT-KOSS-tah'],['Help!','Ajuda!','Ah-ZHU-dah'],['Water','Aigua','AH-ee-gwah'],['Food','Menjar','Men-ZHAR'],['Hospital','Hospital','Oss-pee-TAHL'],['Good morning','Bon dia','Bon-DEE-ah'],['Good evening','Bona nit','BOH-nah-NEET'],['Do you speak English?','Parles anglès?','PAR-less an-GLESS'],['Police','Policia','Poh-lee-SEE-ah'],['Toilet','Lavabo','Lah-VAH-boh'],['Restaurant','Restaurant','Ress-tow-RANT']
+  ] },
+  AG: { lang:'English', script:'Latin', efTier:0, getByEnglish:'Yes — official language', phrases:[
+    ['Hello','Hello','HEH-loh'],['Goodbye','Goodbye','GOOD-by'],['Please','Please','PLEEZ'],['Thank you','Thank you','THANK-yoo'],['Yes','Yes','YES'],['No','No','NOH'],['Excuse me','Excuse me','ek-SKYOOZ-mee'],['I don\'t understand','I don\'t understand',''],['Where is...?','Where is...?',''],['How much?','How much?',''],['Help!','Help!',''],['Water','Water',''],['Food','Food',''],['Hospital','Hospital',''],['Good morning','Good morning',''],['Good evening','Good evening',''],['Do you speak English?','Do you speak English?',''],['Police','Police',''],['Toilet','Toilet',''],['Restaurant','Restaurant','']
+  ] },
+  BS: { lang:'English', script:'Latin', efTier:0, getByEnglish:'Yes — official language', phrases:[
+    ['Hello','Hello','HEH-loh'],['Goodbye','Goodbye','GOOD-by'],['Please','Please','PLEEZ'],['Thank you','Thank you','THANK-yoo'],['Yes','Yes','YES'],['No','No','NOH'],['Excuse me','Excuse me',''],['I don\'t understand','I don\'t understand',''],['Where is...?','Where is...?',''],['How much?','How much?',''],['Help!','Help!',''],['Water','Water',''],['Food','Food',''],['Hospital','Hospital',''],['Good morning','Good morning',''],['Good evening','Good evening',''],['Do you speak English?','Do you speak English?',''],['Police','Police',''],['Toilet','Toilet',''],['Restaurant','Restaurant','']
+  ] },
+  CY: { lang:'Greek / Turkish', script:'Latin/Greek', efTier:1, getByEnglish:'Yes — English widely spoken (British colonial legacy)', phrases:[
+    ['Hello','Γεια σου / Merhaba','YAH-soo / Mehr-hah-BAH'],['Thank you','Ευχαριστώ / Teşekkürler','Ef-hah-rees-TOH / Tesh-eh-kyur-LER'],['Please','Παρακαλώ / Lütfen','Pah-rah-kah-LOH / Lyut-FEN'],['Yes','Ναι / Evet','NEH / EH-vet'],['No','Όχι / Hayır','OH-hee / HAH-yir'],['Excuse me','Συγγνώμη / Affedersiniz','See-GNOH-mee / Af-FEH-der-see-NEEZ'],['Where is...?','Πού είναι...?','Poo EE-neh'],['How much?','Πόσο κάνει?','POH-soh KAH-nee'],['Help!','Βοήθεια!','Voh-EE-thee-ah'],['Water','Νερό','Neh-ROH'],['Hospital','Νοσοκομείο','No-so-ko-MEE-oh'],['Good morning','Καλημέρα','Kah-lee-MEH-rah'],['Toilet','Τουαλέτα','Too-ah-LEH-tah'],['Restaurant','Εστιατόριο','Es-tee-ah-TOH-ree-oh'],['Food','Φαγητό','Fah-yee-TOH'],['Police','Αστυνομία','Ah-stee-noh-MEE-ah'],['Do you speak English?','Μιλάτε αγγλικά?','Mee-LAH-teh ang-lee-KAH'],['Goodbye','Αντίο','An-DEE-oh'],['Good evening','Καλησπέρα','Kah-lee-SPEH-rah'],['I don\'t understand','Δεν καταλαβαίνω','Then kah-tah-lah-VEH-noh']
+  ] },
+  DM: { lang:'English / Dominican Creole', script:'Latin', efTier:1, getByEnglish:'Yes — English is the official language', phrases:[
+    ['Hello','Hello / Bonjou','HEH-loh / Bon-ZHOO'],['Thank you','Thank you / Mèsi','THANK-yoo / MEH-see'],['Please','Please / Souple','PLEEZ / SOOP-luh'],['Yes','Yes / Wi','YES / WEE'],['No','No / Non','NOH / NON'],['Excuse me','Excuse me / Eskize mwen','ek-SKYOOZ-mee / Es-KEEZ-mwen'],['Where is...?','Where is...?',''],['How much?','How much? / Konbyen?',''],['Help!','Help! / Ede mwen!',''],['Water','Water / Dlo',''],['Hospital','Hospital / Lopital',''],['Good morning','Good morning / Bonjou',''],['Food','Food / Manje',''],['Police','Police / Lapolis',''],['Toilet','Toilet / Twalèt',''],['Restaurant','Restaurant / Restoran',''],['Goodbye','Goodbye / Orevwa',''],['Good evening','Good evening / Bonswa',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand / Mwen pa konprann','']
+  ] },
+  EE: { lang:'Estonian', script:'Latin', efTier:1, getByEnglish:'Yes — English very widely spoken, especially in Tallinn', phrases:[
+    ['Hello','Tere','TEH-reh'],['Goodbye','Head aega','HEH-ad AH-eh-gah'],['Please','Palun','PAH-loon'],['Thank you','Aitäh','EYE-tah'],['Yes','Jah','YAH'],['No','Ei','AY'],['Excuse me','Vabandage','VAH-ban-dah-geh'],['I don\'t understand','Ma ei saa aru','MAH-ay-SAH-AH-roo'],['Where is...?','Kus on...?','KOOS-on'],['How much?','Kui palju maksab?','KOO-ee-PAL-yoo-MAK-sab'],['Help!','Appi!','AH-ppee'],['Water','Vesi','VEH-see'],['Food','Toit','TOYT'],['Hospital','Haigla','HY-glah'],['Good morning','Tere hommikust','TEH-reh-HOH-mee-kust'],['Good evening','Tere õhtust','TEH-reh-UH-toost'],['Do you speak English?','Kas te räägite inglise keelt?',''],['Police','Politsei','POH-leet-say'],['Toilet','Tualett','Too-ah-LET'],['Restaurant','Restoran','Res-toh-RAHN']
+  ] },
+  FM: { lang:'English / local languages', script:'Latin', efTier:1, getByEnglish:'Yes — English is an official language', phrases:[
+    ['Hello','Hello / Kaselehlie','HEH-loh / Kah-seh-LEH-lee'],['Thank you','Thank you / Kalangan','THANK-yoo / Kah-LANG-an'],['Yes','Yes','YES'],['No','No','NOH'],['Please','Please','PLEEZ'],['Excuse me','Excuse me',''],['Water','Water / Nta',''],['Food','Food',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital',''],['Good morning','Good morning',''],['Goodbye','Goodbye',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  GD: { lang:'English', script:'Latin', efTier:0, getByEnglish:'Yes — official language', phrases:[
+    ['Hello','Hello','HEH-loh'],['Goodbye','Goodbye','GOOD-by'],['Please','Please','PLEEZ'],['Thank you','Thank you','THANK-yoo'],['Yes','Yes','YES'],['No','No','NOH'],['Excuse me','Excuse me',''],['Water','Water',''],['Food','Food',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital',''],['Good morning','Good morning',''],['Good evening','Good evening',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  GM: { lang:'English', script:'Latin', efTier:2, getByEnglish:'Mostly — English is official; Wolof and Mandinka in rural areas', phrases:[
+    ['Hello','Hello / Salaam Aleikum','HEH-loh / Sah-LAHM ah-LAY-koom'],['Thank you','Thank you / Jërëjëf','THANK-yoo / JEH-reh-JEF'],['Please','Please / Jaamul','PLEEZ / JAH-mul'],['Yes','Yes / Waaw','YES / WAW'],['No','No / Déedét','NOH / DAY-day'],['Excuse me','Excuse me',''],['Water','Water / Ndox',''],['Food','Food / Lekk',''],['Help!','Help!',''],['How much?','How much? / Ñaata lay jar?',''],['Hospital','Hospital / Asistaan wu doktor',''],['Good morning','Good morning / Jamm nga fanaan?',''],['Goodbye','Goodbye / Ba beneen yoon',''],['Toilet','Toilet / Suuf',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  IS: { lang:'Icelandic', script:'Latin', efTier:0, getByEnglish:'Yes — English universally spoken; Icelanders rarely need translating', phrases:[
+    ['Hello','Halló','HAH-loh'],['Goodbye','Bless','BLESS'],['Please','Vinsamlegast','VIN-sam-leh-gast'],['Thank you','Takk','TAHK'],['Yes','Já','YOW'],['No','Nei','NAY'],['Excuse me','Afsakið','AHF-sah-kith'],['I don\'t understand','Ég skil ekki','YEHG-skeel-EH-kee'],['Where is...?','Hvar er...?','KVAR-er'],['How much?','Hvað kostar?','KVATH-koss-tar'],['Help!','Hjálp!','HYOWLP'],['Water','Vatn','VATN'],['Food','Matur','MAH-toor'],['Hospital','Sjúkrahús','SYOO-krah-hoos'],['Good morning','Góðan daginn','GOH-than-DAH-yin'],['Good evening','Gott kvöld','GOT-kvuld'],['Do you speak English?','Talarðu ensku?','TAH-lar-thu-EN-skoo'],['Police','Lögreglan','LUH-reg-lan'],['Toilet','Salerni','SAH-ler-nee'],['Restaurant','Veitingastaður','VAY-ting-ah-stah-thoor']
+  ] },
+  KI: { lang:'English / Gilbertese (Kiribati)', script:'Latin', efTier:2, getByEnglish:'In South Tarawa yes; outer islands limited', phrases:[
+    ['Hello','Hello / Mauri','HEH-loh / MOW-ree'],['Thank you','Thank you / Ko rabwa','THANK-yoo / Ko-RAB-wah'],['Yes','Yes / Eng','YES / ENG'],['No','No / Tiaki','NOH / Tee-AH-kee'],['Please','Please','PLEEZ'],['Excuse me','Excuse me',''],['Water','Water / Ran',''],['Food','Food / Amwarake',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital / Te Oo-ti Katika',''],['Good morning','Good morning / Mauri',''],['Goodbye','Goodbye / Ti a boo',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  KN: { lang:'English', script:'Latin', efTier:0, getByEnglish:'Yes — official language', phrases:[
+    ['Hello','Hello','HEH-loh'],['Thank you','Thank you','THANK-yoo'],['Please','Please','PLEEZ'],['Yes','Yes','YES'],['No','No','NOH'],['Excuse me','Excuse me',''],['Water','Water',''],['Food','Food',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital',''],['Good morning','Good morning',''],['Goodbye','Goodbye',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  LC: { lang:'English / Saint Lucian Creole', script:'Latin', efTier:1, getByEnglish:'Yes — English is the official language', phrases:[
+    ['Hello','Hello / Bonjou','HEH-loh / Bon-ZHOO'],['Thank you','Thank you / Mèsi','THANK-yoo / MEH-see'],['Please','Please / Souple','PLEEZ / SOOP-luh'],['Yes','Yes / Wi','YES / WEE'],['No','No / Non','NOH / NON'],['Excuse me','Excuse me',''],['Water','Water / Dlo',''],['Food','Food / Manje',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital',''],['Good morning','Good morning / Bonjou',''],['Goodbye','Goodbye / Orevwa',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening / Bonswa',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  LI: { lang:'German', script:'Latin', efTier:1, getByEnglish:'Yes — German is official; English commonly understood', phrases:[
+    ['Hello','Hallo','HAH-loh'],['Goodbye','Auf Wiedersehen','owf-VEE-der-zay-en'],['Please','Bitte','BIT-teh'],['Thank you','Danke','DAHN-keh'],['Yes','Ja','YAH'],['No','Nein','NINE'],['Excuse me','Entschuldigung','ent-SHOOL-dee-goong'],['I don\'t understand','Ich verstehe nicht','ikh-fer-SHTAY-eh-NIKHT'],['Where is...?','Wo ist...?','VOH-ist'],['How much?','Wie viel kostet das?','VEE-feel-KOS-tet-dahs'],['Help!','Hilfe!','HIL-feh'],['Water','Wasser','VAH-ser'],['Food','Essen','ES-en'],['Hospital','Krankenhaus','KRAN-ken-hows'],['Good morning','Guten Morgen','GOO-ten-MOR-gen'],['Good evening','Guten Abend','GOO-ten-AH-bent'],['Do you speak English?','Sprechen Sie Englisch?','SHPREH-khen-zee-ENG-lish'],['Police','Polizei','poh-lee-TSYE'],['Toilet','Toilette','twah-LET-teh'],['Restaurant','Restaurant','Res-tow-RAHNG']
+  ] },
+  LT: { lang:'Lithuanian', script:'Latin', efTier:1, getByEnglish:'Yes — English widely spoken especially among youth', phrases:[
+    ['Hello','Labas','LAH-bahs'],['Goodbye','Viso gero','VEE-so-GEH-ro'],['Please','Prašom','PRAH-shom'],['Thank you','Ačiū','AH-chyoo'],['Yes','Taip','TYEP'],['No','Ne','NEH'],['Excuse me','Atsiprašau','Aht-see-prah-SHOW'],['I don\'t understand','Nesuprantu','Neh-soo-PRAHN-too'],['Where is...?','Kur yra...?','KOOR-ee-RAH'],['How much?','Kiek kainuoja?','KYEHK-ky-NOH-yah'],['Help!','Gelbėkite!','GEL-beh-kee-teh'],['Water','Vanduo','VAN-doo-oh'],['Food','Maistas','MY-stahs'],['Hospital','Ligoninė','Lee-goh-NEE-neh'],['Good morning','Labas rytas','LAH-bahs-REE-tahs'],['Good evening','Labas vakaras','LAH-bahs-VAH-kah-rahs'],['Do you speak English?','Ar kalbate angliškai?',''],['Police','Policija','Poh-LEE-tsee-yah'],['Toilet','Tualetas','Too-ah-LEH-tahs'],['Restaurant','Restoranas','Res-toh-RAH-nahs']
+  ] },
+  LU: { lang:'Luxembourgish / French / German', script:'Latin', efTier:0, getByEnglish:'Yes — English is widely spoken in this international hub', phrases:[
+    ['Hello','Moien (Lux) / Bonjour (FR)','MOY-en / Bon-ZHOOR'],['Thank you','Merci / Merci','MER-see'],['Please','Wann ech gelift / S\'il vous plaît','Vahn-ech-geh-LEFT / Seel-voo-PLAY'],['Yes','Jo / Oui','YO / WEE'],['No','Nee / Non','NAY / NON'],['Excuse me','Entschëllegt / Excusez-moi',''],['Where is...?','Wou ass...? / Où est...?',''],['How much?','Wéivill? / Combien?',''],['Help!','Hëllef! / Au secours!',''],['Water','Waasser / Eau','VAH-ser / OH'],['Hospital','Spidol / Hôpital',''],['Good morning','Gudde Moien / Bonjour',''],['Goodbye','Äddi / Au revoir','AH-dee / Oh-reh-VWAR'],['Toilet','Toilette','twah-LET-teh'],['Food','Iessen / Nourriture',''],['Police','Polizei / Police',''],['Good evening','Gudden Owend / Bonsoir',''],['Do you speak English?','Schwätzt Dir Englisch?',''],['I don\'t understand','Ech verstinn net / Je ne comprends pas',''],['Restaurant','Restaurant','Res-tow-RAHNG']
+  ] },
+  LV: { lang:'Latvian', script:'Latin', efTier:1, getByEnglish:'Yes — English widely spoken especially in Riga', phrases:[
+    ['Hello','Sveiki','SVAY-kee'],['Goodbye','Uz redzēšanos','Ooz-red-ZEH-shah-nos'],['Please','Lūdzu','LOOD-zoo'],['Thank you','Paldies','PAL-dyehs'],['Yes','Jā','YAH'],['No','Nē','NAY'],['Excuse me','Atvainojiet','Aht-vy-NOH-yeet'],['I don\'t understand','Es nesaprotu','ES-neh-SAH-pro-too'],['Where is...?','Kur ir...?','KOOR-eer'],['How much?','Cik maksā?','TSIK-mak-SAH'],['Help!','Palīgā!','PAH-lee-gah'],['Water','Ūdens','OO-dens'],['Food','Ēdiens','AY-dyens'],['Hospital','Slimnīca','Slim-NEE-tsah'],['Good morning','Labrīt','LAH-breet'],['Good evening','Labvakar','LAH-bvah-kar'],['Do you speak English?','Vai jūs runājat angliski?',''],['Police','Policija','Poh-LEE-tsee-yah'],['Toilet','Tualete','Too-ah-LEH-teh'],['Restaurant','Restorāns','Res-toh-RAHNS']
+  ] },
+  MC: { lang:'French', script:'Latin', efTier:0, getByEnglish:'Yes — English widely spoken (international principality)', phrases:[
+    ['Hello','Bonjour','Bon-ZHOOR'],['Goodbye','Au revoir','Oh-reh-VWAR'],['Please','S\'il vous plaît','Seel-voo-PLAY'],['Thank you','Merci','MER-see'],['Yes','Oui','WEE'],['No','Non','NON'],['Excuse me','Excusez-moi','Ek-skew-ZAY-mwah'],['I don\'t understand','Je ne comprends pas','Zhuh-nuh-com-PRAHN-pah'],['Where is...?','Où est...?','Oo-EH'],['How much?','Combien?','Kom-BYAN'],['Help!','Au secours!','Oh-seh-KOOR'],['Water','Eau','OH'],['Food','Nourriture','Noo-ree-TYOOR'],['Hospital','Hôpital','Oh-pee-TAHL'],['Good morning','Bonjour','Bon-ZHOOR'],['Good evening','Bonsoir','Bon-SWAHR'],['Do you speak English?','Parlez-vous anglais?','Par-LAY-voo-on-GLAY'],['Police','Police','Poh-LEES'],['Toilet','Toilettes','twah-LET'],['Restaurant','Restaurant','Res-tow-RAHNG']
+  ] },
+  MH: { lang:'Marshallese / English', script:'Latin', efTier:1, getByEnglish:'Yes — English is a co-official language', phrases:[
+    ['Hello','Iōkwe','YOK-way'],['Thank you','Kommol','KOM-mol'],['Please','Jouj','JOOJ'],['Yes','Aet','AYT'],['No','Jab','JAB'],['Excuse me','Jouj eo',''],['Water','Dren','DREN'],['Food','Mōñā','MOH-nyah'],['Help!','Jibañ!','JEE-bahn'],['How much?','Ilen aet?',''],['Hospital','Ejmour',''],['Good morning','Rainin eo jokun',''],['Goodbye','Ilo jem yān',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Lik eo jokun',''],['Where is...?','Ia...?',''],['Do you speak English?','Jej kōnono Inglej?',''],['I don\'t understand','I jab jeḷā','']
+  ] },
+  MT: { lang:'Maltese / English', script:'Latin', efTier:0, getByEnglish:'Yes — English is an official language; widely spoken', phrases:[
+    ['Hello','Merħba','MER-hbah'],['Goodbye','Saħħa','SAH-hah'],['Please','Jekk jogħġbok','YEK-yo-BOK'],['Thank you','Grazzi','GRAHT-see'],['Yes','Iva','EE-vah'],['No','Le','LEH'],['Excuse me','Skużani','Skoo-ZAH-nee'],['I don\'t understand','Ma nifhimx','Mah-nif-HIMSH'],['Where is...?','Fejn hu...?','FAYN-oo'],['How much?','Kemm jiswi?','KEM-yis-wee'],['Help!','Għajnuna!','Ah-YOO-nah'],['Water','Ilma','IL-mah'],['Food','Ikel','EE-kel'],['Hospital','Sptar','SPAR'],['Good morning','Bonġu','BON-joo'],['Good evening','Bonswa','BON-swah'],['Do you speak English?','Titkellem bl-Ingliż?',''],['Police','Pulizija','Poo-lee-ZEE-yah'],['Toilet','Tojlit','TOY-lit'],['Restaurant','Restorant','Res-toh-RANT']
+  ] },
+  NR: { lang:'Nauruan / English', script:'Latin', efTier:1, getByEnglish:'Yes — English is widely understood and used officially', phrases:[
+    ['Hello','Ekamawir','EH-kah-mah-WEER'],['Thank you','Tubwa','TOO-bwah'],['Yes','Bwio','BWEE-oh'],['No','Ibwio','EE-bwee-oh'],['Please','Please','PLEEZ'],['Excuse me','Excuse me',''],['Water','Aniuw','AH-nyoo'],['Food','Food / Inowa',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital',''],['Good morning','Good morning',''],['Goodbye','Goodbye',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  PS: { lang:'Arabic', script:'Arabic', efTier:3, getByEnglish:'Partially — in West Bank cities; limited in Gaza', phrases:[
+    ['Hello','مرحبا (Marhaba)','Mar-HAH-bah'],['Goodbye','مع السلامة (Ma\'a salama)','Mah-ah-sah-LAH-mah'],['Please','من فضلك (Min fadlak)','Min-FAD-lak'],['Thank you','شكراً (Shukran)','SHOO-kran'],['Yes','نعم (Na\'am)','NAH-am'],['No','لا (La)','LAH'],['Excuse me','عفوا (\'Afwan)','AF-wan'],['I don\'t understand','لا أفهم (La afham)','Lah-AF-ham'],['Where is...?','أين...? (Ayn...?)','AY-yn'],['How much?','كم الثمن؟ (Kam al-thaman?)','Kam-al-THA-man'],['Help!','ساعدني (Sa\'idni)!','SAH-id-nee'],['Water','ماء (Ma\'a)','MAH-ah'],['Food','طعام (Ta\'am)','TAH-am'],['Hospital','مستشفى (Mustashfa)','Moos-TASH-fah'],['Good morning','صباح الخير (Sabah al-khayr)','SAH-bah-al-KHAYR'],['Good evening','مساء الخير (Masa al-khayr)','Mah-SAH-al-KHAYR'],['Do you speak English?','هل تتكلم الإنجليزية؟',''],['Police','شرطة (Shurta)','SHOOR-tah'],['Toilet','حمام (Hammam)','HAH-mam'],['Restaurant','مطعم (Mat\'am)','MAT-am']
+  ] },
+  SI: { lang:'Slovenian', script:'Latin', efTier:1, getByEnglish:'Yes — English very widely spoken especially among younger Slovenes', phrases:[
+    ['Hello','Zdravo','ZDRAH-voh'],['Goodbye','Na svidenje','Nah-SVEE-den-yeh'],['Please','Prosim','PROH-seem'],['Thank you','Hvala','HVAH-lah'],['Yes','Ja','YAH'],['No','Ne','NEH'],['Excuse me','Oprostite','Oh-PROH-stee-teh'],['I don\'t understand','Ne razumem','Neh-RAH-zoo-mem'],['Where is...?','Kje je...?','KYEH-yeh'],['How much?','Koliko stane?','KOH-lee-koh-STAH-neh'],['Help!','Na pomoč!','Nah-POH-moch'],['Water','Voda','VOH-dah'],['Food','Hrana','HRAH-nah'],['Hospital','Bolnišnica','Bol-NEESH-nee-tsah'],['Good morning','Dobro jutro','DOH-broh-YOO-troh'],['Good evening','Dober večer','DOH-ber-VEH-cher'],['Do you speak English?','Ali govorite angleško?',''],['Police','Policija','Poh-LEE-tsee-yah'],['Toilet','Stranišče','STRAH-neesh-cheh'],['Restaurant','Restavracija','Res-tav-RAH-tsee-yah']
+  ] },
+  SK: { lang:'Slovak', script:'Latin', efTier:1, getByEnglish:'Mostly — Bratislava yes; smaller cities less so', phrases:[
+    ['Hello','Ahoj / Dobrý deň','AH-hoy / DOH-bree-den'],['Goodbye','Dovidenia','Doh-vee-DEH-nyah'],['Please','Prosím','PROH-seem'],['Thank you','Ďakujem','DYAH-koo-yem'],['Yes','Áno','AH-noh'],['No','Nie','NYEH'],['Excuse me','Prepáčte','Preh-PAH-chte'],['I don\'t understand','Nerozumiem','Neh-roh-ZOO-myem'],['Where is...?','Kde je...?','KDEH-yeh'],['How much?','Koľko stojí?','KOL-koh-STOH-yee'],['Help!','Pomoc!','POH-mots'],['Water','Voda','VOH-dah'],['Food','Jedlo','YED-loh'],['Hospital','Nemocnica','Neh-MOTS-nee-tsah'],['Good morning','Dobré ráno','DOH-breh-RAH-noh'],['Good evening','Dobrý večer','DOH-bree-VEH-cher'],['Do you speak English?','Hovoríte po anglicky?',''],['Police','Polícia','Poh-LEE-tsee-yah'],['Toilet','Záchod','ZAH-khod'],['Restaurant','Reštaurácia','Resh-tow-RAH-tsee-yah']
+  ] },
+  SM: { lang:'Italian', script:'Latin', efTier:1, getByEnglish:'Yes — Italian widely understood; some English in tourist areas', phrases:[
+    ['Hello','Ciao / Buongiorno','CHOW / bwon-JOR-no'],['Goodbye','Arrivederci','Ah-ree-veh-DER-chee'],['Please','Per favore','Per-fah-VOH-reh'],['Thank you','Grazie','GRAH-tsyeh'],['Yes','Sì','SEE'],['No','No','NOH'],['Excuse me','Mi scusi','Mee-SKOO-zee'],['I don\'t understand','Non capisco','Non-kah-PEE-skoh'],['Where is...?','Dov\'è...?','Doh-VEH'],['How much?','Quanto costa?','KWAHN-toh-KOS-tah'],['Help!','Aiuto!','Ah-YOO-toh'],['Water','Acqua','AH-kwah'],['Food','Cibo','CHEE-boh'],['Hospital','Ospedale','Os-peh-DAH-leh'],['Good morning','Buongiorno','bwon-JOR-no'],['Good evening','Buonasera','bwon-ah-SEH-rah'],['Do you speak English?','Parla inglese?','PAR-lah-een-GLAY-zeh'],['Police','Polizia','Poh-LEET-syah'],['Toilet','Bagno','BAH-nyoh'],['Restaurant','Ristorante','Rees-toh-RAHN-teh']
+  ] },
+  VA: { lang:'Italian / Latin (ceremonial)', script:'Latin', efTier:0, getByEnglish:'Yes — Italian is the working language; English widely understood by Vatican staff', phrases:[
+    ['Hello','Buongiorno','bwon-JOR-no'],['Goodbye','Arrivederci','Ah-ree-veh-DER-chee'],['Please','Per favore','Per-fah-VOH-reh'],['Thank you','Grazie','GRAH-tsyeh'],['Yes','Sì','SEE'],['No','No','NOH'],['Excuse me','Mi scusi','Mee-SKOO-zee'],['I don\'t understand','Non capisco','Non-kah-PEE-skoh'],['Where is...?','Dov\'è...?','Doh-VEH'],['How much?','Quanto costa?','KWAHN-toh-KOS-tah'],['Help!','Aiuto!','Ah-YOO-toh'],['Water','Acqua','AH-kwah'],['Food','Cibo','CHEE-boh'],['Hospital','Ospedale','Os-peh-DAH-leh'],['Good morning','Buongiorno','bwon-JOR-no'],['Good evening','Buonasera','bwon-ah-SEH-rah'],['Do you speak English?','Parla inglese?','PAR-lah-een-GLAY-zeh'],['Police','Gendarmeria (Vatican)','jen-dar-meh-REE-ah'],['Toilet','Bagno','BAH-nyoh'],['Restaurant','Ristorante','Rees-toh-RAHN-teh']
+  ] },
+  VC: { lang:'English / Vincentian Creole', script:'Latin', efTier:1, getByEnglish:'Yes — English is the official language', phrases:[
+    ['Hello','Hello / Hola','HEH-loh'],['Goodbye','Goodbye / Wha gwan','GOOD-by'],['Please','Please','PLEEZ'],['Thank you','Thank you / Big up','THANK-yoo'],['Yes','Yes / Yeah','YES'],['No','No','NOH'],['Excuse me','Excuse me',''],['Water','Water',''],['Food','Food',''],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital / Milton Cato',''],['Good morning','Good morning',''],['Good evening','Good evening',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
+  ] },
+  TV: { lang:'Tuvaluan / English', script:'Latin', efTier:2, getByEnglish:'Partially — English is co-official; Funafuti OK, outer islands less so', phrases:[
+    ['Hello','Talofa / Hello','Tah-LOH-fah / HEH-loh'],['Thank you','Fakafetai','Fah-kah-FEH-ty'],['Yes','Io','EE-oh'],['No','Ikai','EE-ky'],['Please','Fakaaalofa atu',''],['Excuse me','Excuse me',''],['Water','Vai','VY'],['Food','Kai','KY'],['Help!','Help!',''],['How much?','How much?',''],['Hospital','Hospital / Fale Mate',''],['Good morning','Good morning / Talofa',''],['Goodbye','Goodbye / Tofa',''],['Toilet','Toilet',''],['Restaurant','Restaurant',''],['Police','Police',''],['Good evening','Good evening',''],['Where is...?','Where is...?',''],['Do you speak English?','Do you speak English?',''],['I don\'t understand','I don\'t understand','']
   ] }
 };// Nomadic Almanac — Health Data
 // VACCINE_DATA and ALTITUDE_DATA
@@ -47606,6 +47840,36 @@ const VACCINE_DATA = {
       malaria: 'none',
       notes: null
     },
+    // ── Gap-fill: 25 European + island nations ─────────────────────────────
+    AG: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    BG: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'], malaria: 'none', notes: null },
+    BS: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    CY: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    DM: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    EE: { required: [], recommended: ['Hepatitis A','Hepatitis B','Tick-borne Encephalitis'], malaria: 'none', notes: null },
+    FM: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    GD: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    GM: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid','Meningococcal'], malaria: 'regional', notes: 'Yellow fever certificate required if arriving from endemic country' },
+    HR: { required: [], recommended: ['Hepatitis A','Hepatitis B','Tick-borne Encephalitis'], malaria: 'none', notes: null },
+    IS: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    KI: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    KN: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    LC: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    LI: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    LT: { required: [], recommended: ['Hepatitis A','Hepatitis B','Tick-borne Encephalitis'], malaria: 'none', notes: null },
+    LU: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    LV: { required: [], recommended: ['Hepatitis A','Hepatitis B','Tick-borne Encephalitis'], malaria: 'none', notes: null },
+    MC: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    MH: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    MT: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    NR: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    PS: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: 'Entry conditions depend on crossing point; confirm current requirements' },
+    SI: { required: [], recommended: ['Hepatitis A','Hepatitis B','Tick-borne Encephalitis'], malaria: 'none', notes: null },
+    SK: { required: [], recommended: ['Hepatitis A','Hepatitis B','Tick-borne Encephalitis'], malaria: 'none', notes: null },
+    SM: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    TV: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
+    VA: { required: [], recommended: ['Hepatitis A','Hepatitis B'], malaria: 'none', notes: null },
+    VC: { required: [], recommended: ['Hepatitis A','Hepatitis B','Typhoid'], malaria: 'none', notes: null },
   }
 };
 
