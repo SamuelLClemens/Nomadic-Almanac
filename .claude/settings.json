@@ -1,5 +1,19 @@
 {
   "allowedDirectories": [
     "/Users/zim/Desktop/Claude Code"
-  ]
+  ],
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"/Users/zim/Desktop/Claude Code/.claude/scripts/end-of-session.sh\"",
+            "timeout": 60,
+            "statusMessage": "Committing and deploying to GitHub Pages..."
+          }
+        ]
+      }
+    ]
+  }
 }
