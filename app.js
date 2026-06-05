@@ -7293,7 +7293,7 @@ function na_initPrefsLauncher() {
   btn.type = 'button';
   btn.setAttribute('aria-label', 'Preferences — map view, labels, and units');
   btn.title = 'Preferences';
-  btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-settings"/></svg>';
+  btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-compass"/></svg>';
   btn.addEventListener('click', function () {
     if (typeof na_openPrefsSheet === 'function') na_openPrefsSheet();
   });
@@ -7487,6 +7487,12 @@ function na_initSearch() {
 // ── Keyboard navigation ───────────────────────────────────────────────────
 function na_initKeyboard() {
   document.addEventListener('keydown', function(e) {
+    // Cmd/Ctrl+K — command palette (search), from anywhere including inputs.
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      na_openSearch();
+      return;
+    }
     // '/' opens search from anywhere
     if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
       var active = document.activeElement;
