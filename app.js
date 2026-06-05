@@ -45,6 +45,8 @@ var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // b
 var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
 var _basemapLayer     = null;  // reference to the current basemap tile layer
+var _labelLayer       = null;  // reference to the place-labels overlay tile layer
+var _labelsOn         = (localStorage.getItem('na_labels') !== '0'); // place labels visible?
 let climateZoneLayer  = null;
 let _elevationTileLayer = null;
 let _climateRenderer  = null;
@@ -907,6 +909,13 @@ function initMap() {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 20, subdomains: 'abcd',
     },
+    terrain: {
+      // OpenTopoMap — keyless topographic relief (Google-Terrain-like). Native to
+      // z17; maxNativeZoom lets Leaflet upscale tiles to z19 instead of 404-ing.
+      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
+      maxZoom: 19, maxNativeZoom: 17, subdomains: 'abc',
+    },
   };
   window._BASEMAP_CONFIGS = BASEMAP_CONFIGS;  // expose for na_setBasemap
 
@@ -919,12 +928,15 @@ function initMap() {
     errorTileUrl: '',
   }).addTo(map);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+  // Place-labels overlay — kept in a reference so it can be toggled on/off
+  // independently of the basemap (the on-map switcher exposes a Labels control).
+  _labelLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
     subdomains: 'abcd',
     maxZoom: 20,
     opacity: 0.7,
     pane: 'labelPane',
-  }).addTo(map);
+  });
+  if (_labelsOn) _labelLayer.addTo(map);
 }
 
 // ─── Month Selector ───────────────────────────────────────────────────────────
@@ -1776,7 +1788,8 @@ function getAdmin2Style(shapeID, parentAdmin1Code, iso2, hover) {
 function makeMarkerIcon(city, zoom) {
   const la = [...activeLayers];
   const n = la.length;
-  if (n === 0) return null;
+  // n === 0 (no active layer) is intentional: draw a neutral "discovery" dot so
+  // notable cities are visible on the clean satellite map before a layer is chosen.
 
   // Dots shrink as the user zooms in — a city fills a screen at zoom 12+ so
   // a large dot would obscure it.  At world zoom dots are larger so they are
@@ -1790,7 +1803,15 @@ function makeMarkerIcon(city, zoom) {
   const ctx = cv.getContext('2d');
   const cx = SZ, cy = SZ, r = SZ - lw;
 
-  if (n === 1) {
+  if (n === 0) {
+    // Clean-open discovery marker — a luminous parchment dot with a gold ring
+    // and a dark pip, so it reads as a place pin without implying any score.
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(232,213,163,0.82)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(201,168,76,0.9)'; ctx.lineWidth = lw; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, Math.max(1, r * 0.34), 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(14,11,6,0.5)'; ctx.fill();
+  } else if (n === 1) {
     const v = getRating(city.data[la[0]]) ?? 0;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = RC[Math.min(3, v)]; ctx.fill();
@@ -2249,14 +2270,15 @@ function onZoomAdmin2() {
 function renderCityMarkers() {
   cityMarkers.forEach(m => m.remove());
   cityMarkers = [];
-  if (activeLayers.size === 0) return;
+  // Clean open: city discovery markers are shown even with no active layer.
 
   const zoom = map.getZoom();
-  // Don't clutter world-view (zoom < 4) with dots — they add noise at that scale.
-  // Show a reduced set at zoom 4, all cities at zoom 5+.
-  if (zoom < 4) return;
-  if (zoom < 5) {
-    // Major cities only — every third entry keeps the list representative without overcrowding.
+  // Don't clutter the far world-view; reveal progressively more cities on zoom-in.
+  // Sparse at continent view (zoom 3), a representative third at zoom 4, all at 5+.
+  if (zoom < 3) return;
+  if (zoom < 4) {
+    _placeCities(CITIES.filter((_, i) => i % 5 === 0));
+  } else if (zoom < 5) {
     _placeCities(CITIES.filter((_, i) => i % 3 === 0));
   } else {
     _placeCities(CITIES);
@@ -3694,13 +3716,10 @@ function loadState() {
   try {
     const m = localStorage.getItem('na_month');
     if (m !== null) { const n = parseInt(m); if (!isNaN(n) && n >= 0 && n <= 11) activeMonth = n; }
-    const l = localStorage.getItem('na_layers');
-    if (l) {
-      const arr = JSON.parse(l);
-      // Discard any stale keys that no longer exist in LAYERS (e.g. after a rename/removal).
-      const valid = Array.isArray(arr) ? arr.filter(k => typeof LAYERS !== 'undefined' && k in LAYERS) : [];
-      if (valid.length) activeLayers = new Set(valid);
-    }
+    // Clean open: activeLayers is intentionally NOT seeded from localStorage, so a
+    // bare visit always opens on clean satellite. The choropleth colors only when
+    // the user chooses a layer, or when a shared URL hash restores one (see
+    // initURLState). Month, nationality, units and basemap still persist.
     const nat = localStorage.getItem('na_nationality');
     if (nat) selectedNationality = nat;
   } catch (_) {}
@@ -7112,12 +7131,94 @@ function na_initLayersSheet() {
 // ── Preferences Sheet ─────────────────────────────────────────────────────
 function na_setBasemap(style) {
   var configs = window._BASEMAP_CONFIGS;
-  if (!configs || !configs[style] || !_basemapLayer || !map) return;
+  if (!configs || !configs[style] || !map) return;
   var bc = configs[style];
-  _basemapLayer.setUrl(bc.url);
-  map.attributionControl.getContainer().innerHTML = bc.attribution;
+  // Recreate the tile layer rather than setUrl(): subdomains, maxZoom and
+  // maxNativeZoom differ per style, and setUrl() leaves those stale — which
+  // breaks {s}-templated styles (street/dark/terrain) when switching away from
+  // satellite (no subdomains). Recreating guarantees correct tiles every time.
+  if (_basemapLayer) map.removeLayer(_basemapLayer);
+  _basemapLayer = L.tileLayer(bc.url, {
+    attribution:   bc.attribution,
+    maxZoom:       bc.maxZoom       || 19,
+    maxNativeZoom: bc.maxNativeZoom || bc.maxZoom || 19,
+    subdomains:    bc.subdomains    || 'abc',
+    errorTileUrl:  '',
+  }).addTo(map);
+  if (map.attributionControl) map.attributionControl.getContainer().innerHTML = bc.attribution;
   _mapStyle = style;
   localStorage.setItem('na_mapstyle', style);
+  na_syncBasemapSwitcher();
+}
+
+// Toggle the place-labels overlay independently of the basemap.
+function na_toggleLabels(on) {
+  _labelsOn = (typeof on === 'boolean') ? on : !_labelsOn;
+  if (_labelLayer && map) {
+    if (_labelsOn) { if (!map.hasLayer(_labelLayer)) _labelLayer.addTo(map); }
+    else if (map.hasLayer(_labelLayer)) map.removeLayer(_labelLayer);
+  }
+  localStorage.setItem('na_labels', _labelsOn ? '1' : '0');
+  na_syncBasemapSwitcher();
+}
+
+// Build the visible on-map basemap switcher (Street/Satellite/Terrain/Dark) plus
+// a Labels toggle — the Google-Maps-style control the product calls for.
+function na_initBasemapSwitcher() {
+  if (document.getElementById('na-basemap')) return;
+  var host = document.getElementById('na-main') || document.body;
+  var STYLES = [
+    { key: 'satellite', label: 'Satellite', icon: '🛰' },
+    { key: 'streets',   label: 'Street',    icon: '🛣' },
+    { key: 'terrain',   label: 'Terrain',   icon: '🏔' },
+    { key: 'dark',      label: 'Dark',      icon: '🌙' },
+  ];
+  var wrap = document.createElement('div');
+  wrap.id = 'na-basemap';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Base map style');
+
+  var row = document.createElement('div');
+  row.className = 'na-bm-row';
+  STYLES.forEach(function (s) {
+    var b = document.createElement('button');
+    b.className = 'na-bm-opt';
+    b.dataset.style = s.key;
+    b.setAttribute('aria-label', s.label + ' base map');
+    b.innerHTML = '<span class="na-bm-ic" aria-hidden="true">' + s.icon +
+                  '</span><span class="na-bm-lbl">' + s.label + '</span>';
+    b.addEventListener('click', function () { na_setBasemap(s.key); });
+    row.appendChild(b);
+  });
+  wrap.appendChild(row);
+
+  var lbl = document.createElement('button');
+  lbl.className = 'na-bm-labels';
+  lbl.id = 'na-bm-labels';
+  lbl.setAttribute('aria-label', 'Toggle place labels');
+  lbl.innerHTML = '<span class="na-bm-ic" aria-hidden="true">🏷</span>' +
+                  '<span class="na-bm-lbl">Labels</span>';
+  lbl.addEventListener('click', function () { na_toggleLabels(); });
+  wrap.appendChild(lbl);
+
+  host.appendChild(wrap);
+  na_syncBasemapSwitcher();
+}
+
+// Reflect the current basemap + labels state on the switcher buttons.
+function na_syncBasemapSwitcher() {
+  var wrap = document.getElementById('na-basemap');
+  if (!wrap) return;
+  wrap.querySelectorAll('.na-bm-opt').forEach(function (b) {
+    var on = b.dataset.style === _mapStyle;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  var lbl = document.getElementById('na-bm-labels');
+  if (lbl) {
+    lbl.classList.toggle('active', _labelsOn);
+    lbl.setAttribute('aria-pressed', _labelsOn ? 'true' : 'false');
+  }
 }
 
 function na_openPrefsSheet() {
@@ -7549,6 +7650,7 @@ function navInit() {
   na_patchURLState();
   na_initLogoHover();
   na_initMapResize();
+  na_initBasemapSwitcher();
 
   // Sync layer states whenever activeLayers changes
   // Poll every 500ms as a lightweight approach (no MutationObserver needed)
