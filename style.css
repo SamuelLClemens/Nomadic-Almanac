@@ -1646,68 +1646,37 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   }
 }
 
-/* ── On-map basemap switcher (Street / Satellite / Terrain / Dark + Labels) ─── */
-#na-basemap {
+/* ── Standalone Preferences launcher (bottom-right of the map) ──────────────── */
+/* A single gear button where the basemap options used to sit; opens the full
+   Preferences panel (map view, labels, units). The view options + a Place Labels
+   toggle now live inside Preferences, reachable here and from the left sidebar. */
+#na-prefs-launcher {
   position: fixed;
   right: 12px;
   bottom: 30px;
   z-index: 1150;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-end;
-  font-family: var(--font-label, 'Cinzel', Georgia, serif);
-  pointer-events: none;            /* children re-enable; map drags through gaps */
-}
-#na-basemap > * { pointer-events: auto; }
-.na-bm-row {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
   background: var(--na-glass-navy, rgba(11,22,40,0.85));
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--na-glass-border, rgba(200,168,75,0.35));
-  border-radius: 10px;
+  border-radius: 50%;
+  color: var(--na-gold-mid, #C8A84B);
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: color .15s, background .15s, box-shadow .15s, transform .15s;
 }
-.na-bm-opt, .na-bm-labels {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  min-width: 50px; padding: 6px 8px;
-  background: transparent; border: 1px solid transparent; border-radius: 7px;
-  color: var(--na-text-secondary, #A89060); cursor: pointer;
-  font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
-  transition: color .15s, background .15s, border-color .15s, box-shadow .15s;
-}
-.na-bm-opt:hover, .na-bm-labels:hover {
+#na-prefs-launcher:hover {
   color: var(--na-gold-bright, #E2C06A);
-  background: rgba(200,168,75,0.10);
+  background: rgba(200,168,75,0.14);
+  box-shadow: 0 0 10px rgba(201,168,76,0.4);
+  transform: translateY(-1px);
 }
-.na-bm-opt:focus-visible, .na-bm-labels:focus-visible {
+#na-prefs-launcher:focus-visible {
   outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px;
 }
-.na-bm-opt.active {
-  color: var(--na-text-ink, #1A1008);
-  background: var(--na-gold-mid, #C8A84B);
-  border-color: var(--na-gold-bright, #E2C06A);
-  box-shadow: 0 0 8px rgba(201,168,76,0.45);
-}
-.na-bm-ic { font-size: 15px; line-height: 1; }
-.na-bm-labels {
-  flex-direction: row; gap: 5px; align-self: flex-end;
-  background: var(--na-glass-navy, rgba(11,22,40,0.85));
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--na-glass-border, rgba(200,168,75,0.35));
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-}
-.na-bm-labels.active {
-  color: var(--na-gold-bright, #E2C06A);
-  border-color: var(--na-gold-mid, #C8A84B);
-}
-.na-bm-labels .na-bm-ic { font-size: 12px; }
 @media (max-width: 767px) {
-  #na-basemap { right: 8px; bottom: 74px; }   /* clear the bottom nav */
-  .na-bm-opt, .na-bm-labels { min-width: 44px; padding: 5px 6px; font-size: 8px; }
-  .na-bm-ic { font-size: 13px; }
+  #na-prefs-launcher { right: 8px; bottom: 74px; }   /* clear the bottom nav */
 }
 
 /* The Layer Lens recolour transition is defined with the pane-scoped choropleth
