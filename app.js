@@ -896,7 +896,7 @@ function initMap() {
   var BASEMAP_CONFIGS = {
     satellite: {
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution: 'Tiles &copy; Esri | Admin-2 boundaries: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)',
+      attribution: 'Tiles &copy; Esri',
       maxZoom: 19,
     },
     streets: {
@@ -1039,6 +1039,24 @@ const CAT_GROUPS = [
   { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
 ];
 
+// Canonical layer toggle — the single entry point every layer surface routes
+// through (topbar pills, sidebar items, mobile sheet, keyboard shortcuts). Handles
+// choropleth layers and the elevation tile overlay uniformly: refresh() applies
+// toggleElevationLayer(activeLayers.has('elevation')), so no special-casing here.
+function toggleLayer(key) {
+  if (!key) return;
+  if (activeLayers.has(key)) activeLayers.delete(key);
+  else activeLayers.add(key);
+  const pill = document.querySelector('.lb[data-key="' + key + '"]');
+  if (pill) pill.classList.toggle('on', activeLayers.has(key));
+  syncMoreButtonState();
+  syncCatButtons();
+  refresh();
+  _renderNYCCrime();
+  updateURLState();
+  saveState();
+}
+
 function makeLbButton(key, layer) {
   const btn = document.createElement('button');
   btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
@@ -1052,16 +1070,7 @@ function makeLbButton(key, layer) {
   name.textContent = layer.name;
   btn.appendChild(emoji);
   btn.appendChild(name);
-  btn.addEventListener('click', () => {
-    if (activeLayers.has(key)) activeLayers.delete(key);
-    else activeLayers.add(key);
-    btn.classList.toggle('on', activeLayers.has(key));
-    syncMoreButtonState();
-    refresh();
-    _renderNYCCrime();
-    updateURLState();
-    saveState();
-  });
+  btn.addEventListener('click', () => { toggleLayer(key); });
   return btn;
 }
 
@@ -4299,6 +4308,15 @@ function updateLegend() {
     }
     // Use LAYER_LABELS for display text where available
     const lyrLabels = (typeof LAYER_LABELS !== 'undefined' && LAYER_LABELS[key]) || layer.levels;
+    // Tile-overlay layers (e.g. elevation/terrain) have no 0–3 score ramp, so
+    // `levels` is undefined. Show a single descriptive row instead of crashing
+    // updateLegend() — which previously aborted the whole refresh() (no markers,
+    // no overlay) the moment such a layer became active.
+    if (!lyrLabels) {
+      const nm = (layer && (layer.name || layer.label)) || key;
+      html += `<div class="ll"><div class="lr"><span class="llabel">${nm} — map overlay</span></div></div>`;
+      return;
+    }
     html += `<div class="ll">`;
     lyrLabels.forEach((lbl, i) => {
       html += `<div class="lr">
@@ -6983,6 +7001,44 @@ function na_initAccordion() {
 }
 
 // ── Layer navigation items (sidebar + bottom sheet) ───────────────────────
+// Generate the sidebar accordion AND the mobile layers sheet from the full LAYERS
+// set so every intelligence layer is reachable on every breakpoint (previously
+// both surfaces hard-coded only 8 of 31, and the topbar pills are hidden on desktop).
+// Ordered: primary keys, then category groups, then any remaining layers (incl. the
+// elevation tile overlay). Items route through toggleLayer() via na_initLayerItems().
+function na_populateLayerSurfaces() {
+  if (typeof LAYERS === 'undefined') return;
+  var seen = {}, ordered = [];
+  function add(k) { if (k && LAYERS[k] && !seen[k]) { seen[k] = 1; ordered.push(k); } }
+  (typeof PRIMARY_LAYER_KEYS !== 'undefined' ? PRIMARY_LAYER_KEYS : []).forEach(add);
+  (typeof CAT_GROUPS !== 'undefined' ? CAT_GROUPS : []).forEach(function (g) { (g.keys || []).forEach(add); });
+  Object.keys(LAYERS).forEach(add);
+
+  function buildItem(k, cls, labelCls) {
+    var L = LAYERS[k];
+    var b = document.createElement('button');
+    b.className = cls;
+    b.setAttribute('data-layer', k);
+    b.setAttribute('aria-label', L.name || k);
+    var em = document.createElement('span');
+    em.className = 'na-layer-emoji';
+    em.setAttribute('aria-hidden', 'true');
+    em.textContent = L.emoji || '•';
+    var nm = document.createElement('span');
+    if (labelCls) nm.className = labelCls;
+    nm.textContent = L.name || k;
+    b.appendChild(em);
+    b.appendChild(nm);
+    return b;
+  }
+
+  var grid = document.getElementById('na-sheet-grid');
+  if (grid) { grid.textContent = ''; ordered.forEach(function (k) { grid.appendChild(buildItem(k, 'na-sheet-item', null)); }); }
+
+  var list = document.getElementById('na-layers-list');
+  if (list) { list.textContent = ''; ordered.forEach(function (k) { list.appendChild(buildItem(k, 'na-nav-item na-layer-item', 'na-nav-item-label')); }); }
+}
+
 function na_initLayerItems() {
   var items = document.querySelectorAll('.na-layer-item, .na-sheet-item');
   items.forEach(function(item) {
@@ -7145,10 +7201,36 @@ function na_setBasemap(style) {
     subdomains:    bc.subdomains    || 'abc',
     errorTileUrl:  '',
   }).addTo(map);
-  if (map.attributionControl) map.attributionControl.getContainer().innerHTML = bc.attribution;
+  // OpenTopoMap (Terrain) is a restricted-use, rate-limited provider. If its tiles
+  // start failing, revert to satellite instead of rendering silent blank tiles
+  // (STATIC SITE RUNTIME DEPENDENCY RULE — external data must never fail silently).
+  if (style === 'terrain') {
+    var _terrErrs = 0;
+    _basemapLayer.on('tileerror', function () {
+      if (_mapStyle !== 'terrain') return;
+      if (++_terrErrs === 5) {
+        if (typeof na_toast === 'function') na_toast('Terrain tiles are unavailable right now — switched to Satellite.', 4000);
+        na_setBasemap('satellite');
+      }
+    });
+  }
   _mapStyle = style;
   localStorage.setItem('na_mapstyle', style);
+  na_updateAttribution();
   na_syncBasemapSwitcher();
+}
+
+// Compose the attribution from the active basemap + the labels overlay (when on)
+// + the persistent geoBoundaries admin-2 credit, so switching basemaps never drops
+// a required licence credit (CARTO / OpenTopoMap / geoBoundaries each require it).
+function na_updateAttribution() {
+  if (!map || !map.attributionControl) return;
+  var configs = window._BASEMAP_CONFIGS || {};
+  var parts = [];
+  if (configs[_mapStyle] && configs[_mapStyle].attribution) parts.push(configs[_mapStyle].attribution);
+  if (_labelsOn) parts.push('Labels &copy; <a href="https://carto.com/attributions">CARTO</a>');
+  parts.push('Admin-2: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)');
+  map.attributionControl.getContainer().innerHTML = parts.join(' &nbsp;|&nbsp; ');
 }
 
 // Toggle the place-labels overlay independently of the basemap.
@@ -7159,6 +7241,7 @@ function na_toggleLabels(on) {
     else if (map.hasLayer(_labelLayer)) map.removeLayer(_labelLayer);
   }
   localStorage.setItem('na_labels', _labelsOn ? '1' : '0');
+  na_updateAttribution();
   na_syncBasemapSwitcher();
 }
 
@@ -7202,6 +7285,7 @@ function na_initBasemapSwitcher() {
   wrap.appendChild(lbl);
 
   host.appendChild(wrap);
+  na_updateAttribution();
   na_syncBasemapSwitcher();
 }
 
@@ -7636,6 +7720,7 @@ function na_initMapResize() {
 // ── Master init ───────────────────────────────────────────────────────────
 function navInit() {
   na_initTheme();
+  na_populateLayerSurfaces();   // build all-layer sidebar + sheet before wiring clicks
   na_initAccordion();
   na_initLayerItems();
   na_initNavItems();
