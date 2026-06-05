@@ -7217,7 +7217,7 @@ function na_setBasemap(style) {
   _mapStyle = style;
   localStorage.setItem('na_mapstyle', style);
   na_updateAttribution();
-  na_syncBasemapSwitcher();
+  na_syncPrefsUI();
 }
 
 // Compose the attribution from the active basemap + the labels overlay (when on)
@@ -7242,67 +7242,30 @@ function na_toggleLabels(on) {
   }
   localStorage.setItem('na_labels', _labelsOn ? '1' : '0');
   na_updateAttribution();
-  na_syncBasemapSwitcher();
+  na_syncPrefsUI();
 }
 
 // Build the visible on-map basemap switcher (Street/Satellite/Terrain/Dark) plus
 // a Labels toggle — the Google-Maps-style control the product calls for.
-function na_initBasemapSwitcher() {
-  if (document.getElementById('na-basemap')) return;
+// Standalone preferences launcher — a single gear button at the bottom-right of
+// the map, where the basemap options used to live. Clicking it opens the full
+// Preferences panel (map view, labels, and units) — the same panel reachable from
+// the left sidebar's Preferences item. The old always-expanded basemap/labels
+// switcher was folded into Preferences (Map Style + Place Labels rows).
+function na_initPrefsLauncher() {
+  if (document.getElementById('na-prefs-launcher')) return;
   var host = document.getElementById('na-main') || document.body;
-  var STYLES = [
-    { key: 'satellite', label: 'Satellite', icon: '🛰' },
-    { key: 'streets',   label: 'Street',    icon: '🛣' },
-    { key: 'terrain',   label: 'Terrain',   icon: '🏔' },
-    { key: 'dark',      label: 'Dark',      icon: '🌙' },
-  ];
-  var wrap = document.createElement('div');
-  wrap.id = 'na-basemap';
-  wrap.setAttribute('role', 'group');
-  wrap.setAttribute('aria-label', 'Base map style');
-
-  var row = document.createElement('div');
-  row.className = 'na-bm-row';
-  STYLES.forEach(function (s) {
-    var b = document.createElement('button');
-    b.className = 'na-bm-opt';
-    b.dataset.style = s.key;
-    b.setAttribute('aria-label', s.label + ' base map');
-    b.innerHTML = '<span class="na-bm-ic" aria-hidden="true">' + s.icon +
-                  '</span><span class="na-bm-lbl">' + s.label + '</span>';
-    b.addEventListener('click', function () { na_setBasemap(s.key); });
-    row.appendChild(b);
+  var btn = document.createElement('button');
+  btn.id = 'na-prefs-launcher';
+  btn.type = 'button';
+  btn.setAttribute('aria-label', 'Preferences — map view, labels, and units');
+  btn.title = 'Preferences';
+  btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-settings"/></svg>';
+  btn.addEventListener('click', function () {
+    if (typeof na_openPrefsSheet === 'function') na_openPrefsSheet();
   });
-  wrap.appendChild(row);
-
-  var lbl = document.createElement('button');
-  lbl.className = 'na-bm-labels';
-  lbl.id = 'na-bm-labels';
-  lbl.setAttribute('aria-label', 'Toggle place labels');
-  lbl.innerHTML = '<span class="na-bm-ic" aria-hidden="true">🏷</span>' +
-                  '<span class="na-bm-lbl">Labels</span>';
-  lbl.addEventListener('click', function () { na_toggleLabels(); });
-  wrap.appendChild(lbl);
-
-  host.appendChild(wrap);
+  host.appendChild(btn);
   na_updateAttribution();
-  na_syncBasemapSwitcher();
-}
-
-// Reflect the current basemap + labels state on the switcher buttons.
-function na_syncBasemapSwitcher() {
-  var wrap = document.getElementById('na-basemap');
-  if (!wrap) return;
-  wrap.querySelectorAll('.na-bm-opt').forEach(function (b) {
-    var on = b.dataset.style === _mapStyle;
-    b.classList.toggle('active', on);
-    b.setAttribute('aria-pressed', on ? 'true' : 'false');
-  });
-  var lbl = document.getElementById('na-bm-labels');
-  if (lbl) {
-    lbl.classList.toggle('active', _labelsOn);
-    lbl.setAttribute('aria-pressed', _labelsOn ? 'true' : 'false');
-  }
 }
 
 function na_openPrefsSheet() {
@@ -7332,6 +7295,7 @@ function na_syncPrefsUI() {
     'pref-basemap':    _mapStyle,
     'pref-dateformat': _dateFormat,
     'pref-clock':      _clockFormat,
+    'pref-labels':     (_labelsOn ? 'on' : 'off'),
   };
   Object.keys(map_pref).forEach(function(id) {
     var grp = document.getElementById(id);
@@ -7387,6 +7351,8 @@ function na_initPrefsSheet() {
       } else if (id === 'pref-clock') {
         _clockFormat = val;
         localStorage.setItem('na_clockfmt', _clockFormat);
+      } else if (id === 'pref-labels') {
+        na_toggleLabels(val === 'on');
       }
       na_syncPrefsUI();
     });
@@ -7735,7 +7701,7 @@ function navInit() {
   na_patchURLState();
   na_initLogoHover();
   na_initMapResize();
-  na_initBasemapSwitcher();
+  na_initPrefsLauncher();
 
   // Sync layer states whenever activeLayers changes
   // Poll every 500ms as a lightweight approach (no MutationObserver needed)
