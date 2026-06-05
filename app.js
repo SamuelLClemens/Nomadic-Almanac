@@ -1794,6 +1794,12 @@ function getAdmin2Style(shapeID, parentAdmin1Code, iso2, hover) {
 }
 
 // ─── Canvas Markers ───────────────────────────────────────────────────────────
+// Marker-icon cache: visual signature -> shared L.divIcon. The expensive part of a
+// marker is the per-call canvas draw + synchronous toDataURL() PNG encode; many
+// cities share the same layer/rating/size, so caching turns ~290 encodes per
+// refresh into a handful — the single biggest win for layer/month/passport speed.
+var _markerIconCache = {};
+
 function makeMarkerIcon(city, zoom) {
   const la = [...activeLayers];
   const n = la.length;
@@ -1806,6 +1812,21 @@ function makeMarkerIcon(city, zoom) {
   const SZ = zoom >= 12 ? 4 : zoom >= 10 ? 5 : zoom >= 8 ? 6 : zoom >= 6 ? 7 : 8;
   const D = SZ * 2;
   const lw = SZ <= 4 ? 1 : 1.5;  // thinner stroke on small markers
+
+  // Compute the rating(s) once and build a cache signature. getRating is cheap;
+  // the encode is not — so we key on everything that changes the pixels.
+  let sig, ratings = null;
+  if (n === 0) {
+    sig = 'n0:' + SZ;
+  } else if (n === 1) {
+    ratings = [getRating(city.data[la[0]]) ?? 0];
+    sig = 'n1:' + la[0] + ':' + ratings[0] + ':' + SZ;
+  } else {
+    ratings = la.map(lk => getRating(city.data[lk]) ?? 0);
+    sig = 'nN:' + la.join(',') + ':' + ratings.join(',') + ':' + SZ;
+  }
+  const hit = _markerIconCache[sig];
+  if (hit) return hit;
 
   const cv = document.createElement('canvas');
   cv.width = D; cv.height = D;
@@ -1821,14 +1842,12 @@ function makeMarkerIcon(city, zoom) {
     ctx.beginPath(); ctx.arc(cx, cy, Math.max(1, r * 0.34), 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(14,11,6,0.5)'; ctx.fill();
   } else if (n === 1) {
-    const v = getRating(city.data[la[0]]) ?? 0;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = RC[Math.min(3, v)]; ctx.fill();
+    ctx.fillStyle = RC[Math.min(3, ratings[0])]; ctx.fill();
     ctx.strokeStyle = 'rgba(201,168,76,0.75)'; ctx.lineWidth = lw; ctx.stroke();
   } else {
     const slice = (Math.PI * 2) / n;
-    la.forEach((lk, i) => {
-      const v = getRating(city.data[lk]) ?? 0;
+    ratings.forEach((v, i) => {
       const s = slice * i - Math.PI / 2;
       ctx.beginPath(); ctx.moveTo(cx, cy);
       ctx.arc(cx, cy, r, s, s + slice); ctx.closePath();
@@ -1839,9 +1858,12 @@ function makeMarkerIcon(city, zoom) {
     ctx.strokeStyle = 'rgba(201,168,76,0.70)'; ctx.lineWidth = lw; ctx.stroke();
   }
 
-  // canvas.outerHTML only serialises the element tag — pixel data is lost.
   // toDataURL() encodes the drawn pixels as a PNG data URI used in an <img>.
-  return L.divIcon({ html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`, className: '', iconSize: [D, D], iconAnchor: [SZ, SZ] });
+  const icon = L.divIcon({ html: `<img src="${cv.toDataURL()}" width="${D}" height="${D}" style="display:block">`, className: '', iconSize: [D, D], iconAnchor: [SZ, SZ] });
+  // Bound the cache so long sessions across many month/layer combos can't grow it forever.
+  if (Object.keys(_markerIconCache).length > 2400) _markerIconCache = {};
+  _markerIconCache[sig] = icon;
+  return icon;
 }
 
 function makeBorderIcon(bc, zoom) {
@@ -4544,6 +4566,8 @@ function refresh() {
   renderPoliticalLayers();
   updateBestPanel();
   renderEventMarkers();
+  // Keep the sidebar/sheet layer-item active states in sync without idle polling.
+  if (typeof na_updateLayerActiveStates === 'function') na_updateLayerActiveStates();
 }
 
 // Update the legend zoom annotation note based on the current zoom level and
@@ -7071,6 +7095,14 @@ function na_updateLayerActiveStates() {
     item.classList.toggle('layer-active', on);
   });
 
+  // Keep the topbar layer pills + category buttons in sync too, so every layer
+  // surface reflects activeLayers no matter how it changed (pill, sidebar, sheet,
+  // persona preset, or URL restore) — not just clicks routed through a pill.
+  document.querySelectorAll('.lb[data-key]').forEach(function(b) {
+    b.classList.toggle('on', (typeof activeLayers !== 'undefined') && activeLayers.has(b.dataset.key));
+  });
+  if (typeof syncCatButtons === 'function') syncCatButtons();
+
   // Update active badge on bottom nav layers button
   var badge = document.getElementById('na-active-badge');
   if (badge) {
@@ -7079,7 +7111,8 @@ function na_updateLayerActiveStates() {
       activeLayers.forEach(function(k) { activeList.push(k.toUpperCase().slice(0,4)); });
     }
     if (activeList.length > 0) {
-      badge.textContent = activeList[0];
+      // One layer: show its abbreviation; multiple: show the count.
+      badge.textContent = activeList.length === 1 ? activeList[0] : String(activeList.length);
       badge.hidden = false;
     } else {
       badge.hidden = true;
@@ -7703,9 +7736,8 @@ function navInit() {
   na_initMapResize();
   na_initPrefsLauncher();
 
-  // Sync layer states whenever activeLayers changes
-  // Poll every 500ms as a lightweight approach (no MutationObserver needed)
-  setInterval(na_updateLayerActiveStates, 500);
+  // Layer-state UI is synced event-driven from refresh() (which runs on every
+  // layer / month / passport change) — no idle polling timer. Initial sync now.
   na_updateLayerActiveStates();
 }
 
