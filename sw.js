@@ -1,7 +1,7 @@
 // Increment this version string whenever app.js, data.js, or style.css change.
 // The activate handler deletes all caches whose name does not match CACHE,
 // forcing clients to re-fetch the latest files and clearing any stale state.
-const CACHE = 'nomadic-v26';
+const CACHE = 'nomadic-v27';
 const CORE = [
   './', './index.html', './app.js', './data.js', './style.css',
   './lib/leaflet.js', './lib/leaflet.css',
@@ -27,7 +27,7 @@ self.addEventListener('fetch', e => {
 
   // Map tiles: cache-first. Tiles are immutable and large, so serving a cached
   // copy is correct and enables offline browsing.
-  if (url.hostname.includes('arcgisonline') || url.hostname.includes('cartocdn')) {
+  if (url.hostname.includes('arcgisonline') || url.hostname.includes('cartocdn') || url.hostname.includes('opentopomap')) {
     e.respondWith(
       caches.open('nomadic-tiles').then(cache =>
         cache.match(e.request).then(cached => {

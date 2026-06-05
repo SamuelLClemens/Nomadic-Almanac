@@ -489,7 +489,14 @@ html, body {
 .leaflet-choroplethPane-pane { transition: opacity .2s ease; }
 .leaflet-pane.leaflet-choroplethPane-pane .leaflet-interactive,
 .leaflet-pane.leaflet-admin2Pane-pane .leaflet-interactive {
-  transition: fill-opacity .18s ease, fill .18s ease;
+  /* "Layer Lens": 250ms recolour, pane-scoped (admin-1 also renders in
+     choroplethPane). Borders / overlays are deliberately excluded to avoid
+     thousands of simultaneous SVG transitions at high zoom. */
+  transition: fill-opacity 250ms var(--ease-chart, ease), fill 250ms var(--ease-chart, ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .leaflet-pane.leaflet-choroplethPane-pane .leaflet-interactive,
+  .leaflet-pane.leaflet-admin2Pane-pane .leaflet-interactive { transition: none; }
 }
 
 /* Leaflet zoom controls sit inside #map so they are naturally below the topbar */
@@ -1476,7 +1483,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   border-radius: 2px;
   border: 1px solid rgba(200,168,75,0.18);
   background: transparent;
-  color: var(--na-text-dim);
+  color: var(--na-text-secondary);   /* was --na-text-dim (~2.6:1) — WCAG fail at 8px */
   cursor: pointer;
   transition: all var(--dur-fast);
   text-transform: uppercase;
@@ -1703,14 +1710,32 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   .na-bm-ic { font-size: 13px; }
 }
 
-/* ── Layer Lens — smooth choropleth recolour on layer / month / passport change ── */
-.leaflet-interactive {
-  transition: fill 250ms var(--ease-chart, cubic-bezier(0.25,0.46,0.45,0.94)),
-              fill-opacity 250ms var(--ease-chart, cubic-bezier(0.25,0.46,0.45,0.94));
+/* The Layer Lens recolour transition is defined with the pane-scoped choropleth
+   rule earlier in this file (not globally — a global .leaflet-interactive
+   transition would animate every border/overlay path and cause zoom jank). */
+
+/* a11y: restore a visible keyboard focus ring on controls that suppressed it. */
+#country-search:focus-visible,
+#na-sidebar-passport select:focus-visible,
+#passport-select:focus-visible {
+  outline: 2px solid var(--na-gold-mid, #C8A84B);
+  outline-offset: 2px;
 }
-@media (prefers-reduced-motion: reduce) {
-  .leaflet-interactive { transition: none; }
+
+/* Mobile: keep the Field Guide legend clear of the bottom nav (56px + safe area). */
+@media (max-width: 767px) {
+  #legend { bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important; }
 }
+
+/* Emoji glyphs for the generated all-layer sidebar items + mobile sheet tiles.
+   (Line-art SVG vocabulary is a later visual-polish pass per the design council.) */
+.na-layer-item .na-layer-emoji {
+  font-size: 16px; line-height: 1; width: 22px;
+  text-align: center; flex: 0 0 auto;
+}
+.na-sheet-item .na-layer-emoji { font-size: 24px; line-height: 1; }
+/* The sheet grid can now hold all 31 layers — let it scroll within the sheet. */
+#na-sheet-grid { max-height: 52vh; overflow-y: auto; }
 
 .na-bottom-item {
   flex: 1;
