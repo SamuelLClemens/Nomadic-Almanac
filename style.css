@@ -1734,6 +1734,18 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 @media (min-width: 768px) { #na-crime-status { bottom: 28px; } }
 
+/* Criteria-finder + Surprise Me triggers inside the search overlay (mobile-reachable). */
+#na-search-quick { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 10px; }
+.na-search-quick-btn {
+  flex: 1 1 auto; min-width: 140px; padding: 9px 12px; border-radius: 10px;
+  background: rgba(200,168,75,0.10); border: 1px solid var(--na-glass-border, rgba(200,168,75,0.35));
+  color: var(--na-text-primary, #E8D8A0); cursor: pointer;
+  font-family: var(--font-label, 'Cinzel', Georgia, serif); font-size: 11px; letter-spacing: 0.04em;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.na-search-quick-btn:hover { background: rgba(200,168,75,0.20); color: var(--na-gold-bright, #E2C06A); border-color: var(--na-gold-mid, #C8A84B); }
+.na-search-quick-btn:focus-visible { outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px; }
+
 .na-bottom-item {
   flex: 1;
   display: flex;
