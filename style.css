@@ -2402,3 +2402,121 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 @media (prefers-reduced-motion: reduce) {
   .na-route-flow { animation: none; }
 }
+
+/* ─── Enriched country dossier (facts / emergency / history / phrasebook) ───────
+   Colours use the theme-aware --na-text-* / --na-gold-mid tokens so the dossier
+   stays legible in BOTH the dark (default) and light themes. */
+.na-sec-h {
+  font-size: 7px; font-weight: 700; color: var(--na-gold-mid);
+  letter-spacing: 1.8px; text-transform: uppercase;
+  margin: 0 0 7px; display: flex; align-items: center; gap: 6px;
+}
+.na-sec-h::before {
+  content: ""; flex: 0 0 14px; height: 1px;
+  background: linear-gradient(90deg, var(--na-gold-mid), transparent);
+}
+
+/* Master unit toggle in the dossier header (left of the close button) */
+.na-unit-master {
+  position: absolute; top: 8px; right: 38px; z-index: 2001;
+  height: 22px; padding: 0 8px;
+  background: rgba(200,168,75,0.12);
+  border: 1px solid rgba(200,168,75,0.32);
+  border-radius: 5px; color: var(--na-gold-mid);
+  font-family: var(--fm); font-size: 8.5px; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer; line-height: 1;
+  transition: background .12s, color .12s;
+}
+.na-unit-master:hover { background: rgba(200,168,75,0.24); color: var(--na-text-primary); }
+.na-unit-master:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 1px; }
+
+/* At-a-glance fact grid */
+.na-facts { margin: 2px 0 10px; }
+.na-facts-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.na-fact {
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 7px 8px; border-radius: 7px;
+  background: rgba(200,168,75,0.06);
+  border: 1px solid rgba(200,168,75,0.14);
+}
+.na-fact-ico {
+  flex: 0 0 18px; width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(200,168,75,0.16); font-size: 10px; line-height: 1;
+}
+.na-fact-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.na-fact-label {
+  font-size: 6.5px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--na-text-secondary); font-weight: 700;
+}
+.na-fact-val {
+  font-size: 9.5px; color: var(--na-text-primary); font-weight: 600;
+  line-height: 1.3; word-break: break-word;
+}
+.na-fact-sub { color: var(--na-text-secondary); font-weight: 400; font-size: 8px; }
+
+/* Emergency band — prominent, distinct red accent (legible on both themes) */
+.na-emergency {
+  display: flex; align-items: center; gap: 9px;
+  margin: 2px 0 11px; padding: 8px 10px;
+  background: rgba(198,40,40,0.12);
+  border: 1px solid rgba(198,40,40,0.40);
+  border-left: 3px solid #d32f2f; border-radius: 7px;
+}
+.na-emg-ico { font-size: 15px; line-height: 1; flex-shrink: 0; }
+.na-emg-body { flex: 1; min-width: 0; }
+.na-emg-h {
+  font-size: 7px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+  color: #c62828; margin-bottom: 4px;
+}
+.na-emg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.na-emg-chip {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 2px 7px; border-radius: 11px;
+  background: #c62828; border: 1px solid rgba(198,40,40,0.6);
+}
+.na-emg-k { font-size: 6.5px; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.85); }
+.na-emg-n { font-size: 11px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+
+/* History */
+.na-history { margin: 2px 0 11px; }
+.na-history-p {
+  margin: 0; font-size: 9px; line-height: 1.6;
+  color: var(--na-text-primary); font-weight: 400;
+}
+
+/* Phrasebook */
+.na-phrasebook {
+  margin: 2px 0 6px; padding: 9px 10px;
+  background: rgba(200,168,75,0.06);
+  border: 1px solid rgba(200,168,75,0.16); border-radius: 8px;
+}
+.na-ph-native { color: var(--na-text-secondary); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.na-ph-table { width: 100%; border-collapse: collapse; }
+.na-ph-table td { padding: 4px 0; vertical-align: top; border-bottom: 1px solid rgba(200,168,75,0.12); }
+.na-ph-table tr:last-child td { border-bottom: none; }
+.na-ph-en { font-size: 8px; color: var(--na-text-secondary); padding-right: 10px !important; white-space: nowrap; }
+.na-ph-loc { font-size: 11px; color: var(--na-text-primary); font-weight: 600; text-align: right; }
+.na-ph-pron { display: block; font-size: 7.5px; color: var(--na-gold-mid); font-weight: 400; font-style: italic; margin-top: 1px; }
+.na-ph-more { margin-top: 6px; }
+.na-ph-more > summary {
+  cursor: pointer; list-style: none; outline: none;
+  font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--na-gold-mid); padding: 3px 0;
+}
+.na-ph-more > summary::-webkit-details-marker { display: none; }
+.na-ph-more > summary::before { content: "▸ "; }
+.na-ph-more[open] > summary::before { content: "▾ "; }
+.na-ph-nums-h {
+  font-size: 6.5px; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--na-text-secondary); font-weight: 700; margin: 8px 0 5px;
+}
+.na-ph-nums { display: flex; flex-wrap: wrap; gap: 5px; }
+.na-ph-num {
+  font-size: 8.5px; color: var(--na-text-primary);
+  padding: 2px 6px; border-radius: 5px; background: rgba(200,168,75,0.10);
+}
+.na-ph-num b { color: var(--na-gold-mid); margin-right: 2px; }
+.na-ph-num .na-ph-pron { display: inline; font-size: 7px; margin-left: 2px; }
