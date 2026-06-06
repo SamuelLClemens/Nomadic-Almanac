@@ -1751,6 +1751,21 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 .na-search-quick-btn:hover { background: rgba(200,168,75,0.20); color: var(--na-gold-bright, #E2C06A); border-color: var(--na-gold-mid, #C8A84B); }
 .na-search-quick-btn:focus-visible { outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px; }
 
+/* Plan / Book transactional deep-links inside the country/city dossier. */
+.pb-section { padding: 10px 14px 12px; border-top: 1px solid rgba(201,168,76,0.12); }
+.pb-title { font-family: var(--font-label, 'Cinzel', Georgia, serif); font-size: 8px; letter-spacing: 1.6px; text-transform: uppercase; color: rgba(201,168,76,0.72); margin-bottom: 7px; }
+.pb-links { display: flex; flex-wrap: wrap; gap: 6px; }
+.pb-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 10px; border-radius: 8px; text-decoration: none;
+  background: rgba(201,168,76,0.10); border: 1px solid rgba(201,168,76,0.28);
+  color: var(--na-text-primary, #E8D8A0); font-family: var(--fm); font-size: 10px; letter-spacing: 0.03em;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.pb-link:hover { background: rgba(201,168,76,0.22); color: var(--na-gold-bright, #E2C06A); border-color: var(--na-gold-mid, #C8A84B); }
+.pb-link:focus-visible { outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px; }
+.pb-ic { font-size: 12px; line-height: 1; }
+
 .na-bottom-item {
   flex: 1;
   display: flex;
