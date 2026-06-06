@@ -6842,6 +6842,16 @@ var CRIME_SOURCES = [
   { id:'dallas',      region:'Dallas',               type:'soda-point', host:'https://www.dallasopendata.com',   ds:'qv6i-rri7', pt:'geocoded_column', f:{date:'date1',cat:'nibrs_crime'},                       bbox:[32.62,-96.99,33.02,-96.55] },
   { id:'kcmo',        region:'Kansas City, MO',      type:'soda-point', host:'https://data.kcmo.org',            ds:'f7wj-ckmw', pt:'location', f:{date:'report_date',cat:'offense'},                            bbox:[38.85,-94.78,39.35,-94.40] },
   { id:'boston',      region:'Boston',               type:'ckan',       host:'https://data.boston.gov',          rid:'b973d8cb-eeb2-4e7e-99da-c92938efc9c0', f:{lat:'Lat',lng:'Long',date:'OCCURRED_ON_DATE',cat:'OFFENSE_DESCRIPTION'}, bbox:[42.23,-71.19,42.40,-70.99] },
+  // ArcGIS FeatureServer GeoJSON (key-less); coords from a lat/lng attribute or, where null, geometry.coordinates. Dates are epoch-ms.
+  { id:'baltimore', region:'Baltimore, MD', type:'arcgis', endpoint:'https://services1.arcgis.com/UWYHeuuJISiGmgXx/arcgis/rest/services/NIBRS_GroupA_Crime_Data/FeatureServer/0/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:'Latitude',lng:'Longitude',date:'CrimeDateTime',cat:'Description'}, bbox:[39.197,-76.711,39.372,-76.529] },
+  { id:'denver',    region:'Denver, CO',    type:'arcgis', endpoint:'https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/arcgis/rest/services/ODC_CRIME_OFFENSES_P/FeatureServer/324/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:'GEO_LAT',lng:'GEO_LON',date:'FIRST_OCCURRENCE_DATE',cat:'OFFENSE_CATEGORY_ID'}, bbox:[39.614,-105.110,39.914,-104.600] },
+  { id:'detroit',   region:'Detroit, MI',   type:'arcgis', endpoint:'https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/RMS_Crime_Incidents/FeatureServer/0/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:'latitude',lng:'longitude',date:'incident_occurred_at',cat:'offense_category'}, bbox:[42.255,-83.288,42.450,-82.910] },
+  { id:'nashville', region:'Nashville, TN', type:'arcgis', endpoint:'https://services2.arcgis.com/HdTo6HJqh92wn4D8/arcgis/rest/services/Metro_Nashville_Police_Department_Incidents_view/FeatureServer/0/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:'Latitude',lng:'Longitude',date:'Incident_Occurred',cat:'Offense_Description'}, bbox:[35.97,-87.05,36.41,-86.51] },
+  { id:'hartford',  region:'Hartford, CT',  type:'arcgis', endpoint:'https://utility.arcgis.com/usrsvcs/servers/4bc28c820ebd45df8a62feae6dc8822d/rest/services/OpenData_PublicSafety/FeatureServer/21/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:null,lng:null,date:'Date',cat:'OffenseDesc'}, bbox:[41.726,-72.717,41.808,-72.643] },
+  { id:'tempe',     region:'Tempe, AZ',     type:'arcgis', endpoint:'https://services.arcgis.com/lQySeXwbBg53XWDi/ArcGIS/rest/services/Calls_For_Service/FeatureServer/0/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:'Latitude',lng:'Longitude',date:'OccurrenceDatetime',cat:'CallCategory'}, bbox:[33.32,-111.975,33.456,-111.875] },
+  { id:'austin',    region:'Austin, TX',    type:'arcgis', endpoint:'https://maps.austintexas.gov/arcgis/rest/services/CrimeViewer_new/APD_Reported_Crimes_new/FeatureServer/9/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:null,lng:null,date:'OCCURRENCE_DATE',cat:'CRIME_DESCRIPTION'}, bbox:[30.10,-97.94,30.52,-97.56] },
+  { id:'raleigh',   region:'Raleigh, NC',   type:'arcgis', endpoint:'https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Police_Incidents/FeatureServer/0/query?where=1=1&outFields=*&f=geojson&resultRecordCount=600', f:{lat:'latitude',lng:'longitude',date:'reported_date',cat:'crime_category'}, bbox:[35.69,-78.78,35.93,-78.50] },
+  { id:'philly',    region:'Philadelphia, PA', type:'carto', bbox:[39.867,-75.280,40.138,-74.956] },
   { id:'uk',          region:'United Kingdom',       type:'police',                                                                                                                                            bbox:[49.8,-8.7,60.9,1.9] },
 ];
 
@@ -6967,6 +6977,39 @@ function _crimeFetch(src, minLat, minLng, maxLat, maxLng, cLat, cLng) {
         var lng = co ? parseFloat(co[0]) : (pt && pt.longitude ? parseFloat(pt.longitude) : NaN);
         return { lat: lat, lng: lng, cat: x[src.f.cat], date: (x[src.f.date] || '').slice(0, 10) };
       }).filter(function (p) { return _inBounds(p, minLat, minLng, maxLat, maxLng); });
+    });
+  }
+
+  if (src.type === 'arcgis') {
+    // Bound the query to the current view and request newest-first GeoJSON.
+    var env = minLng + ',' + minLat + ',' + maxLng + ',' + maxLat;
+    var ua = src.endpoint + '&geometry=' + encodeURIComponent(env) +
+      '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects';
+    if (src.f.date) ua += '&orderByFields=' + encodeURIComponent(src.f.date + ' DESC');
+    return fetch(ua).then(jsonOk).then(function (g) {
+      return ((g && g.features) || []).map(function (ft) {
+        var co = ft.geometry && ft.geometry.coordinates, p = ft.properties || {};
+        var lat = (src.f.lat && p[src.f.lat] != null) ? parseFloat(p[src.f.lat]) : (co ? parseFloat(co[1]) : NaN);
+        var lng = (src.f.lng && p[src.f.lng] != null) ? parseFloat(p[src.f.lng]) : (co ? parseFloat(co[0]) : NaN);
+        var d = p[src.f.date];
+        var ds = (typeof d === 'number') ? new Date(d).toISOString().slice(0, 10) : (d ? String(d).slice(0, 10) : '');
+        return { lat: lat, lng: lng, cat: p[src.f.cat], date: ds };
+      }).filter(function (pt) { return _inBounds(pt, minLat, minLng, maxLat, maxLng); });
+    });
+  }
+
+  if (src.type === 'carto') {
+    // Philadelphia — key-less CARTO SQL API; bound server-side to the view + 120 days.
+    var q = "SELECT text_general_code, dispatch_date_time, the_geom FROM incidents_part1_part2 " +
+      "WHERE dispatch_date_time > current_date - interval '120 days' AND ST_Intersects(the_geom, " +
+      "ST_MakeEnvelope(" + minLng + "," + minLat + "," + maxLng + "," + maxLat + ",4326)) " +
+      "ORDER BY dispatch_date_time DESC LIMIT 600";
+    var uc = 'https://phl.carto.com/api/v2/sql?format=geojson&q=' + encodeURIComponent(q);
+    return fetch(uc).then(jsonOk).then(function (g) {
+      return ((g && g.features) || []).map(function (ft) {
+        var co = ft.geometry && ft.geometry.coordinates, p = ft.properties || {};
+        return { lat: co ? parseFloat(co[1]) : NaN, lng: co ? parseFloat(co[0]) : NaN, cat: p.text_general_code, date: (p.dispatch_date_time || '').slice(0, 10) };
+      }).filter(function (pt) { return _inBounds(pt, minLat, minLng, maxLat, maxLng); });
     });
   }
 
