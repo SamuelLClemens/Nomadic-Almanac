@@ -7616,6 +7616,25 @@ function na_initPrefsSheet() {
 }
 
 // ── Global search overlay ─────────────────────────────────────────────────
+// Fly to a country and open its dossier, mirroring a map click but reachable from
+// the keyboard (search results). Moves focus into the dossier for accessibility.
+function na_openCountryDossier(iso2) {
+  if (!iso2 || typeof buildCountryTooltip !== 'function' || typeof toggleTooltip !== 'function') return;
+  var center = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[iso2]) || null;
+  if (center && map) map.flyTo(center, 5, { duration: 1.0 });
+  var html = buildCountryTooltip(iso2);
+  if (!html) return;
+  // No click coordinates from search — anchor the dossier over the map.
+  toggleTooltip('country:' + iso2, html, Math.round(window.innerWidth * 0.5), Math.round(window.innerHeight * 0.4));
+  if (center && typeof _injectWeatherRow === 'function') { try { _injectWeatherRow(iso2, center[0], center[1]); } catch (e) {} }
+  var ic = document.getElementById('intel-' + iso2);
+  if (ic && typeof _renderCountryIntel === 'function') {
+    _renderCountryIntel(iso2, (typeof countryNames !== 'undefined' && countryNames[iso2]) || iso2, ic);
+  }
+  var tt = document.getElementById('tt');
+  if (tt) { tt.setAttribute('tabindex', '-1'); setTimeout(function () { try { tt.focus(); } catch (e) {} }, 80); }
+}
+
 function na_openSearch() {
   var overlay = document.getElementById('na-search-overlay');
   var input   = document.getElementById('na-search-input');
@@ -7684,12 +7703,8 @@ function na_initSearch() {
             if (typeof toggleLayer === 'function') toggleLayer(m.key);
             na_updateLayerActiveStates();
           } else if (m.type === 'country') {
-            // Pan to country using existing search infrastructure
-            var existing = document.getElementById('country-search');
-            if (existing) {
-              existing.value = m.label;
-              existing.dispatchEvent(new Event('input', {bubbles:true}));
-            }
+            // Fly to the country AND open its dossier (keyboard-reachable intelligence).
+            na_openCountryDossier(m.key);
           }
         });
         results.appendChild(el);
