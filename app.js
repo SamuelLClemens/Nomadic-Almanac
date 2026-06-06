@@ -6417,7 +6417,7 @@ function togglePinCountry(iso2) {
   } else {
     pinnedCountries.splice(idx, 1);
   }
-  renderComparePanel();
+  openComparePanel();
   // Refresh the currently visible tooltip pin button state if it matches
   const ttName = document.getElementById('tt-name');
   if (ttName) {
@@ -6444,10 +6444,11 @@ function _shareCompareURL() {
 function renderComparePanel() {
   var panel = document.getElementById('compare-panel');
   if (!panel) return;
+  // Content only — open/close is handled by openComparePanel/closeComparePanel, so
+  // this may run on boot (to prefill the empty state) without popping the panel open.
+  var closeBtn = '<button class="compare-close" aria-label="Close comparison" onclick="closeComparePanel()">✕</button>';
   if (!pinnedCountries || pinnedCountries.length === 0) {
-    panel.style.display = 'flex';
-    panel.classList.add('open');
-    panel.innerHTML = '<div class="compare-empty-state">' +
+    panel.innerHTML = closeBtn + '<div class="compare-empty-state">' +
       '<svg width="32" height="32" viewBox="0 0 24 24" style="opacity:0.4;margin-bottom:10px"><use href="#icon-compare"/></svg>' +
       '<p style="font-family:var(--font-label);font-size:10px;color:var(--na-text-primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Compare Countries</p>' +
       '<p style="font-size:9px;color:var(--na-text-secondary);line-height:1.6;max-width:240px">Click any country on the map, then tap the <strong style="color:var(--na-gold-mid)">⊕ pin</strong> button in its panel to add it here. Add 2–4 countries to compare.</p>' +
@@ -6455,15 +6456,12 @@ function renderComparePanel() {
     return;
   }
   if (pinnedCountries.length < 2) {
-    panel.style.display = 'flex';
-    panel.classList.add('open');
-    panel.innerHTML = '<div class="compare-empty-state">' +
+    panel.innerHTML = closeBtn + '<div class="compare-empty-state">' +
       '<p style="font-family:var(--font-label);font-size:10px;color:var(--na-text-primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">One More Country</p>' +
       '<p style="font-size:9px;color:var(--na-text-secondary);line-height:1.6;max-width:240px">You have <strong style="color:var(--na-gold-mid)">1 of 2</strong> countries pinned. Click a second country on the map and tap ⊕ to begin comparing.</p>' +
       '</div>';
     return;
   }
-  panel.style.display = 'block';
   var countries = pinnedCountries.slice(0, 4);
   var RCOL = ['#43A047','#FDD835','#EF6C00','#C62828'];
 
@@ -6680,7 +6678,7 @@ function renderComparePanel() {
   var budgetRow = '<tr><td style="padding:4px 8px;font-size:7.5px;color:var(--dim)">Daily Budget</td>' +
     countries.map(function(iso2){ return '<td style="padding:4px 8px;text-align:center;font-size:9px;color:#4ade80">' + budgetCell(iso2) + '</td>'; }).join('') + '</tr>';
 
-  panel.innerHTML = '<div style="padding:6px 10px 4px;font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12)">⚖ COUNTRY COMPARISON</div>' +
+  panel.innerHTML = closeBtn + '<div style="padding:6px 10px 4px;font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.12)">⚖ COUNTRY COMPARISON</div>' +
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>' + heads + '</tr></thead><tbody>' +
     verdictRow + verdictInsightRow +
     dataRows + climateRow + budgetRow +
@@ -6690,9 +6688,20 @@ function renderComparePanel() {
 }
 
 
+function openComparePanel() {
+  var panel = document.getElementById('compare-panel');
+  if (!panel) return;
+  renderComparePanel();
+  panel.style.display = 'flex';
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+}
 function closeComparePanel() {
-  const panel = document.getElementById('compare-panel');
-  if (panel) panel.classList.remove('open');
+  var panel = document.getElementById('compare-panel');
+  if (!panel) return;
+  panel.classList.remove('open');
+  panel.style.display = 'none';
+  panel.setAttribute('aria-hidden', 'true');
 }
 
 // ─── Loading overlay helpers ──────────────────────────────────────────────────
@@ -7148,9 +7157,7 @@ function na_initNavItems() {
           if (tp) tp.click();
           break;
         case 'compare':
-          // Open compare panel (existing)
-          var cp = document.getElementById('compare-panel');
-          if (cp) { cp.style.display = 'flex'; cp.classList.add('open'); }
+          openComparePanel();
           break;
         case 'layers':
           // Open layers bottom sheet on mobile
