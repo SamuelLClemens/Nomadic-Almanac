@@ -45,6 +45,7 @@ var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // b
 var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
 var _basemapLayer     = null;  // reference to the current basemap tile layer
+var _basemapUserPinned = false; // true once the traveller explicitly picks a basemap; then the Day/Night theme stops auto-swapping satellite <-> night-lights
 var _labelLayer       = null;  // reference to the place-labels overlay tile layer
 var _labelsOn         = (localStorage.getItem('na_labels') !== '0'); // place labels visible?
 let climateZoneLayer  = null;
@@ -140,7 +141,7 @@ const POI_LAYERS = {
     active: false, minZoom: 6, markers: [], bboxCache: {}, debounce: null,
   },
   holidays: {
-    label: '🎉 Holidays',
+    label: '🎉 Events & Holidays',
     active: false, minZoom: 2,
     markers: [], bboxCache: {}, debounce: null,
   },
@@ -171,7 +172,7 @@ const POI_LAYERS = {
   gasstations:  { label: "⛽ Gas Stations",       active: false, minZoom: 10, markers: [], bboxCache: {}, debounce: null },
 };
 
-const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria','tipping']);
+const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria','tipping','parks']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
 // Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
@@ -1007,6 +1008,14 @@ function initMap() {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 20, subdomains: 'abcd',
     },
+    nightlights: {
+      // NASA GIBS — VIIRS City Lights / Black Marble. Keyless public WMTS, static
+      // composite (no date dimension). Earth from space at night: city lights and lit
+      // coastlines. Native to z8; maxNativeZoom upscales deeper zooms instead of 404.
+      url: 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CityLights_2012/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg',
+      attribution: 'Earth at Night &mdash; NASA Earth Observatory / GIBS (VIIRS City Lights)',
+      maxZoom: 19, maxNativeZoom: 8,
+    },
     terrain: {
       // OpenTopoMap — keyless topographic relief (Google-Terrain-like). Native to
       // z17; maxNativeZoom lets Leaflet upscale tiles to z19 instead of 404-ing.
@@ -1132,9 +1141,7 @@ const CAT_GROUPS = [
   { id:'health-safety', label:'Health & Safety', emoji:'💊', keys:['health','vaccines','road','corrupt','disaster','healthcare','femalesafety','malaria'] },
   { id:'lifestyle',     label:'Lifestyle',       emoji:'👤', keys:['solo','lgbtq','family','remote','kids','cannabis','nomad','nightlife'] },
   { id:'local-info',    label:'Local Info',      emoji:'ℹ',  keys:['english','tapwater','airquality','scam','tipping'] },
-  // 'parks' removed from keys: choropleth data (CD_PARKS) does not yet exist.
-  // The 🌲 Parks tile overlay in the Transport dropdown covers the visual use case.
-  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['beaches','crowds'] },
+  { id:'environment',   label:'Environment',     emoji:'🌿', keys:['parks','beaches','crowds'] },
 ];
 
 // Canonical layer toggle — the single entry point every layer surface routes
@@ -1478,8 +1485,11 @@ function buildTransportButtons() {
   transpLabel.textContent = 'Transport Layers';
   transpDd.appendChild(transpLabel);
 
-  // Transport tile layers
-  Object.entries(TRANSPORT_LAYERS).forEach(([key, def]) => {
+  // Build a toggle button for a TRANSPORT_LAYERS tile/vector overlay. Reused by the
+  // Explore dropdown for the nature/hazard overlays (national-park borders, wildfires)
+  // that were previously — incorrectly — filed under "Transport".
+  function mkTransportBtn(key) {
+    const def = TRANSPORT_LAYERS[key];
     const btn = document.createElement('button');
     btn.id = `btn-t-${key}`;
     btn.className = 'lb';
@@ -1541,8 +1551,11 @@ function buildTransportButtons() {
       syncTransportBtn();
       updateLegend();
     });
-    transpDd.appendChild(btn);
-  });
+    return btn;
+  }
+
+  // Transport dropdown lists only genuine getting-around layers.
+  ['roads','rail','trails','maritime'].forEach(key => transpDd.appendChild(mkTransportBtn(key)));
 
   // Timezone overlay toggle
   const tzSep = document.createElement('div');
@@ -1576,20 +1589,23 @@ function buildTransportButtons() {
 
   const exploreDd = _makeDropdown('explore-dropdown');
 
-  // Group POI layers by theme
-  const POI_GROUPS = [
-    { label: 'Nature',      keys: ['parks','camping','viewpoints','hotsprings','birdwatching','toilets','drinkwater','wildlife'] },
-    { label: 'Adventure',   keys: ['climbing','surfing','diving'] },
-    { label: 'Travel Info', keys: ['holidays','airports','attractions','hospitals','gasstations'] },
+  // Group layers by theme. POI point-layers plus the nature/hazard tile overlays
+  // (national-park borders, wildfires) that were wrongly filed under "Transport"
+  // now live here, where they belong.
+  const EXPLORE_GROUPS = [
+    { label: 'Nature',                poi: ['parks','camping','viewpoints','hotsprings','birdwatching','toilets','drinkwater','wildlife'], overlays: ['natparks'] },
+    { label: 'Adventure',             poi: ['climbing','surfing','diving'], overlays: [] },
+    { label: 'Travel Info',           poi: ['holidays','airports','attractions','hospitals','gasstations'], overlays: [] },
+    { label: 'Environment & Hazards', poi: [], overlays: ['wildfires'] },
   ];
 
-  POI_GROUPS.forEach(group => {
+  EXPLORE_GROUPS.forEach(group => {
     const sep = document.createElement('div');
     sep.className = 'more-dropdown-label';
     sep.textContent = group.label;
     exploreDd.appendChild(sep);
 
-    group.keys.forEach(key => {
+    group.poi.forEach(key => {
       const def = POI_LAYERS[key];
       if (!def) return;
       const pbtn = document.createElement('button');
@@ -1618,6 +1634,11 @@ function buildTransportButtons() {
         updateLegend();
       });
       exploreDd.appendChild(pbtn);
+    });
+
+    // Nature/hazard tile overlays that belong in this group (not "Transport").
+    group.overlays.forEach(key => {
+      if (TRANSPORT_LAYERS[key]) exploreDd.appendChild(mkTransportBtn(key));
     });
   });
 
@@ -1683,6 +1704,7 @@ function countryLayerRating(iso2, lk) {
     if (typeof CD_TIPPING !== 'undefined' && CD_TIPPING[iso2] != null) return CD_TIPPING[iso2];
     return null;
   }
+  if (lk === 'parks')    { if (typeof CD_PARKS !== 'undefined' && CD_PARKS[iso2] != null) return CD_PARKS[iso2]; return null; }
   if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
   if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
   const arr = d ? d[lk] : null;
@@ -1690,10 +1712,11 @@ function countryLayerRating(iso2, lk) {
 }
 
 function getCountryRating(iso2) {
-  const d = CD[iso2];
-  if (!d) return null;
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
+  // Do NOT pre-bail when CD[iso2] is absent: scalar tables (CD_COST, CD_SAFETY,
+  // CD_PARKS, …) cover many countries that have no full CD entry. countryLayerRating
+  // null-guards each layer individually, so array-only layers still return null here.
   const ratings = layers.map(lk => countryLayerRating(iso2, lk)).filter(v => v !== null);
   if (ratings.length === 0) return null;
   // Worst-case aggregation: show the most severe rating across all active layers.
@@ -1748,6 +1771,7 @@ function getAdmin1Rating(subCode, parentIso2) {
       if (typeof CD_TIPPING !== 'undefined' && CD_TIPPING[parentIso2] != null) return CD_TIPPING[parentIso2];
       return null;
     }
+    if (lk === 'parks')    { if (typeof CD_PARKS !== 'undefined' && CD_PARKS[parentIso2] != null) return CD_PARKS[parentIso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
@@ -1881,6 +1905,7 @@ function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
       return d0 && d0.family != null ? getRating(d0.family) : null;
     }
+    if (lk === 'parks')    { if (typeof CD_PARKS !== 'undefined' && CD_PARKS[parentIso2] != null) return CD_PARKS[parentIso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
     const arr = (d2 && d2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
@@ -3867,19 +3892,18 @@ function _clearHolidayMarkers() {
   _holidayMarkers = [];
 }
 
-function _buildHolidayTooltip(iso2, month, holidays) {
+function _buildHolidayTooltip(iso2, month, holidays, events) {
   const mName = ['January','February','March','April','May','June','July','August','September','October','November','December'][month];
   const cName = (typeof countryNames !== 'undefined' && countryNames[iso2]) || iso2;
-  const holHtml = holidays.map(h =>
-    `<div style="font-size:9px;color:#1a1a1a;padding:3px 0;border-bottom:1px solid rgba(0,0,0,0.06)">${h}</div>`
-  ).join('');
+  const row = txt =>
+    `<div style="font-size:9px;color:#1a1a1a;padding:3px 0;border-bottom:1px solid rgba(0,0,0,0.06)">${txt}</div>`;
+  let body = '';
+  if (events && events.length)   body += `<div class="ttln">FESTIVALS &amp; EVENTS</div>${events.map(row).join('')}`;
+  if (holidays && holidays.length) body += `<div class="ttln">PUBLIC HOLIDAYS</div>${holidays.map(row).join('')}`;
   return `<div class="tth"><h3 id="tt-name">${cName}</h3>
-    <div class="ts" id="tt-sub">🗓 PUBLIC HOLIDAYS</div>
+    <div class="ts" id="tt-sub">🎉 EVENTS &amp; HOLIDAYS</div>
     <div class="tm" id="tt-period">${mName.toUpperCase()}</div></div>
-    <div class="ttb" id="tt-body">
-      <div class="ttln">HOLIDAYS THIS MONTH</div>
-      ${holHtml}
-    </div>`;
+    <div class="ttb" id="tt-body">${body}</div>`;
 }
 
 function _renderHolidayMarkers() {
@@ -3912,26 +3936,41 @@ function _renderHolidayMarkers() {
     });
   }
 
-  Object.keys(COUNTRY_HOLIDAYS).forEach(iso2 => {
-    const hols = [];
+  // Union of every country that has a holiday OR a festival/event this month.
+  const EV = (typeof COUNTRY_EVENTS !== 'undefined') ? COUNTRY_EVENTS : {};
+  const isoCodes = new Set([...Object.keys(COUNTRY_HOLIDAYS), ...Object.keys(EV)]);
+
+  isoCodes.forEach(iso2 => {
+    const hols = [], evs = [];
     months.forEach(m => {
-      const list = COUNTRY_HOLIDAYS[iso2][m];
-      if (list && list.length) hols.push(...list);
+      const hl = COUNTRY_HOLIDAYS[iso2] && COUNTRY_HOLIDAYS[iso2][m];
+      if (hl && hl.length) hols.push(...hl);
+      const el = EV[iso2] && EV[iso2][m];
+      if (el && el.length) evs.push(...el);
     });
-    if (!hols.length) return;
+    const count = hols.length + evs.length;
+    if (!count) return;
     const c = centroids[iso2];
     if (!c) return;
-    const marker = L.circleMarker([c.lat, c.lng], {
-      pane: 'markersPane', radius: 7,
-      color: '#ffffff', weight: 1.5,
-      fillColor: '#f59e0b', fillOpacity: 0.88,
+
+    // Emoji glyph marker: festival 🎉 when an event is on, otherwise the holiday
+    // calendar 🗓. A red badge shows how many things are happening this month.
+    const hasFest = evs.length > 0;
+    const html = '<div class="na-event-glyph' + (hasFest ? ' has-fest' : '') + '">'
+      + '<span class="na-event-sym">' + (hasFest ? '🎉' : '🗓') + '</span>'
+      + (count > 1 ? '<span class="na-event-count">' + count + '</span>' : '')
+      + '</div>';
+    const icon = L.divIcon({ className: 'na-event-divicon', html, iconSize: [30, 30], iconAnchor: [15, 15] });
+    const marker = L.marker([c.lat, c.lng], {
+      pane: 'markersPane', icon, keyboard: false,
+      title: count + (count === 1 ? ' event' : ' events') + ' this month',
     });
     marker.on('click', ev => {
       _featureClicked = true;
       const activeM = months[0] !== undefined ? months[0] : activeMonth;
       toggleTooltip(
         'holiday:' + iso2 + ':' + activeM,
-        _buildHolidayTooltip(iso2, activeM, hols),
+        _buildHolidayTooltip(iso2, activeM, hols, evs),
         ev.originalEvent.clientX, ev.originalEvent.clientY
       );
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -5244,15 +5283,34 @@ function visaCoverage(passport) {
   return out;
 }
 
+// EU / EEA / Schengen passports share near-identical visa access: they inherit
+// Germany's VISA_DATA column wherever no country-specific column exists, and travel
+// visa-free within the Schengen/EU area. South-Korean and Singaporean passports are
+// as strong as Japan's and inherit Japan's column. This lets the nationality list
+// cover many more passports accurately without duplicating every VISA_DATA cell.
+const EU_PASSPORTS = new Set(['DE','FR','IT','ES','NL','PT','GR','IE','PL','CZ','AT','BE','SE','DK','FI','NO','CH','RO','HU','SK','SI','HR','EE','LV','LT','LU','MT','CY','BG','IS','LI']);
+const SCHENGEN_AREA = ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY','NO','IS','CH','LI','RO','BG'];
+const STRONG_ASIA_PASSPORTS = new Set(['JP','KR','SG']);
+
+// Resolve the effective VISA_DATA entry for a destination + passport, applying the
+// EU→Germany and KR/SG→Japan inheritance described above. Single source of truth so
+// the choropleth rating and the tooltip detail can never disagree.
+function _resolveVisaEntry(destIso2, passport) {
+  const dest = (typeof VISA_DATA !== 'undefined') ? VISA_DATA[destIso2] : null;
+  if (!dest) return null;
+  let entry = dest[passport];
+  if (!entry && EU_PASSPORTS.has(passport)) entry = dest['DE'];
+  if (!entry && STRONG_ASIA_PASSPORTS.has(passport)) entry = dest['JP'];
+  return entry || null;
+}
+
 function getVisaRating(destIso2, passport) {
   if (!passport || !destIso2) return null;
-  // Visiting your own country
+  // Visiting your own country / your own bloc
   if (destIso2 === passport) return null;
-  // DE represents all EU/Schengen; treat other Schengen destinations as free for DE holders
-  if (passport === 'DE' && ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY'].includes(destIso2)) return null;
-  const dest = typeof VISA_DATA !== 'undefined' ? VISA_DATA[destIso2] : null;
-  if (!dest) return 2;   // unknown — assume requires a visa
-  const entry = dest[passport];
+  if (EU_PASSPORTS.has(passport) && SCHENGEN_AREA.indexOf(destIso2) !== -1) return null;
+  if (typeof VISA_DATA === 'undefined' || !VISA_DATA[destIso2]) return 2;  // unknown — assume visa required
+  const entry = _resolveVisaEntry(destIso2, passport);
   if (!entry) return 2;  // no data for this passport — default to required
   const t = entry.t;
   if (t === 'banned') return 3;  // entry refused — passport nationality banned
@@ -5305,9 +5363,9 @@ function buildVisaSection(iso2) {
   const dest = typeof VISA_DATA !== 'undefined' ? VISA_DATA[iso2] : null;
   if (!dest) return '';
 
-  const entry = dest[selectedNationality];
+  const entry = _resolveVisaEntry(iso2, selectedNationality);
   const isSelf = iso2 === selectedNationality ||
-    (selectedNationality === 'DE' && ['DE','ES','FR','IT','GR','PT','AT','BE','NL','LU','DK','FI','SE','IE','PL','CZ','SK','HU','SI','HR','EE','LV','LT','MT','CY'].includes(iso2));
+    (EU_PASSPORTS.has(selectedNationality) && SCHENGEN_AREA.indexOf(iso2) !== -1);
 
   const TYPE_META = {
     free:   { col:'#43A047', icon:'✅', label:'Visa-free',       desc:'No visa required. Present your passport on arrival.' },
@@ -7482,6 +7540,21 @@ function _naApplyEffective(effective) {
   // leaves the HTML element free of a spurious empty attribute.
   if (effective === 'light') document.documentElement.setAttribute('data-theme', 'light');
   else document.documentElement.removeAttribute('data-theme');
+  _naSyncBasemapToTheme();
+}
+
+// Night identity shows the planet from space at night (NASA Black Marble city
+// lights); day shows satellite imagery — with the city markers riding on top in
+// both. Only ever swaps those two default views, and never once the traveller
+// has pinned a basemap explicitly (Street / Terrain / Satellite are respected).
+function _naSyncBasemapToTheme() {
+  if (_basemapUserPinned) return;
+  if (typeof na_setBasemap !== 'function' || !map || !window._BASEMAP_CONFIGS) return;
+  if (_naEffective === 'dark') {
+    if (_mapStyle === 'satellite' || _mapStyle === 'dark') na_setBasemap('nightlights');
+  } else {
+    if (_mapStyle === 'nightlights') na_setBasemap('satellite');
+  }
 }
 
 function na_applyTheme(mode) {
@@ -7965,6 +8038,7 @@ function na_initPrefsSheet() {
           if (distBtn) distBtn.textContent = _distUnit === 'km' ? 'km' : 'mi';
         }
       } else if (id === 'pref-basemap') {
+        _basemapUserPinned = true;   // explicit pick — stop theme-driven basemap swaps
         na_setBasemap(val);
       } else if (id === 'pref-dateformat') {
         _dateFormat = val;
@@ -8250,19 +8324,35 @@ function na_initSidebarMirrors() {
     na_syncSidebarMonths();
   }
 
-  // Mirror passport selector into sidebar
+  // Mirror passport selector into sidebar. Build the options straight from the data
+  // (NOT cloneNode of #passport-select) so it never depends on whether
+  // initNationalitySelector() has already populated the original — that timing gap
+  // previously left the sidebar selector with only its placeholder, so choosing a
+  // nationality there did nothing.
   var sidebarPassport = document.getElementById('na-sidebar-passport');
   var origSelect = document.getElementById('passport-select');
-  if (sidebarPassport && origSelect) {
-    var cloneSelect = origSelect.cloneNode(true);
+  if (sidebarPassport && origSelect && !document.getElementById('na-sidebar-passport-select')) {
+    var cloneSelect = document.createElement('select');
     cloneSelect.id = 'na-sidebar-passport-select';
-    cloneSelect.removeAttribute('title');
+    cloneSelect.className = origSelect.className;
+    cloneSelect.setAttribute('aria-label', 'Select your nationality for visa requirements');
+    var ph = document.createElement('option');
+    ph.value = ''; ph.textContent = '🌍 Nationality…';
+    cloneSelect.appendChild(ph);
+    if (typeof PASSPORT_NATIONALITIES !== 'undefined') {
+      Object.keys(PASSPORT_NATIONALITIES).forEach(function(code) {
+        var opt = document.createElement('option');
+        opt.value = code; opt.textContent = PASSPORT_NATIONALITIES[code];
+        cloneSelect.appendChild(opt);
+      });
+    }
+    cloneSelect.value = origSelect.value || (typeof selectedNationality !== 'undefined' && selectedNationality) || '';
     cloneSelect.addEventListener('change', function() {
       origSelect.value = cloneSelect.value;
       origSelect.dispatchEvent(new Event('change', {bubbles:true}));
     });
     sidebarPassport.appendChild(cloneSelect);
-    // Sync original → clone
+    // Keep the sidebar selector in sync when the nationality changes elsewhere.
     origSelect.addEventListener('change', function() {
       cloneSelect.value = origSelect.value;
     });

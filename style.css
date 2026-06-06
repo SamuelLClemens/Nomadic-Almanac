@@ -2280,6 +2280,39 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   .na-glyph-icon:hover .na-glyph-chip { transform: none; }
 }
 
+/* ─── Events & Holidays markers ──────────────────────────────────────────────
+   The Events & Holidays layer drops one emoji-glyph marker per country that has a
+   festival or public holiday in the selected month. A red badge counts how many,
+   so the map reads as a live "what's on this month" calendar. */
+.na-event-divicon { background: none; border: none; }
+.na-event-glyph {
+  position: relative;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 34%, rgba(245,158,11,0.96), rgba(217,119,6,0.92));
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.85), 0 2px 6px rgba(0,0,0,0.45);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.na-event-glyph.has-fest {
+  background: radial-gradient(circle at 50% 34%, rgba(168,85,247,0.96), rgba(124,58,237,0.92));
+}
+.na-event-glyph:hover { transform: translateY(-2px) scale(1.07); }
+.na-event-sym { font-size: 15px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
+.na-event-count {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 14px; height: 14px; padding: 0 3px;
+  border-radius: 7px;
+  background: #c62828; color: #fff;
+  font-size: 9px; font-weight: 700; line-height: 14px; text-align: center;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.9);
+}
+@media (prefers-reduced-motion: reduce) {
+  .na-event-glyph { transition: none; }
+  .na-event-glyph:hover { transform: none; }
+}
+
 /* ─── Animated Trip Route Line ───────────────────────────────────────────────
    The trip planner draws an ordered journey line through the pins. A soft gold
    casing adds depth; the flowing dashed line "marches" from the first pin toward

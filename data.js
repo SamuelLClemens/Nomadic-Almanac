@@ -48,6 +48,32 @@ const CD_COST = {
   GT:0, BZ:0, SV:0, HN:0, NI:0, CR:1, PA:1,
   JM:1, HT:0, DO:0, TT:1, BB:2,
 };
+// National parks & protected areas: 0=Abundant (world-class park network),
+// 1=Good, 2=Some, 3=Few. Reflects the prominence/extent of a country's national
+// park and nature-reserve system. Source: IUCN / UNEP-WCMC protected-area coverage.
+const CD_PARKS = {
+  // World-class national-park & protected-area systems
+  US:0, CA:0, AU:0, NZ:0, ZA:0, TZ:0, KE:0, CR:0, BR:0, CL:0,
+  AR:0, NA:0, BW:0, ZW:0, ZM:0, EC:0, PE:0, BO:0, NP:0, IN:0,
+  ID:0, NO:0, IS:0, RU:0, UG:0, RW:0, CD:0, MG:0, CO:0, MZ:0,
+  // Strong systems
+  GB:1, FR:1, DE:1, ES:1, IT:1, PT:1, GR:1, HR:1, SI:1, AT:1,
+  CH:1, SE:1, FI:1, PL:1, RO:1, BG:1, SK:1, ME:1, AL:1, MX:1,
+  GT:1, PA:1, NI:1, HN:1, BZ:1, JP:1, KR:1, TW:1, TH:1, VN:1,
+  MY:1, PH:1, LK:1, BT:1, MN:1, ET:1, GH:1, CM:1, GA:1, CG:1,
+  MW:1, AO:1, UY:1, PY:1, GY:1, SR:1, TR:1, GE:1, AM:1, KZ:1,
+  KG:1, IR:1, MA:1, TN:1, EG:1, JO:1, OM:1, SA:1, FJ:1, PG:1,
+  CU:1, DO:1, IE:1, CZ:1, HU:1, UA:1, BY:1,
+  // Modest / developing systems
+  NL:2, BE:2, DK:2, RS:2, BA:2, MK:2, XK:2, AE:2, QA:2, IL:2,
+  LB:2, IQ:2, DZ:2, LY:2, SD:2, NG:2, SN:2, ML:2, NE:2, TD:2,
+  BD:2, PK:2, AF:2, UZ:2, AZ:2, TM:2, TJ:2, JM:2, TT:2, HT:2,
+  SV:2, SG:2, HK:2, YE:2, SY:2, SO:2, ER:2, DJ:2, MR:2, BF:2,
+  GM:2, SS:2, SZ:2, LS:2, BJ:2, TG:2, CI:2, GN:2, SL:2, LR:2,
+  // Few / minimal
+  LU:3, MT:3, SM:3, VA:3, LI:3, MC:3, AD:3, MV:3, BN:3, KP:3,
+  CY:3, BH:3, KW:3, BB:3,
+};
 // Safety index: 0=very safe, 1=generally safe, 2=exercise caution, 3=high risk
 // Source: Global Peace Index 2024 / US State Dept advisories
 const CD_SAFETY = {
@@ -592,6 +618,49 @@ const CD_TIMEZONE = {
 };
 
 // ── Major public holidays by country and month (0=Jan … 11=Dec) ─────────────
+// Signature festivals & cultural events by country, keyed by month index (0=Jan).
+// Distinct from COUNTRY_HOLIDAYS (statutory public holidays): these are the events a
+// traveller plans a trip around. Rendered on the map by _renderHolidayMarkers().
+const COUNTRY_EVENTS = {
+  US: { 2:['🎸 SXSW — Austin music & tech (Mar)'], 3:['🎡 Coachella — California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
+  GB: { 5:['🎶 Glastonbury Festival (late Jun)'], 7:['🎭 Edinburgh Festival Fringe (Aug)',"🎉 Notting Hill Carnival — London (late Aug)"], 11:['🎄 Christmas markets (Dec)'] },
+  IE: { 2:["🍀 St Patrick's Day — Dublin (Mar 17)"] },
+  FR: { 4:['🎬 Cannes Film Festival (May)'], 5:['🎵 Fête de la Musique (Jun 21)'], 6:['🇫🇷 Bastille Day (Jul 14)'] },
+  DE: { 8:['🍺 Oktoberfest — Munich (mid-Sep to early Oct)'], 11:['🎄 Christmas Markets — nationwide (Dec)'] },
+  AT: { 0:['🎻 New Year Concert — Vienna (Jan 1)'], 11:['🎄 Christmas Markets — Vienna & Salzburg (Dec)'] },
+  CH: { 1:['🎭 Basel Fasnacht — carnival (Feb/Mar)'] },
+  IT: { 1:['🎭 Venice Carnival (Feb)'], 6:['🐎 Palio di Siena (Jul 2)'], 7:['🐎 Palio di Siena (Aug 16)'] },
+  ES: { 2:['🔥 Las Fallas — Valencia (Mar)'], 3:['💃 Feria de Abril — Seville (Apr)'], 6:['🐂 San Fermín / Running of the Bulls — Pamplona (Jul)'], 7:['🍅 La Tomatina — Buñol (last Wed Aug)'] },
+  PT: { 5:['🎉 Festas de Lisboa / Santo António (Jun)'] },
+  NL: { 3:["👑 King's Day (Apr 27)",'🌷 Tulip season — Keukenhof (Apr)'] },
+  BE: { 6:['🎶 Tomorrowland — Boom (Jul)'] },
+  CZ: { 11:['🎄 Christmas Markets — Prague (Dec)'] },
+  GR: { 6:['🎭 Athens & Epidaurus Festival (summer)'] },
+  SE: { 5:['🌼 Midsummer (late Jun)'] },
+  NO: { 4:['🇳🇴 Constitution Day (May 17)'] },
+  IS: { 7:['🎶 Verslunarmannahelgi / summer festivals (Aug)'] },
+  BR: { 1:['🎭 Carnival — Rio & Salvador (Feb/Mar)'], 11:['🎆 Réveillon — Copacabana NYE (Dec 31)'] },
+  MX: { 8:['🇲🇽 Independence Day (Sep 16)'], 10:['💀 Día de los Muertos (Nov 1–2)'] },
+  PE: { 5:['☀ Inti Raymi — Cusco (Jun 24)'] },
+  CO: { 0:['🎉 Feria de Cali (early Jan)'], 7:['🌸 Feria de las Flores — Medellín (Aug)'] },
+  AR: { 2:['💃 Tango Festival — Buenos Aires (Mar)'] },
+  JP: { 2:['🌸 Cherry Blossom (Hanami) — late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri — Kyoto (Jul)'] },
+  KR: { 3:['🌸 Cherry Blossom — Jinhae (Apr)'], 10:['🏮 Seoul Lantern Festival (Nov)'] },
+  CN: { 1:['🏮 Spring Festival / Chinese New Year (Jan/Feb)'], 8:['🥮 Mid-Autumn Festival (Sep/Oct)'] },
+  TW: { 1:['🏮 Lantern Festival (Feb)'] },
+  TH: { 3:['💦 Songkran — Thai New Year water festival (Apr 13–15)'], 10:['🪔 Loy Krathong / Yi Peng — lights (Nov)'] },
+  VN: { 0:['🧧 Tết — Lunar New Year (Jan/Feb)'] },
+  ID: { 2:['🌑 Nyepi — Balinese Day of Silence (Mar)'] },
+  IN: { 2:['🎨 Holi — festival of colours (Mar)'], 10:['🪔 Diwali — festival of lights (Oct/Nov)'] },
+  NP: { 2:['🎨 Holi (Mar)'] },
+  AU: { 0:['🎆 Sydney Festival (Jan)','🇦🇺 Australia Day (Jan 26)'], 2:['🏳️‍🌈 Sydney Gay & Lesbian Mardi Gras (Feb/Mar)'] },
+  NZ: { 1:['⛵ Waitangi Day (Feb 6)'] },
+  AE: { 0:['🛍 Dubai Shopping Festival (Dec–Jan)'] },
+  TR: { 3:['🌷 Istanbul Tulip Festival (Apr)'] },
+  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'] },
+  ZA: { 2:['🎷 Cape Town Intl Jazz Festival (Mar)'] },
+};
+
 const COUNTRY_HOLIDAYS = {
   AR:{ 0:['New Year\'s Day'],1:['Carnival (Feb)'],2:[],3:['Easter','Holy Thursday','Good Friday','Malvinas Veterans Day (Apr 2)'],4:['Labour Day (May 1)','May Revolution (May 25)'],5:['Sovereignty Flag Day (Jun 20)'],6:['Independence Day (Jul 9)'],7:['Death of San Martín (Aug 17)'],8:[],9:['Columbus Day (Oct 12)'],10:[],11:['Immaculate Conception (Dec 8)','Christmas (Dec 25)'] },
   AU:{ 0:['New Year\'s Day','Australia Day (Jan 26)'],1:[],2:[],3:['Easter Friday','Easter Monday','ANZAC Day (Apr 25)'],4:[],5:['Queen\'s Birthday (varies by state)'],6:[],7:[],8:[],9:[],10:['Melbourne Cup (VIC, Nov 1st Tue)'],11:['Christmas (Dec 25)','Boxing Day (Dec 26)'] },
@@ -739,15 +808,33 @@ const COST_DETAILS = {
 const PASSPORT_NATIONALITIES = {
   US:'🇺🇸 United States',
   GB:'🇬🇧 United Kingdom',
-  DE:'🇪🇺 EU / Schengen',
-  AU:'🇦🇺 Australia',
   CA:'🇨🇦 Canada',
-  JP:'🇯🇵 Japan',
+  AU:'🇦🇺 Australia',
   NZ:'🇳🇿 New Zealand',
-  ZA:'🇿🇦 South Africa',
-  IN:'🇮🇳 India',
+  IE:'🇮🇪 Ireland',
+  DE:'🇩🇪 Germany',
+  FR:'🇫🇷 France',
+  IT:'🇮🇹 Italy',
+  ES:'🇪🇸 Spain',
+  PT:'🇵🇹 Portugal',
+  NL:'🇳🇱 Netherlands',
+  BE:'🇧🇪 Belgium',
+  AT:'🇦🇹 Austria',
+  CH:'🇨🇭 Switzerland',
+  SE:'🇸🇪 Sweden',
+  NO:'🇳🇴 Norway',
+  DK:'🇩🇰 Denmark',
+  FI:'🇫🇮 Finland',
+  PL:'🇵🇱 Poland',
+  CZ:'🇨🇿 Czechia',
+  GR:'🇬🇷 Greece',
+  JP:'🇯🇵 Japan',
+  KR:'🇰🇷 South Korea',
+  SG:'🇸🇬 Singapore',
   CN:'🇨🇳 China',
+  IN:'🇮🇳 India',
   BR:'🇧🇷 Brazil',
+  ZA:'🇿🇦 South Africa',
   IL:'🇮🇱 Israel',
 };
 
