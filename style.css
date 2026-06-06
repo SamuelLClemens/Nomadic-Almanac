@@ -2234,3 +2234,63 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   border-color: rgba(201,168,76,0.6);
   font-weight: 700;
 }
+
+/* ─── Multi-Layer Glyph Overlay ("enamel chips") ─────────────────────────────
+   Rendered as Leaflet divIcons in the glyphPane when 2+ rated layers are active.
+   Each chip is an opaque score-coloured tile carrying the layer symbol, with a
+   dark-inner / gold-outer double stroke for an almanac "enamel badge" feel. */
+.na-glyph-icon { background: none; border: none; }
+.na-glyph-cluster {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+.na-glyph-chip {
+  width: 19px;
+  height: 19px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* dark inner ring + gold outer ring + soft drop shadow = the enamel-badge edge */
+  box-shadow:
+    0 0 0 1px rgba(14,11,6,0.92),
+    0 0 0 2px rgba(201,168,76,0.85),
+    0 1px 3px rgba(0,0,0,0.55);
+  transition: transform 140ms ease;
+}
+.na-glyph-sym {
+  font-size: 11px;
+  line-height: 1;
+  /* keep emoji crisp on the coloured tile; subtle shadow lifts them off the fill */
+  filter: drop-shadow(0 0 1px rgba(14,11,6,0.6));
+}
+.na-glyph-more {
+  background: rgba(20,16,9,0.94) !important;
+  color: var(--na-gold-foil, #f0d080);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.na-glyph-icon:hover .na-glyph-chip { transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) {
+  .na-glyph-chip { transition: none; }
+  .na-glyph-icon:hover .na-glyph-chip { transform: none; }
+}
+
+/* ─── Animated Trip Route Line ───────────────────────────────────────────────
+   The trip planner draws an ordered journey line through the pins. A soft gold
+   casing adds depth; the flowing dashed line "marches" from the first pin toward
+   the last for a clear sense of travel direction. */
+.na-route-casing { filter: drop-shadow(0 0 3px rgba(201,168,76,0.25)); }
+.na-route-flow {
+  animation: na-route-march 1.1s linear infinite;
+}
+@keyframes na-route-march {
+  to { stroke-dashoffset: -24; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .na-route-flow { animation: none; }
+}

@@ -588,6 +588,17 @@ function _renderTripPinMarker(pin, index) {
       if (dBtn) dBtn.addEventListener('click', () => _deleteTripPin(pin.id));
     }
   });
+  m.on('drag', () => {
+    // Live-follow: update the dragged pin's coordinates and re-point the route
+    // line without rebuilding it, so the journey line tracks the cursor smoothly.
+    const ll = m.getLatLng();
+    const p = _tripPins.find(p => p.id === pin.id);
+    if (!p) return;
+    p.lat = ll.lat; p.lng = ll.lng;
+    const latlngs = _tripPins.length >= 2 ? _buildRouteLatLngs() : [];
+    if (_tripRouteLine) _tripRouteLine.setLatLngs(latlngs);
+    if (_tripRouteCasing) _tripRouteCasing.setLatLngs(latlngs);
+  });
   m.on('dragend', () => {
     const ll = m.getLatLng();
     const p = _tripPins.find(p => p.id === pin.id);
@@ -597,8 +608,83 @@ function _renderTripPinMarker(pin, index) {
   _tripPinMarkers[pin.id] = m;
 }
 
+// Animated trip route line. Draws the journey as an ordered polyline through the
+// trip pins, beneath the numbered markers: a soft gold casing for depth plus a
+// flowing dashed line whose dashes "march" from the first pin toward the last,
+// giving the route a clear sense of direction and travel. Continuous CSS dash
+// animation means pin edits update geometry without a jarring re-draw, and the
+// motion is disabled under prefers-reduced-motion (handled in CSS).
+var _tripRouteLine = null;
+var _tripRouteCasing = null;
+
+function _clearTripRouteLine() {
+  if (_tripRouteCasing) { _tripRouteCasing.remove(); _tripRouteCasing = null; }
+  if (_tripRouteLine) { _tripRouteLine.remove(); _tripRouteLine = null; }
+}
+
+// Interpolate points along the GREAT CIRCLE between two coordinates (spherical
+// slerp), so a journey line bows along the true shortest path the way flights
+// do, rather than drawing a flat straight segment on the Mercator projection.
+function _greatCirclePoints(lat1, lng1, lat2, lng2, n) {
+  const toR = Math.PI / 180, toD = 180 / Math.PI;
+  const p1 = lat1 * toR, l1 = lng1 * toR, p2 = lat2 * toR, l2 = lng2 * toR;
+  const d = 2 * Math.asin(Math.sqrt(
+    Math.sin((p2 - p1) / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin((l2 - l1) / 2) ** 2));
+  if (!d) return [[lat1, lng1], [lat2, lng2]];
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const f = i / n;
+    const A = Math.sin((1 - f) * d) / Math.sin(d);
+    const B = Math.sin(f * d) / Math.sin(d);
+    const x = A * Math.cos(p1) * Math.cos(l1) + B * Math.cos(p2) * Math.cos(l2);
+    const y = A * Math.cos(p1) * Math.sin(l1) + B * Math.cos(p2) * Math.sin(l2);
+    const z = A * Math.sin(p1) + B * Math.sin(p2);
+    pts.push([Math.atan2(z, Math.sqrt(x * x + y * y)) * toD, Math.atan2(y, x) * toD]);
+  }
+  return pts;
+}
+
+// Build the full route polyline as concatenated great-circle arcs through the
+// pins. Longitudes are "unwrapped" (kept continuous across ±180°) so a route
+// that crosses the antimeridian draws the short way instead of streaking across
+// the whole map.
+function _buildRouteLatLngs() {
+  let out = [];
+  let prevLng = null;
+  for (let i = 0; i < _tripPins.length - 1; i++) {
+    const a = _tripPins[i], b = _tripPins[i + 1];
+    const km = (typeof _haversineKm === 'function') ? _haversineKm(a.lat, a.lng, b.lat, b.lng) : 0;
+    const segs = Math.max(8, Math.min(128, Math.round(km / 120)));
+    const arc = _greatCirclePoints(a.lat, a.lng, b.lat, b.lng, segs);
+    arc.forEach((pt, j) => {
+      if (i > 0 && j === 0) return; // skip duplicate junction point
+      let lng = pt[1];
+      if (prevLng !== null) { while (lng - prevLng > 180) lng -= 360; while (lng - prevLng < -180) lng += 360; }
+      prevLng = lng;
+      out.push([pt[0], lng]);
+    });
+  }
+  return out;
+}
+
+function _renderTripRouteLine() {
+  if (!map) return;
+  _clearTripRouteLine();
+  if (!_tripPins || _tripPins.length < 2) return;
+  const latlngs = _buildRouteLatLngs();
+  _tripRouteCasing = L.polyline(latlngs, {
+    pane: 'routePane', interactive: false, className: 'na-route-casing',
+    color: '#c9a84c', weight: 6, opacity: 0.16, lineCap: 'round', lineJoin: 'round',
+  }).addTo(map);
+  _tripRouteLine = L.polyline(latlngs, {
+    pane: 'routePane', interactive: false, className: 'na-route-flow',
+    color: '#e8d5a3', weight: 2.4, opacity: 0.92, dashArray: '1 11', lineCap: 'round',
+  }).addTo(map);
+}
+
 function _renderAllTripPins() {
   _tripPins.forEach((pin, i) => _renderTripPinMarker(pin, i));
+  _renderTripRouteLine();
 }
 
 function _deleteTripPin(id) {
@@ -870,6 +956,18 @@ function initMap() {
   map.createPane('politicalPane');
   map.getPane('politicalPane').style.zIndex = '350';
   map.getPane('politicalPane').style.pointerEvents = 'auto';
+
+  // glyphPane: multi-layer "enamel chip" glyphs sit above borders/fills but below
+  // city markers, so city discovery dots remain clickable on top of a glyph cluster.
+  map.createPane('glyphPane');
+  map.getPane('glyphPane').style.zIndex = '360';
+  map.getPane('glyphPane').style.pointerEvents = 'auto';
+
+  // routePane: the animated trip route line draws beneath the numbered trip-pin
+  // markers (markersPane, z400) but above glyphs/fills, and never intercepts clicks.
+  map.createPane('routePane');
+  map.getPane('routePane').style.zIndex = '392';
+  map.getPane('routePane').style.pointerEvents = 'none';
 
   map.createPane('markersPane');
   map.getPane('markersPane').style.zIndex = '400';
@@ -1540,55 +1638,63 @@ function getRating(arr) {
   return Math.round(sum / selectedMonths.size);
 }
 
+// Per-layer rating for a single country (0=best … 3=worst, null if no data for
+// that layer). SINGLE SOURCE OF TRUTH: getCountryRating aggregates these with
+// worst-case (Math.max), and the multi-layer glyph overlay renders one chip per
+// layer from the very same values — so the choropleth fill and the glyph chips
+// can never disagree.
+function countryLayerRating(iso2, lk) {
+  const d = CD[iso2];
+  // Scalar tables are the primary source; fall back to 12-month CD arrays so
+  // countries with array data but no scalar entry still get a rating.
+  if (lk === 'cost') {
+    if (typeof CD_COST !== 'undefined' && CD_COST[iso2] != null) return CD_COST[iso2];
+    return d && d.cost != null ? getRating(d.cost) : null;
+  }
+  if (lk === 'safety') {
+    if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[iso2] != null) return CD_SAFETY[iso2];
+    return d && d.safety != null ? getRating(d.safety) : null;
+  }
+  if (lk === 'internet') {
+    if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) return CD_INTERNET[iso2];
+    return d && d.remote != null ? getRating(d.remote) : null;  // remote work quality as proxy
+  }
+  if (lk === 'kids') {
+    if (typeof CD_KIDS !== 'undefined' && CD_KIDS[iso2] != null) return CD_KIDS[iso2];
+    return d && d.family != null ? getRating(d.family) : null;  // family rating as proxy
+  }
+  if (lk === 'cannabis') {
+    if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[iso2] != null) return CD_CANNABIS[iso2];
+    return null;
+  }
+  if (lk === 'nomad') {
+    if (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[iso2] != null) return CD_NOMAD[iso2];
+    return null;
+  }
+  if (lk === 'english') { if (typeof CD_ENGLISH !== 'undefined' && CD_ENGLISH[iso2] != null) return CD_ENGLISH[iso2]; return null; }
+  if (lk === 'healthcare') { if (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[iso2] != null) return CD_HEALTHCARE[iso2]; return null; }
+  if (lk === 'tapwater') { if (typeof CD_TAPWATER !== 'undefined' && CD_TAPWATER[iso2] != null) return CD_TAPWATER[iso2]; return null; }
+  if (lk === 'airquality') { if (typeof CD_AIRQUALITY !== 'undefined' && CD_AIRQUALITY[iso2] != null) return CD_AIRQUALITY[iso2]; return null; }
+  if (lk === 'femalesafety') { if (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[iso2] != null) return CD_FEMALE_SAFETY[iso2]; return null; }
+  if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[iso2] != null) return CD_NIGHTLIFE[iso2]; return null; }
+  if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[iso2] != null) return CD_SCAM[iso2]; return null; }
+  if (lk === 'malaria') { if (typeof CD_MALARIA !== 'undefined' && CD_MALARIA[iso2] != null) return CD_MALARIA[iso2]; return null; }
+  if (lk === 'tipping') {
+    if (typeof CD_TIPPING !== 'undefined' && CD_TIPPING[iso2] != null) return CD_TIPPING[iso2];
+    return null;
+  }
+  if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
+  if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
+  const arr = d ? d[lk] : null;
+  return arr != null ? getRating(arr) : null;
+}
+
 function getCountryRating(iso2) {
   const d = CD[iso2];
   if (!d) return null;
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
-  const ratings = layers.map(lk => {
-    // Scalar tables are the primary source; fall back to 12-month CD arrays so
-    // countries with array data but no scalar entry still get a choropleth color.
-    if (lk === 'cost') {
-      if (typeof CD_COST !== 'undefined' && CD_COST[iso2] != null) return CD_COST[iso2];
-      return d && d.cost != null ? getRating(d.cost) : null;
-    }
-    if (lk === 'safety') {
-      if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[iso2] != null) return CD_SAFETY[iso2];
-      return d && d.safety != null ? getRating(d.safety) : null;
-    }
-    if (lk === 'internet') {
-      if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[iso2] != null) return CD_INTERNET[iso2];
-      return d && d.remote != null ? getRating(d.remote) : null;  // remote work quality as proxy
-    }
-    if (lk === 'kids') {
-      if (typeof CD_KIDS !== 'undefined' && CD_KIDS[iso2] != null) return CD_KIDS[iso2];
-      return d && d.family != null ? getRating(d.family) : null;  // family rating as proxy
-    }
-    if (lk === 'cannabis') {
-      if (typeof CD_CANNABIS !== 'undefined' && CD_CANNABIS[iso2] != null) return CD_CANNABIS[iso2];
-      return null;
-    }
-    if (lk === 'nomad') {
-      if (typeof CD_NOMAD !== 'undefined' && CD_NOMAD[iso2] != null) return CD_NOMAD[iso2];
-      return null;
-    }
-    if (lk === 'english') { if (typeof CD_ENGLISH !== 'undefined' && CD_ENGLISH[iso2] != null) return CD_ENGLISH[iso2]; return null; }
-    if (lk === 'healthcare') { if (typeof CD_HEALTHCARE !== 'undefined' && CD_HEALTHCARE[iso2] != null) return CD_HEALTHCARE[iso2]; return null; }
-    if (lk === 'tapwater') { if (typeof CD_TAPWATER !== 'undefined' && CD_TAPWATER[iso2] != null) return CD_TAPWATER[iso2]; return null; }
-    if (lk === 'airquality') { if (typeof CD_AIRQUALITY !== 'undefined' && CD_AIRQUALITY[iso2] != null) return CD_AIRQUALITY[iso2]; return null; }
-    if (lk === 'femalesafety') { if (typeof CD_FEMALE_SAFETY !== 'undefined' && CD_FEMALE_SAFETY[iso2] != null) return CD_FEMALE_SAFETY[iso2]; return null; }
-    if (lk === 'nightlife') { if (typeof CD_NIGHTLIFE !== 'undefined' && CD_NIGHTLIFE[iso2] != null) return CD_NIGHTLIFE[iso2]; return null; }
-    if (lk === 'scam') { if (typeof CD_SCAM !== 'undefined' && CD_SCAM[iso2] != null) return CD_SCAM[iso2]; return null; }
-    if (lk === 'malaria') { if (typeof CD_MALARIA !== 'undefined' && CD_MALARIA[iso2] != null) return CD_MALARIA[iso2]; return null; }
-    if (lk === 'tipping') {
-      if (typeof CD_TIPPING !== 'undefined' && CD_TIPPING[iso2] != null) return CD_TIPPING[iso2];
-      return null;
-    }
-    if (lk === 'visa')     return selectedNationality ? getVisaRating(iso2, selectedNationality) : null;
-    if (lk === 'strength') return selectedNationality ? getStrengthRating(iso2) : null;
-    const arr = d ? d[lk] : null;
-    return arr != null ? getRating(arr) : null;
-  }).filter(v => v !== null);
+  const ratings = layers.map(lk => countryLayerRating(iso2, lk)).filter(v => v !== null);
   if (ratings.length === 0) return null;
   // Worst-case aggregation: show the most severe rating across all active layers.
   return Math.max(...ratings);
@@ -1703,7 +1809,12 @@ function getCountryStyle(iso2, hover) {
 
   const r = getCountryRating(iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
-  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.25 : 0);
+  // Multi-layer mode: the per-layer glyph chips carry the detail, so the
+  // worst-case choropleth fill drops to a faint summary wash beneath them.
+  const multi = activeLayers.size >= 2;
+  const fo = r !== null
+    ? (multi ? (hover ? 0.46 : 0.30) : (hover ? 0.88 : 0.72))
+    : (activeLayers.size > 0 ? 0.25 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
@@ -1730,7 +1841,10 @@ function getAdmin1Style(iso2, subCode, hover) {
   }
   const r = getAdmin1Rating(subCode, iso2);
   const fc = r !== null ? RC[Math.min(3, Math.max(0, r))] : RC_NODATA;
-  const fo = r !== null ? (hover ? 0.88 : 0.72) : (activeLayers.size > 0 ? 0.20 : 0);
+  const multi = activeLayers.size >= 2;
+  const fo = r !== null
+    ? (multi ? (hover ? 0.46 : 0.30) : (hover ? 0.88 : 0.72))
+    : (activeLayers.size > 0 ? 0.20 : 0);
   return {
     fillColor: fc,
     fillOpacity: fo,
@@ -2331,6 +2445,114 @@ function _placeCities(list) {
 
     marker.addTo(map);
     cityMarkers.push(marker);
+  });
+}
+
+// ─── Multi-Layer Glyph Overlay ────────────────────────────────────────────────
+// The signature multi-layer visualization. With ONE active layer the area is
+// filled with that layer's score colour (handled in getCountryStyle). With TWO
+// OR MORE active layers the fill drops to a faint worst-case wash and each layer
+// is rendered as its own "enamel chip" — the layer's symbol on an opaque,
+// score-coloured rounded chip with a dark-inner / gold-outer double stroke —
+// clustered at the country centroid, so several layers read individually in the
+// same space. Reveal-by-zoom keeps the world view calm; chips appear on zoom-in.
+var layerGlyphMarkers = [];
+var _glyphHTMLCache = {};
+
+function clearLayerGlyphs() {
+  layerGlyphMarkers.forEach(m => m.remove());
+  layerGlyphMarkers = [];
+}
+
+// Layers that carry a 0-3 country rating (everything except pure tile/marker
+// overlays such as the elevation topo tiles and the seasonal-events markers).
+function _glyphRatedLayers() {
+  return [...activeLayers].filter(lk => LAYERS[lk] && lk !== 'elevation' && lk !== 'events');
+}
+
+// One chip: opaque RC fill + the layer symbol. Grey (RC_NODATA) when this country
+// has no datum for the layer. Cached by layerKey:rating since the markup is identical.
+function _glyphChipHTML(lk, rating) {
+  const key = lk + ':' + (rating == null ? 'x' : rating);
+  if (_glyphHTMLCache[key]) return _glyphHTMLCache[key];
+  const def = LAYERS[lk] || {};
+  const sym = def.emoji || def.icon || '•';
+  const col = rating != null ? RC[Math.min(3, Math.max(0, rating))] : RC_NODATA;
+  const html = '<span class="na-glyph-chip" style="background:' + col + '">' +
+               '<span class="na-glyph-sym">' + sym + '</span></span>';
+  _glyphHTMLCache[key] = html;
+  return html;
+}
+
+// Build the cluster markup + chip count for a country across the active layers.
+// Caps the visible chips and shows a "+N" overflow chip so dense selections stay legible.
+function _buildGlyphCluster(iso2, layers) {
+  // Tighter cap on narrow phones so clusters stay compact on the primary surface.
+  const CAP = (typeof window !== 'undefined' && window.innerWidth && window.innerWidth < 480) ? 3 : 4;
+  let visible = layers, overflow = 0;
+  if (layers.length > CAP) { visible = layers.slice(0, CAP - 1); overflow = layers.length - (CAP - 1); }
+  let chips = visible.map(lk => _glyphChipHTML(lk, countryLayerRating(iso2, lk))).join('');
+  let count = visible.length;
+  if (overflow > 0) {
+    chips += '<span class="na-glyph-chip na-glyph-more">+' + overflow + '</span>';
+    count += 1;
+  }
+  return { html: '<div class="na-glyph-cluster">' + chips + '</div>', count };
+}
+
+function renderLayerGlyphs() {
+  if (!map) return;
+  clearLayerGlyphs();
+  const layers = _glyphRatedLayers();
+  // Glyphs are the language of MULTI-layer mode only. 0 = clean map, 1 = fill.
+  if (layers.length < 2) return;
+  // Calm at world view; reveal per-country glyphs once the user zooms into a region.
+  if (map.getZoom() < 4) return;
+  const bounds = map.getBounds().pad(0.2);
+  const CW = 22, H = 26;
+  // Greedy screen-space de-overlap: skip a cluster whose pixel position falls
+  // within MINPX of an already-placed one, so dense regions (e.g. central
+  // Europe at low zoom) stay legible. Zooming in spreads centres apart, so the
+  // suppression naturally relaxes and full coverage returns.
+  const placed = [];
+  const MINPX = 44;
+  Object.keys(COUNTRY_CENTERS).forEach(iso2 => {
+    if (!CD[iso2]) return;                       // same data gate as the choropleth fill
+    const c = COUNTRY_CENTERS[iso2];
+    if (!c) return;
+    const ll = L.latLng(c[0], c[1]);
+    if (!bounds.contains(ll)) return;
+    // Skip all-grey clusters: require at least one layer with real data here.
+    if (!layers.some(lk => countryLayerRating(iso2, lk) != null)) return;
+    const pt = map.latLngToContainerPoint(ll);
+    let tooClose = false;
+    for (let k = 0; k < placed.length; k++) {
+      const dx = pt.x - placed[k].x, dy = pt.y - placed[k].y;
+      if (dx * dx + dy * dy < MINPX * MINPX) { tooClose = true; break; }
+    }
+    if (tooClose) return;
+    placed.push(pt);
+    const cluster = _buildGlyphCluster(iso2, layers);
+    const w = cluster.count * CW + 8;
+    const icon = L.divIcon({
+      html: cluster.html,
+      className: 'na-glyph-icon',
+      iconSize: [w, H],
+      iconAnchor: [w / 2, H / 2],
+    });
+    const m = L.marker(ll, { icon, pane: 'glyphPane', interactive: true, keyboard: false, riseOnHover: true });
+    m.on('click', e => {
+      _featureClicked = true;
+      if (typeof na_openCountryDossier === 'function') {
+        na_openCountryDossier(iso2);
+      } else {
+        const html = buildCountryTooltip(iso2);
+        if (html) toggleTooltip('country:' + iso2, html, e.originalEvent.clientX, e.originalEvent.clientY);
+      }
+      setTimeout(() => { _featureClicked = false; }, 10);
+    });
+    m.addTo(map);
+    layerGlyphMarkers.push(m);
   });
 }
 
@@ -4346,6 +4568,10 @@ function updateLegend() {
   syncCatButtons();
 
   let html = '';
+  // Combined View: explain the on-map enamel chips so the multi-layer glyphs are discoverable.
+  if (geoLayers.length > 1) {
+    html += `<div class="legend-glyph-hint" style="font-size:8.5px;line-height:1.35;color:var(--na-text-secondary,#a89060);padding:2px 0 6px;letter-spacing:.2px">Each country shows one chip per layer — the chip colour is that layer's score (green → red). Zoom in to reveal them.</div>`;
+  }
   active.forEach(key => {
     const layer = LAYERS[key];
     // Visa (sole geo layer, passport chosen): show the 5-tier entry-type legend
@@ -4592,6 +4818,7 @@ function refresh() {
   }
   toggleElevationLayer(activeLayers.has('elevation'));
   renderCityMarkers();
+  renderLayerGlyphs();
   renderBorderMarkers();
   renderBeachMarkers();
   renderPoliticalLayers();
@@ -4626,6 +4853,7 @@ function onZoom() {
   clearTimeout(_zoomTimer);
   _zoomTimer = setTimeout(() => {
     renderCityMarkers();
+    renderLayerGlyphs();
     renderBorderMarkers();
     renderBeachMarkers();
     renderEventMarkers();
@@ -6810,7 +7038,15 @@ function initPOILayers() {
 
   // NYC precinct crime sublayer: re-evaluate on pan.
   map.on('moveend', () => { _renderNYCCrime(); _renderLiveCrime(); });
+
+  // Multi-layer glyph clusters are viewport-gated, so rebuild them on pan
+  // (debounced). No-op unless 2+ rated layers are active at zoom ≥ 4.
+  map.on('moveend', () => {
+    clearTimeout(_glyphDebounce);
+    _glyphDebounce = setTimeout(() => { renderLayerGlyphs(); }, 200);
+  });
 }
+var _glyphDebounce = null;
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
@@ -7206,35 +7442,93 @@ function na_toast(message, durationMs) {
 }
 
 // ── Theme system ──────────────────────────────────────────────────────────
-var _naTheme = 'dark';
+// Day / Night identity. Three modes:
+//   'light' — day chart (forced),  'dark' — night chart (forced),
+//   'auto'  — the almanac's sun-aware identity: follows the visitor's local
+//             clock and flips the chart between day and night at dawn/dusk,
+//             even while the app stays open.
+var _naThemeMode = 'auto';   // user's chosen mode: 'light' | 'dark' | 'auto'
+var _naEffective = 'dark';   // theme currently applied to the document
+var _naAutoTimer = null;
+var _naThemeFocusBound = false;
 
-function na_applyTheme(theme) {
-  _naTheme = theme;
-  // Use removeAttribute for dark (default) so the selector [data-theme="light"]
-  // remains clean and the HTML element carries no spurious empty attribute.
-  if (theme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-  }
-  try { localStorage.setItem('na_theme', theme); } catch(e) {}
+// Resolve 'auto' to a concrete theme from the local hour. Day = 06:00–17:59.
+// No geolocation needed — the device clock is already local to the traveller.
+function _naResolveAuto() {
+  var h = new Date().getHours();
+  return (h >= 6 && h < 18) ? 'light' : 'dark';
+}
+
+// Reflect the current mode + effective state on the document and the header
+// button (title/aria announce the next action; data-* hooks let CSS respond).
+function _naUpdateThemeBtn() {
+  document.documentElement.setAttribute('data-daynight', _naEffective);
+  document.documentElement.setAttribute('data-thememode', _naThemeMode);
+  var btn = document.getElementById('na-theme-btn');
+  if (!btn) return;
+  var label = _naThemeMode === 'auto'
+    ? 'Theme: Auto — follows your local sun (now ' + (_naEffective === 'light' ? 'day' : 'night') + '). Click for Day.'
+    : _naThemeMode === 'light'
+      ? 'Theme: Day chart. Click for Night.'
+      : 'Theme: Night chart. Click for Auto.';
+  btn.setAttribute('title', label);
+  btn.setAttribute('aria-label', label);
+}
+
+// Apply only the effective theme to the document (shared by setMode + auto-tick).
+function _naApplyEffective(effective) {
+  _naEffective = effective;
+  // removeAttribute for dark (default) keeps [data-theme="light"] clean and
+  // leaves the HTML element free of a spurious empty attribute.
+  if (effective === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+function na_applyTheme(mode) {
+  if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') mode = 'auto';
+  _naThemeMode = mode;
+  _naApplyEffective(mode === 'auto' ? _naResolveAuto() : mode);
+  try { localStorage.setItem('na_theme', mode); } catch(e) {}
+  _naUpdateThemeBtn();
+  _naStartAutoWatch();
+}
+
+// While in auto mode, re-resolve every 10 minutes so the chart flips at
+// dawn/dusk without a reload. Inert (and cleared) in the forced modes.
+function _naStartAutoWatch() {
+  if (_naAutoTimer) { clearInterval(_naAutoTimer); _naAutoTimer = null; }
+  if (_naThemeMode !== 'auto') return;
+  _naAutoTimer = setInterval(_naAutoReResolve, 600000);
+}
+function _naAutoReResolve() {
+  if (_naThemeMode !== 'auto') return;
+  var want = _naResolveAuto();
+  if (want === _naEffective) return;
+  _naApplyEffective(want);
+  _naUpdateThemeBtn();
 }
 
 function na_initTheme() {
   var stored = null;
   try { stored = localStorage.getItem('na_theme'); } catch(e) {}
-  if (stored === 'light' || stored === 'dark') {
-    na_applyTheme(stored);
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    na_applyTheme('light');
-  } else {
-    na_applyTheme('dark');
+  // New visitors get the sun-aware 'auto' identity; returning users keep their pick.
+  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'auto');
+  // Re-check when the tab regains focus (e.g., left open past dusk).
+  if (!_naThemeFocusBound) {
+    _naThemeFocusBound = true;
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) _naAutoReResolve(); });
+    window.addEventListener('focus', _naAutoReResolve);
   }
 }
 
+// Header button + 'T' shortcut cycle the modes: Auto → Day → Night → Auto.
 function na_toggleTheme() {
-  na_applyTheme(_naTheme === 'dark' ? 'light' : 'dark');
-  na_toast(_naTheme === 'light' ? 'Light chart mode.' : 'Dark chart mode.');
+  var next = _naThemeMode === 'auto' ? 'light' : _naThemeMode === 'light' ? 'dark' : 'auto';
+  na_applyTheme(next);
+  var msg = next === 'auto'
+    ? 'Auto — chart follows your local sun (now ' + (_naEffective === 'light' ? 'day' : 'night') + ').'
+    : next === 'light' ? 'Day chart.' : 'Night chart.';
+  na_toast(msg);
 }
 
 // ── Sidebar accordion ─────────────────────────────────────────────────────
