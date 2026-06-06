@@ -73,6 +73,15 @@ let _admin2Layers    = {};   // iso2 → L.GeoJSON layer instance
 let _admin2Cache     = {};   // iso2 → FeatureCollection | null (null = in-flight fetch)
 let _coveredByAdmin2 = new Set();  // iso2 codes with admin-2 layer currently on map
 
+// City-derived sub-national climate (and other per-city layer) values, computed by
+// point-in-polygon assignment of CITIES to admin features. A county/province with no
+// explicit CD_A2/CD_A1 entry for a layer falls back to these BEFORE the coarser
+// state/country value, so an area's colour reflects the real climate of the cities
+// inside it rather than the blanket national figure.
+const _DERIVABLE_FIELDS = ['weather','family','solo','remote','corrupt','health','crowds','disaster','lgbtq','beaches','road','vaccines'];
+let _admin1CityData = {};   // admin-1 subCode -> { field:[12] }
+let _admin2CityData = {};   // admin-2 shapeID -> { field:[12] }
+
 // Transport tile layers — config + runtime state bundled per layer
 const TRANSPORT_LAYERS = {
   roads: {
@@ -206,6 +215,74 @@ const getAdmin1Code = p => {
   const s = p.iso_3166_2 || '';
   return (s && s !== '-99' && s !== '-1') ? s : '';
 };
+
+// ── City-derived sub-national climate helpers ───────────────────────────────
+// Ray-casting point-in-polygon so an admin feature can borrow the real climate
+// (and other per-city layer values) of the cities that fall inside it.
+function _pointInRing(lng, lat, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+    if (((yi > lat) !== (yj > lat)) &&
+        (lng < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi)) inside = !inside;
+  }
+  return inside;
+}
+function _pointInGeometry(lng, lat, geom) {
+  if (!geom) return false;
+  if (geom.type === 'Polygon') return _pointInRing(lng, lat, geom.coordinates[0]);
+  if (geom.type === 'MultiPolygon') {
+    for (const poly of geom.coordinates) if (_pointInRing(lng, lat, poly[0])) return true;
+  }
+  return false;
+}
+function _geomBBox(geom) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const scan = ring => { for (const pt of ring) {
+    if (pt[0] < minX) minX = pt[0]; if (pt[0] > maxX) maxX = pt[0];
+    if (pt[1] < minY) minY = pt[1]; if (pt[1] > maxY) maxY = pt[1];
+  } };
+  if (!geom) return null;
+  if (geom.type === 'Polygon') geom.coordinates.forEach(scan);
+  else if (geom.type === 'MultiPolygon') geom.coordinates.forEach(p => p.forEach(scan));
+  return [minX, minY, maxX, maxY];
+}
+// Assign each city to the admin feature that contains it and average the per-city
+// monthly layer arrays into store[code]. A bounding-box pre-reject keeps this fast
+// even for thousands of counties. Runs once per admin layer load.
+function _deriveCityClimate(features, getCode, isoOf, cities, store) {
+  if (!features || !cities || !cities.length) return;
+  const byIso = {};
+  features.forEach(f => {
+    const iso = isoOf(f); if (!iso) return;
+    if (!f._naBBox) f._naBBox = _geomBBox(f.geometry);
+    (byIso[iso] = byIso[iso] || []).push(f);
+  });
+  const acc = {};
+  cities.forEach(c => {
+    if (!c || !c.data) return;
+    const feats = byIso[c.country]; if (!feats) return;
+    let code = null;
+    for (let i = 0; i < feats.length; i++) {
+      const b = feats[i]._naBBox;
+      if (b && (c.lng < b[0] || c.lng > b[2] || c.lat < b[1] || c.lat > b[3])) continue;
+      if (_pointInGeometry(c.lng, c.lat, feats[i].geometry)) { code = getCode(feats[i]); break; }
+    }
+    if (!code) return;
+    let a = acc[code]; if (!a) a = acc[code] = { n: 0 };
+    a.n++;
+    _DERIVABLE_FIELDS.forEach(fl => {
+      const arr = c.data[fl]; if (!arr || arr.length < 12) return;
+      if (!a[fl]) a[fl] = [0,0,0,0,0,0,0,0,0,0,0,0];
+      for (let m = 0; m < 12; m++) a[fl][m] += (arr[m] || 0);
+    });
+  });
+  Object.keys(acc).forEach(code => {
+    const a = acc[code], out = {};
+    _DERIVABLE_FIELDS.forEach(fl => { if (a[fl]) out[fl] = a[fl].map(s => Math.round(s / a.n)); });
+    if (Object.keys(out).length) store[code] = out;
+  });
+}
 
 let _visitedSet = new Set(JSON.parse((() => { try { return localStorage.getItem('na_visited') || '[]'; } catch (_) { return '[]'; } })()));
 
@@ -1774,7 +1851,8 @@ function getAdmin1Rating(subCode, parentIso2) {
     if (lk === 'parks')    { if (typeof CD_PARKS !== 'undefined' && CD_PARKS[parentIso2] != null) return CD_PARKS[parentIso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
-    const arr = (d1 && d1[lk]) || (d2 && d2[lk]);
+    const derivedA1 = subCode ? _admin1CityData[subCode] : null;
+    const arr = (d1 && d1[lk]) || (derivedA1 && derivedA1[lk]) || (d2 && d2[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
   if (ratings.length === 0) return null;
@@ -1908,7 +1986,8 @@ function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
     if (lk === 'parks')    { if (typeof CD_PARKS !== 'undefined' && CD_PARKS[parentIso2] != null) return CD_PARKS[parentIso2]; return null; }
     if (lk === 'visa')     return selectedNationality ? getVisaRating(parentIso2, selectedNationality) : null;
     if (lk === 'strength') return selectedNationality ? getStrengthRating(parentIso2) : null;
-    const arr = (d2 && d2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
+    const derivedA2 = shapeID ? _admin2CityData[shapeID] : null;
+    const arr = (d2 && d2[lk]) || (derivedA2 && derivedA2[lk]) || (d1 && d1[lk]) || (d0 && d0[lk]);
     return arr != null ? getRating(arr) : null;
   }).filter(v => v !== null);
   if (ratings.length === 0) return null;
@@ -2284,6 +2363,15 @@ async function initAdmin1Choropleth() {
       return iso2 && _coveredByAdmin1.has(iso2);
     });
 
+    // Borrow real climate from the cities inside each province (used only where
+    // CD_A1 has no explicit value for a layer). Computed once, before first paint.
+    try {
+      const a1cities = (typeof CITIES !== 'undefined')
+        ? CITIES.filter(c => c && _coveredByAdmin1.has(c.country)) : [];
+      _deriveCityClimate(filteredFeatures, f => getAdmin1Code(f.properties),
+        f => getAdmin1Iso2(f.properties), a1cities, _admin1CityData);
+    } catch (e) { console.warn('admin1 city-climate derive failed:', e && e.message); }
+
     admin1ChoroLayer = L.geoJSON({ type: 'FeatureCollection', features: filteredFeatures }, {
       pane: 'choroplethPane',
       style: feature => {
@@ -2345,6 +2433,13 @@ async function loadAdmin2Country(iso2) {
     const geojson = await res.json();
     _admin2Cache[iso2] = geojson;
     if (statusEl) statusEl.style.display = 'none';
+
+    // Derive county-level climate from the cities inside each county, so a county
+    // reflects its own microclimate instead of inheriting the state/country value.
+    try {
+      const ccCities = (typeof CITIES !== 'undefined') ? CITIES.filter(c => c && c.country === iso2) : [];
+      _deriveCityClimate(geojson.features, f => f.properties.shapeID, () => iso2, ccCities, _admin2CityData);
+    } catch (e) { console.warn('admin2 city-climate derive failed:', e && e.message); }
 
     _admin2Layers[iso2] = L.geoJSON(geojson, {
       pane: 'admin2Pane',
