@@ -898,15 +898,28 @@ html, body {
 /* ─── Comparison panel (pinned countries) ────────────────────────────────── */
 #compare-panel {
   position: fixed; top: 0; right: 0; bottom: 0; z-index: 1800;
-  width: 300px; background: var(--panel2);
+  width: min(320px, 92vw); background: var(--panel2);
   border-left: 1px solid var(--b2);
   font-family: var(--fm); display: none; flex-direction: column;
   box-shadow: -8px 0 32px rgba(0,0,0,.70);
   transform: translateX(100%);
   transition: transform .28s ease;
+  overflow-y: auto;
 }
 #compare-panel.open {
   display: flex; transform: translateX(0);
+}
+.compare-close {
+  position: absolute; top: 8px; right: 8px; z-index: 3;
+  width: 26px; height: 26px; border-radius: 6px;
+  background: rgba(201,168,76,0.10); border: 1px solid rgba(201,168,76,0.28);
+  color: var(--na-gold-mid, #C8A84B); cursor: pointer; font-size: 13px; line-height: 1;
+}
+.compare-close:hover { background: rgba(201,168,76,0.22); color: var(--na-gold-bright, #E2C06A); }
+.compare-close:focus-visible { outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px; }
+.compare-empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 48px 22px; min-height: 60%;
 }
 #compare-header {
   display: flex; align-items: center; justify-content: space-between;
