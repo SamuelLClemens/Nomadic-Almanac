@@ -622,7 +622,7 @@ const CD_TIMEZONE = {
 // Distinct from COUNTRY_HOLIDAYS (statutory public holidays): these are the events a
 // traveller plans a trip around. Rendered on the map by _renderHolidayMarkers().
 const COUNTRY_EVENTS = {
-  US: { 2:['🎸 SXSW — Austin music & tech (Mar)'], 3:['🎡 Coachella — California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
+  US: { 0:['🎬 Sundance Film Festival — Park City (late Jan)'], 1:['💗 Mardi Gras — New Orleans (Feb/Mar)'], 2:['🎸 SXSW — Austin music & tech (Mar)'], 3:['🎡 Coachella — California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 6:['🎆 Independence Day (Jul 4)'], 8:['🔥 Burning Man — Nevada (late Aug/Sep)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
   GB: { 5:['🎶 Glastonbury Festival (late Jun)'], 7:['🎭 Edinburgh Festival Fringe (Aug)',"🎉 Notting Hill Carnival — London (late Aug)"], 11:['🎄 Christmas markets (Dec)'] },
   IE: { 2:["🍀 St Patrick's Day — Dublin (Mar 17)"] },
   FR: { 4:['🎬 Cannes Film Festival (May)'], 5:['🎵 Fête de la Musique (Jun 21)'], 6:['🇫🇷 Bastille Day (Jul 14)'] },
@@ -644,21 +644,60 @@ const COUNTRY_EVENTS = {
   PE: { 5:['☀ Inti Raymi — Cusco (Jun 24)'] },
   CO: { 0:['🎉 Feria de Cali (early Jan)'], 7:['🌸 Feria de las Flores — Medellín (Aug)'] },
   AR: { 2:['💃 Tango Festival — Buenos Aires (Mar)'] },
-  JP: { 2:['🌸 Cherry Blossom (Hanami) — late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri — Kyoto (Jul)'] },
+  JP: { 2:['🌸 Cherry Blossom (Hanami) — late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri — Kyoto (Jul)','🏮 Nebuta Matsuri — Aomori (early Aug)'], 7:['💃 Awa Odori — Tokushima (Aug)'], 10:['🍁 Autumn foliage (kōyō) — nationwide (Nov)'] },
   KR: { 3:['🌸 Cherry Blossom — Jinhae (Apr)'], 10:['🏮 Seoul Lantern Festival (Nov)'] },
   CN: { 1:['🏮 Spring Festival / Chinese New Year (Jan/Feb)'], 8:['🥮 Mid-Autumn Festival (Sep/Oct)'] },
   TW: { 1:['🏮 Lantern Festival (Feb)'] },
   TH: { 3:['💦 Songkran — Thai New Year water festival (Apr 13–15)'], 10:['🪔 Loy Krathong / Yi Peng — lights (Nov)'] },
   VN: { 0:['🧧 Tết — Lunar New Year (Jan/Feb)'] },
   ID: { 2:['🌑 Nyepi — Balinese Day of Silence (Mar)'] },
-  IN: { 2:['🎨 Holi — festival of colours (Mar)'], 10:['🪔 Diwali — festival of lights (Oct/Nov)'] },
+  IN: { 0:['🎉 Pongal & Republic Day (Jan)'], 2:['🎨 Holi — festival of colours (Mar)'], 7:['🐘 Onam — Kerala (Aug/Sep)'], 9:['🪔 Diwali — festival of lights (Oct/Nov)','🎭 Durga Puja — Kolkata (Oct)'], 10:['🐪 Pushkar Camel Fair — Rajasthan (Nov)'] },
   NP: { 2:['🎨 Holi (Mar)'] },
   AU: { 0:['🎆 Sydney Festival (Jan)','🇦🇺 Australia Day (Jan 26)'], 2:['🏳️‍🌈 Sydney Gay & Lesbian Mardi Gras (Feb/Mar)'] },
   NZ: { 1:['⛵ Waitangi Day (Feb 6)'] },
   AE: { 0:['🛍 Dubai Shopping Festival (Dec–Jan)'] },
   TR: { 3:['🌷 Istanbul Tulip Festival (Apr)'] },
-  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'] },
-  ZA: { 2:['🎷 Cape Town Intl Jazz Festival (Mar)'] },
+  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'], 5:['🌃 White Nights — St Petersburg (Jun)'] },
+  ZA: { 2:['🎷 Cape Town Intl Jazz Festival (Mar)'], 8:['🌸 Namaqualand wildflowers (Aug/Sep)'] },
+  // ── Americas ──
+  CA: { 1:['🧊 Quebec Winter Carnival (Feb)'], 6:['🎆 Canada Day (Jul 1)'], 8:['🎬 Toronto Intl Film Festival (Sep)'] },
+  CU: { 6:['🎺 Fiesta del Fuego — Santiago (Jul)'], 11:['🎬 Havana Film Festival (Dec)'] },
+  JM: { 6:['🎶 Reggae Sumfest — Montego Bay (Jul)'] },
+  CR: { 11:['🎉 Fiestas de Zapote — San José (late Dec)'] },
+  GT: { 2:['✝ Semana Santa — Antigua (Mar/Apr)'], 10:['🪁 Giant Kite Festival — Sumpango (Nov 1)'] },
+  CL: { 1:['🎶 Festival de Viña del Mar (Feb)'] },
+  EC: { 1:['🎭 Carnival (Feb)'], 5:['☀ Inti Raymi — Andes (Jun)'] },
+  BO: { 1:['🎭 Carnaval de Oruro (Feb)'] },
+  // ── Africa ──
+  EG: { 1:['🌞 Abu Simbel Sun Festival (Feb 22)'], 9:['🌞 Abu Simbel Sun Festival (Oct 22)'] },
+  MA: { 5:['🎵 Fès Festival of World Sacred Music (Jun)','🎶 Mawazine — Rabat (Jun)'], 11:['🎬 Marrakech Intl Film Festival (Nov/Dec)'] },
+  KE: { 6:['🦓 Great Migration — Maasai Mara (Jul–Oct)'] },
+  TZ: { 1:['🎶 Sauti za Busara — Zanzibar (Feb)'], 6:['🦓 Serengeti river crossings (Jul–Sep)'] },
+  ET: { 0:['✝ Timkat — Epiphany (Jan 19)'], 8:['🌼 Meskel — Finding of the True Cross (Sep 27)'] },
+  MG: { 5:['🐋 Humpback whale watching — Île Sainte-Marie (Jun–Sep)'], 9:['🎶 Madajazzcar — Antananarivo (Oct)'] },
+  NG: { 1:['🎭 Lagos Carnival (Feb)'], 11:['🎭 Calabar Carnival (Dec)'] },
+  GH: { 7:['🥁 Homowo Festival (Aug/Sep)'], 11:['🎉 December in GH / Afro festivals — Accra (Dec)'] },
+  SN: { 4:['🎷 Saint-Louis Jazz Festival (May)'] },
+  // ── Middle East ──
+  IL: { 2:['🎭 Purim (Mar)'], 8:['🍎 Rosh Hashanah (Sep/Oct)'] },
+  LB: { 6:['🎶 Baalbeck Intl Festival (Jul–Aug)'] },
+  SA: { 9:['🎉 Riyadh Season (Oct–Mar)'] },
+  // ── Asia-Pacific ──
+  SG: { 0:['🏮 Chinese New Year (Jan/Feb)'], 8:['🏎 F1 Singapore Grand Prix — night race (Sep)'] },
+  MY: { 0:['🏮 Thaipusam (Jan/Feb)'] },
+  PH: { 0:['🎭 Sinulog — Cebu & Ati-Atihan — Kalibo (Jan)'], 11:['🎄 Christmas season — world\'s longest (Sep–Dec)'] },
+  LK: { 7:['🐘 Esala Perahera — Kandy (Jul/Aug)'] },
+  MM: { 3:['💦 Thingyan — water festival (Apr)'] },
+  KH: { 10:['🌕 Bon Om Touk — Water Festival (Nov)'] },
+  LA: { 3:['💦 Pi Mai — Lao New Year (Apr)'], 10:['🕯 That Luang Festival (Nov)'] },
+  MN: { 6:['🏇 Naadam Festival (Jul)'] },
+  // ── More of Europe ──
+  PL: { 11:['🎄 Christmas Markets — Kraków (Dec)'] },
+  HU: { 7:['🎶 Sziget Festival — Budapest (Aug)'] },
+  DK: { 5:['🎶 Roskilde Festival (late Jun/Jul)'] },
+  FI: { 11:['🎅 Santa Claus Village — Rovaniemi (Dec)'] },
+  HR: { 6:['🎶 Ultra Europe — Split (Jul)'] },
+  MT: { 1:['🎭 Carnival — Valletta (Feb)'] },
 };
 
 const COUNTRY_HOLIDAYS = {
@@ -1278,7 +1317,6 @@ const CD = {
   'AE': { weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(1), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,1,1,1,1,1,1,2,2,2), disaster:rep(0), visa:rep(0), lgbtq:rep(3), beaches:s12(3,3,3,2,1,3,3,3,2,1,3,3), road:rep(1), vaccines:rep(0) },
   'SA': { weather:s12(0,0,1,2,3,3,3,3,2,1,0,0), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(3), remote:rep(1), corrupt:rep(2), health:rep(0), crowds:rep(1), disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:rep(2), road:rep(1), vaccines:rep(0) },
   'TR': { weather:s12(1,1,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,2,2,2,3,3,2,1,0,0), disaster:rep(2), visa:rep(1), lgbtq:rep(3), beaches:s12(3,3,3,2,1,0,0,0,1,2,3,3), road:rep(1), vaccines:rep(1) },
-  'IL': { weather:s12(1,1,0,0,0,0,0,0,0,0,1,1), safety:rep(2), cost:rep(3), family:rep(1), solo:rep(1), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
   'JO': { weather:s12(1,1,0,0,0,1,1,1,0,0,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:rep(0), disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:s12(3,3,3,3,1,0,0,0,1,2,3,3), road:rep(1), vaccines:rep(1) },
   'LB': { weather:s12(1,1,0,0,0,0,0,0,0,0,1,1), safety:rep(3), cost:rep(2), family:rep(3), solo:rep(3), remote:rep(3), corrupt:rep(3), health:rep(2), crowds:rep(0), disaster:rep(1), visa:rep(2), lgbtq:rep(3), beaches:rep(2), road:rep(2), vaccines:rep(1) },
   'OM': { weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(1), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:rep(0), disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:s12(1,1,1,1,3,3,3,3,3,1,1,1), road:rep(1), vaccines:rep(0) },
@@ -2191,7 +2229,7 @@ const CITIES = [
     // Terracotta warriors; ancient Silk Road capital; dry continental climate
     weather:s12(2,2,1,1,0,1,1,2,0,0,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
     remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,2,2,2,2,2,1,1,0,0),
-    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(0)
   }),
   mk('Fukuoka','JP',33.590,130.401,{
     // Japan's most liveable city; gateway to Korea/China; mild climate; affordable
@@ -52610,3 +52648,5880 @@ CITIES.push(mk('Metro','ID',-5.1135,105.3068,{ weather:s12(3,3,2,2,1,1,1,1,1,2,2
 CITIES.push(mk('Pangkal Pinang','ID',-2.1316,106.1169,{ weather:s12(3,3,2,2,1,1,1,1,1,2,3,3), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) }));
 CITIES.push(mk('Tanjung Pinang','ID',0.9187,104.4529,{ weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) }));
 CITIES.push(mk('Batam','ID',1.0784,104.0305,{ weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,2), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(1), vaccines:rep(2) }));
+
+// ── Madagascar — additional cities (highlands, coasts, and remote regions) ──
+CITIES.push(mk('Antsirabe','MG',-19.8659,47.0333,{ weather:s12(2,2,1,1,1,1,1,1,1,1,1,2), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(3) }));
+CITIES.push(mk('Morondava','MG',-20.2848,44.2841,{ weather:s12(3,3,2,1,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(1), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Sambava','MG',-14.2667,50.1667,{ weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Manakara','MG',-22.1451,48.0115,{ weather:s12(3,3,2,2,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Ambositra','MG',-20.5300,47.2441,{ weather:s12(2,2,1,1,1,1,1,1,1,1,1,2), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Tolanaro','MG',-25.0319,46.9956,{ weather:s12(2,2,2,2,1,1,1,1,1,1,2,2), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(1), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Antalaha','MG',-14.8833,50.2833,{ weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Maroantsetra','MG',-15.4333,49.7333,{ weather:s12(3,3,3,2,2,1,1,2,2,3,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Mananjary','MG',-21.2300,48.3439,{ weather:s12(3,3,2,2,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Ihosy','MG',-22.4021,46.1278,{ weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(0,0,0,0,0,0,0,0,0,0,0,0), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(3), vaccines:rep(3) }));
+
+// ── Capital cities missing from the main set (needed for the capital zoom tier) ──
+CITIES.push(mk('Sofia','BG',42.6977,23.3219,{ weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,2,2,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
+CITIES.push(mk('Algiers','DZ',36.7538,3.0588,{ weather:s12(1,1,1,0,0,1,2,2,1,0,0,1), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(2), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(1) }));
+CITIES.push(mk('Bucharest','RO',44.4268,26.1025,{ weather:s12(2,2,1,1,0,0,1,1,0,1,1,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
+CITIES.push(mk('Bratislava','SK',48.1486,17.1077,{ weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(1), health:rep(1), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
+
+// ── Country capitals (ISO-2 → capital city name) ───────────────────────────
+// Drives the zoom-tiered city reveal: at the first zoom step only the city whose
+// name matches its country's capital here is shown. Names match the CITIES data
+// (de-facto/most-recognised seat of government where it differs from the city set).
+const COUNTRY_CAPITALS = {
+  AF:'Kabul', AL:'Tirana', DZ:'Algiers', AO:'Luanda', AR:'Buenos Aires', AM:'Yerevan',
+  AU:'Canberra', AT:'Vienna', AZ:'Baku', BS:'Nassau', BH:'Manama', BD:'Dhaka',
+  BY:'Minsk', BE:'Brussels', BZ:'Belmopan', BJ:'Porto-Novo', BT:'Thimphu', BO:'La Paz',
+  BA:'Sarajevo', BW:'Gaborone', BR:'Brasilia', BN:'Bandar Seri Begawan', BG:'Sofia',
+  BF:'Ouagadougou', BI:'Gitega', KH:'Phnom Penh', CM:'Yaounde', CA:'Ottawa', CV:'Praia',
+  TD:"N'Djamena", CL:'Santiago', CN:'Beijing', CO:'Bogota', CG:'Brazzaville',
+  CD:'Kinshasa', CR:'San Jose', CI:'Yamoussoukro', HR:'Zagreb', CU:'Havana', CY:'Nicosia',
+  CZ:'Prague', DK:'Copenhagen', DJ:'Djibouti', DO:'Santo Domingo', EC:'Quito', EG:'Cairo',
+  SV:'San Salvador', GQ:'Malabo', ER:'Asmara', EE:'Tallinn', SZ:'Mbabane', ET:'Addis Ababa',
+  FJ:'Suva', FI:'Helsinki', FR:'Paris', GA:'Libreville', GM:'Banjul', GE:'Tbilisi',
+  DE:'Berlin', GH:'Accra', GR:'Athens', GT:'Guatemala City', GN:'Conakry', GW:'Bissau',
+  GY:'Georgetown', HT:'Port-au-Prince', HN:'Tegucigalpa', HU:'Budapest', IS:'Reykjavik',
+  IN:'New Delhi', ID:'Jakarta', IR:'Tehran', IQ:'Baghdad', IE:'Dublin', IL:'Jerusalem',
+  IT:'Rome', JM:'Kingston', JP:'Tokyo', JO:'Amman', KZ:'Astana', KE:'Nairobi',
+  KP:'Pyongyang', KR:'Seoul', KW:'Kuwait City', KG:'Bishkek', LA:'Vientiane', LV:'Riga',
+  LB:'Beirut', LS:'Maseru', LR:'Monrovia', LY:'Tripoli', LT:'Vilnius', LU:'Luxembourg City',
+  MG:'Antananarivo', MW:'Lilongwe', MY:'Kuala Lumpur', MV:'Male', ML:'Bamako', MT:'Valletta',
+  MR:'Nouakchott', MU:'Port Louis', MX:'Mexico City', MD:'Chisinau', MC:'Monaco',
+  MN:'Ulaanbaatar', ME:'Podgorica', MA:'Rabat', MZ:'Maputo', MM:'Naypyidaw', NA:'Windhoek',
+  NP:'Kathmandu', NL:'Amsterdam', NZ:'Wellington', NI:'Managua', NE:'Niamey', NG:'Abuja',
+  MK:'Skopje', NO:'Oslo', OM:'Muscat', PK:'Islamabad', PA:'Panama City', PG:'Port Moresby',
+  PY:'Asuncion', PE:'Lima', PH:'Manila', PL:'Warsaw', PT:'Lisbon', QA:'Doha',
+  RO:'Bucharest', RU:'Moscow', RW:'Kigali', SA:'Riyadh', SN:'Dakar', RS:'Belgrade',
+  SC:'Victoria', SL:'Freetown', SG:'Singapore', SK:'Bratislava', SI:'Ljubljana',
+  SO:'Mogadishu', ZA:'Pretoria', SS:'Juba', ES:'Madrid', LK:'Colombo', SD:'Khartoum',
+  SR:'Paramaribo', SE:'Stockholm', CH:'Bern', SY:'Damascus', TW:'Taipei', TJ:'Dushanbe',
+  TZ:'Dodoma', TH:'Bangkok', TL:'Dili', TG:'Lome', TT:'Port of Spain', TN:'Tunis',
+  TR:'Ankara', TM:'Ashgabat', UG:'Kampala', UA:'Kyiv', AE:'Abu Dhabi', GB:'London',
+  US:'Washington', UY:'Montevideo', UZ:'Tashkent', VE:'Caracas', VN:'Hanoi', YE:'Sanaa',
+  ZM:'Lusaka', ZW:'Harare',
+};
+
+// ─── COUNTRY_FACTS — enriched per-country reference (population, languages, currency,
+// calling code, driving side, electrical plugs/voltage, emergency numbers, brief history).
+// Safety-critical fields web-verified (Wikipedia emergency numbers; worldstandards.eu plugs;
+// Wikipedia calling codes + driving side). 195 countries.
+const COUNTRY_FACTS = {
+ "AL": {
+  "name": "Albania",
+  "pop": 2745000,
+  "popYear": 2024,
+  "langs": [
+   "Albanian"
+  ],
+  "cur": {
+   "code": "ALL",
+   "sym": "L",
+   "name": "Albanian Lek"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Albania traces its roots to the ancient Illyrians and later fell under Roman, Byzantine, and Ottoman rule, the latter lasting nearly five centuries and shaping much of the country's architecture and religious mix. It declared independence from the Ottoman Empire in 1912. After World War II it became a strict communist state under Enver Hoxha that remained isolated for decades, transitioning to a democratic republic in the early 1990s.",
+  "call": "+355",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "129",
+   "amb": "127",
+   "fire": "128"
+  }
+ },
+ "AD": {
+  "name": "Andorra",
+  "pop": 81000,
+  "popYear": 2024,
+  "langs": [
+   "Catalan",
+   "Spanish",
+   "French",
+   "Portuguese"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southwest Europe (Pyrenees)",
+  "hist": "Andorra is a small mountain principality in the Pyrenees whose distinctive status dates to a medieval arrangement, traditionally linked to Charlemagne and formalized in the late 13th century, under which it is jointly governed by two co-princes: the President of France and the Bishop of Urgell in Spain. It adopted its first written constitution in 1993, becoming a parliamentary democracy while retaining the co-principality. Today it is known for duty-free shopping, skiing, and mountain tourism.",
+  "call": "+376",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "110",
+   "amb": "116",
+   "fire": "118"
+  }
+ },
+ "AT": {
+  "name": "Austria",
+  "pop": 9160000,
+  "popYear": 2024,
+  "langs": [
+   "German"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Central Europe",
+  "hist": "Austria was the heartland of the Habsburg dynasty, which ruled a vast multi-ethnic empire centered on Vienna for centuries and made the city a leading hub of European music, art, and imperial architecture. Following the collapse of the Austro-Hungarian Empire after World War I and annexation by Nazi Germany, Austria re-established itself as an independent republic in 1955 and adopted a policy of neutrality. It joined the European Union in 1995.",
+  "call": "+43",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "133",
+   "amb": "144",
+   "fire": "122"
+  }
+ },
+ "BY": {
+  "name": "Belarus",
+  "pop": 9100000,
+  "popYear": 2024,
+  "langs": [
+   "Belarusian",
+   "Russian"
+  ],
+  "cur": {
+   "code": "BYN",
+   "sym": "Br",
+   "name": "Belarusian Ruble"
+  },
+  "region": "Eastern Europe",
+  "hist": "Belarus occupies lands long contested among the Grand Duchy of Lithuania, the Polish-Lithuanian Commonwealth, and the Russian Empire, which shaped its layered cultural heritage. It became a founding republic of the Soviet Union and suffered severe destruction during World War II. Belarus declared independence in 1991 following the dissolution of the USSR and retains strong cultural and economic ties to Russia.",
+  "call": "+375",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "BE": {
+  "name": "Belgium",
+  "pop": 11800000,
+  "popYear": 2024,
+  "langs": [
+   "Dutch",
+   "French",
+   "German"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Western Europe",
+  "hist": "Belgium gained independence in 1830 after separating from the Netherlands, establishing a constitutional monarchy. Its position at the crossroads of Germanic and Latin Europe produced a federal state divided between Dutch-speaking Flanders and French-speaking Wallonia, with a bilingual capital in Brussels. Brussels today hosts the headquarters of the European Union and NATO, reinforcing the country's role as a center of European governance.",
+  "call": "+32",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "101",
+   "amb": "112",
+   "fire": "112"
+  }
+ },
+ "BA": {
+  "name": "Bosnia and Herzegovina",
+  "pop": 3160000,
+  "popYear": 2024,
+  "langs": [
+   "Bosnian",
+   "Serbian",
+   "Croatian"
+  ],
+  "cur": {
+   "code": "BAM",
+   "sym": "KM",
+   "name": "Convertible Mark"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Bosnia and Herzegovina sits at a cultural crossroads shaped by centuries of Ottoman and then Austro-Hungarian rule, evident in the blend of mosques, churches, and Ottoman-era bridges in cities such as Mostar and Sarajevo. It was a constituent republic of Yugoslavia and declared independence in 1992, after which it experienced a war that ended with the 1995 Dayton Agreement. That accord established the country's present complex federal structure of two entities.",
+  "call": "+387",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "122",
+   "amb": "124",
+   "fire": "123"
+  }
+ },
+ "BG": {
+  "name": "Bulgaria",
+  "pop": 6450000,
+  "popYear": 2024,
+  "langs": [
+   "Bulgarian"
+  ],
+  "cur": {
+   "code": "BGN",
+   "sym": "лв",
+   "name": "Bulgarian Lev"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Bulgaria traces its statehood to the First Bulgarian Empire founded in 681, an early medieval power that played a central role in the spread of Slavic culture and the Cyrillic script. After nearly five centuries under Ottoman rule, it regained independence in stages in the late 19th and early 20th centuries. Following a communist era within the Eastern Bloc, Bulgaria transitioned to democracy after 1989 and joined the European Union in 2007.",
+  "call": "+359",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "166",
+   "amb": "150",
+   "fire": "160"
+  }
+ },
+ "HR": {
+  "name": "Croatia",
+  "pop": 3850000,
+  "popYear": 2024,
+  "langs": [
+   "Croatian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Croatia's long Adriatic coastline reflects centuries of Roman, Venetian, and Habsburg influence, visible in walled cities such as Dubrovnik and the Roman palace at Split. It was a constituent republic of Yugoslavia and declared independence in 1991, followed by a war in the early 1990s. Croatia joined the European Union in 2013 and adopted the euro in 2023, and is today a major Mediterranean tourism destination.",
+  "call": "+385",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "192",
+   "amb": "194",
+   "fire": "193"
+  }
+ },
+ "CY": {
+  "name": "Cyprus",
+  "pop": 1340000,
+  "popYear": 2024,
+  "langs": [
+   "Greek",
+   "Turkish",
+   "English"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Eastern Mediterranean",
+  "hist": "Cyprus, an island at the crossroads of Europe, Asia, and Africa, has been settled and ruled by many powers, including the Greeks, Romans, Byzantines, Venetians, Ottomans, and British. It gained independence from Britain in 1960. Since 1974 the island has been divided, with the internationally recognized Republic of Cyprus governing the south and a Turkish Cypriot administration in the north; the Republic joined the European Union in 2004.",
+  "call": "+357",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "199",
+   "amb": "199",
+   "fire": "199"
+  }
+ },
+ "CZ": {
+  "name": "Czechia",
+  "pop": 10900000,
+  "popYear": 2024,
+  "langs": [
+   "Czech"
+  ],
+  "cur": {
+   "code": "CZK",
+   "sym": "Kč",
+   "name": "Czech Koruna"
+  },
+  "region": "Central Europe",
+  "hist": "Czechia, historically the lands of Bohemia and Moravia, was a center of the medieval Kingdom of Bohemia and later part of the Austro-Hungarian Empire, leaving Prague rich in Gothic, Renaissance, and Baroque architecture. It formed Czechoslovakia in 1918, endured Nazi occupation and a communist era, and saw the peaceful 1989 Velvet Revolution. The country split amicably from Slovakia in 1993 and joined the European Union in 2004.",
+  "call": "+420",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "158",
+   "amb": "155",
+   "fire": "150"
+  }
+ },
+ "DK": {
+  "name": "Denmark",
+  "pop": 5970000,
+  "popYear": 2024,
+  "langs": [
+   "Danish"
+  ],
+  "cur": {
+   "code": "DKK",
+   "sym": "kr",
+   "name": "Danish Krone"
+  },
+  "region": "Northern Europe (Scandinavia)",
+  "hist": "Denmark is one of the oldest monarchies in Europe, with roots in the Viking Age when Danish seafarers ranged across the North Atlantic and into the British Isles. Once the center of a regional empire that included parts of Scandinavia, it gradually evolved into a modern constitutional monarchy following reforms in the mid-19th century. A founding member of NATO, Denmark joined the European Union in 1973 while retaining its own currency.",
+  "call": "+45",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E",
+   "F",
+   "K"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "EE": {
+  "name": "Estonia",
+  "pop": 1370000,
+  "popYear": 2024,
+  "langs": [
+   "Estonian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Northern Europe (Baltic)",
+  "hist": "Estonia, the northernmost Baltic state, was shaped over centuries by Danish, German, Swedish, and Russian rule, with a medieval Hanseatic heritage preserved in Tallinn's old town. It first achieved independence in 1918 but was annexed by the Soviet Union during World War II. Estonia restored its independence in 1991, joined the European Union and NATO in 2004, and has become known as a highly digital society.",
+  "call": "+372",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "FI": {
+  "name": "Finland",
+  "pop": 5610000,
+  "popYear": 2024,
+  "langs": [
+   "Finnish",
+   "Swedish"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Northern Europe (Nordic)",
+  "hist": "Finland spent centuries under Swedish rule before becoming an autonomous grand duchy within the Russian Empire in 1809, influences still reflected in its bilingual heritage. It declared independence in 1917 amid the Russian Revolution and defended its sovereignty during World War II. Finland joined the European Union in 1995, adopted the euro, and joined NATO in 2023; it is known for its lakes, forests, and northern landscapes.",
+  "call": "+358",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "FR": {
+  "name": "France",
+  "pop": 68400000,
+  "popYear": 2024,
+  "langs": [
+   "French"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Western Europe",
+  "hist": "France emerged from the kingdom of the Franks and became one of Europe's dominant powers under its monarchy, before the 1789 French Revolution reshaped its politics and influenced movements worldwide. The Napoleonic era, two world wars, and the loss of a colonial empire defined its modern transformation into the present Fifth Republic, established in 1958. A founding member of the European Union, France remains a global center of art, cuisine, and culture.",
+  "call": "+33",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "17",
+   "amb": "15",
+   "fire": "18"
+  }
+ },
+ "DE": {
+  "name": "Germany",
+  "pop": 83500000,
+  "popYear": 2024,
+  "langs": [
+   "German"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Central Europe",
+  "hist": "Germany was long a patchwork of states within the Holy Roman Empire before unification into a single nation in 1871. Defeat in two world wars in the 20th century led to division into West and East Germany during the Cold War, symbolized by the Berlin Wall. The country was peacefully reunified in 1990 and is today the European Union's most populous member and a leading economic power.",
+  "call": "+49",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "110",
+   "amb": "112",
+   "fire": "112"
+  }
+ },
+ "GR": {
+  "name": "Greece",
+  "pop": 10400000,
+  "popYear": 2024,
+  "langs": [
+   "Greek"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southeast Europe (Mediterranean)",
+  "hist": "Greece is widely regarded as a cradle of Western civilization, home to ancient city-states such as Athens and Sparta and the origins of democracy, philosophy, and classical architecture. After centuries within the Byzantine and then Ottoman empires, it won independence in the 1820s and 1830s. A republic since the mid-1970s, Greece joined the European Union in 1981 and draws visitors to its antiquities and Aegean islands.",
+  "call": "+30",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "100",
+   "amb": "166",
+   "fire": "199"
+  }
+ },
+ "HU": {
+  "name": "Hungary",
+  "pop": 9580000,
+  "popYear": 2024,
+  "langs": [
+   "Hungarian"
+  ],
+  "cur": {
+   "code": "HUF",
+   "sym": "Ft",
+   "name": "Hungarian Forint"
+  },
+  "region": "Central Europe",
+  "hist": "Hungary was founded as a Christian kingdom around the year 1000 under King Stephen I, with the Magyar people giving the country its distinctive language unrelated to most of its neighbors. It later formed half of the Austro-Hungarian Empire, leaving Budapest with grand imperial-era architecture. After a communist period within the Eastern Bloc, Hungary transitioned to democracy in 1989 and joined the European Union in 2004.",
+  "call": "+36",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "107",
+   "amb": "104",
+   "fire": "105"
+  }
+ },
+ "IS": {
+  "name": "Iceland",
+  "pop": 390000,
+  "popYear": 2024,
+  "langs": [
+   "Icelandic"
+  ],
+  "cur": {
+   "code": "ISK",
+   "sym": "kr",
+   "name": "Icelandic Króna"
+  },
+  "region": "Northern Europe (North Atlantic)",
+  "hist": "Iceland was settled largely by Norse and Celtic peoples in the late 9th and 10th centuries and established the Althing, one of the world's oldest parliaments, around 930. It remained under Norwegian and later Danish rule for centuries before gaining full independence as a republic in 1944. Known for volcanoes, glaciers, and geothermal activity, it is a major destination for nature-based tourism.",
+  "call": "+354",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "IE": {
+  "name": "Ireland",
+  "pop": 5300000,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Irish"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Northern Europe (British Isles)",
+  "hist": "Ireland has a rich Celtic and early Christian heritage, with monastic sites and a Gaelic language tradition that endured centuries of English and later British rule. After a long independence struggle, most of the island became the Irish Free State in 1922 and a fully sovereign republic by 1949, while Northern Ireland remained part of the United Kingdom. Ireland joined the European Economic Community in 1973 and is known for its literature, music, and green landscapes.",
+  "call": "+353",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "999",
+   "amb": "999",
+   "fire": "999"
+  }
+ },
+ "IT": {
+  "name": "Italy",
+  "pop": 58900000,
+  "popYear": 2024,
+  "langs": [
+   "Italian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southern Europe (Mediterranean)",
+  "hist": "Italy was the heart of the Roman Empire and later the birthplace of the Renaissance, leaving an extraordinary legacy of art, architecture, and ruins across cities such as Rome, Florence, and Venice. Long divided into independent states, the peninsula was unified into a single kingdom in 1861 and became a republic in 1946 after World War II. A founding member of the European Union, Italy is among the world's most visited countries.",
+  "call": "+39",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "113",
+   "amb": "118",
+   "fire": "115"
+  }
+ },
+ "XK": {
+  "name": "Kosovo",
+  "pop": 1660000,
+  "popYear": 2024,
+  "langs": [
+   "Albanian",
+   "Serbian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Kosovo was long part of the Ottoman Empire and later Yugoslavia, holding deep historical significance for both Albanian and Serbian communities. Following conflict in the late 1990s, it was placed under United Nations administration. Kosovo declared independence in 2008, a status recognized by many but not all states. Today the capital Pristina blends Ottoman-era sites with a young, lively population.",
+  "call": null,
+  "drive": null,
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "192",
+   "amb": "194",
+   "fire": "193"
+  }
+ },
+ "LV": {
+  "name": "Latvia",
+  "pop": 1871000,
+  "popYear": 2024,
+  "langs": [
+   "Latvian",
+   "Russian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Baltic States",
+  "hist": "Latvia's lands were shaped by centuries of Baltic German, Polish, Swedish, and Russian influence before it first gained independence in 1918. It was incorporated into the Soviet Union during World War II and regained independence in 1991. Latvia joined the European Union and NATO in 2004 and adopted the euro in 2014. The capital Riga is renowned for one of Europe's largest collections of Art Nouveau architecture.",
+  "call": "+371",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "110",
+   "amb": "113"
+  }
+ },
+ "LI": {
+  "name": "Liechtenstein",
+  "pop": 40000,
+  "popYear": 2024,
+  "langs": [
+   "German"
+  ],
+  "cur": {
+   "code": "CHF",
+   "sym": "CHF",
+   "name": "Swiss Franc"
+  },
+  "region": "Western Europe (Alpine)",
+  "hist": "Liechtenstein became a sovereign principality within the Holy Roman Empire in 1719 and gained full independence in 1806. A microstate nestled between Switzerland and Austria, it has maintained a close customs and monetary union with Switzerland since the 1920s. Ruled by the Princely House of Liechtenstein, it is known for Vaduz Castle, alpine scenery, and a strong financial sector.",
+  "call": "+423",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "J"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "117",
+   "amb": "144",
+   "fire": "118"
+  }
+ },
+ "LT": {
+  "name": "Lithuania",
+  "pop": 2886000,
+  "popYear": 2024,
+  "langs": [
+   "Lithuanian",
+   "Russian",
+   "Polish"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Baltic States",
+  "hist": "Medieval Lithuania grew into one of Europe's largest states through union with Poland, forming the Polish-Lithuanian Commonwealth. After periods under the Russian Empire, it declared independence in 1918, was absorbed into the Soviet Union during World War II, and restored independence in 1990-1991. It joined the EU and NATO in 2004. The capital Vilnius is celebrated for its UNESCO-listed Baroque old town.",
+  "call": "+370",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "LU": {
+  "name": "Luxembourg",
+  "pop": 672000,
+  "popYear": 2024,
+  "langs": [
+   "Luxembourgish",
+   "French",
+   "German"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Western Europe",
+  "hist": "Founded around a 10th-century castle, Luxembourg became a Grand Duchy in 1815 and achieved full independence over the following decades. A founding member of the European Union and host to several EU institutions, it is one of the world's wealthiest nations per capita. The capital's fortified old quarter is a UNESCO World Heritage Site, and the country is notably multilingual.",
+  "call": "+352",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "113",
+   "amb": "112",
+   "fire": "112"
+  }
+ },
+ "MT": {
+  "name": "Malta",
+  "pop": 563000,
+  "popYear": 2024,
+  "langs": [
+   "Maltese",
+   "English"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southern Europe (Mediterranean)",
+  "hist": "Malta's strategic Mediterranean position drew Phoenicians, Romans, Arabs, the Knights of St. John, and the British over the centuries. The Knights built the fortified capital Valletta in the 16th century, while British rule lasted until independence in 1964. Malta joined the European Union in 2004 and adopted the euro in 2008. Its megalithic temples are among the oldest free-standing structures on Earth.",
+  "call": "+356",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "MD": {
+  "name": "Moldova",
+  "pop": 2425000,
+  "popYear": 2024,
+  "langs": [
+   "Romanian",
+   "Russian"
+  ],
+  "cur": {
+   "code": "MDL",
+   "sym": "L",
+   "name": "Moldovan Leu"
+  },
+  "region": "Eastern Europe",
+  "hist": "The region of Moldova was historically part of the principality of Moldavia and later the Russian Empire and Romania. It became a Soviet republic and declared independence in 1991. The breakaway Transnistria region remains outside central government control. The capital Chisinau and the surrounding countryside are known for extensive vineyards and a long winemaking tradition.",
+  "call": "+373",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "MC": {
+  "name": "Monaco",
+  "pop": 38000,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Monégasque",
+   "Italian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Western Europe (Mediterranean)",
+  "hist": "Monaco has been governed by the Grimaldi family since the late 13th century, making it one of the world's oldest ruling dynasties. This tiny Mediterranean principality formalized its sovereignty in treaties with France over the 19th and 20th centuries. It is famous for the Monte Carlo casino, the annual Formula 1 Grand Prix, and its harbor lined with yachts. Despite its small size, it is among the most densely populated states in the world.",
+  "call": "+377",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "17",
+   "amb": "18",
+   "fire": "18"
+  }
+ },
+ "ME": {
+  "name": "Montenegro",
+  "pop": 617000,
+  "popYear": 2024,
+  "langs": [
+   "Montenegrin",
+   "Serbian",
+   "Bosnian",
+   "Albanian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Montenegro has a long history as a distinct principality and kingdom in the Balkans before joining Yugoslavia in the 20th century. It remained in a union with Serbia after Yugoslavia's breakup, then became fully independent following a 2006 referendum. It joined NATO in 2017 and is an EU candidate. The country is known for its dramatic Adriatic coastline, the Bay of Kotor, and rugged mountain interior.",
+  "call": "+382",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "122",
+   "amb": "124",
+   "fire": "123"
+  }
+ },
+ "NL": {
+  "name": "Netherlands",
+  "pop": 17900000,
+  "popYear": 2024,
+  "langs": [
+   "Dutch",
+   "English",
+   "Frisian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Western Europe",
+  "hist": "The Dutch provinces gained independence from Spain in the 17th century, an era of global trade, exploration, and art known as the Golden Age. The modern Kingdom of the Netherlands was established in 1815. A founding member of the European Union, the country is famed for its canals, windmills, cycling culture, and extensive land reclaimed from the sea. Amsterdam's historic canal ring is a UNESCO World Heritage Site.",
+  "call": "+31",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "MK": {
+  "name": "North Macedonia",
+  "pop": 1830000,
+  "popYear": 2024,
+  "langs": [
+   "Macedonian",
+   "Albanian"
+  ],
+  "cur": {
+   "code": "MKD",
+   "sym": "ден",
+   "name": "Macedonian Denar"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "The region holds ancient roots tied to the historic kingdom of Macedon and was later part of the Ottoman Empire and Yugoslavia. It declared independence in 1991 and adopted the name North Macedonia in 2019 following a naming agreement with Greece. It joined NATO in 2020 and is an EU candidate. The capital Skopje and the lakeside town of Ohrid, a UNESCO site, are popular destinations.",
+  "call": "+389",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "192",
+   "amb": "194",
+   "fire": "193"
+  }
+ },
+ "NO": {
+  "name": "Norway",
+  "pop": 5550000,
+  "popYear": 2024,
+  "langs": [
+   "Norwegian",
+   "Sami"
+  ],
+  "cur": {
+   "code": "NOK",
+   "sym": "kr",
+   "name": "Norwegian Krone"
+  },
+  "region": "Northern Europe (Scandinavia)",
+  "hist": "Norway was a center of Viking seafaring before entering unions with Denmark and later Sweden, gaining full independence in 1905. The discovery of offshore oil in the late 20th century transformed it into one of the world's wealthiest nations. A constitutional monarchy, it remains outside the EU. Visitors are drawn to its dramatic fjords, northern lights, and midnight sun.",
+  "call": "+47",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "112",
+   "amb": "113",
+   "fire": "110"
+  }
+ },
+ "PL": {
+  "name": "Poland",
+  "pop": 36700000,
+  "popYear": 2024,
+  "langs": [
+   "Polish"
+  ],
+  "cur": {
+   "code": "PLN",
+   "sym": "zł",
+   "name": "Polish Zloty"
+  },
+  "region": "Central Europe",
+  "hist": "Poland emerged as a kingdom over a thousand years ago and once formed the vast Polish-Lithuanian Commonwealth. Partitioned out of existence in the late 18th century, it regained independence in 1918, endured occupation in World War II, and lived under communist rule until 1989. It joined the EU in 2004. Cities such as Krakow and Warsaw showcase carefully restored historic centers and a rich cultural heritage.",
+  "call": "+48",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "997",
+   "amb": "999",
+   "fire": "998"
+  }
+ },
+ "PT": {
+  "name": "Portugal",
+  "pop": 10640000,
+  "popYear": 2024,
+  "langs": [
+   "Portuguese"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southern Europe (Iberia)",
+  "hist": "Portugal is one of Europe's oldest nation-states, with borders largely set in the 13th century. During the Age of Discovery it built a far-reaching maritime empire that spread the Portuguese language worldwide. A 1974 revolution ended decades of authoritarian rule and ushered in democracy, and the country joined the European Community in 1986. Lisbon, Porto, and the Algarve coast are leading tourist draws.",
+  "call": "+351",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "fire": "117"
+  }
+ },
+ "RO": {
+  "name": "Romania",
+  "pop": 19000000,
+  "popYear": 2024,
+  "langs": [
+   "Romanian",
+   "Hungarian"
+  ],
+  "cur": {
+   "code": "RON",
+   "sym": "lei",
+   "name": "Romanian Leu"
+  },
+  "region": "Southeast Europe",
+  "hist": "Romania formed in the 19th century through the union of the principalities of Wallachia and Moldavia and gained full independence from the Ottoman Empire in 1878. It became a communist state after World War II until a 1989 revolution restored democracy. It joined the EU in 2007. The country is known for the medieval towns and castles of Transylvania, the Carpathian Mountains, and the Danube Delta.",
+  "call": "+40",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "RU": {
+  "name": "Russia",
+  "pop": 146000000,
+  "popYear": 2024,
+  "langs": [
+   "Russian"
+  ],
+  "cur": {
+   "code": "RUB",
+   "sym": "₽",
+   "name": "Russian Ruble"
+  },
+  "region": "Eastern Europe / Northern Asia",
+  "hist": "Russia grew from the medieval state of Kievan Rus and the Grand Duchy of Moscow into a vast empire spanning Europe and Asia. The 1917 revolution established the Soviet Union, which dissolved in 1991 to form the modern Russian Federation. It is the largest country in the world by land area, spanning eleven time zones. Moscow's Red Square and Kremlin and St. Petersburg's imperial palaces are its best-known landmarks.",
+  "call": "+7",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "SM": {
+  "name": "San Marino",
+  "pop": 34000,
+  "popYear": 2024,
+  "langs": [
+   "Italian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southern Europe",
+  "hist": "San Marino claims to be the world's oldest surviving republic, traditionally founded in the year 301. This small landlocked microstate is entirely surrounded by Italy and perched around Monte Titano. It has maintained its independence and republican institutions for centuries. The historic center and Mount Titano are a UNESCO World Heritage Site offering sweeping views over the surrounding countryside.",
+  "call": "+378",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "113",
+   "police": "113",
+   "amb": "118",
+   "fire": "115"
+  }
+ },
+ "RS": {
+  "name": "Serbia",
+  "pop": 6620000,
+  "popYear": 2024,
+  "langs": [
+   "Serbian",
+   "Hungarian"
+  ],
+  "cur": {
+   "code": "RSD",
+   "sym": "дин.",
+   "name": "Serbian Dinar"
+  },
+  "region": "Southeast Europe (Balkans)",
+  "hist": "Serbia traces its roots to a medieval kingdom before centuries under Ottoman rule, regaining independence in the 19th century. It was a core part of Yugoslavia throughout the 20th century until that federation broke apart in a series of conflicts. Serbia is an EU candidate today. The capital Belgrade, set where the Sava and Danube rivers meet, is known for its historic fortress and energetic nightlife.",
+  "call": "+381",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "192",
+   "amb": "194",
+   "fire": "193"
+  }
+ },
+ "SK": {
+  "name": "Slovakia",
+  "pop": 5430000,
+  "popYear": 2024,
+  "langs": [
+   "Slovak",
+   "Hungarian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Central Europe",
+  "hist": "Slovak lands were long part of the Kingdom of Hungary and later the Austro-Hungarian Empire before joining Czechoslovakia in 1918. After the fall of communism, Slovakia became an independent state in 1993 through the peaceful 'Velvet Divorce' from the Czech Republic. It joined the EU in 2004 and adopted the euro in 2009. The capital Bratislava sits on the Danube near the Austrian border, beneath its hilltop castle.",
+  "call": "+421",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "158",
+   "amb": "155",
+   "fire": "150"
+  }
+ },
+ "SI": {
+  "name": "Slovenia",
+  "pop": 2120000,
+  "popYear": 2024,
+  "langs": [
+   "Slovenian"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Central Europe",
+  "hist": "Slovenian lands spent centuries under Habsburg rule before joining Yugoslavia after World War I. Slovenia became independent in 1991 following a brief conflict, and was the first former Yugoslav republic to join the EU, in 2004, adopting the euro in 2007. Compact and largely Alpine, it is known for Lake Bled, the capital Ljubljana, and extensive cave systems such as Postojna.",
+  "call": "+386",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "113",
+   "amb": "112",
+   "fire": "112"
+  }
+ },
+ "ES": {
+  "name": "Spain",
+  "pop": 48797875,
+  "popYear": 2024,
+  "langs": [
+   "Spanish",
+   "Catalan",
+   "Galician",
+   "Basque"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southern Europe",
+  "hist": "The Iberian Peninsula was settled successively by Celtiberian peoples, Romans, and Visigoths, then largely incorporated into Muslim Al-Andalus from the eighth century, leaving lasting marks on architecture and language. The Christian Reconquista culminated in 1492 with the union of Castile and Aragon and the start of overseas empire. Modern Spain transitioned to democracy and a parliamentary monarchy after 1975 and joined the European Community in 1986. Its strong regional identities, reflected in distinct languages and traditions, shape much of its cultural life today.",
+  "call": "+34",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "091",
+   "amb": "061",
+   "fire": "080"
+  }
+ },
+ "SE": {
+  "name": "Sweden",
+  "pop": 10587700,
+  "popYear": 2024,
+  "langs": [
+   "Swedish",
+   "English"
+  ],
+  "cur": {
+   "code": "SEK",
+   "sym": "kr",
+   "name": "Swedish krona"
+  },
+  "region": "Northern Europe",
+  "hist": "Sweden consolidated as a kingdom during the medieval period and became a major European power in the seventeenth century before its territorial reach receded. It has remained outside major armed conflicts since the early nineteenth century, maintaining a policy of non-alignment for much of the modern era. During the twentieth century it developed an extensive welfare state and joined the European Union in 1995. English is very widely spoken, making travel accessible for international visitors.",
+  "call": "+46",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "CH": {
+  "name": "Switzerland",
+  "pop": 9051029,
+  "popYear": 2024,
+  "langs": [
+   "German",
+   "French",
+   "Italian",
+   "Romansh"
+  ],
+  "cur": {
+   "code": "CHF",
+   "sym": "CHF",
+   "name": "Swiss franc"
+  },
+  "region": "Western Europe",
+  "hist": "The Swiss Confederation traces its origins to an alliance of cantons formed in the late thirteenth century, gradually expanding into the federal state established in 1848. Long associated with a policy of armed neutrality, it remained outside both World Wars and is not a member of the European Union. Its four national language regions reflect a decentralized political culture built on cantonal autonomy and direct democracy. Geneva and other cities host numerous international organizations, including United Nations agencies and the Red Cross.",
+  "call": "+41",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "J"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "117",
+   "amb": "144",
+   "fire": "118"
+  }
+ },
+ "UA": {
+  "name": "Ukraine",
+  "pop": 37937821,
+  "popYear": 2024,
+  "langs": [
+   "Ukrainian",
+   "Russian"
+  ],
+  "cur": {
+   "code": "UAH",
+   "sym": "₴",
+   "name": "Ukrainian hryvnia"
+  },
+  "region": "Eastern Europe",
+  "hist": "The medieval state of Kyivan Rus, centered on Kyiv, is a foundational reference point for the region's culture and Orthodox Christian heritage. Ukrainian lands were later divided among neighboring powers and incorporated into the Russian Empire and subsequently the Soviet Union. Ukraine declared independence in 1991 following the dissolution of the USSR. Its capital, Kyiv, and cities such as Lviv preserve extensive architectural and cultural landmarks; travelers should consult current advisories before planning a visit.",
+  "call": "+380",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "GB": {
+  "name": "United Kingdom",
+  "pop": 69281400,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Welsh",
+   "Scottish Gaelic"
+  ],
+  "cur": {
+   "code": "GBP",
+   "sym": "£",
+   "name": "Pound sterling"
+  },
+  "region": "Northern Europe",
+  "hist": "The United Kingdom emerged through the political union of England, Scotland, Wales, and Ireland, formalized over the seventeenth to nineteenth centuries, with Northern Ireland remaining after the partition of Ireland. As the center of a global empire and the birthplace of the Industrial Revolution, it shaped worldwide trade, language, and institutions. It is a parliamentary democracy and constitutional monarchy and left the European Union in 2020. London, Edinburgh, and many historic towns offer extensive cultural and architectural sites for visitors.",
+  "call": "+44",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "112",
+   "amb": "112",
+   "fire": "112"
+  }
+ },
+ "VA": {
+  "name": "Vatican City",
+  "pop": 496,
+  "popYear": 2024,
+  "langs": [
+   "Italian",
+   "Latin"
+  ],
+  "cur": {
+   "code": "EUR",
+   "sym": "€",
+   "name": "Euro"
+  },
+  "region": "Southern Europe",
+  "hist": "Vatican City was established as an independent sovereign state in 1929 under the Lateran Treaty, settling the status of the papacy within Rome. It is the smallest internationally recognized independent state and serves as the spiritual and administrative seat of the Roman Catholic Church, governed by the Holy See. Within its walls are St. Peter's Basilica, the Vatican Museums, and the Sistine Chapel, which draw large numbers of visitors. It uses the euro under a formal agreement, though it is not a European Union member.",
+  "call": "+379",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "113",
+   "amb": "118",
+   "fire": "115"
+  }
+ },
+ "AG": {
+  "name": "Antigua and Barbuda",
+  "pop": 94298,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Antiguan Creole"
+  ],
+  "cur": {
+   "code": "XCD",
+   "sym": "$",
+   "name": "East Caribbean Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "The islands were inhabited by Arawak and Carib peoples before European contact, with Christopher Columbus sighting Antigua in 1493. Britain colonized Antigua in the early 17th century, developing a sugar plantation economy reliant on enslaved African labor. Antigua and Barbuda gained full independence from the United Kingdom in 1981 and remains a member of the Commonwealth, with tourism centered on its beaches now driving the economy.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "230V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "999",
+   "amb": "999",
+   "fire": "999"
+  }
+ },
+ "AR": {
+  "name": "Argentina",
+  "pop": 46654581,
+  "popYear": 2024,
+  "langs": [
+   "Spanish",
+   "Italian",
+   "English"
+  ],
+  "cur": {
+   "code": "ARS",
+   "sym": "$",
+   "name": "Argentine Peso"
+  },
+  "region": "Southern South America",
+  "hist": "Indigenous peoples inhabited the region before Spanish colonization began in the 16th century, with Buenos Aires founded permanently in 1580. Argentina declared independence from Spain in 1816 following the May Revolution of 1810. Large-scale European immigration in the late 19th and early 20th centuries, particularly from Italy and Spain, profoundly shaped the nation's culture, cuisine, and the distinctive character of cities like Buenos Aires.",
+  "call": "+54",
+  "drive": "right",
+  "plugs": [
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "101",
+   "amb": "107",
+   "fire": "100"
+  }
+ },
+ "BS": {
+  "name": "Bahamas",
+  "pop": 412623,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Bahamian Creole"
+  ],
+  "cur": {
+   "code": "BSD",
+   "sym": "$",
+   "name": "Bahamian Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "The Lucayan people inhabited the archipelago when Columbus made his first New World landfall here in 1492. The islands became a British colony and were known as a base for piracy in the early 18th century before plantation settlement. The Bahamas achieved independence from the United Kingdom in 1973 and developed into a major tourism and offshore finance center, with proximity to the United States shaping its economy.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "919",
+   "amb": "919",
+   "fire": "919"
+  }
+ },
+ "BB": {
+  "name": "Barbados",
+  "pop": 281635,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Bajan Creole"
+  ],
+  "cur": {
+   "code": "BBD",
+   "sym": "$",
+   "name": "Barbadian Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Settled by Indigenous peoples and later largely depopulated before English colonization began in 1627, Barbados became a wealthy sugar colony built on enslaved African labor. Its long, uninterrupted period under British rule earned it the nickname 'Little England.' The island gained independence in 1966 and transitioned from a constitutional monarchy to a parliamentary republic in 2021, removing the British monarch as head of state.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "115V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "211",
+   "amb": "511",
+   "fire": "311"
+  }
+ },
+ "BZ": {
+  "name": "Belize",
+  "pop": 410825,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Spanish",
+   "Belizean Creole",
+   "Mayan languages",
+   "Garifuna"
+  ],
+  "cur": {
+   "code": "BZD",
+   "sym": "$",
+   "name": "Belize Dollar"
+  },
+  "region": "Central America",
+  "hist": "The region was a heartland of ancient Maya civilization, whose ruins remain a major draw for visitors. Britain established settlements based on logwood and mahogany extraction, and the territory became the colony of British Honduras. It was renamed Belize in 1973 and gained independence in 1981, retaining English as its official language and forming a cultural bridge between the Caribbean and Central America.",
+  "call": "+501",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "G"
+  ],
+  "volt": "110V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "BO": {
+  "name": "Bolivia",
+  "pop": 12388571,
+  "popYear": 2024,
+  "langs": [
+   "Spanish",
+   "Quechua",
+   "Aymara",
+   "Guarani"
+  ],
+  "cur": {
+   "code": "BOB",
+   "sym": "Bs.",
+   "name": "Boliviano"
+  },
+  "region": "Western South America",
+  "hist": "The Andean highlands were home to the Tiwanaku culture and later part of the Inca Empire before Spanish conquest in the 16th century, when the silver mines of Potosi made the region immensely valuable to the Spanish crown. Bolivia declared independence in 1825, naming itself after the liberator Simon Bolivar. It has the largest proportion of Indigenous people in the Americas, and Andean languages and traditions remain central to its identity, with administrative functions split between La Paz and constitutional capital Sucre.",
+  "call": "+591",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "110",
+   "amb": "118",
+   "fire": "119"
+  }
+ },
+ "BR": {
+  "name": "Brazil",
+  "pop": 203080756,
+  "popYear": 2022,
+  "langs": [
+   "Portuguese"
+  ],
+  "cur": {
+   "code": "BRL",
+   "sym": "R$",
+   "name": "Brazilian Real"
+  },
+  "region": "South America",
+  "hist": "Home to numerous Indigenous peoples, Brazil was claimed by Portugal in 1500 and became its largest colony, with an economy long shaped by sugar, gold, and the labor of millions of enslaved Africans. It became the seat of the Portuguese court during the Napoleonic era and declared independence as an empire in 1822, becoming a republic in 1889. The blend of Indigenous, Portuguese, and African heritage defines its language, music, and cuisine, with major centers in Rio de Janeiro, Sao Paulo, and the capital Brasilia.",
+  "call": "+55",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "N"
+  ],
+  "volt": "127V",
+  "freq": "60Hz",
+  "emerg": {
+   "police": "190",
+   "amb": "192",
+   "fire": "193"
+  }
+ },
+ "CA": {
+  "name": "Canada",
+  "pop": 40097761,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "French"
+  ],
+  "cur": {
+   "code": "CAD",
+   "sym": "$",
+   "name": "Canadian Dollar"
+  },
+  "region": "Northern America",
+  "hist": "Inhabited for millennia by diverse First Nations, Inuit, and later Metis peoples, the land saw French and British colonization beginning in the 16th and 17th centuries, leaving a lasting bilingual legacy. The Confederation of 1867 united several British colonies into a self-governing dominion, with full legislative independence achieved gradually through the 20th century. Today Canada is officially bilingual, with French concentrated in Quebec, and is shaped by extensive immigration and a federal parliamentary system.",
+  "call": "+1",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "CL": {
+  "name": "Chile",
+  "pop": 19629590,
+  "popYear": 2023,
+  "langs": [
+   "Spanish",
+   "Mapudungun"
+  ],
+  "cur": {
+   "code": "CLP",
+   "sym": "$",
+   "name": "Chilean Peso"
+  },
+  "region": "Southern South America",
+  "hist": "The Mapuche and other Indigenous peoples inhabited this long, narrow land before Spanish colonization in the 16th century. Chile declared independence from Spain in 1818 after a prolonged struggle. Spanning deserts in the north to glaciers in the south, the country developed a strong national identity, and after a period of military rule in the late 20th century it returned to democratic governance, with Santiago as its principal city.",
+  "call": "+56",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "133",
+   "amb": "131",
+   "fire": "132"
+  }
+ },
+ "CO": {
+  "name": "Colombia",
+  "pop": 52215503,
+  "popYear": 2023,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "COP",
+   "sym": "$",
+   "name": "Colombian Peso"
+  },
+  "region": "Northern South America",
+  "hist": "Indigenous cultures including the Muisca thrived before Spanish colonization began in the early 16th century, with Cartagena becoming a key colonial port. The territory gained independence from Spain in the 1810s-1820s as part of Simon Bolivar's Gran Colombia, which later dissolved into separate nations. Colombia's culture blends Indigenous, Spanish, and African influences, and after decades of internal conflict the country has seen growing tourism to cities such as Bogota, Medellin, and the Caribbean coast.",
+  "call": "+57",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "110V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "123",
+   "police": "112",
+   "amb": "125",
+   "fire": "119"
+  }
+ },
+ "CR": {
+  "name": "Costa Rica",
+  "pop": 5212173,
+  "popYear": 2023,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "CRC",
+   "sym": "₡",
+   "name": "Costa Rican Colon"
+  },
+  "region": "Central America",
+  "hist": "Inhabited by Indigenous peoples at the crossroads of Mesoamerican and Andean cultures, the region was colonized by Spain but remained a relatively poor, sparsely settled backwater. Costa Rica gained independence from Spain in 1821 as part of Central America and became fully sovereign soon after. Notably, it abolished its standing army in 1948, and today it is known for political stability and extensive national parks that make it a leading ecotourism destination.",
+  "call": "+506",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "CU": {
+  "name": "Cuba",
+  "pop": 10985974,
+  "popYear": 2023,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "CUP",
+   "sym": "$",
+   "name": "Cuban Peso"
+  },
+  "region": "Caribbean",
+  "hist": "Inhabited by the Taino before Columbus arrived in 1492, Cuba became a strategic Spanish colony and a center of sugar and tobacco production worked by enslaved Africans. It gained independence following the Spanish-American War of 1898 and a subsequent period of U.S. influence. The 1959 revolution led by Fidel Castro established a one-party socialist state, and Havana's colonial architecture, music, and vintage cars are emblematic of the island's culture.",
+  "call": "+53",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "L"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "police": "106",
+   "amb": "104",
+   "fire": "105"
+  }
+ },
+ "DM": {
+  "name": "Dominica",
+  "pop": 73040,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Dominican Creole French"
+  ],
+  "cur": {
+   "code": "XCD",
+   "sym": "$",
+   "name": "East Caribbean Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Dominica retains one of the Caribbean's last surviving Indigenous Kalinago communities, who resisted European settlement for generations. Contested between France and Britain, the island ultimately came under British control, leaving a legacy of both English and a French-based Creole. It gained independence in 1978 and is known as the 'Nature Isle' for its rainforests, hot springs, and rugged volcanic terrain that draw eco-travelers.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "DO": {
+  "name": "Dominican Republic",
+  "pop": 11332972,
+  "popYear": 2023,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "DOP",
+   "sym": "RD$",
+   "name": "Dominican Peso"
+  },
+  "region": "Caribbean",
+  "hist": "Sharing the island of Hispaniola with Haiti, the territory was the site of Santo Domingo, the oldest continuously inhabited European-founded city in the Americas, established around 1496. After periods of Spanish, French, and Haitian rule, the Dominican Republic declared independence from Haiti in 1844. Its culture blends Spanish, African, and Taino influences, and its beaches and colonial Santo Domingo make it the most-visited Caribbean destination.",
+  "call": "+1",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "EC": {
+  "name": "Ecuador",
+  "pop": 17483000,
+  "popYear": 2023,
+  "langs": [
+   "Spanish",
+   "Quechua"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Western South America",
+  "hist": "Part of the Inca Empire before Spanish conquest in the 16th century, the region centered on Quito, whose well-preserved colonial center is a UNESCO site. Ecuador gained independence from Spain in the 1820s and separated from Gran Colombia in 1830. Named for the equator that crosses it, the country adopted the U.S. dollar as its currency in 2000 and is famed for the Galapagos Islands and Andean Indigenous cultures.",
+  "call": "+593",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "101",
+   "amb": "131",
+   "fire": "102"
+  }
+ },
+ "SV": {
+  "name": "El Salvador",
+  "pop": 6314167,
+  "popYear": 2023,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Central America",
+  "hist": "Inhabited by the Pipil and other Indigenous peoples, the region was colonized by Spain in the 16th century. El Salvador gained independence in 1821 and briefly belonged to the Central American Federation. The smallest and most densely populated Central American nation, it endured a civil war in the 1980s, adopted the U.S. dollar in 2001, and more recently made bitcoin legal tender, reflecting an evolving economic identity.",
+  "call": "+503",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "amb": "132",
+   "fire": "913"
+  }
+ },
+ "GD": {
+  "name": "Grenada",
+  "pop": 117207,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Grenadian Creole"
+  ],
+  "cur": {
+   "code": "XCD",
+   "sym": "$",
+   "name": "East Caribbean Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Originally inhabited by Indigenous Caribs, Grenada was colonized first by France and later by Britain, which shaped its plantation economy and place names. Known as the 'Spice Isle' for its nutmeg and mace production, it gained independence in 1974. A period of political turmoil in the early 1980s ended after a brief U.S.-led intervention in 1983, and the island has since become a stable tourism and spice-export economy.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "GT": {
+  "name": "Guatemala",
+  "pop": 17602431,
+  "popYear": 2023,
+  "langs": [
+   "Spanish",
+   "Mayan languages"
+  ],
+  "cur": {
+   "code": "GTQ",
+   "sym": "Q",
+   "name": "Guatemalan Quetzal"
+  },
+  "region": "Central America",
+  "hist": "Guatemala was a core region of the ancient Maya civilization, whose monumental sites such as Tikal remain major attractions. Spanish conquest in the 16th century established colonial cities including Antigua Guatemala, and the country gained independence in 1821. Home to one of the largest Indigenous populations in the Americas, Guatemala retains strong Maya cultural traditions, languages, and textiles alongside its Spanish colonial heritage.",
+  "call": "+502",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "police": "110",
+   "amb": "123",
+   "fire": "123"
+  }
+ },
+ "GY": {
+  "name": "Guyana",
+  "pop": 813834,
+  "popYear": 2023,
+  "langs": [
+   "English",
+   "Guyanese Creole",
+   "Hindi",
+   "Indigenous languages"
+  ],
+  "cur": {
+   "code": "GYD",
+   "sym": "$",
+   "name": "Guyanese Dollar"
+  },
+  "region": "South America",
+  "hist": "Inhabited by Indigenous peoples, the territory was colonized successively by the Dutch and then the British, who developed sugar plantations using enslaved Africans and later indentured laborers from India. This history makes Guyana the only English-speaking country in South America and gives it a diverse Indo- and Afro-Guyanese population. It gained independence from Britain in 1966, and recent offshore oil discoveries have rapidly transformed its economy, while its interior remains dominated by Amazonian rainforest.",
+  "call": "+592",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "amb": "913",
+   "fire": "912"
+  }
+ },
+ "HT": {
+  "name": "Haiti",
+  "pop": 11772557,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Haitian Creole"
+  ],
+  "cur": {
+   "code": "HTG",
+   "sym": "G",
+   "name": "Gourde"
+  },
+  "region": "Caribbean",
+  "hist": "Haiti occupies the western third of the island of Hispaniola, which it shares with the Dominican Republic. A French colony built on plantation agriculture, it became the first independent nation in Latin America and the first to be founded after a successful revolution of enslaved people, achieving independence in 1804. Its French and African heritage shaped a distinctive Creole language, Vodou traditions, and a rich artistic and musical culture that travelers encounter today.",
+  "call": "+509",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "110V",
+  "freq": "60Hz",
+  "emerg": {
+   "police": "114",
+   "amb": "116",
+   "fire": "115"
+  }
+ },
+ "HN": {
+  "name": "Honduras",
+  "pop": 10825703,
+  "popYear": 2024,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "HNL",
+   "sym": "L",
+   "name": "Lempira"
+  },
+  "region": "Central America",
+  "hist": "Honduras was home to the Maya, whose ancient city of Copan in the west remains a major archaeological site. The territory was colonized by Spain in the sixteenth century and gained independence in 1821, briefly joining the United Provinces of Central America before becoming a separate republic. Its Caribbean coast, Bay Islands, and highland colonial towns reflect a blend of Indigenous, Spanish, and Afro-Caribbean (Garifuna) influences.",
+  "call": "+504",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "amb": "195",
+   "fire": "198"
+  }
+ },
+ "JM": {
+  "name": "Jamaica",
+  "pop": 2839000,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Jamaican Patois"
+  ],
+  "cur": {
+   "code": "JMD",
+   "sym": "J$",
+   "name": "Jamaican Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Jamaica was inhabited by the Indigenous Taino before Spanish colonization and a later English takeover in 1655, which established a plantation economy reliant on enslaved African labor. The island gained full independence from the United Kingdom in 1962 and remains a member of the Commonwealth. Its culture is globally recognized through reggae music, the Rastafari movement, and a vibrant Creole heritage.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "110V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "119",
+   "amb": "110",
+   "fire": "110"
+  }
+ },
+ "MX": {
+  "name": "Mexico",
+  "pop": 130861007,
+  "popYear": 2024,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "MXN",
+   "sym": "$",
+   "name": "Mexican Peso"
+  },
+  "region": "North America",
+  "hist": "Mexico was the heartland of major civilizations including the Maya and the Aztec, whose capital Tenochtitlan underlies modern Mexico City. Spanish conquest in the early sixteenth century established the colony of New Spain, and Mexico won independence in 1821 after a prolonged struggle. The fusion of Indigenous and Spanish cultures produced its language, cuisine, and traditions, and the country preserves extensive pre-Columbian ruins and colonial-era cities.",
+  "call": "+52",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "127V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "NI": {
+  "name": "Nicaragua",
+  "pop": 6916140,
+  "popYear": 2024,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "NIO",
+   "sym": "C$",
+   "name": "Cordoba"
+  },
+  "region": "Central America",
+  "hist": "Nicaragua, the largest country in Central America by area, was inhabited by Indigenous peoples before Spanish colonization in the sixteenth century. It gained independence from Spain in 1821 and later separated from the Central American Federation. Colonial cities such as Granada and Leon, alongside volcanoes and large lakes, reflect its layered Indigenous and Spanish heritage, while the Caribbean coast carries distinct Afro-Caribbean and Indigenous Miskito influences.",
+  "call": "+505",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "police": "118",
+   "amb": "128",
+   "fire": "115"
+  }
+ },
+ "PA": {
+  "name": "Panama",
+  "pop": 4515577,
+  "popYear": 2024,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "PAB",
+   "sym": "B/.",
+   "name": "Balboa"
+  },
+  "region": "Central America",
+  "hist": "Panama sits on the narrow isthmus linking North and South America and was a key Spanish transit point for colonial trade. It was part of Colombia until separating in 1903, after which the Panama Canal was built and opened in 1914, transferring fully to Panamanian control in 1999. The canal, the colonial Casco Viejo district, and a mix of Indigenous, Spanish, and Afro-Caribbean cultures define the country travelers see today.",
+  "call": "+507",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "104",
+   "fire": "103"
+  }
+ },
+ "PY": {
+  "name": "Paraguay",
+  "pop": 6929153,
+  "popYear": 2024,
+  "langs": [
+   "Spanish",
+   "Guarani"
+  ],
+  "cur": {
+   "code": "PYG",
+   "sym": "₲",
+   "name": "Guarani"
+  },
+  "region": "South America",
+  "hist": "Paraguay is a landlocked South American country where the Indigenous Guarani language remains widely spoken alongside Spanish, both holding official status. Colonized by Spain and shaped by Jesuit missions in the seventeenth and eighteenth centuries, it gained independence in 1811. Its bilingual culture, surviving Jesuit mission ruins, and traditions such as the harp and terere mate are notable to visitors.",
+  "call": "+595",
+  "drive": "right",
+  "plugs": [
+   "C"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "912",
+   "amb": "141",
+   "fire": "132"
+  }
+ },
+ "PE": {
+  "name": "Peru",
+  "pop": 34600000,
+  "popYear": 2024,
+  "langs": [
+   "Spanish",
+   "Quechua",
+   "Aymara"
+  ],
+  "cur": {
+   "code": "PEN",
+   "sym": "S/",
+   "name": "Sol"
+  },
+  "region": "South America",
+  "hist": "Peru was the center of the Inca Empire, whose capital was Cusco and whose mountaintop site of Machu Picchu is a world-famous destination. Spanish conquest in the 1530s made Lima the seat of a powerful viceroyalty, and Peru declared independence in 1821. The blend of Andean Indigenous cultures, Spanish colonial architecture, and diverse cuisine shapes its identity, with Quechua and Aymara still spoken in the highlands.",
+  "call": "+51",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C"
+  ],
+  "volt": "220V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "105",
+   "amb": "106",
+   "fire": "116"
+  }
+ },
+ "KN": {
+  "name": "Saint Kitts and Nevis",
+  "pop": 46843,
+  "popYear": 2024,
+  "langs": [
+   "English"
+  ],
+  "cur": {
+   "code": "XCD",
+   "sym": "$",
+   "name": "East Caribbean Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Saint Kitts and Nevis is a two-island federation in the Lesser Antilles and the smallest sovereign state in the Americas by area and population. Colonized by the English and French and shaped by sugar plantations worked by enslaved Africans, it became independent from the United Kingdom in 1983. Historic sites such as the Brimstone Hill Fortress and former plantation estates reflect its colonial past.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "LC": {
+  "name": "Saint Lucia",
+  "pop": 179744,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Saint Lucian Creole"
+  ],
+  "cur": {
+   "code": "XCD",
+   "sym": "$",
+   "name": "East Caribbean Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Saint Lucia is a mountainous island in the eastern Caribbean known for the twin volcanic peaks of the Pitons. Control of the island changed repeatedly between France and Britain during the colonial era, leaving a French-influenced Creole language alongside official English. It gained independence from the United Kingdom in 1979 and retains a culture blending African, French, and British heritage.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "999",
+   "amb": "999",
+   "fire": "999"
+  }
+ },
+ "VC": {
+  "name": "Saint Vincent and the Grenadines",
+  "pop": 100616,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Vincentian Creole"
+  ],
+  "cur": {
+   "code": "XCD",
+   "sym": "$",
+   "name": "East Caribbean Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Saint Vincent and the Grenadines is a multi-island nation in the Lesser Antilles comprising the main island of Saint Vincent and a chain of smaller islands. Contested between European powers and home to the Indigenous Garifuna before British control, it became independent from the United Kingdom in 1979. Its volcanic landscapes, sailing waters, and Creole culture draw visitors today.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "E",
+   "G",
+   "I",
+   "K"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "999",
+   "amb": "999",
+   "fire": "999"
+  }
+ },
+ "SR": {
+  "name": "Suriname",
+  "pop": 633000,
+  "popYear": 2024,
+  "langs": [
+   "Dutch",
+   "Sranan Tongo"
+  ],
+  "cur": {
+   "code": "SRD",
+   "sym": "$",
+   "name": "Surinamese Dollar"
+  },
+  "region": "South America",
+  "hist": "Suriname, on the northeastern coast of South America, was a Dutch plantation colony and is the only sovereign nation outside Europe where Dutch is the official language. Independence from the Netherlands came in 1975. Waves of migration, including enslaved Africans and indentured laborers from India, Indonesia, and China, created one of the most ethnically and religiously diverse societies in the Americas, visible in its capital Paramaribo.",
+  "call": "+597",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "F"
+  ],
+  "volt": "127V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "115",
+   "police": "115",
+   "amb": "113",
+   "fire": "110"
+  }
+ },
+ "TT": {
+  "name": "Trinidad and Tobago",
+  "pop": 1507781,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Trinidadian Creole"
+  ],
+  "cur": {
+   "code": "TTD",
+   "sym": "TT$",
+   "name": "Trinidad and Tobago Dollar"
+  },
+  "region": "Caribbean",
+  "hist": "Trinidad and Tobago is a twin-island republic off the coast of Venezuela, colonized first by Spain and later by Britain, with enslaved Africans and later indentured laborers from India shaping its population. It became independent from the United Kingdom in 1962 and a republic in 1976. The islands are the birthplace of calypso, soca, and the steelpan, and host one of the world's most famous Carnival celebrations.",
+  "call": "+1",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "115V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "999",
+   "amb": "811",
+   "fire": "990"
+  }
+ },
+ "US": {
+  "name": "United States",
+  "pop": 341784857,
+  "popYear": 2025,
+  "langs": [
+   "English",
+   "Spanish"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "North America",
+  "hist": "The United States was formed by thirteen British colonies that declared independence in 1776 and won it through the Revolutionary War. It expanded westward across the continent through the nineteenth century and grew into a global power in the twentieth. Shaped by Indigenous peoples and successive waves of immigration, it offers travelers vast geographic diversity, from major cities to extensive national parks.",
+  "call": "+1",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "UY": {
+  "name": "Uruguay",
+  "pop": 3400000,
+  "popYear": 2025,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "UYU",
+   "sym": "$U",
+   "name": "Uruguayan Peso"
+  },
+  "region": "South America",
+  "hist": "Uruguay is a small South American nation between Argentina and Brazil, settled by Spain and contested with Portugal before gaining independence in 1828. The historic quarter of Colonia del Sacramento and the capital Montevideo reflect this colonial rivalry. Strong European immigration shaped its culture, known for the tango heritage shared with Argentina, gaucho traditions, mate drinking, and a long stretch of Atlantic beaches.",
+  "call": "+598",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "109",
+   "amb": "105",
+   "fire": "104"
+  }
+ },
+ "VE": {
+  "name": "Venezuela",
+  "pop": 28500000,
+  "popYear": 2025,
+  "langs": [
+   "Spanish"
+  ],
+  "cur": {
+   "code": "VES",
+   "sym": "Bs.",
+   "name": "Bolivar"
+  },
+  "region": "South America",
+  "hist": "Venezuela, on South America's Caribbean coast, was a Spanish colony and the birthplace of Simon Bolivar, who led independence movements across the region in the early nineteenth century; full independence came in 1821. Its landscapes range from Caribbean beaches and the Andes to the Orinoco basin and Angel Falls, the world's tallest waterfall. Spanish colonial heritage and Indigenous influences shape its culture.",
+  "call": "+58",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "171",
+   "amb": "171",
+   "fire": "171"
+  }
+ },
+ "DZ": {
+  "name": "Algeria",
+  "pop": 46278000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "Berber (Tamazight)",
+   "French"
+  ],
+  "cur": {
+   "code": "DZD",
+   "sym": "دج",
+   "name": "Algerian Dinar"
+  },
+  "region": "North Africa (Maghreb)",
+  "hist": "Algeria's coast was settled by Phoenicians and later became part of Rome's North African provinces before centuries of Ottoman rule. France colonized the territory beginning in 1830, and after a protracted war Algeria gained independence in 1962. The blend of Arab, Berber, Ottoman, and French legacies shapes the country's language, cuisine, and architecture today.",
+  "call": "+213",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "1548",
+   "amb": "14",
+   "fire": "14"
+  }
+ },
+ "BH": {
+  "name": "Bahrain",
+  "pop": 1577000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "BHD",
+   "sym": ".د.ب",
+   "name": "Bahraini Dinar"
+  },
+  "region": "Arabian Peninsula (Persian Gulf)",
+  "hist": "This archipelago was the heart of the ancient Dilmun civilization, a key trading hub thousands of years ago, and was long renowned for pearl diving. It came under various powers including Portugal and Persia before the Al Khalifa family established rule in the late 18th century. Bahrain gained full independence from Britain in 1971 and has since developed as a regional financial and cultural center.",
+  "call": "+973",
+  "drive": "right",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "EG": {
+  "name": "Egypt",
+  "pop": 114536000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "EGP",
+   "sym": "£",
+   "name": "Egyptian Pound"
+  },
+  "region": "North Africa / Nile Valley",
+  "hist": "Egypt is home to one of the world's oldest civilizations, unified around 3100 BCE and famed for its pharaohs, pyramids, and the Nile. Successive eras of Greek, Roman, Christian, and Islamic rule layered onto this ancient foundation. After periods of Ottoman and British influence, Egypt became fully independent in the mid-20th century, and Cairo remains a major cultural and political center of the Arab world.",
+  "call": "+20",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "122",
+   "amb": "123",
+   "fire": "180"
+  }
+ },
+ "IR": {
+  "name": "Iran",
+  "pop": 89172000,
+  "popYear": 2024,
+  "langs": [
+   "Persian (Farsi)",
+   "Azerbaijani",
+   "Kurdish"
+  ],
+  "cur": {
+   "code": "IRR",
+   "sym": "﷼",
+   "name": "Iranian Rial"
+  },
+  "region": "Western Asia / Persian Plateau",
+  "hist": "Iran, historically known as Persia, was the seat of ancient empires including the Achaemenids and Sasanians, leaving monuments such as Persepolis. Islam arrived in the 7th century, and later Safavid, Qajar, and Pahlavi dynasties shaped the modern state. The 1979 revolution established the present Islamic Republic, and Persian art, poetry, and architecture remain central to the country's identity.",
+  "call": "+98",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "110",
+   "amb": "115",
+   "fire": "125"
+  }
+ },
+ "IQ": {
+  "name": "Iraq",
+  "pop": 45504000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "Kurdish"
+  ],
+  "cur": {
+   "code": "IQD",
+   "sym": "ع.د",
+   "name": "Iraqi Dinar"
+  },
+  "region": "Western Asia / Mesopotamia",
+  "hist": "The land between the Tigris and Euphrates, Mesopotamia, is often called the cradle of civilization and home to Sumer, Babylon, and Assyria. Baghdad became a center of learning during the Islamic Golden Age under the Abbasid Caliphate. After Ottoman rule and a British mandate, Iraq became independent in 1932, and its ancient sites and diverse Arab and Kurdish cultures define it today.",
+  "call": "+964",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "104",
+   "amb": "122",
+   "fire": "115"
+  }
+ },
+ "IL": {
+  "name": "Israel",
+  "pop": 9842000,
+  "popYear": 2024,
+  "langs": [
+   "Hebrew",
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "ILS",
+   "sym": "₪",
+   "name": "Israeli New Shekel"
+  },
+  "region": "Western Asia / Levant",
+  "hist": "The region holds deep significance for Judaism, Christianity, and Islam, with Jerusalem at its spiritual center for millennia. The modern State of Israel was established in 1948 following the end of the British Mandate for Palestine. The country blends ancient heritage sites with a contemporary, technologically advanced society, and remains a focal point of the wider Israeli-Palestinian situation.",
+  "call": "+972",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "H",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "100",
+   "amb": "101",
+   "fire": "102"
+  }
+ },
+ "JO": {
+  "name": "Jordan",
+  "pop": 11437000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "JOD",
+   "sym": "د.ا",
+   "name": "Jordanian Dinar"
+  },
+  "region": "Western Asia / Levant",
+  "hist": "Jordan's territory was home to the Nabataeans, who carved the rock city of Petra, and later passed through Roman, Byzantine, and Islamic rule. The Emirate of Transjordan formed under British oversight after World War I, achieving full independence in 1946. Today the kingdom is known for its hospitality, desert landscapes, and archaeological treasures such as Petra and Jerash.",
+  "call": "+962",
+  "drive": "right",
+  "plugs": [
+   "B",
+   "C",
+   "D",
+   "F",
+   "G",
+   "J"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "KW": {
+  "name": "Kuwait",
+  "pop": 4935000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "KWD",
+   "sym": "د.ك",
+   "name": "Kuwaiti Dinar"
+  },
+  "region": "Arabian Peninsula (Persian Gulf)",
+  "hist": "Kuwait grew from an 18th-century trading and pearling settlement at the head of the Persian Gulf, governed by the Al Sabah family. It became a British protectorate and gained independence in 1961. The discovery of oil transformed it into a wealthy modern state, and Kuwait City today combines maritime heritage with contemporary architecture.",
+  "call": "+965",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "LB": {
+  "name": "Lebanon",
+  "pop": 5805000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "French",
+   "English"
+  ],
+  "cur": {
+   "code": "LBP",
+   "sym": "ل.ل",
+   "name": "Lebanese Pound"
+  },
+  "region": "Western Asia / Levant",
+  "hist": "Lebanon's coast was the homeland of the seafaring Phoenicians, with ancient cities such as Byblos, Tyre, and Sidon. After Ottoman rule and a French mandate, Lebanon gained independence in 1943. Its diverse religious communities, Mediterranean culture, and cities like Beirut have long given it a reputation as a cultural crossroads.",
+  "call": "+961",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "160",
+   "amb": "140",
+   "fire": "175"
+  }
+ },
+ "LY": {
+  "name": "Libya",
+  "pop": 7361000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "Berber (Tamazight)",
+   "Italian"
+  ],
+  "cur": {
+   "code": "LYD",
+   "sym": "ل.د",
+   "name": "Libyan Dinar"
+  },
+  "region": "North Africa (Maghreb)",
+  "hist": "Libya contains remarkable Greek and Roman ruins such as Cyrene and Leptis Magna along its Mediterranean coast. The region experienced Ottoman and then Italian colonial rule before independence in 1951. After decades under a single leader and subsequent conflict, Libya's ancient sites and Saharan landscapes remain central to its heritage.",
+  "call": "+218",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "F",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "1515",
+   "amb": "193"
+  }
+ },
+ "MA": {
+  "name": "Morocco",
+  "pop": 37840000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "Berber (Tamazight)",
+   "French"
+  ],
+  "cur": {
+   "code": "MAD",
+   "sym": "د.م.",
+   "name": "Moroccan Dirham"
+  },
+  "region": "North Africa (Maghreb)",
+  "hist": "Morocco has been ruled by a succession of dynasties since the founding of the Idrisid state in the 8th century, with imperial cities such as Fez, Marrakech, and Meknes. A French and Spanish protectorate in the early 20th century gave way to independence in 1956 under the long-standing monarchy. Berber, Arab, Andalusian, and European influences shape its vibrant medinas, cuisine, and crafts.",
+  "call": "+212",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "19",
+   "amb": "15",
+   "fire": "15"
+  }
+ },
+ "OM": {
+  "name": "Oman",
+  "pop": 5281000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "OMR",
+   "sym": "ر.ع.",
+   "name": "Omani Rial"
+  },
+  "region": "Arabian Peninsula",
+  "hist": "Oman was a major maritime power whose influence once extended to East Africa, including Zanzibar, built on frankincense and seafaring trade. The Al Said dynasty has ruled since the mid-18th century. After a period of relative isolation, the country modernized rapidly from 1970, and its forts, souks, and dramatic landscapes draw travelers today.",
+  "call": "+968",
+  "drive": "right",
+  "plugs": [
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "9999"
+  }
+ },
+ "PS": {
+  "name": "Palestine",
+  "pop": 5495000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "ILS",
+   "sym": "₪",
+   "name": "Israeli New Shekel"
+  },
+  "region": "Western Asia / Levant",
+  "hist": "The Palestinian territories of the West Bank and Gaza Strip contain sites of profound religious and historical importance, including Bethlehem and Hebron. The region was part of the Ottoman Empire and then the British Mandate before the events of 1948 and 1967 reshaped its boundaries. The State of Palestine is recognized by many countries, and its status remains central to the wider Israeli-Palestinian situation.",
+  "call": null,
+  "drive": null,
+  "plugs": [
+   "C",
+   "H",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "100",
+   "amb": "101",
+   "fire": "102"
+  }
+ },
+ "QA": {
+  "name": "Qatar",
+  "pop": 3048000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "QAR",
+   "sym": "ر.ق",
+   "name": "Qatari Riyal"
+  },
+  "region": "Arabian Peninsula (Persian Gulf)",
+  "hist": "Qatar was historically a pearling and fishing society on a small Gulf peninsula, governed by the Al Thani family. It became a British protectorate and gained independence in 1971. Oil and natural gas wealth has driven rapid modernization, and Doha now features striking contemporary architecture alongside the restored Souq Waqif; the country hosted the 2022 FIFA World Cup.",
+  "call": "+974",
+  "drive": "right",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "SA": {
+  "name": "Saudi Arabia",
+  "pop": 35300000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "SAR",
+   "sym": "ر.س",
+   "name": "Saudi Riyal"
+  },
+  "region": "Arabian Peninsula",
+  "hist": "The Arabian Peninsula is the birthplace of Islam, with Mecca and Medina as its holiest cities and destinations for millions of pilgrims. The modern Kingdom of Saudi Arabia was unified under the Al Saud family in 1932. Vast oil reserves transformed the economy, and recent years have seen the country open more widely to tourism alongside its desert and Nabataean heritage at sites like AlUla.",
+  "call": "+966",
+  "drive": "right",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911",
+   "police": "999",
+   "amb": "997",
+   "fire": "998"
+  }
+ },
+ "SY": {
+  "name": "Syria",
+  "pop": 23227000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "Kurdish",
+   "Armenian"
+  ],
+  "cur": {
+   "code": "SYP",
+   "sym": "ل.س",
+   "name": "Syrian Pound"
+  },
+  "region": "Western Asia / Levant",
+  "hist": "Syria is one of the oldest continuously inhabited regions, with Damascus and Aleppo among the world's most ancient cities. It passed through Roman, Byzantine, Islamic Caliphate, and Ottoman rule before a French mandate and independence in 1946. Despite years of recent conflict, its layered history is reflected in monumental sites such as Palmyra and the old city of Damascus.",
+  "call": "+963",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E",
+   "L"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "amb": "110",
+   "fire": "113"
+  }
+ },
+ "TN": {
+  "name": "Tunisia",
+  "pop": 12277000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "French"
+  ],
+  "cur": {
+   "code": "TND",
+   "sym": "د.ت",
+   "name": "Tunisian Dinar"
+  },
+  "region": "North Africa (Maghreb)",
+  "hist": "Tunisia was the site of ancient Carthage, a Phoenician power that rivaled Rome before its destruction and rebuilding under Roman rule. Arab conquest, Ottoman governance, and a French protectorate followed, with independence achieved in 1956. The country is known for its Mediterranean beaches, Roman ruins, and historic medinas such as that of Tunis.",
+  "call": "+216",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "197",
+   "amb": "190",
+   "fire": "198"
+  }
+ },
+ "TR": {
+  "name": "Turkey",
+  "pop": 85326000,
+  "popYear": 2024,
+  "langs": [
+   "Turkish",
+   "Kurdish"
+  ],
+  "cur": {
+   "code": "TRY",
+   "sym": "₺",
+   "name": "Turkish Lira"
+  },
+  "region": "Western Asia / Anatolia & Southeast Europe",
+  "hist": "Spanning Europe and Asia, Anatolia hosted civilizations from the Hittites to the Greeks and Romans, and Istanbul served as capital of the Byzantine and then Ottoman empires. The modern Republic of Turkey was founded in 1923 under Mustafa Kemal Atatürk. Its position as a bridge between continents is reflected in landmarks such as Hagia Sophia, Cappadocia, and the bazaars of Istanbul.",
+  "call": "+90",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "155",
+   "amb": "112",
+   "fire": "110"
+  }
+ },
+ "AE": {
+  "name": "United Arab Emirates",
+  "pop": 11027000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "AED",
+   "sym": "د.إ",
+   "name": "UAE Dirham"
+  },
+  "region": "Arabian Peninsula (Persian Gulf)",
+  "hist": "The seven emirates were historically pearling and trading sheikhdoms along the Gulf coast known as the Trucial States under British protection. They united to form the United Arab Emirates in 1971. Oil wealth fueled extraordinary growth, and cities like Dubai and Abu Dhabi now combine ultramodern skylines with heritage districts and desert experiences.",
+  "call": "+971",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "999",
+   "amb": "998",
+   "fire": "997"
+  }
+ },
+ "YE": {
+  "name": "Yemen",
+  "pop": 34449000,
+  "popYear": 2024,
+  "langs": [
+   "Arabic"
+  ],
+  "cur": {
+   "code": "YER",
+   "sym": "﷼",
+   "name": "Yemeni Rial"
+  },
+  "region": "Arabian Peninsula",
+  "hist": "Yemen was home to ancient kingdoms such as Saba (Sheba), enriched by the incense trade, and is famed for the mud-brick towers of cities like Sana'a and Shibam. It later came under Islamic, Ottoman, and British influence, with north and south unifying into a single republic in 1990. Its old cities and highland landscapes reflect a long and distinctive cultural heritage.",
+  "call": "+967",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "194",
+   "amb": "191",
+   "fire": "191"
+  }
+ },
+ "AO": {
+  "name": "Angola",
+  "pop": 36684202,
+  "popYear": 2024,
+  "langs": [
+   "Portuguese",
+   "Umbundu",
+   "Kimbundu",
+   "Kikongo"
+  ],
+  "cur": {
+   "code": "AOA",
+   "sym": "Kz",
+   "name": "Angolan Kwanza"
+  },
+  "region": "Central Africa",
+  "hist": "Angola was a Portuguese colony for roughly four centuries before gaining independence in 1975. Independence was followed by a prolonged civil war that lasted until 2002, after which the country entered a period of reconstruction funded largely by oil and diamond wealth. Portuguese remains the official language and is widely spoken in cities such as the capital, Luanda, alongside several Bantu languages.",
+  "call": "+244",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "113",
+   "amb": "112",
+   "fire": "115"
+  }
+ },
+ "BJ": {
+  "name": "Benin",
+  "pop": 14111034,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Fon",
+   "Yoruba"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "The region was home to the powerful Kingdom of Dahomey before becoming a French colony in the late 19th century. It gained independence in 1960 as Dahomey and was renamed Benin in 1975. The historic city of Ouidah was a major Atlantic trade port and is today a center of Vodun (Voodoo) culture and heritage.",
+  "call": "+229",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "117",
+   "amb": "112",
+   "fire": "118"
+  }
+ },
+ "BW": {
+  "name": "Botswana",
+  "pop": 2675352,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Setswana"
+  ],
+  "cur": {
+   "code": "BWP",
+   "sym": "P",
+   "name": "Botswana Pula"
+  },
+  "region": "Southern Africa",
+  "hist": "Formerly the British protectorate of Bechuanaland, Botswana became independent in 1966. The subsequent discovery of diamonds underpinned decades of economic growth and political stability. The country is widely known for wildlife destinations such as the Okavango Delta and the Kalahari, which anchor its tourism economy.",
+  "call": "+267",
+  "drive": "left",
+  "plugs": [
+   "D",
+   "G",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "999",
+   "amb": "997",
+   "fire": "998"
+  }
+ },
+ "BF": {
+  "name": "Burkina Faso",
+  "pop": 23548781,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Mooré",
+   "Dyula"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "Once the center of the Mossi kingdoms, the territory became part of French West Africa and gained independence in 1960 as Upper Volta. It was renamed Burkina Faso, meaning 'land of upright people,' in 1984. The capital, Ouagadougou, hosts FESPACO, one of Africa's largest film festivals.",
+  "call": "+226",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "112",
+   "fire": "18"
+  }
+ },
+ "BI": {
+  "name": "Burundi",
+  "pop": 13238559,
+  "popYear": 2024,
+  "langs": [
+   "Kirundi",
+   "French",
+   "English",
+   "Swahili"
+  ],
+  "cur": {
+   "code": "BIF",
+   "sym": "FBu",
+   "name": "Burundian Franc"
+  },
+  "region": "East Africa",
+  "hist": "Burundi was a kingdom for centuries before falling under German and then Belgian colonial administration as part of Ruanda-Urundi. It gained independence in 1962. The country experienced periods of civil conflict in the later 20th century, and today its small, hilly territory borders Lake Tanganyika.",
+  "call": "+257",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "117",
+   "amb": "112",
+   "fire": "118"
+  }
+ },
+ "CV": {
+  "name": "Cabo Verde",
+  "pop": 524877,
+  "popYear": 2024,
+  "langs": [
+   "Portuguese",
+   "Cape Verdean Creole"
+  ],
+  "cur": {
+   "code": "CVE",
+   "sym": "$",
+   "name": "Cape Verdean Escudo"
+  },
+  "region": "West Africa",
+  "hist": "This Atlantic archipelago was uninhabited until Portuguese settlement in the 15th century, when it became an important hub in transatlantic trade. It gained independence from Portugal in 1975. The islands are known for a stable democracy and for morna music, popularized internationally by singer Cesária Évora.",
+  "call": "+238",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "132",
+   "amb": "130",
+   "fire": "131"
+  }
+ },
+ "CM": {
+  "name": "Cameroon",
+  "pop": 28647293,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "English"
+  ],
+  "cur": {
+   "code": "XAF",
+   "sym": "FCFA",
+   "name": "Central African CFA Franc"
+  },
+  "region": "Central Africa",
+  "hist": "Cameroon was colonized by Germany, then partitioned between France and Britain after World War I. The French and British administered regions were reunited around independence in the early 1960s, producing a bilingual French- and English-speaking state. Its varied geography, from coastal forests to the volcanic Mount Cameroon, gives it the nickname 'Africa in miniature.'",
+  "call": "+237",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "117",
+   "amb": "119",
+   "fire": "118"
+  }
+ },
+ "CF": {
+  "name": "Central African Republic",
+  "pop": 5330690,
+  "popYear": 2024,
+  "langs": [
+   "Sango",
+   "French"
+  ],
+  "cur": {
+   "code": "XAF",
+   "sym": "FCFA",
+   "name": "Central African CFA Franc"
+  },
+  "region": "Central Africa",
+  "hist": "The territory was administered by France as Ubangi-Shari and became independent in 1960. Its post-independence history has included periods of political instability and conflict. The landlocked country is rich in natural resources and home to rainforest reserves such as Dzanga-Sangha, known for lowland gorillas and forest elephants.",
+  "call": "+236",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "1220",
+   "fire": "118"
+  }
+ },
+ "TD": {
+  "name": "Chad",
+  "pop": 18278568,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Arabic"
+  ],
+  "cur": {
+   "code": "XAF",
+   "sym": "FCFA",
+   "name": "Central African CFA Franc"
+  },
+  "region": "Central Africa",
+  "hist": "Chad lay along ancient trans-Saharan trade routes before becoming part of French Equatorial Africa, gaining independence in 1960. The country spans a sharp divide between the Saharan north and the more populated Sahelian south. Lake Chad in the southwest, though much reduced in size, remains a vital regional water source.",
+  "call": "+235",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "2251-1237",
+   "fire": "18"
+  }
+ },
+ "KM": {
+  "name": "Comoros",
+  "pop": 866628,
+  "popYear": 2024,
+  "langs": [
+   "Comorian",
+   "Arabic",
+   "French"
+  ],
+  "cur": {
+   "code": "KMF",
+   "sym": "CF",
+   "name": "Comorian Franc"
+  },
+  "region": "East Africa",
+  "hist": "This Indian Ocean archipelago developed as a crossroads of Arab, African, and Malagasy cultures and trade. Three of the islands gained independence from France in 1975, while Mayotte remained French. The islands are known for fragrant spice and perfume crops such as ylang-ylang, vanilla, and cloves.",
+  "call": "+269",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "772-03-73",
+   "fire": "18"
+  }
+ },
+ "CG": {
+  "name": "Republic of the Congo",
+  "pop": 6142180,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Lingala",
+   "Kituba"
+  ],
+  "cur": {
+   "code": "XAF",
+   "sym": "FCFA",
+   "name": "Central African CFA Franc"
+  },
+  "region": "Central Africa",
+  "hist": "Often called Congo-Brazzaville after its capital, the country was part of French Equatorial Africa and gained independence in 1960. Its economy is heavily based on oil. Much of the national territory is covered by Congo Basin rainforest, including protected areas such as Nouabalé-Ndoki National Park.",
+  "call": "+242",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "fire": "118"
+  }
+ },
+ "CD": {
+  "name": "Democratic Republic of the Congo",
+  "pop": 105799288,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Lingala",
+   "Swahili",
+   "Kikongo",
+   "Tshiluba"
+  ],
+  "cur": {
+   "code": "CDF",
+   "sym": "FC",
+   "name": "Congolese Franc"
+  },
+  "region": "Central Africa",
+  "hist": "Known as the Belgian Congo under colonial rule, the country gained independence in 1960 and was later called Zaire before reverting to its current name in 1997. It is the second-largest country in Africa by area and holds vast mineral wealth. The eastern highlands are renowned for mountain gorillas and the volcanoes of Virunga National Park.",
+  "call": "+243",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "112",
+   "fire": "118"
+  }
+ },
+ "CI": {
+  "name": "Côte d'Ivoire",
+  "pop": 31165653,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Dyula",
+   "Baoulé"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "A French colony from the late 19th century, Côte d'Ivoire (Ivory Coast) gained independence in 1960 and became one of West Africa's largest economies, driven largely by cocoa production. The political capital is Yamoussoukro, though Abidjan remains the largest city and economic hub. The country is internationally known by its French name.",
+  "call": "+225",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "110",
+   "amb": "185",
+   "fire": "180"
+  }
+ },
+ "DJ": {
+  "name": "Djibouti",
+  "pop": 1136455,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Arabic",
+   "Somali",
+   "Afar"
+  ],
+  "cur": {
+   "code": "DJF",
+   "sym": "Fdj",
+   "name": "Djiboutian Franc"
+  },
+  "region": "East Africa",
+  "hist": "Strategically located at the entrance to the Red Sea, the territory was administered by France as French Somaliland and later the French Territory of the Afars and Issas before independence in 1977. Its location has made it a major shipping and military logistics hub. Landscapes such as the salt expanse of Lake Assal draw adventurous travelers.",
+  "call": "+253",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "19",
+   "fire": "18"
+  }
+ },
+ "GQ": {
+  "name": "Equatorial Guinea",
+  "pop": 1847022,
+  "popYear": 2024,
+  "langs": [
+   "Spanish",
+   "French",
+   "Portuguese"
+  ],
+  "cur": {
+   "code": "XAF",
+   "sym": "FCFA",
+   "name": "Central African CFA Franc"
+  },
+  "region": "Central Africa",
+  "hist": "A former Spanish colony, Equatorial Guinea gained independence in 1968, making it one of the few Spanish-speaking countries in Africa. Its territory includes the mainland region of Río Muni and several islands, with the capital, Malabo, located on the island of Bioko. The discovery of offshore oil in the 1990s transformed its economy.",
+  "call": "+240",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "114",
+   "amb": "115",
+   "fire": "112"
+  }
+ },
+ "ER": {
+  "name": "Eritrea",
+  "pop": 3535603,
+  "popYear": 2024,
+  "langs": [
+   "Tigrinya",
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "ERN",
+   "sym": "Nfk",
+   "name": "Eritrean Nakfa"
+  },
+  "region": "East Africa",
+  "hist": "An Italian colony in the late 19th and early 20th centuries, Eritrea was later federated with and then annexed by Ethiopia, leading to a long independence struggle that ended in 1993. The capital, Asmara, is a UNESCO World Heritage Site celebrated for its early 20th-century modernist Italian architecture. The country sits along the Red Sea coast.",
+  "call": "+291",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "113",
+   "amb": "114",
+   "fire": "116"
+  }
+ },
+ "SZ": {
+  "name": "Eswatini",
+  "pop": 1242822,
+  "popYear": 2024,
+  "langs": [
+   "Swazi",
+   "English"
+  ],
+  "cur": {
+   "code": "SZL",
+   "sym": "L",
+   "name": "Swazi Lilangeni"
+  },
+  "region": "Southern Africa",
+  "hist": "Formerly known as Swaziland, this small landlocked kingdom is one of the world's few remaining absolute monarchies. It became a British protectorate and regained full independence in 1968, then officially adopted the name Eswatini in 2018. Traditional ceremonies such as the Umhlanga (Reed Dance) and Incwala are central to its cultural calendar.",
+  "call": "+268",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "M",
+   "N"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "999",
+   "amb": "977",
+   "fire": "933"
+  }
+ },
+ "ET": {
+  "name": "Ethiopia",
+  "pop": 129719719,
+  "popYear": 2024,
+  "langs": [
+   "Amharic",
+   "Oromo",
+   "Somali",
+   "Tigrinya",
+   "English"
+  ],
+  "cur": {
+   "code": "ETB",
+   "sym": "Br",
+   "name": "Ethiopian Birr"
+  },
+  "region": "East Africa",
+  "hist": "Ethiopia is one of the world's oldest continuous states and, apart from a brief Italian occupation in the late 1930s, was never formally colonized. It has a deep heritage tied to early Christianity, seen in sites such as the rock-hewn churches of Lalibela. The country follows its own calendar and is widely regarded as the birthplace of coffee.",
+  "call": "+251",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E",
+   "F",
+   "G",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "991",
+   "amb": "907",
+   "fire": "939"
+  }
+ },
+ "GA": {
+  "name": "Gabon",
+  "pop": 2538952,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Fang"
+  ],
+  "cur": {
+   "code": "XAF",
+   "sym": "FCFA",
+   "name": "Central African CFA Franc"
+  },
+  "region": "Central Africa",
+  "hist": "A former part of French Equatorial Africa, Gabon gained independence in 1960 and developed a relatively prosperous economy based on oil and timber. Roughly four-fifths of the country is forested, and it has set aside a large network of national parks. Loango National Park is noted for wildlife, including forest elephants and gorillas seen near the coast.",
+  "call": "+241",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "1730",
+   "amb": "1300",
+   "fire": "18"
+  }
+ },
+ "GM": {
+  "name": "Gambia",
+  "pop": 2773168,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Mandinka",
+   "Wolof",
+   "Fula"
+  ],
+  "cur": {
+   "code": "GMD",
+   "sym": "D",
+   "name": "Gambian Dalasi"
+  },
+  "region": "West Africa",
+  "hist": "The Gambia is the smallest country on mainland Africa, forming a narrow strip along the Gambia River and almost entirely surrounded by Senegal. A former British colony, it gained independence in 1965. The river and sites associated with the transatlantic slave trade, such as Kunta Kinteh Island, are significant to its heritage tourism.",
+  "call": "+220",
+  "drive": "right",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "116",
+   "fire": "118"
+  }
+ },
+ "GH": {
+  "name": "Ghana",
+  "pop": 34121985,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Akan",
+   "Ewe",
+   "Ga",
+   "Dagbani"
+  ],
+  "cur": {
+   "code": "GHS",
+   "sym": "GH₵",
+   "name": "Ghanaian Cedi"
+  },
+  "region": "West Africa",
+  "hist": "The territory was home to powerful states including the Ashanti Empire before becoming the British colony known as the Gold Coast. In 1957 it became the first sub-Saharan African colony to gain independence, under Kwame Nkrumah, and took the name Ghana after the medieval Ghana Empire. Coastal forts such as Cape Coast and Elmina, built during the era of European trade and the transatlantic slave trade, are now major heritage sites. Today Ghana is regarded as one of West Africa's more stable democracies, with a rich tradition of Akan culture, kente cloth, and highlife music.",
+  "call": "+233",
+  "drive": "right",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "191",
+   "amb": "193",
+   "fire": "192"
+  }
+ },
+ "GN": {
+  "name": "Guinea",
+  "pop": 14190612,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Fula",
+   "Maninka",
+   "Susu"
+  ],
+  "cur": {
+   "code": "GNF",
+   "sym": "FG",
+   "name": "Guinean Franc"
+  },
+  "region": "West Africa",
+  "hist": "The region was part of historic empires including Mali and the Fula-led Imamate of Futa Jallon before French colonization. Guinea gained independence in 1958, becoming the only French colony to immediately reject continued association with France under Ahmed Sékou Touré. Decades of single-party and later military rule followed, with the country holding significant bauxite reserves. Its varied landscapes range from the Fouta Djallon highlands to coastal lowlands, shaping a culturally diverse, predominantly Muslim society.",
+  "call": "+224",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F",
+   "K"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "18",
+   "fire": "442-020"
+  }
+ },
+ "GW": {
+  "name": "Guinea-Bissau",
+  "pop": 2150842,
+  "popYear": 2024,
+  "langs": [
+   "Portuguese",
+   "Guinea-Bissau Creole",
+   "Fula",
+   "Balanta"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "Once linked to the Mali Empire and later a center of Portuguese trade along the Upper Guinea coast, the territory was a Portuguese colony for centuries. It declared independence in 1973 and gained international recognition in 1974 after a prolonged liberation struggle led by the PAIGC. The post-independence era has been marked by political instability and frequent changes of government. The offshore Bijagós Archipelago, a UNESCO biosphere reserve, is a notable draw, and Crioulo serves as a widely spoken lingua franca.",
+  "call": "+245",
+  "drive": "right",
+  "plugs": [
+   "C"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "117",
+   "amb": "119",
+   "fire": "118"
+  }
+ },
+ "KE": {
+  "name": "Kenya",
+  "pop": 56432944,
+  "popYear": 2024,
+  "langs": [
+   "Swahili",
+   "English",
+   "Kikuyu",
+   "Luo",
+   "Kalenjin"
+  ],
+  "cur": {
+   "code": "KES",
+   "sym": "KSh",
+   "name": "Kenyan Shilling"
+  },
+  "region": "East Africa",
+  "hist": "The Swahili coast around Mombasa and Lamu was a hub of Indian Ocean trade for over a millennium, linking African, Arab, and Asian cultures. The interior and coast came under British control, and Kenya gained independence in 1963 after the Mau Mau uprising, with Jomo Kenyatta as its first leader. Nairobi grew into a major regional commercial and diplomatic center. Today Kenya is renowned for its savanna wildlife reserves such as the Maasai Mara, the Great Rift Valley, and a strong tradition in long-distance running.",
+  "call": "+254",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "LS": {
+  "name": "Lesotho",
+  "pop": 2337423,
+  "popYear": 2024,
+  "langs": [
+   "Sesotho",
+   "English"
+  ],
+  "cur": {
+   "code": "LSL",
+   "sym": "L",
+   "name": "Lesotho Loti"
+  },
+  "region": "Southern Africa",
+  "hist": "The Basotho nation was forged in the early 19th century under King Moshoeshoe I, who united refugee groups in the mountainous highlands during a period of regional upheaval. To resist encroachment, the kingdom became the British protectorate of Basutoland, gaining independence as Lesotho in 1966 while retaining its monarchy. Entirely surrounded by South Africa, it is one of only a few countries lying wholly above 1,000 meters in elevation. Its dramatic mountain scenery, snow in winter, and traditions such as the Basotho blanket and pony trekking define its identity.",
+  "call": "+266",
+  "drive": "left",
+  "plugs": [
+   "M"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "123",
+   "amb": "121",
+   "fire": "122"
+  }
+ },
+ "LR": {
+  "name": "Liberia",
+  "pop": 5612817,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Kpelle",
+   "Bassa",
+   "Kru"
+  ],
+  "cur": {
+   "code": "LRD",
+   "sym": "L$",
+   "name": "Liberian Dollar"
+  },
+  "region": "West Africa",
+  "hist": "Liberia was founded in the early 19th century as a settlement for freed African Americans organized by the American Colonization Society, and it declared independence in 1847, becoming Africa's first modern republic. Its capital, Monrovia, was named after U.S. President James Monroe, and the country's flag and institutions reflect American influence alongside numerous indigenous cultures. Two civil wars between 1989 and 2003 caused great disruption before a return to stability and democratic governance. Today its culture blends Americo-Liberian and indigenous traditions, and English serves as the official language.",
+  "call": "+231",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "MG": {
+  "name": "Madagascar",
+  "pop": 31964956,
+  "popYear": 2024,
+  "langs": [
+   "Malagasy",
+   "French"
+  ],
+  "cur": {
+   "code": "MGA",
+   "sym": "Ar",
+   "name": "Malagasy Ariary"
+  },
+  "region": "East Africa",
+  "hist": "The world's fourth-largest island was settled by Austronesian seafarers from Southeast Asia, later joined by Bantu, Arab, and other peoples, producing a distinctive culture and the Malagasy language. The Merina Kingdom unified much of the island in the 19th century before it became a French colony, gaining independence in 1960. Its long isolation produced extraordinary endemic wildlife, including lemurs and baobabs found nowhere else. Travelers are drawn to its rainforests, national parks, and the iconic Avenue of the Baobabs.",
+  "call": "+261",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "E",
+   "J",
+   "K"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "124",
+   "fire": "118"
+  }
+ },
+ "MW": {
+  "name": "Malawi",
+  "pop": 21655286,
+  "popYear": 2024,
+  "langs": [
+   "Chichewa",
+   "English"
+  ],
+  "cur": {
+   "code": "MWK",
+   "sym": "MK",
+   "name": "Malawian Kwacha"
+  },
+  "region": "Southern Africa",
+  "hist": "The region around Lake Malawi was home to the Maravi kingdom, from which the country's name derives, and was explored by David Livingstone in the 19th century before becoming the British protectorate of Nyasaland. It gained independence in 1964 under Hastings Banda, who led a long one-party era before multiparty democracy returned in the 1990s. The vast freshwater Lake Malawi, with its clear waters and endemic cichlid fish, dominates the landscape and tourism. Often called the 'Warm Heart of Africa,' the country is known for friendly hospitality and Chewa cultural traditions.",
+  "call": "+265",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "997",
+   "amb": "998",
+   "fire": "999"
+  }
+ },
+ "ML": {
+  "name": "Mali",
+  "pop": 23100859,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Bambara",
+   "Fula",
+   "Songhai"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "Mali was the heart of great medieval empires—Ghana, Mali, and Songhai—whose wealth in gold and salt made Timbuktu and Djenné renowned centers of trade and Islamic scholarship. The famous pilgrimage of Mansa Musa in the 14th century symbolized the empire's prosperity. After French colonial rule, the country gained independence in 1960. Its Saharan and Sahelian heritage, the mud-brick Great Mosque of Djenné, and a celebrated musical tradition continue to shape its cultural identity.",
+  "call": "+223",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "15",
+   "fire": "18"
+  }
+ },
+ "MR": {
+  "name": "Mauritania",
+  "pop": 4862989,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "Pulaar",
+   "Soninke",
+   "Wolof",
+   "French"
+  ],
+  "cur": {
+   "code": "MRU",
+   "sym": "UM",
+   "name": "Mauritanian Ouguiya"
+  },
+  "region": "West Africa",
+  "hist": "Straddling the Sahara and the Sahel, Mauritania was a crossroads of trans-Saharan caravan routes, with ancient trading towns such as Chinguetti and Ouadane serving as centers of Islamic learning. The region blends Arab-Berber (Moorish) and Sub-Saharan African populations. It became a French colony and gained independence in 1960. Today it is a vast, sparsely populated desert nation where camel caravans, oasis towns, and the iron-ore railway across the Sahara are notable features.",
+  "call": "+222",
+  "drive": "right",
+  "plugs": [
+   "C"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "101",
+   "fire": "118"
+  }
+ },
+ "MU": {
+  "name": "Mauritius",
+  "pop": 1271768,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "French",
+   "Mauritian Creole",
+   "Hindi"
+  ],
+  "cur": {
+   "code": "MUR",
+   "sym": "₨",
+   "name": "Mauritian Rupee"
+  },
+  "region": "East Africa",
+  "hist": "Uninhabited until modern times, the island was visited by Arab and Portuguese sailors, then settled successively by the Dutch (who named it after Prince Maurice), the French, and the British. Sugar plantations brought enslaved Africans and, later, indentured laborers from India, creating today's multicultural society. Mauritius gained independence in 1968 and became a republic in 1992. Famous as the former home of the extinct dodo, it is now a prosperous Indian Ocean destination known for beaches, coral reefs, and a blend of Indian, African, Chinese, and European cultures.",
+  "call": "+230",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "999",
+   "amb": "114",
+   "fire": "995"
+  }
+ },
+ "MZ": {
+  "name": "Mozambique",
+  "pop": 34631766,
+  "popYear": 2024,
+  "langs": [
+   "Portuguese",
+   "Makhuwa",
+   "Tsonga",
+   "Sena"
+  ],
+  "cur": {
+   "code": "MZN",
+   "sym": "MT",
+   "name": "Mozambican Metical"
+  },
+  "region": "Southern Africa",
+  "hist": "The Swahili coast trading towns, such as the historic Island of Mozambique, linked the region to Indian Ocean commerce long before Portuguese arrival around 1500. Portugal ruled the territory for centuries, and Mozambique gained independence in 1975 after a liberation war led by FRELIMO. A prolonged civil war followed until a peace accord in 1992, after which the country stabilized and reopened to tourism. Its long Indian Ocean coastline, archipelagos like the Bazaruto and Quirimbas, and Afro-Portuguese culture are key attractions.",
+  "call": "+258",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "F",
+   "M"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "119",
+   "amb": "117",
+   "fire": "198"
+  }
+ },
+ "NA": {
+  "name": "Namibia",
+  "pop": 3030131,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Afrikaans",
+   "Oshiwambo",
+   "German",
+   "Otjiherero"
+  ],
+  "cur": {
+   "code": "NAD",
+   "sym": "N$",
+   "name": "Namibian Dollar"
+  },
+  "region": "Southern Africa",
+  "hist": "Home to the San, Himba, Herero, Ovambo, and other peoples, the territory became the colony of German South West Africa in the late 19th century before being administered by South Africa for much of the 20th century. After a long independence struggle led by SWAPO, Namibia became independent in 1990, one of Africa's last colonies to do so. The German colonial legacy is visible in towns such as Swakopmund. Travelers are drawn to the towering dunes of Sossusvlei, the Namib Desert, the Skeleton Coast, and the wildlife of Etosha National Park.",
+  "call": "+264",
+  "drive": "left",
+  "plugs": [
+   "D",
+   "M"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "10111"
+  }
+ },
+ "NE": {
+  "name": "Niger",
+  "pop": 26207977,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Hausa",
+   "Zarma",
+   "Fula",
+   "Tuareg"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "Largely covered by the Sahara, Niger lay along trans-Saharan trade routes and within the orbit of empires including Songhai and the Hausa and Kanem-Bornu states. It became part of French West Africa and gained independence in 1960. The country is named for the Niger River, which sustains its southwestern population. Known for the Aïr Mountains, the Ténéré desert, Tuareg and Wodaabe cultures, and the dinosaur fossils of the Sahara, it is among the world's youngest populations by median age.",
+  "call": "+227",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "15",
+   "fire": "18"
+  }
+ },
+ "NG": {
+  "name": "Nigeria",
+  "pop": 232679478,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Hausa",
+   "Yoruba",
+   "Igbo"
+  ],
+  "cur": {
+   "code": "NGN",
+   "sym": "₦",
+   "name": "Nigerian Naira"
+  },
+  "region": "West Africa",
+  "hist": "The region hosted sophisticated civilizations including the Nok, the kingdoms of Ife and Benin, the Hausa city-states, and the Sokoto Caliphate. British colonial rule unified the northern and southern protectorates in 1914, and Nigeria gained independence in 1960. Africa's most populous nation, it is a federation of great ethnic and religious diversity. Lagos is a sprawling commercial megacity, and Nigeria's Nollywood film industry and Afrobeats music have global cultural reach.",
+  "call": "+234",
+  "drive": "right",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "RW": {
+  "name": "Rwanda",
+  "pop": 14256567,
+  "popYear": 2024,
+  "langs": [
+   "Kinyarwanda",
+   "English",
+   "French",
+   "Swahili"
+  ],
+  "cur": {
+   "code": "RWF",
+   "sym": "FRw",
+   "name": "Rwandan Franc"
+  },
+  "region": "East Africa",
+  "hist": "The Kingdom of Rwanda was a centralized state long before European contact, later coming under German and then Belgian colonial administration. Rwanda gained independence in 1962. The 1994 genocide against the Tutsi was a defining tragedy, after which the country undertook extensive reconstruction and reconciliation. Today Rwanda is known for stability, cleanliness, and its hilly 'Land of a Thousand Hills' landscape, with mountain gorilla trekking in Volcanoes National Park a premier draw.",
+  "call": "+250",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "J"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "112",
+   "amb": "912",
+   "fire": "112"
+  }
+ },
+ "ST": {
+  "name": "São Tomé and Príncipe",
+  "pop": 235536,
+  "popYear": 2024,
+  "langs": [
+   "Portuguese",
+   "Forro Creole"
+  ],
+  "cur": {
+   "code": "STN",
+   "sym": "Db",
+   "name": "São Tomé and Príncipe Dobra"
+  },
+  "region": "Central Africa",
+  "hist": "These uninhabited equatorial islands in the Gulf of Guinea were settled by the Portuguese from the late 15th century, becoming early centers of sugar and later cocoa plantations worked by enslaved and contract laborers. The country gained independence from Portugal in 1975. Its small population descends largely from these plantation communities, and Portuguese-based creoles are widely spoken. The volcanic islands, with rainforests, beaches, and former plantation estates known as roças, offer a tranquil tropical destination.",
+  "call": "+239",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "SN": {
+  "name": "Senegal",
+  "pop": 18501984,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Wolof",
+   "Pulaar",
+   "Serer"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "CFA",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "The region was part of the Jolof and other states and a significant point of contact for trans-Saharan and Atlantic trade, including the historic slave-trading post on Gorée Island near Dakar. As the administrative heart of French West Africa, Senegal gained independence in 1960 under the poet-president Léopold Sédar Senghor. It is noted for a long tradition of stable, peaceful transfers of power. Dakar's vibrant arts scene, Wolof culture, mbalax music, and the pink waters of Lake Retba are well-known features.",
+  "call": "+221",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "E",
+   "K"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "17",
+   "amb": "18",
+   "fire": "1515"
+  }
+ },
+ "SC": {
+  "name": "Seychelles",
+  "pop": 130418,
+  "popYear": 2024,
+  "langs": [
+   "Seychellois Creole",
+   "English",
+   "French"
+  ],
+  "cur": {
+   "code": "SCR",
+   "sym": "₨",
+   "name": "Seychellois Rupee"
+  },
+  "region": "East Africa",
+  "hist": "This Indian Ocean archipelago was uninhabited until the 18th century, when the French established settlements, bringing enslaved Africans; Britain later took control. Seychelles gained independence in 1976. Its population is a creole blend of African, European, Indian, and Chinese heritage, reflected in Seychellois Creole. Famous for granite-boulder beaches such as Anse Source d'Argent, the rare coco de mer palm, and the Aldabra giant tortoise, it is one of the world's premier luxury island destinations.",
+  "call": "+248",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "133",
+   "amb": "151"
+  }
+ },
+ "SL": {
+  "name": "Sierra Leone",
+  "pop": 8642022,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Krio",
+   "Mende",
+   "Temne"
+  ],
+  "cur": {
+   "code": "SLE",
+   "sym": "Le",
+   "name": "Sierra Leonean Leone"
+  },
+  "region": "West Africa",
+  "hist": "The capital, Freetown, was founded in the late 18th century as a settlement for freed and formerly enslaved Africans, giving rise to the Krio people and the widely spoken Krio language. The territory became a British colony and protectorate before gaining independence in 1961. A civil war during the 1990s and early 2000s ended in 2002, followed by recovery and democratic governance. The country is known for its Atlantic beaches near Freetown, the Tacugama chimpanzee sanctuary, and a culturally diverse society.",
+  "call": "+232",
+  "drive": "right",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "019",
+   "amb": "999",
+   "fire": "999"
+  }
+ },
+ "SO": {
+  "name": "Somalia",
+  "pop": 18143378,
+  "popYear": 2024,
+  "langs": [
+   "Somali",
+   "Arabic",
+   "English",
+   "Italian"
+  ],
+  "cur": {
+   "code": "SOS",
+   "sym": "Sh",
+   "name": "Somali Shilling"
+  },
+  "region": "Horn of Africa",
+  "hist": "Located on the Horn of Africa, Somalia has long been a hub of trade linking the Indian Ocean world with the Arabian Peninsula. The territory was divided into British Somaliland and Italian Somaliland during the colonial era, and the two merged to form an independent Somali Republic in 1960. After the collapse of the central government in 1991, prolonged instability followed, though a federal government has since been re-established and the country retains a strong oral poetic and pastoral cultural heritage.",
+  "call": "+252",
+  "drive": "right",
+  "plugs": [
+   "C"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "888",
+   "amb": "999",
+   "fire": "555"
+  }
+ },
+ "ZA": {
+  "name": "South Africa",
+  "pop": 63015904,
+  "popYear": 2024,
+  "langs": [
+   "Zulu",
+   "Xhosa",
+   "Afrikaans",
+   "English",
+   "Sotho",
+   "Tswana"
+  ],
+  "cur": {
+   "code": "ZAR",
+   "sym": "R",
+   "name": "South African Rand"
+  },
+  "region": "Southern Africa",
+  "hist": "South Africa was home to long-established Khoisan, Bantu-speaking, and later European settler communities before becoming a British dominion in 1910. From 1948 the state enforced apartheid, a system of racial segregation that ended with the first fully democratic elections in 1994 and the presidency of Nelson Mandela. Today the country is often called the 'Rainbow Nation' for its cultural diversity, with eleven official languages and major travel draws including Cape Town, the Garden Route, and Kruger National Park.",
+  "call": "+27",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "D",
+   "M",
+   "N"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "10111",
+   "amb": "10177",
+   "fire": "10177"
+  }
+ },
+ "SS": {
+  "name": "South Sudan",
+  "pop": 11483828,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Arabic",
+   "Dinka",
+   "Nuer"
+  ],
+  "cur": {
+   "code": "SSP",
+   "sym": "£",
+   "name": "South Sudanese Pound"
+  },
+  "region": "East-Central Africa",
+  "hist": "South Sudan is the world's youngest internationally recognized nation, gaining independence from Sudan in 2011 after decades of civil conflict. The region is home to diverse ethnic communities, notably the Dinka and Nuer, with cultures centered on cattle herding and the seasonal rhythms of the White Nile and the vast Sudd wetland. The country experienced renewed internal conflict after independence, and travel infrastructure remains limited.",
+  "call": "+211",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "SD": {
+  "name": "Sudan",
+  "pop": 50042791,
+  "popYear": 2024,
+  "langs": [
+   "Arabic",
+   "English"
+  ],
+  "cur": {
+   "code": "SDG",
+   "sym": "£",
+   "name": "Sudanese Pound"
+  },
+  "region": "Northeast Africa",
+  "hist": "Sudan sits along the Nile at the crossroads of Arab and Sub-Saharan Africa, and its northern reaches were home to the ancient Kingdom of Kush, whose pyramids at Meroe still stand. Long administered jointly by Britain and Egypt, Sudan became independent in 1956, and South Sudan later separated in 2011. The country has experienced repeated political upheaval, and its cultural heritage blends Nubian, Arab, and African traditions.",
+  "call": "+249",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "TZ": {
+  "name": "Tanzania",
+  "pop": 67438106,
+  "popYear": 2024,
+  "langs": [
+   "Swahili",
+   "English"
+  ],
+  "cur": {
+   "code": "TZS",
+   "sym": "TSh",
+   "name": "Tanzanian Shilling"
+  },
+  "region": "East Africa",
+  "hist": "Tanzania was formed in 1964 through the union of mainland Tanganyika, which gained independence from Britain in 1961, and the islands of Zanzibar. The Swahili coast had centuries of trade ties across the Indian Ocean, blending African, Arab, and Indian influences that shaped the widely spoken Swahili language. The country is a premier travel destination, home to Mount Kilimanjaro, the Serengeti, Ngorongoro Crater, and the beaches of Zanzibar.",
+  "call": "+255",
+  "drive": "left",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "999",
+   "amb": "114",
+   "fire": "115"
+  }
+ },
+ "TG": {
+  "name": "Togo",
+  "pop": 9515236,
+  "popYear": 2024,
+  "langs": [
+   "French",
+   "Ewe",
+   "Kabiye"
+  ],
+  "cur": {
+   "code": "XOF",
+   "sym": "Fr",
+   "name": "West African CFA Franc"
+  },
+  "region": "West Africa",
+  "hist": "A narrow strip of land along the Gulf of Guinea, Togo was a German protectorate from the late nineteenth century before being divided between Britain and France after World War I. The French-administered portion became independent Togo in 1960. The capital, Lomé, is a coastal port city, and the country's culture reflects a mix of Ewe, Kabiye, and other ethnic traditions, including Vodun practices.",
+  "call": "+228",
+  "drive": "right",
+  "plugs": [
+   "C"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "8200",
+   "fire": "118"
+  }
+ },
+ "UG": {
+  "name": "Uganda",
+  "pop": 48582334,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Swahili",
+   "Luganda"
+  ],
+  "cur": {
+   "code": "UGX",
+   "sym": "USh",
+   "name": "Ugandan Shilling"
+  },
+  "region": "East Africa",
+  "hist": "Often called the 'Pearl of Africa,' Uganda lies in the African Great Lakes region and incorporated several historic kingdoms, most notably Buganda, into its borders. It gained independence from Britain in 1962 and later endured a turbulent period under Idi Amin in the 1970s before achieving greater stability. Today it is known for mountain gorilla trekking in Bwindi, the source of the Nile at Jinja, and savanna wildlife in its national parks.",
+  "call": "+256",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "999",
+   "amb": "911",
+   "fire": "999"
+  }
+ },
+ "ZM": {
+  "name": "Zambia",
+  "pop": 20723965,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Bemba",
+   "Nyanja",
+   "Tonga"
+  ],
+  "cur": {
+   "code": "ZMW",
+   "sym": "ZK",
+   "name": "Zambian Kwacha"
+  },
+  "region": "Southern Africa",
+  "hist": "Formerly the British protectorate of Northern Rhodesia, Zambia gained independence in 1964 under Kenneth Kaunda, taking its name from the Zambezi River. The economy was long shaped by copper mining in the Copperbelt region. The country is best known to travelers for sharing Victoria Falls with Zimbabwe and for extensive wildlife reserves such as South Luangwa National Park.",
+  "call": "+260",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "999",
+   "amb": "992",
+   "fire": "993"
+  }
+ },
+ "ZW": {
+  "name": "Zimbabwe",
+  "pop": 16634373,
+  "popYear": 2024,
+  "langs": [
+   "Shona",
+   "Ndebele",
+   "English"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Southern Africa",
+  "hist": "Zimbabwe takes its name from Great Zimbabwe, the impressive medieval stone city built by a Shona-speaking civilization between roughly the 11th and 15th centuries. Formerly the British colony of Southern Rhodesia, it achieved internationally recognized independence in 1980. The country has used several currencies amid economic instability and now relies heavily on the US dollar; major attractions include Victoria Falls, Hwange National Park, and the Great Zimbabwe ruins.",
+  "call": "+263",
+  "drive": "left",
+  "plugs": [
+   "D",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "995",
+   "amb": "994",
+   "fire": "993"
+  }
+ },
+ "AF": {
+  "name": "Afghanistan",
+  "pop": 43844000,
+  "popYear": 2025,
+  "langs": [
+   "Dari",
+   "Pashto",
+   "Uzbek",
+   "Turkmen"
+  ],
+  "cur": {
+   "code": "AFN",
+   "sym": "؋",
+   "name": "Afghan afghani"
+  },
+  "region": "Central Asia",
+  "hist": "Situated on historic Silk Road trade routes, Afghanistan has long been a crossroads of empires, leaving a rich legacy of Buddhist, Persian, and Islamic heritage seen at sites such as Herat, Balkh, and the Bamyan valley. The modern state emerged in the 18th century, gained full independence from British influence over its foreign affairs in 1919, and has experienced extended periods of conflict from the late 20th century onward. Kabul has served as the capital for much of the country's modern history.",
+  "call": "+93",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "119",
+   "amb": "112",
+   "fire": "119"
+  }
+ },
+ "BD": {
+  "name": "Bangladesh",
+  "pop": 169828911,
+  "popYear": 2022,
+  "langs": [
+   "Bengali",
+   "English"
+  ],
+  "cur": {
+   "code": "BDT",
+   "sym": "৳",
+   "name": "Bangladeshi taka"
+  },
+  "region": "South Asia",
+  "hist": "The region of Bengal has a deep cultural history tied to rivers, trade, and the arts, and was part of successive Indian empires and later British India. Following the 1947 partition it became East Pakistan, and after a war in 1971 it emerged as the independent nation of Bangladesh, with Dhaka as its capital. Bengali language and culture remain central to national identity, celebrated in festivals, literature, and cuisine.",
+  "call": "+880",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "C",
+   "D",
+   "G",
+   "K"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "BT": {
+  "name": "Bhutan",
+  "pop": 784043,
+  "popYear": 2025,
+  "langs": [
+   "Dzongkha",
+   "English"
+  ],
+  "cur": {
+   "code": "BTN",
+   "sym": "Nu.",
+   "name": "Bhutanese ngultrum"
+  },
+  "region": "South Asia",
+  "hist": "A small Himalayan kingdom, Bhutan was unified in the 17th century under a Buddhist administrative and religious system whose monastic fortresses, or dzongs, still define its towns. It remained largely isolated for centuries and became a hereditary monarchy in 1907; the country transitioned to a constitutional monarchy with parliamentary elections in 2008. Tibetan Buddhism profoundly shapes its architecture, festivals, and the policy emphasis on conserving culture and environment.",
+  "call": "+975",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "D",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "113",
+   "amb": "112",
+   "fire": "110"
+  }
+ },
+ "IN": {
+  "name": "India",
+  "pop": 1417492000,
+  "popYear": 2025,
+  "langs": [
+   "Hindi",
+   "English"
+  ],
+  "cur": {
+   "code": "INR",
+   "sym": "₹",
+   "name": "Indian rupee"
+  },
+  "region": "South Asia",
+  "hist": "Home to some of the world's oldest urban civilizations and the birthplace of Hinduism, Buddhism, Jainism, and Sikhism, the Indian subcontinent saw a succession of kingdoms and empires, including the Mauryan, Gupta, and Mughal periods, the last leaving landmarks such as the Taj Mahal. After a long period under British rule, India gained independence in 1947 and became a republic in 1950. Its enormous linguistic, religious, and regional diversity underpins a vibrant contemporary culture and is officially recognized through numerous scheduled languages.",
+  "call": "+91",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "D",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "100",
+   "amb": "108",
+   "fire": "101"
+  }
+ },
+ "KZ": {
+  "name": "Kazakhstan",
+  "pop": 20547909,
+  "popYear": 2026,
+  "langs": [
+   "Kazakh",
+   "Russian"
+  ],
+  "cur": {
+   "code": "KZT",
+   "sym": "₸",
+   "name": "Kazakhstani tenge"
+  },
+  "region": "Central Asia",
+  "hist": "The vast steppes of Kazakhstan were home to nomadic Turkic and Mongol peoples and crossed by Silk Road caravans for centuries. The territory was incorporated into the Russian Empire and later became a Soviet republic before gaining independence in 1991, after which the capital was eventually moved to the purpose-built city now called Astana. Traditions of horsemanship and nomadic heritage remain a strong cultural thread alongside a modern, multiethnic society.",
+  "call": "+7",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "KG": {
+  "name": "Kyrgyzstan",
+  "pop": 7404300,
+  "popYear": 2026,
+  "langs": [
+   "Kyrgyz",
+   "Russian"
+  ],
+  "cur": {
+   "code": "KGS",
+   "sym": "с",
+   "name": "Kyrgyzstani som"
+  },
+  "region": "Central Asia",
+  "hist": "A mountainous Central Asian country defined by the Tian Shan ranges, Kyrgyzstan has a nomadic heritage reflected in its epic oral traditions and yurt culture. The region passed under Russian imperial control in the 19th century and became a Soviet republic before declaring independence in 1991. Bishkek serves as the capital, and high-altitude landscapes such as Lake Issyk-Kul draw visitors today.",
+  "call": "+996",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "MV": {
+  "name": "Maldives",
+  "pop": 515132,
+  "popYear": 2022,
+  "langs": [
+   "Dhivehi",
+   "English"
+  ],
+  "cur": {
+   "code": "MVR",
+   "sym": ".ރ",
+   "name": "Maldivian rufiyaa"
+  },
+  "region": "South Asia",
+  "hist": "An archipelago of low-lying coral atolls in the Indian Ocean, the Maldives was historically a stop on maritime trade routes and converted to Islam in the 12th century, which remains central to its culture. Long a sultanate and later a British protectorate, it gained full independence in 1965 and became a republic in 1968, with Malé as its capital. Tourism centered on island resorts and marine environments is a defining feature of the modern economy.",
+  "call": "+960",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "C",
+   "D",
+   "G",
+   "J",
+   "K",
+   "L"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "119",
+   "amb": "100",
+   "fire": "118"
+  }
+ },
+ "NP": {
+  "name": "Nepal",
+  "pop": 29911840,
+  "popYear": 2025,
+  "langs": [
+   "Nepali"
+  ],
+  "cur": {
+   "code": "NPR",
+   "sym": "रू",
+   "name": "Nepalese rupee"
+  },
+  "region": "South Asia",
+  "hist": "Lying along the southern Himalaya and containing Mount Everest, Nepal was unified into a single kingdom in the 18th century under the Shah dynasty. It is the birthplace of the Buddha at Lumbini and is known for both Hindu and Buddhist heritage, reflected in the temples and squares of the Kathmandu Valley. The monarchy was abolished in 2008, when Nepal became a federal democratic republic.",
+  "call": "+977",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "D",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "100",
+   "amb": "102",
+   "fire": "101"
+  }
+ },
+ "PK": {
+  "name": "Pakistan",
+  "pop": 241499431,
+  "popYear": 2023,
+  "langs": [
+   "Urdu",
+   "English",
+   "Punjabi"
+  ],
+  "cur": {
+   "code": "PKR",
+   "sym": "₨",
+   "name": "Pakistani rupee"
+  },
+  "region": "South Asia",
+  "hist": "The Indus Valley, within present-day Pakistan, hosted one of the world's earliest urban civilizations at sites such as Mohenjo-daro and Harappa, and the region later saw Gandharan Buddhist, Persian, and Mughal influences. Pakistan was established in 1947 from the partition of British India and became an Islamic republic; its current capital is Islamabad, while Lahore and Karachi are major historic and commercial centers. Diverse provincial cultures and languages contribute to a varied national heritage.",
+  "call": "+92",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "D"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "15",
+   "amb": "1122",
+   "fire": "16"
+  }
+ },
+ "LK": {
+  "name": "Sri Lanka",
+  "pop": 21781800,
+  "popYear": 2024,
+  "langs": [
+   "Sinhala",
+   "Tamil",
+   "English"
+  ],
+  "cur": {
+   "code": "LKR",
+   "sym": "₨",
+   "name": "Sri Lankan rupee"
+  },
+  "region": "South Asia",
+  "hist": "An island nation off the southern tip of India, Sri Lanka has a long recorded history with ancient capitals such as Anuradhapura and Polonnaruwa and a strong Theravada Buddhist tradition alongside Hindu, Muslim, and Christian communities. Coastal areas were controlled successively by Portuguese, Dutch, and British powers, and the country gained independence in 1948, adopting the name Sri Lanka in 1972. Its cultural sites, tea-growing highlands, and beaches are notable for travelers.",
+  "call": "+94",
+  "drive": "left",
+  "plugs": [
+   "D",
+   "G",
+   "M"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "119",
+   "amb": "110",
+   "fire": "110"
+  }
+ },
+ "TJ": {
+  "name": "Tajikistan",
+  "pop": 10721000,
+  "popYear": 2026,
+  "langs": [
+   "Tajik",
+   "Russian"
+  ],
+  "cur": {
+   "code": "TJS",
+   "sym": "ЅМ",
+   "name": "Tajikistani somoni"
+  },
+  "region": "Central Asia",
+  "hist": "A predominantly mountainous country dominated by the Pamir ranges, Tajikistan shares deep cultural and linguistic ties with the Persian world, and historic cities of the region were centers of learning along the Silk Road. The territory became a Soviet republic and gained independence in 1991, with Dushanbe as its capital. Persian-influenced language, poetry, and cuisine remain central to national identity.",
+  "call": "+992",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "TM": {
+  "name": "Turkmenistan",
+  "pop": 7057841,
+  "popYear": 2022,
+  "langs": [
+   "Turkmen",
+   "Russian"
+  ],
+  "cur": {
+   "code": "TMT",
+   "sym": "m",
+   "name": "Turkmenistani manat"
+  },
+  "region": "Central Asia",
+  "hist": "Largely covered by the Karakum Desert, Turkmenistan lies along ancient Silk Road routes, and the ruins of Merv were once among the great cities of the medieval Islamic world. Home historically to Turkmen nomadic tribes known for carpet weaving and horse breeding, the territory became a Soviet republic and gained independence in 1991. Ashgabat, the capital, is known for its distinctive white-marble architecture.",
+  "call": "+993",
+  "drive": "right",
+  "plugs": [
+   "B",
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "02",
+   "amb": "03",
+   "fire": "01"
+  }
+ },
+ "UZ": {
+  "name": "Uzbekistan",
+  "pop": 38382685,
+  "popYear": 2026,
+  "langs": [
+   "Uzbek",
+   "Russian"
+  ],
+  "cur": {
+   "code": "UZS",
+   "sym": "soʻm",
+   "name": "Uzbekistani so'm"
+  },
+  "region": "Central Asia",
+  "hist": "Uzbekistan sits at the heart of historic Central Asia and contains the celebrated Silk Road cities of Samarkand, Bukhara, and Khiva, renowned for their mosques, madrasas, and tilework. The region was a center of trade, science, and Islamic scholarship under empires including the Timurid dynasty, then came under Russian and later Soviet rule before independence in 1991. Tashkent is the capital and largest city, and the country's monumental architecture is a principal draw for travelers.",
+  "call": "+998",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "BN": {
+  "name": "Brunei",
+  "pop": 450500,
+  "popYear": 2023,
+  "langs": [
+   "Malay",
+   "English",
+   "Chinese"
+  ],
+  "cur": {
+   "code": "BND",
+   "sym": "$",
+   "name": "Brunei Dollar"
+  },
+  "region": "Maritime Southeast Asia",
+  "hist": "Brunei was a powerful maritime sultanate from the 15th century, at its height controlling much of Borneo and the southern Philippines. It became a British protectorate in 1888 and gained full independence in 1984. Oil and gas wealth, discovered in the 1920s, transformed the small nation and shaped its present prosperity under a long-ruling sultanate.",
+  "call": "+673",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "993",
+   "amb": "991",
+   "fire": "995"
+  }
+ },
+ "KH": {
+  "name": "Cambodia",
+  "pop": 16700000,
+  "popYear": 2023,
+  "langs": [
+   "Khmer",
+   "English",
+   "French"
+  ],
+  "cur": {
+   "code": "KHR",
+   "sym": "៛",
+   "name": "Cambodian Riel"
+  },
+  "region": "Mainland Southeast Asia",
+  "hist": "Cambodia was the heart of the Khmer Empire (9th-15th centuries), whose capital Angkor produced the temple complex of Angkor Wat, today the country's defining cultural symbol. After periods of regional decline and French colonial rule, it gained independence in 1953. The 1970s brought conflict and the Khmer Rouge era, after which the country gradually rebuilt and reopened to tourism.",
+  "call": "+855",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "C",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "117",
+   "amb": "119",
+   "fire": "118"
+  }
+ },
+ "CN": {
+  "name": "China",
+  "pop": 1409670000,
+  "popYear": 2023,
+  "langs": [
+   "Mandarin Chinese",
+   "Cantonese",
+   "English"
+  ],
+  "cur": {
+   "code": "CNY",
+   "sym": "¥",
+   "name": "Renminbi (Yuan)"
+  },
+  "region": "East Asia",
+  "hist": "China is home to one of the world's oldest continuous civilizations, with a succession of dynasties spanning several millennia that left landmarks such as the Great Wall and the Forbidden City. Imperial rule ended in 1912, and the People's Republic of China was founded in 1949. Rapid economic reform from the late 1970s onward transformed it into a major global economy and a leading travel destination.",
+  "call": "+86",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "C",
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "110",
+   "amb": "120",
+   "fire": "119"
+  }
+ },
+ "TL": {
+  "name": "Timor-Leste",
+  "pop": 1360000,
+  "popYear": 2023,
+  "langs": [
+   "Tetum",
+   "Portuguese",
+   "Indonesian",
+   "English"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Maritime Southeast Asia",
+  "hist": "Timor-Leste (East Timor) was a Portuguese colony for several centuries, leaving a lasting Catholic and Lusophone influence on its culture. After Portuguese withdrawal in 1975 it was annexed by Indonesia, then voted for independence in a 1999 referendum. It became fully independent in 2002 as one of Asia's youngest nations, drawing visitors to its mountainous landscapes and coral reefs.",
+  "call": "+670",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "E",
+   "F",
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112"
+  }
+ },
+ "ID": {
+  "name": "Indonesia",
+  "pop": 281190000,
+  "popYear": 2024,
+  "langs": [
+   "Indonesian",
+   "Javanese",
+   "Sundanese",
+   "English"
+  ],
+  "cur": {
+   "code": "IDR",
+   "sym": "Rp",
+   "name": "Indonesian Rupiah"
+  },
+  "region": "Maritime Southeast Asia",
+  "hist": "Indonesia is an archipelago of thousands of islands long shaped by maritime trade, Hindu-Buddhist kingdoms such as Majapahit, and the later spread of Islam. Centuries of Dutch colonial rule ended when independence was proclaimed in 1945 and recognized in 1949. Today it is the world's most populous Muslim-majority nation and a vast cultural mosaic, with Bali, Java, and Sumatra among its best-known destinations.",
+  "call": "+62",
+  "drive": "left",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "112",
+   "police": "110",
+   "amb": "118",
+   "fire": "113"
+  }
+ },
+ "JP": {
+  "name": "Japan",
+  "pop": 124000000,
+  "popYear": 2024,
+  "langs": [
+   "Japanese"
+  ],
+  "cur": {
+   "code": "JPY",
+   "sym": "¥",
+   "name": "Japanese Yen"
+  },
+  "region": "East Asia",
+  "hist": "Japan developed a distinctive culture over centuries, including the long Edo period of relative isolation under the shogunate. The Meiji Restoration of 1868 launched rapid modernization, and after the Second World War the country rebuilt into a leading industrial and technological power. Its blend of preserved traditions, temples, and modern cities makes it a major global travel destination.",
+  "call": "+81",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "100V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "110",
+   "amb": "119",
+   "fire": "119"
+  }
+ },
+ "LA": {
+  "name": "Laos",
+  "pop": 7630000,
+  "popYear": 2023,
+  "langs": [
+   "Lao",
+   "French",
+   "English"
+  ],
+  "cur": {
+   "code": "LAK",
+   "sym": "₭",
+   "name": "Lao Kip"
+  },
+  "region": "Mainland Southeast Asia",
+  "hist": "Laos traces its identity to the kingdom of Lan Xang, founded in the 14th century, whose Buddhist heritage endures in cities like Luang Prabang. It became part of French Indochina before gaining independence in the mid-20th century and later established a one-party socialist state. The landlocked country is known today for the Mekong River, mountainous terrain, and well-preserved temple towns.",
+  "call": "+856",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "E",
+   "F"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "191",
+   "amb": "195",
+   "fire": "190"
+  }
+ },
+ "MY": {
+  "name": "Malaysia",
+  "pop": 34060000,
+  "popYear": 2024,
+  "langs": [
+   "Malay",
+   "English",
+   "Chinese",
+   "Tamil"
+  ],
+  "cur": {
+   "code": "MYR",
+   "sym": "RM",
+   "name": "Malaysian Ringgit"
+  },
+  "region": "Maritime Southeast Asia",
+  "hist": "Malaysia emerged from a string of Malay sultanates and the historic trading port of Malacca, a hub influenced by Malay, Chinese, Indian, and European contact. After British colonial rule, the Federation of Malaya gained independence in 1957, and modern Malaysia formed in 1963. Its multicultural society spans the peninsula and the Borneo states of Sabah and Sarawak.",
+  "call": "+60",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999"
+  }
+ },
+ "MM": {
+  "name": "Myanmar",
+  "pop": 54500000,
+  "popYear": 2023,
+  "langs": [
+   "Burmese",
+   "English"
+  ],
+  "cur": {
+   "code": "MMK",
+   "sym": "K",
+   "name": "Myanmar Kyat"
+  },
+  "region": "Mainland Southeast Asia",
+  "hist": "Myanmar (Burma) was home to powerful Buddhist kingdoms, including Bagan, whose plain of temples remains a major cultural landmark. It came under British rule in the 19th century and gained independence in 1948. The country has experienced long periods of military governance, and its heritage sites, pagodas, and diverse ethnic regions define its cultural landscape.",
+  "call": "+95",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "D",
+   "F",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "199",
+   "amb": "192",
+   "fire": "191"
+  }
+ },
+ "MN": {
+  "name": "Mongolia",
+  "pop": 3470000,
+  "popYear": 2023,
+  "langs": [
+   "Mongolian",
+   "Russian",
+   "English"
+  ],
+  "cur": {
+   "code": "MNT",
+   "sym": "₮",
+   "name": "Mongolian Tugrik"
+  },
+  "region": "East Asia",
+  "hist": "Mongolia is the homeland of the nomadic empire founded by Genghis Khan in the 13th century, once the largest contiguous land empire in history. It later came under Qing influence before establishing independence in the early 20th century and a long socialist period aligned with the Soviet Union. Since the 1990s it has been a democracy, known for vast steppe landscapes and enduring nomadic traditions.",
+  "call": "+976",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "E"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "105",
+   "police": "102",
+   "amb": "103",
+   "fire": "101"
+  }
+ },
+ "KP": {
+  "name": "North Korea",
+  "pop": 26160000,
+  "popYear": 2023,
+  "langs": [
+   "Korean"
+  ],
+  "cur": {
+   "code": "KPW",
+   "sym": "₩",
+   "name": "North Korean Won"
+  },
+  "region": "East Asia",
+  "hist": "North Korea (the Democratic People's Republic of Korea) was established in 1948 following the division of the Korean Peninsula at the end of Japanese colonial rule. The Korean War (1950-1953) ended in an armistice that left the peninsula divided along the Demilitarized Zone. It remains one of the world's most isolated states, with tightly controlled and limited access for visitors.",
+  "call": "+850",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "C",
+   "F"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "fire": "110"
+  }
+ },
+ "KR": {
+  "name": "South Korea",
+  "pop": 51750000,
+  "popYear": 2024,
+  "langs": [
+   "Korean",
+   "English"
+  ],
+  "cur": {
+   "code": "KRW",
+   "sym": "₩",
+   "name": "South Korean Won"
+  },
+  "region": "East Asia",
+  "hist": "South Korea shares a long peninsular history shaped by dynasties such as Joseon, whose palaces and traditions remain visible in Seoul. After Japanese colonial rule ended in 1945 and the peninsula was divided, the Republic of Korea was founded in 1948. Rapid post-war development transformed it into a high-tech economy and a global cultural exporter through film, music, and cuisine.",
+  "call": "+82",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "F"
+  ],
+  "volt": "220V",
+  "freq": "60Hz",
+  "emerg": {
+   "police": "112",
+   "amb": "119",
+   "fire": "119"
+  }
+ },
+ "PH": {
+  "name": "Philippines",
+  "pop": 114200000,
+  "popYear": 2024,
+  "langs": [
+   "Filipino",
+   "English",
+   "Cebuano",
+   "Tagalog"
+  ],
+  "cur": {
+   "code": "PHP",
+   "sym": "₱",
+   "name": "Philippine Peso"
+  },
+  "region": "Maritime Southeast Asia",
+  "hist": "The Philippines is an archipelago of over seven thousand islands settled by diverse Austronesian peoples and later shaped by more than three centuries of Spanish rule, which spread Catholicism and Hispanic influence. It passed to American administration around 1898 before gaining independence in 1946. Its culture blends indigenous, Spanish, and American elements, and its beaches and reefs are major draws.",
+  "call": "+63",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C"
+  ],
+  "volt": "220V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "SG": {
+  "name": "Singapore",
+  "pop": 5920000,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Malay",
+   "Mandarin Chinese",
+   "Tamil"
+  ],
+  "cur": {
+   "code": "SGD",
+   "sym": "$",
+   "name": "Singapore Dollar"
+  },
+  "region": "Maritime Southeast Asia",
+  "hist": "Singapore grew from a regional trading post into a major British colonial port after its founding as a trading settlement in 1819. It was part of Malaysia briefly before becoming fully independent in 1965. Through rapid development it became a global financial and shipping hub, known today for its multicultural population, cuisine, and modern skyline.",
+  "call": "+65",
+  "drive": "left",
+  "plugs": [
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "999",
+   "amb": "995",
+   "fire": "995"
+  }
+ },
+ "TH": {
+  "name": "Thailand",
+  "pop": 71700000,
+  "popYear": 2023,
+  "langs": [
+   "Thai",
+   "English"
+  ],
+  "cur": {
+   "code": "THB",
+   "sym": "฿",
+   "name": "Thai Baht"
+  },
+  "region": "Mainland Southeast Asia",
+  "hist": "Thailand traces its statehood to kingdoms such as Sukhothai and Ayutthaya, and it is notable as the only Southeast Asian nation never formally colonized by a European power. The kingdom modernized under a series of monarchs and transitioned to a constitutional monarchy in 1932. Its Buddhist temples, monarchy, cuisine, and beaches make it one of Asia's most visited countries.",
+  "call": "+66",
+  "drive": "left",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "O"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "191",
+   "police": "191",
+   "amb": "1669",
+   "fire": "199"
+  }
+ },
+ "VN": {
+  "name": "Vietnam",
+  "pop": 100300000,
+  "popYear": 2023,
+  "langs": [
+   "Vietnamese",
+   "English"
+  ],
+  "cur": {
+   "code": "VND",
+   "sym": "₫",
+   "name": "Vietnamese Dong"
+  },
+  "region": "Mainland Southeast Asia",
+  "hist": "Vietnam has a long history marked by periods of Chinese influence and independent dynasties that shaped its language, cuisine, and architecture. It became part of French Indochina in the 19th century, and following mid-20th-century conflict and division, the country was reunified in 1975. Today it is known for cities such as Hanoi and Ho Chi Minh City, its coastline, and sites like Ha Long Bay.",
+  "call": "+84",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B",
+   "C",
+   "F"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "113",
+   "amb": "115",
+   "fire": "114"
+  }
+ },
+ "TW": {
+  "name": "Taiwan",
+  "pop": 23420000,
+  "popYear": 2023,
+  "langs": [
+   "Mandarin Chinese",
+   "Taiwanese Hokkien",
+   "Hakka",
+   "English"
+  ],
+  "cur": {
+   "code": "TWD",
+   "sym": "NT$",
+   "name": "New Taiwan Dollar"
+  },
+  "region": "East Asia",
+  "hist": "Taiwan was settled by indigenous Austronesian peoples and later saw Dutch, Spanish, and Chinese settlement before a period of Japanese rule from 1895 to 1945. The Republic of China government relocated to the island in 1949, and it subsequently developed into a prosperous, democratic, high-technology society. Visitors are drawn to its night markets, mountains, and blend of Chinese, Japanese, and indigenous heritage.",
+  "call": "+886",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "110V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "112",
+   "police": "110",
+   "amb": "119",
+   "fire": "119"
+  }
+ },
+ "HK": {
+  "name": "Hong Kong",
+  "pop": 7500000,
+  "popYear": 2023,
+  "langs": [
+   "Cantonese",
+   "English",
+   "Mandarin Chinese"
+  ],
+  "cur": {
+   "code": "HKD",
+   "sym": "HK$",
+   "name": "Hong Kong Dollar"
+  },
+  "region": "East Asia",
+  "hist": "Hong Kong became a British colony in stages during the 19th century and grew into a major international trading and financial port. Sovereignty was transferred to China in 1997, after which it has been governed as a Special Administrative Region with its own currency and legal system. Its dense skyline, harbor, and fusion of Cantonese and international culture make it a prominent travel hub.",
+  "call": null,
+  "drive": null,
+  "plugs": [
+   "G"
+  ],
+  "volt": "220V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "999",
+   "amb": "999",
+   "fire": "999"
+  }
+ },
+ "AU": {
+  "name": "Australia",
+  "pop": 26900000,
+  "popYear": 2024,
+  "langs": [
+   "English"
+  ],
+  "cur": {
+   "code": "AUD",
+   "sym": "$",
+   "name": "Australian Dollar"
+  },
+  "region": "Australasia",
+  "hist": "Australia has been inhabited by Aboriginal and Torres Strait Islander peoples for tens of thousands of years, representing some of the world's oldest continuous cultures. British colonisation began in 1788 with a penal settlement at Sydney Cove, and six separate colonies were established over the following century. These federated into the Commonwealth of Australia in 1901. Subsequent waves of migration from Europe, Asia, and beyond have shaped its contemporary multicultural society.",
+  "call": "+61",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "000"
+  }
+ },
+ "FJ": {
+  "name": "Fiji",
+  "pop": 925000,
+  "popYear": 2024,
+  "langs": [
+   "Fijian",
+   "English",
+   "Fiji Hindi"
+  ],
+  "cur": {
+   "code": "FJD",
+   "sym": "$",
+   "name": "Fijian Dollar"
+  },
+  "region": "Melanesia",
+  "hist": "Fiji was settled by Austronesian and later Melanesian peoples over several millennia, developing distinct chiefly societies. It became a British colony in 1874, during which indentured labourers were brought from India to work on sugar plantations, creating the large Indo-Fijian community that remains central to the country's culture. Fiji gained independence in 1970 and has since experienced periods of political change, including several coups. Today it is a regional hub for travel and commerce in the South Pacific.",
+  "call": "+679",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "917",
+   "fire": "910"
+  }
+ },
+ "KI": {
+  "name": "Kiribati",
+  "pop": 133000,
+  "popYear": 2024,
+  "langs": [
+   "Gilbertese",
+   "English"
+  ],
+  "cur": {
+   "code": "AUD",
+   "sym": "$",
+   "name": "Australian Dollar"
+  },
+  "region": "Micronesia",
+  "hist": "Kiribati comprises 33 widely scattered atolls and reef islands straddling the equator and the International Date Line. Settled by Micronesian peoples thousands of years ago, the islands became the British Gilbert and Ellice Islands colony in the late 19th century. Some atolls saw significant fighting during the Second World War, notably the Battle of Tarawa. Kiribati became independent in 1979 and is widely noted today for its vulnerability to rising sea levels.",
+  "call": "+686",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "192",
+   "amb": "194",
+   "fire": "193"
+  }
+ },
+ "MH": {
+  "name": "Marshall Islands",
+  "pop": 41000,
+  "popYear": 2024,
+  "langs": [
+   "Marshallese",
+   "English"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Micronesia",
+  "hist": "The Marshall Islands consist of two chains of coral atolls settled by Micronesian navigators known for traditional stick-chart wayfinding. The islands passed through Spanish, German, and Japanese administration before becoming part of a United States-administered trust territory after the Second World War. Bikini and Enewetak atolls were sites of extensive US nuclear testing in the 1940s and 1950s. The country gained sovereignty in 1986 under a Compact of Free Association with the United States.",
+  "call": "+692",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "FM": {
+  "name": "Micronesia",
+  "pop": 114000,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Chuukese",
+   "Pohnpeian",
+   "Yapese",
+   "Kosraean"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Micronesia",
+  "hist": "The Federated States of Micronesia spans four states — Yap, Chuuk, Pohnpei, and Kosrae — across the western Pacific. The region holds ancient sites such as the stone city of Nan Madol on Pohnpei, and its islands passed through Spanish, German, and Japanese control before falling under US trusteeship after the Second World War. The federation adopted its constitution in 1979 and entered into a Compact of Free Association with the United States in 1986. Distinct languages and traditions persist across each of the four states.",
+  "call": "+691",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "NR": {
+  "name": "Nauru",
+  "pop": 12000,
+  "popYear": 2024,
+  "langs": [
+   "Nauruan",
+   "English"
+  ],
+  "cur": {
+   "code": "AUD",
+   "sym": "$",
+   "name": "Australian Dollar"
+  },
+  "region": "Micronesia",
+  "hist": "Nauru, one of the world's smallest nations, was settled by Micronesian and Polynesian peoples organised into traditional clans. Annexed by Germany in the late 19th century and later administered under Australian-led mandates, the island's economy was transformed by extensive phosphate mining through much of the 20th century. Nauru became independent in 1968. The legacy of mining reshaped much of the island's interior landscape.",
+  "call": "+674",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "110",
+   "amb": "111",
+   "fire": "112"
+  }
+ },
+ "NZ": {
+  "name": "New Zealand",
+  "pop": 5230000,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Maori",
+   "New Zealand Sign Language"
+  ],
+  "cur": {
+   "code": "NZD",
+   "sym": "$",
+   "name": "New Zealand Dollar"
+  },
+  "region": "Australasia",
+  "hist": "New Zealand was first settled by Polynesian voyagers, ancestors of the Maori, around the 13th century. European contact intensified after James Cook's voyages in the 1770s, and in 1840 the Treaty of Waitangi was signed between the British Crown and Maori chiefs, a founding document still central to national life. The country became a self-governing dominion and later a fully independent nation within the Commonwealth. Maori culture and the bicultural relationship it anchors remain defining features of contemporary New Zealand.",
+  "call": "+64",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "111"
+  }
+ },
+ "PW": {
+  "name": "Palau",
+  "pop": 18000,
+  "popYear": 2024,
+  "langs": [
+   "Palauan",
+   "English"
+  ],
+  "cur": {
+   "code": "USD",
+   "sym": "$",
+   "name": "United States Dollar"
+  },
+  "region": "Micronesia",
+  "hist": "Palau, an archipelago in the western Pacific, was settled by migrants from maritime Southeast Asia thousands of years ago. It passed through Spanish, German, and Japanese administration before becoming part of a US-administered trust territory after the Second World War, during which Peleliu was the scene of heavy fighting. Palau became independent in 1994 under a Compact of Free Association with the United States. It is internationally known for marine conservation, including its Rock Islands and Jellyfish Lake.",
+  "call": "+680",
+  "drive": "right",
+  "plugs": [
+   "A",
+   "B"
+  ],
+  "volt": "120V",
+  "freq": "60Hz",
+  "emerg": {
+   "all": "911"
+  }
+ },
+ "PG": {
+  "name": "Papua New Guinea",
+  "pop": 10300000,
+  "popYear": 2024,
+  "langs": [
+   "Tok Pisin",
+   "English",
+   "Hiri Motu"
+  ],
+  "cur": {
+   "code": "PGK",
+   "sym": "K",
+   "name": "Papua New Guinean Kina"
+  },
+  "region": "Melanesia",
+  "hist": "Papua New Guinea has been inhabited for tens of thousands of years and is one of the most linguistically diverse countries on Earth, with over 800 languages. Its eastern New Guinea territories were administered separately by Germany and Britain, later passing under Australian control through much of the 20th century. The country gained independence from Australia in 1975. Highland and coastal communities maintain rich and varied traditional cultures.",
+  "call": "+675",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "112",
+   "amb": "111",
+   "fire": "110"
+  }
+ },
+ "WS": {
+  "name": "Samoa",
+  "pop": 222000,
+  "popYear": 2024,
+  "langs": [
+   "Samoan",
+   "English"
+  ],
+  "cur": {
+   "code": "WST",
+   "sym": "$",
+   "name": "Samoan Tala"
+  },
+  "region": "Polynesia",
+  "hist": "Samoa was settled by Polynesian peoples around three thousand years ago and is often considered a cradle of Polynesian culture, expressed through the enduring social system known as fa'a Samoa. The islands came under German and then New Zealand administration in the early 20th century. Samoa became the first Pacific island nation to gain independence, in 1962. Traditional village governance and customary land tenure remain central to daily life.",
+  "call": "+685",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "995",
+   "amb": "996",
+   "fire": "994"
+  }
+ },
+ "SB": {
+  "name": "Solomon Islands",
+  "pop": 740000,
+  "popYear": 2024,
+  "langs": [
+   "English",
+   "Solomon Islands Pijin"
+  ],
+  "cur": {
+   "code": "SBD",
+   "sym": "$",
+   "name": "Solomon Islands Dollar"
+  },
+  "region": "Melanesia",
+  "hist": "The Solomon Islands, a large Melanesian archipelago, were settled by Austronesian-speaking peoples thousands of years ago and are home to many distinct languages and customs. The islands became a British protectorate in the late 19th century and were the site of major Second World War campaigns, including the Battle of Guadalcanal. The country gained independence in 1978. Customary land ownership and village-based life remain prominent throughout the islands.",
+  "call": "+677",
+  "drive": "left",
+  "plugs": [
+   "I",
+   "G"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "999",
+   "police": "999",
+   "amb": "111",
+   "fire": "988"
+  }
+ },
+ "TO": {
+  "name": "Tonga",
+  "pop": 105000,
+  "popYear": 2024,
+  "langs": [
+   "Tongan",
+   "English"
+  ],
+  "cur": {
+   "code": "TOP",
+   "sym": "T$",
+   "name": "Tongan Pa'anga"
+  },
+  "region": "Polynesia",
+  "hist": "Tonga was settled by Polynesians around three thousand years ago and developed a powerful maritime chiefdom centred on the Tu'i Tonga line. Unified as a kingdom under King George Tupou I in the 19th century, it adopted a constitution in 1875. Tonga is distinctive as the only Pacific nation never formally colonised, having retained its monarchy throughout, though it was a British-protected state for part of the 20th century. The monarchy and traditional rank remain central to Tongan identity.",
+  "call": "+676",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "240V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "922",
+   "amb": "933",
+   "fire": "999"
+  }
+ },
+ "TV": {
+  "name": "Tuvalu",
+  "pop": 11000,
+  "popYear": 2024,
+  "langs": [
+   "Tuvaluan",
+   "English"
+  ],
+  "cur": {
+   "code": "AUD",
+   "sym": "$",
+   "name": "Australian Dollar"
+  },
+  "region": "Polynesia",
+  "hist": "Tuvalu is a chain of nine low-lying atolls and reef islands settled by Polynesian voyagers. Administered with the Gilbert Islands as the British Gilbert and Ellice Islands colony, the Ellice Islands voted to separate in the 1970s and became independent Tuvalu in 1978. With a very small population and minimal land elevation, the nation is among the most exposed in the world to rising sea levels. Traditional island communities and customs remain strong.",
+  "call": "+688",
+  "drive": "left",
+  "plugs": [
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "all": "911",
+   "police": "911",
+   "amb": "999",
+   "fire": "000"
+  }
+ },
+ "VU": {
+  "name": "Vanuatu",
+  "pop": 335000,
+  "popYear": 2024,
+  "langs": [
+   "Bislama",
+   "English",
+   "French"
+  ],
+  "cur": {
+   "code": "VUV",
+   "sym": "VT",
+   "name": "Vanuatu Vatu"
+  },
+  "region": "Melanesia",
+  "hist": "Vanuatu, a Melanesian archipelago, was settled by Austronesian peoples roughly three thousand years ago and retains exceptional cultural and linguistic diversity. The islands were jointly governed by Britain and France as the New Hebrides condominium for much of the 20th century, a dual administration that left a lasting bilingual legacy. The country gained independence as Vanuatu in 1980. Customary practices, known locally as kastom, continue to shape community life.",
+  "call": "+678",
+  "drive": "right",
+  "plugs": [
+   "C",
+   "G",
+   "I"
+  ],
+  "volt": "230V",
+  "freq": "50Hz",
+  "emerg": {
+   "police": "111",
+   "amb": "112",
+   "fire": "113"
+  }
+ }
+};

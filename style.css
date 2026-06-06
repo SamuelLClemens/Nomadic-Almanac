@@ -870,15 +870,23 @@ html, body {
 }
 
 /* ─── First-visit onboarding hint ───────────────────────────────────────── */
+/* Welcome card — persists until the traveller interacts with the site (any click,
+   key, or map gesture dismisses it). No auto-fade: it must not "flash". */
 #onboarding-hint {
   position: fixed; z-index: 3000;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: rgba(16,12,5,0.96); border: 1px solid var(--b2);
-  border-top: 2px solid var(--gold); border-radius: 10px;
-  padding: 18px 24px; text-align: center;
-  font-family: var(--fm); pointer-events: none;
+  background: rgba(16,12,5,0.97); border: 1px solid var(--b2);
+  border-top: 2px solid var(--gold); border-radius: 14px;
+  padding: 22px 26px 20px; text-align: center;
+  font-family: var(--fm); pointer-events: auto;
   box-shadow: 0 16px 48px rgba(0,0,0,.88);
-  animation: hint-fade 4s forwards;
+  max-width: min(430px, 92vw);
+  animation: na-hint-in .45s ease forwards;
+}
+#onboarding-hint.na-hint-out { animation: na-hint-out .3s ease forwards; }
+#onboarding-hint .hint-title {
+  font-size: 15px; color: var(--gold); letter-spacing: 0.10em;
+  margin: 0 0 10px; text-transform: uppercase; font-weight: 600;
 }
 #onboarding-hint p {
   font-size: 11px; color: var(--sand); letter-spacing: 0.06em;
@@ -888,12 +896,59 @@ html, body {
   font-size: 8.5px; color: var(--dim); letter-spacing: 1.2px;
   margin-top: 6px; text-transform: uppercase;
 }
-@keyframes hint-fade {
-  0%   { opacity: 0; transform: translate(-50%, -52%); }
-  12%  { opacity: 1; transform: translate(-50%, -50%); }
-  75%  { opacity: 1; }
-  100% { opacity: 0; pointer-events: none; }
+#onboarding-hint .hint-actions {
+  display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap;
 }
+#onboarding-hint .hint-btn {
+  font-family: var(--fm); font-size: 10px; letter-spacing: 0.08em;
+  padding: 8px 16px; border-radius: 7px; cursor: pointer;
+  background: rgba(201,168,76,0.08); border: 1px solid var(--b2);
+  color: var(--sand); transition: background .15s, border-color .15s;
+}
+#onboarding-hint .hint-btn:hover { background: rgba(201,168,76,0.16); border-color: var(--gold); }
+#onboarding-hint .hint-btn.primary {
+  background: var(--gold); border-color: var(--gold); color: #1a1305; font-weight: 600;
+}
+#onboarding-hint .hint-btn.primary:hover { background: #d9b94f; }
+@keyframes na-hint-in {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes na-hint-out {
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to   { opacity: 0; transform: translate(-50%, -54%); }
+}
+
+/* ─── Guided walkthrough tour ────────────────────────────────────────────── */
+#na-tour-overlay { position: fixed; inset: 0; z-index: 4000; }
+#na-tour-spotlight {
+  position: fixed; border-radius: 10px; border: 2px solid var(--gold);
+  box-shadow: 0 0 0 9999px rgba(8,6,2,0.66), 0 0 22px rgba(201,168,76,0.55);
+  pointer-events: none; transition: top .28s ease, left .28s ease, width .28s ease, height .28s ease;
+}
+#na-tour-overlay.no-spot #na-tour-spotlight { display: none; }
+#na-tour-overlay.no-spot::before { content: ''; position: fixed; inset: 0; background: rgba(8,6,2,0.66); }
+#na-tour-pop {
+  position: fixed; z-index: 4001; max-width: min(340px, 92vw); width: max-content;
+  background: rgba(16,12,5,0.98); border: 1px solid var(--b2);
+  border-top: 2px solid var(--gold); border-radius: 12px;
+  padding: 16px 18px 14px; font-family: var(--fm);
+  box-shadow: 0 16px 48px rgba(0,0,0,.9);
+  transition: top .24s ease, left .24s ease;
+}
+#na-tour-pop .tour-step { font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+#na-tour-pop .tour-title { font-size: 13px; color: var(--gold); letter-spacing: 0.06em; margin: 4px 0 8px; font-weight: 600; }
+#na-tour-pop .tour-body { font-size: 10.5px; color: var(--sand); line-height: 1.65; margin: 0; max-width: 300px; }
+#na-tour-pop .tour-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 10px; }
+#na-tour-pop .tour-dots { display: flex; gap: 4px; }
+#na-tour-pop .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(201,168,76,0.25); }
+#na-tour-pop .tour-dot.on { background: var(--gold); }
+#na-tour-pop .tour-btns { display: flex; gap: 6px; }
+#na-tour-pop .tour-btn { font-family: var(--fm); font-size: 10px; padding: 6px 13px; border-radius: 6px; cursor: pointer; border: 1px solid var(--b2); background: rgba(201,168,76,0.08); color: var(--sand); transition: background .15s, border-color .15s; }
+#na-tour-pop .tour-btn:hover { background: rgba(201,168,76,0.16); border-color: var(--gold); }
+#na-tour-pop .tour-btn.primary { background: var(--gold); border-color: var(--gold); color: #1a1305; font-weight: 600; }
+#na-tour-pop .tour-skip { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--dim); font-size: 15px; cursor: pointer; line-height: 1; padding: 2px 4px; }
+#na-tour-pop .tour-skip:hover { color: var(--sand); }
 
 /* ─── Comparison panel (pinned countries) ────────────────────────────────── */
 #compare-panel {
@@ -1512,6 +1567,26 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   color: var(--na-navy);
   border-color: var(--na-gold-mid);
   font-weight: 700;
+}
+
+/* ── Click-to-collapse (desktop ≥1280px) ───────────────────────────────────
+   Clicking the sidebar logo toggles .collapsed: the sidebar shrinks to a slim
+   icon rail and the map column (with its absolutely-positioned legend/"key")
+   reclaims the freed space. The logo stays visible so the rail can re-expand. */
+#na-sidebar-logo { cursor: pointer; }
+#na-sidebar-logo:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 3px; border-radius: 6px; }
+@media (min-width: 1280px) {
+  #na-sidebar.collapsed { width: var(--rail-w); }
+  #na-sidebar.collapsed #na-sidebar-inner { padding: var(--sp-2); align-items: center; }
+  #na-sidebar.collapsed .na-sidebar-brand { display: none; }
+  #na-sidebar.collapsed .na-nav-item-label,
+  #na-sidebar.collapsed .na-nav-group-label { display: none; }
+  #na-sidebar.collapsed .na-nav-item { justify-content: center; padding: var(--sp-3) 0; }
+  #na-sidebar.collapsed #na-sidebar-footer { display: none; }
+  #na-sidebar.collapsed .na-accordion-body { display: none; }
+  #na-sidebar.collapsed .na-accordion-arrow { display: none; }
+  #na-sidebar.collapsed #na-sidebar-logo { justify-content: center; }
+  #na-sidebar.collapsed .gold-rule { display: none; }
 }
 
 /* ── Sidebar — LAPTOP (1024–1279px): icon rail, expands smoothly on hover ─── */
@@ -2327,3 +2402,121 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 @media (prefers-reduced-motion: reduce) {
   .na-route-flow { animation: none; }
 }
+
+/* ─── Enriched country dossier (facts / emergency / history / phrasebook) ───────
+   Colours use the theme-aware --na-text-* / --na-gold-mid tokens so the dossier
+   stays legible in BOTH the dark (default) and light themes. */
+.na-sec-h {
+  font-size: 7px; font-weight: 700; color: var(--na-gold-mid);
+  letter-spacing: 1.8px; text-transform: uppercase;
+  margin: 0 0 7px; display: flex; align-items: center; gap: 6px;
+}
+.na-sec-h::before {
+  content: ""; flex: 0 0 14px; height: 1px;
+  background: linear-gradient(90deg, var(--na-gold-mid), transparent);
+}
+
+/* Master unit toggle in the dossier header (left of the close button) */
+.na-unit-master {
+  position: absolute; top: 8px; right: 38px; z-index: 2001;
+  height: 22px; padding: 0 8px;
+  background: rgba(200,168,75,0.12);
+  border: 1px solid rgba(200,168,75,0.32);
+  border-radius: 5px; color: var(--na-gold-mid);
+  font-family: var(--fm); font-size: 8.5px; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer; line-height: 1;
+  transition: background .12s, color .12s;
+}
+.na-unit-master:hover { background: rgba(200,168,75,0.24); color: var(--na-text-primary); }
+.na-unit-master:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 1px; }
+
+/* At-a-glance fact grid */
+.na-facts { margin: 2px 0 10px; }
+.na-facts-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.na-fact {
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 7px 8px; border-radius: 7px;
+  background: rgba(200,168,75,0.06);
+  border: 1px solid rgba(200,168,75,0.14);
+}
+.na-fact-ico {
+  flex: 0 0 18px; width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(200,168,75,0.16); font-size: 10px; line-height: 1;
+}
+.na-fact-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.na-fact-label {
+  font-size: 6.5px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--na-text-secondary); font-weight: 700;
+}
+.na-fact-val {
+  font-size: 9.5px; color: var(--na-text-primary); font-weight: 600;
+  line-height: 1.3; word-break: break-word;
+}
+.na-fact-sub { color: var(--na-text-secondary); font-weight: 400; font-size: 8px; }
+
+/* Emergency band — prominent, distinct red accent (legible on both themes) */
+.na-emergency {
+  display: flex; align-items: center; gap: 9px;
+  margin: 2px 0 11px; padding: 8px 10px;
+  background: rgba(198,40,40,0.12);
+  border: 1px solid rgba(198,40,40,0.40);
+  border-left: 3px solid #d32f2f; border-radius: 7px;
+}
+.na-emg-ico { font-size: 15px; line-height: 1; flex-shrink: 0; }
+.na-emg-body { flex: 1; min-width: 0; }
+.na-emg-h {
+  font-size: 7px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+  color: #c62828; margin-bottom: 4px;
+}
+.na-emg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.na-emg-chip {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 2px 7px; border-radius: 11px;
+  background: #c62828; border: 1px solid rgba(198,40,40,0.6);
+}
+.na-emg-k { font-size: 6.5px; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.85); }
+.na-emg-n { font-size: 11px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+
+/* History */
+.na-history { margin: 2px 0 11px; }
+.na-history-p {
+  margin: 0; font-size: 9px; line-height: 1.6;
+  color: var(--na-text-primary); font-weight: 400;
+}
+
+/* Phrasebook */
+.na-phrasebook {
+  margin: 2px 0 6px; padding: 9px 10px;
+  background: rgba(200,168,75,0.06);
+  border: 1px solid rgba(200,168,75,0.16); border-radius: 8px;
+}
+.na-ph-native { color: var(--na-text-secondary); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.na-ph-table { width: 100%; border-collapse: collapse; }
+.na-ph-table td { padding: 4px 0; vertical-align: top; border-bottom: 1px solid rgba(200,168,75,0.12); }
+.na-ph-table tr:last-child td { border-bottom: none; }
+.na-ph-en { font-size: 8px; color: var(--na-text-secondary); padding-right: 10px !important; white-space: nowrap; }
+.na-ph-loc { font-size: 11px; color: var(--na-text-primary); font-weight: 600; text-align: right; }
+.na-ph-pron { display: block; font-size: 7.5px; color: var(--na-gold-mid); font-weight: 400; font-style: italic; margin-top: 1px; }
+.na-ph-more { margin-top: 6px; }
+.na-ph-more > summary {
+  cursor: pointer; list-style: none; outline: none;
+  font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--na-gold-mid); padding: 3px 0;
+}
+.na-ph-more > summary::-webkit-details-marker { display: none; }
+.na-ph-more > summary::before { content: "▸ "; }
+.na-ph-more[open] > summary::before { content: "▾ "; }
+.na-ph-nums-h {
+  font-size: 6.5px; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--na-text-secondary); font-weight: 700; margin: 8px 0 5px;
+}
+.na-ph-nums { display: flex; flex-wrap: wrap; gap: 5px; }
+.na-ph-num {
+  font-size: 8.5px; color: var(--na-text-primary);
+  padding: 2px 6px; border-radius: 5px; background: rgba(200,168,75,0.10);
+}
+.na-ph-num b { color: var(--na-gold-mid); margin-right: 2px; }
+.na-ph-num .na-ph-pron { display: inline; font-size: 7px; margin-left: 2px; }

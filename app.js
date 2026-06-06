@@ -41,11 +41,16 @@ let _holidayMarkers = [];
 let _activeTooltipKey = null;
 let _tempUnit         = localStorage.getItem('na_temp') || 'C';   // 'C' or 'F' — persisted
 var _distUnit         = localStorage.getItem('na_dist') || 'km';  // 'km' or 'mi' — persisted
+var _elevUnit         = localStorage.getItem('na_elev') || 'm';   // 'm' or 'ft' — persisted
+// Mirror unit prefs onto window so functions that read window._tempUnit (e.g. the
+// climate wheel) stay in sync with the lexically-scoped globals.
+if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; }
 var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // basemap style
 var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
 var _basemapLayer     = null;  // reference to the current basemap tile layer
 var _basemapUserPinned = false; // true once the traveller explicitly picks a basemap; then the Day/Night theme stops auto-swapping satellite <-> night-lights
+var _naBootstrapping  = true;  // true during initial boot — the dark default theme must NOT auto-swap the satellite basemap to night-lights on first load (the site opens on satellite + dark). Cleared once boot completes; later theme toggles then sync normally.
 var _labelLayer       = null;  // reference to the place-labels overlay tile layer
 var _labelsOn         = (localStorage.getItem('na_labels') !== '0'); // place labels visible?
 let climateZoneLayer  = null;
@@ -888,15 +893,11 @@ function initTripPlanner() {
     panel.classList.toggle('open');
   });
 
-  // Add Pin button
+  // Add Pin button — toggles continuous placement mode.
   document.getElementById('btn-add-pin').addEventListener('click', () => {
-    _placingPin = !_placingPin;
-    document.getElementById('btn-add-pin').classList.toggle('placing', _placingPin);
-    document.getElementById('btn-add-pin').textContent = _placingPin ? '🎯 Click Map…' : '+ Add Pin';
-    document.getElementById('trip-hint').textContent = _placingPin
-      ? 'Click anywhere on the map to place a pin.'
-      : 'Click "Add Pin" to start placing waypoints.';
-    if (map) map.getContainer().style.cursor = _placingPin ? 'crosshair' : '';
+    _setPlacingPin(!_placingPin);
+    // Make sure the panel is open so the user can see the pin list grow.
+    if (_placingPin) panel.classList.add('open');
   });
 
   // Clear All button — two-click confirmation (no blocking window.confirm)
@@ -960,27 +961,58 @@ function initTripPlanner() {
   shareTripCardBtn.addEventListener('click', function() { _shareTrip(); });
   document.getElementById('trip-panel-actions').appendChild(shareTripCardBtn);
 
-  // Map click handler — place pin when _placingPin is active.
-  // Guard: if a Leaflet feature (country polygon, POI marker) was clicked, that
-  // handler sets _featureClicked=true for 10 ms. We skip placement in that window
-  // to prevent placing a pin AND opening a country tooltip simultaneously.
+  // Map click handler — place a pin whenever "Add Pin" mode is active.
+  //
+  // Pin placement takes priority over every feature tooltip: the country / admin /
+  // territory / city click handlers now bail out early while _placingPin is true
+  // (see their handlers), so they neither open a tooltip nor set _featureClicked.
+  // That means a click anywhere over land drops a pin instead of being swallowed
+  // by the full-coverage country polygon underneath the cursor — the bug that
+  // made pin placement impossible.
+  //
+  // Placement is CONTINUOUS: each click adds the next waypoint and we stay in
+  // placing mode, so a multi-stop trip is just click-click-click. The user exits
+  // by pressing the "Add Pin" toggle again (now labelled "✓ Done") or Escape.
   if (map) {
     map.on('click', e => {
-      if (!_placingPin || _featureClicked) return;
-      const name = `Pin ${_tripPins.length + 1}`;
-      const pin = { id: 'tp_' + Date.now(), lat: e.latlng.lat, lng: e.latlng.lng, name };
-      _tripPins.push(pin);
-      _saveTripPins();
-      _renderTripPinMarker(pin, _tripPins.length - 1);
-      _updateTripPlannerPanel();
-      _placingPin = false;
-      const addBtn = document.getElementById('btn-add-pin');
-      if (addBtn) { addBtn.classList.remove('placing'); addBtn.textContent = '+ Add Pin'; }
-      const hint = document.getElementById('trip-hint');
-      if (hint) hint.textContent = 'Click "Add Pin" to place more waypoints. Drag pins to reposition.';
-      if (map) map.getContainer().style.cursor = '';
+      if (!_placingPin) return;
+      _placeTripPinAt(e.latlng.lat, e.latlng.lng);
+    });
+    // Escape leaves placing mode without dropping a pin.
+    document.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape' && _placingPin) _setPlacingPin(false);
     });
   }
+}
+
+// Drop a waypoint at the given coordinates and refresh the panel + route line,
+// keeping placing mode active for the next click.
+function _placeTripPinAt(lat, lng) {
+  const name = `Pin ${_tripPins.length + 1}`;
+  const pin = { id: 'tp_' + Date.now() + '_' + _tripPins.length, lat, lng, name };
+  _tripPins.push(pin);
+  _saveTripPins();
+  _renderTripPinMarker(pin, _tripPins.length - 1);
+  _renderTripRouteLine();
+  _updateTripPlannerPanel();
+  const hint = document.getElementById('trip-hint');
+  if (hint) hint.textContent = `Placed ${_tripPins.length} pin${_tripPins.length === 1 ? '' : 's'}. Keep clicking to add more · drag to reposition · press "✓ Done" or Esc to finish.`;
+}
+
+// Single source of truth for entering/leaving pin-placement mode, so the button
+// label, cursor, hint, and panel state never drift apart.
+function _setPlacingPin(on) {
+  _placingPin = !!on;
+  const addBtn = document.getElementById('btn-add-pin');
+  if (addBtn) {
+    addBtn.classList.toggle('placing', _placingPin);
+    addBtn.textContent = _placingPin ? '✓ Done' : '+ Add Pin';
+  }
+  const hint = document.getElementById('trip-hint');
+  if (hint) hint.textContent = _placingPin
+    ? 'Click anywhere on the map to drop a waypoint. Keep clicking to add more.'
+    : (_tripPins.length ? 'Drag pins to reposition · click "Add Pin" to add more.' : 'Click "Add Pin", then tap the map to place your first waypoint.');
+  if (map) map.getContainer().style.cursor = _placingPin ? 'crosshair' : '';
 }
 
 let _ttX = 0, _ttY = 0;
@@ -2026,8 +2058,9 @@ function makeMarkerIcon(city, zoom) {
 
   // Dots shrink as the user zooms in — a city fills a screen at zoom 12+ so
   // a large dot would obscure it.  At world zoom dots are larger so they are
-  // easy to find and click.  Minimum radius 4 to remain clickable at all times.
-  const SZ = zoom >= 12 ? 4 : zoom >= 10 ? 5 : zoom >= 8 ? 6 : zoom >= 6 ? 7 : 8;
+  // easy to find and click.  Radii are 25% smaller than the original ramp
+  // (8/7/6/5/4 → 6/5/4.5/4/3) for a lighter, less cluttered map.
+  const SZ = zoom >= 12 ? 3 : zoom >= 10 ? 4 : zoom >= 8 ? 4.5 : zoom >= 6 ? 5 : 6;
   const D = SZ * 2;
   const lw = SZ <= 4 ? 1 : 1.5;  // thinner stroke on small markers
 
@@ -2189,6 +2222,7 @@ function initPoliticalLayers() {
         layer.setStyle(getTerritoryStyle(p, false));
       });
       layer.on('click', e => {
+        if (_placingPin) return;   // yield to trip-pin placement
         _featureClicked = true;
         toggleTooltip('territory:' + p.id, buildTerritoryTooltip(p.id, p.name, p.type, p.adminIso), e.originalEvent.clientX, e.originalEvent.clientY);
         setTimeout(() => { _featureClicked = false; }, 10);
@@ -2266,6 +2300,7 @@ async function initChoropleth() {
         layer.setStyle(getCountryStyle(iso2, false));
       });
       layer.on('click', e => {
+        if (_placingPin) return;   // yield to trip-pin placement
         _featureClicked = true;
         const html = buildCountryTooltip(iso2);
         if (html) {
@@ -2393,6 +2428,7 @@ async function initAdmin1Choropleth() {
           layer.setStyle(getAdmin1Style(iso2, subCode, false));
         });
         layer.on('click', e => {
+          if (_placingPin) return;   // yield to trip-pin placement
           _featureClicked = true;
           const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
           if (html) toggleTooltip('admin1:' + subCode, html, e.originalEvent.clientX, e.originalEvent.clientY);
@@ -2460,6 +2496,7 @@ async function loadAdmin2Country(iso2) {
           layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
         });
         layer.on('click', e => {
+          if (_placingPin) return;   // yield to trip-pin placement
           _featureClicked = true;
           const stateName   = (parentA1 && _admin1NameCache[parentA1]) || parentA1 || '';
           const countryName = countryNames[iso2] || iso2;
@@ -2532,22 +2569,28 @@ function onZoomAdmin2() {
 }
 
 // ─── City Markers ─────────────────────────────────────────────────────────────
+// Country capitals only — computed once from COUNTRY_CAPITALS (ISO-2 → capital
+// name) by matching against the CITIES list. Used for the first zoom tier.
+let _capitalCitiesCache = null;
+function _capitalCities() {
+  if (_capitalCitiesCache) return _capitalCitiesCache;
+  if (typeof COUNTRY_CAPITALS === 'undefined') { _capitalCitiesCache = []; return _capitalCitiesCache; }
+  _capitalCitiesCache = CITIES.filter(c => c && COUNTRY_CAPITALS[c.country] === c.name);
+  return _capitalCitiesCache;
+}
+
 function renderCityMarkers() {
   cityMarkers.forEach(m => m.remove());
   cityMarkers = [];
-  // Clean open: city discovery markers are shown even with no active layer.
 
   const zoom = map.getZoom();
-  // Don't clutter the far world-view; reveal progressively more cities on zoom-in.
-  // Sparse at continent view (zoom 3), a representative third at zoom 4, all at 5+.
-  if (zoom < 3) return;
-  if (zoom < 4) {
-    _placeCities(CITIES.filter((_, i) => i % 5 === 0));
-  } else if (zoom < 5) {
-    _placeCities(CITIES.filter((_, i) => i % 3 === 0));
-  } else {
-    _placeCities(CITIES);
-  }
+  // Three-tier reveal, calm at world view and progressively richer on zoom-in:
+  //   • world view (zoom < 4)      → no city dots at all
+  //   • first zoom step (zoom 4)   → country capitals only
+  //   • zoomed in (zoom ≥ 5)       → every city dot
+  if (zoom < 4) return;
+  if (zoom < 5) { _placeCities(_capitalCities()); return; }
+  _placeCities(CITIES);
 }
 
 function _placeCities(list) {
@@ -2558,6 +2601,7 @@ function _placeCities(list) {
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
 
     marker.on('click', e => {
+      if (_placingPin) { _placeTripPinAt(city.lat, city.lng); return; }   // drop a pin on the city
       _featureClicked = true;
       toggleTooltip('city:' + city.name + ':' + city.lat, buildCityTooltip(city), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -3266,7 +3310,7 @@ function _buildHotspringTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : '';
   const fields = [
-    row('Temperature',  t.temperature ? t.temperature + '°C' : ''),
+    row('Temperature',  (t.temperature != null && t.temperature !== '') ? ((typeof _tempUnit !== 'undefined' && _tempUnit === 'F') ? (Math.round(Number(t.temperature) * 9 / 5 + 32) + '°F') : (t.temperature + '°C')) : ''),
     row('pH',           t['hot_spring:ph'] || ''),
     row('Opening Hours',t.opening_hours    || ''),
     row('Fee',          t.fee              || ''),
@@ -3951,8 +3995,12 @@ function positionTooltip(cx, cy) {
   let left  = cx + 18;
   let top   = cy - 20;
   if (left + W > window.innerWidth  - 10) left = cx - W - 18;
+  // Clamp within the viewport so the dossier is never cut off (e.g. when
+  // anchored near the centre of a narrow screen, or opened from search).
+  left = Math.max(10, Math.min(left, window.innerWidth - W - 10));
   top = Math.max(tbH, top);
   top = Math.min(window.innerHeight - H - 10, top);
+  top = Math.max(10, top);
   tt.style.left = left + 'px';
   tt.style.top  = top  + 'px';
   _ttX = cx; _ttY = cy;
@@ -4186,6 +4234,7 @@ function buildCompositeScore(dataObj, iso2) {
 function toggleTempUnit() {
   _tempUnit = _tempUnit === 'C' ? 'F' : 'C';
   localStorage.setItem('na_temp', _tempUnit);
+  if (typeof window !== 'undefined') window._tempUnit = _tempUnit;
   document.querySelectorAll('.tt-temp-val').forEach(el => {
     const c = parseFloat(el.dataset.celsius);
     if (!isNaN(c)) {
@@ -4196,6 +4245,57 @@ function toggleTempUnit() {
     el.textContent = _tempUnit === 'C' ? '→°F' : '→°C';
     el.title = _tempUnit === 'C' ? 'Switch to Fahrenheit' : 'Switch to Celsius';
   });
+}
+
+// ─── Master unit system (temperature + distance + elevation together) ───────────
+// A single control in the dossier flips every measurement between metric and
+// imperial, persists each unit, syncs the in-page/preferences toggles, and
+// re-renders the open dossier so climate, distances and elevation all update.
+function _unitsAreImperial() { return _tempUnit === 'F'; }
+function na_setUnitSystem(sys) {
+  var imp = (sys === 'imperial');
+  _tempUnit = imp ? 'F'  : 'C';
+  _distUnit = imp ? 'mi' : 'km';
+  _elevUnit = imp ? 'ft' : 'm';
+  try {
+    localStorage.setItem('na_temp', _tempUnit);
+    localStorage.setItem('na_dist', _distUnit);
+    localStorage.setItem('na_elev', _elevUnit);
+  } catch (_e) {}
+  if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; }
+  var distBtn = document.getElementById('btn-dist-unit');
+  if (distBtn) distBtn.textContent = _distUnit;
+  if (typeof na_syncPrefsUI === 'function') { try { na_syncPrefsUI(); } catch (_e) {} }
+  _rerenderActiveDossier();
+}
+function na_toggleUnitSystem() { na_setUnitSystem(_unitsAreImperial() ? 'metric' : 'imperial'); }
+
+// Convert a metre value to the active elevation unit, formatted with a label.
+function fmtElev(m) {
+  if (m === null || m === undefined || isNaN(m)) return '';
+  return _elevUnit === 'ft' ? (Math.round(m * 3.28084).toLocaleString() + ' ft')
+                            : (Math.round(m).toLocaleString() + ' m');
+}
+
+// Rebuild the currently-open dossier in place (used after a unit-system change).
+function _rerenderActiveDossier() {
+  var key = (typeof _activeTooltipKey !== 'undefined') ? _activeTooltipKey : null;
+  var tt  = document.getElementById('tt');
+  if (!key || !tt || tt.style.display === 'none') return;
+  var html = null;
+  try {
+    if (key.indexOf('country:') === 0 && typeof buildCountryTooltip === 'function') {
+      html = buildCountryTooltip(key.slice('country:'.length));
+    }
+  } catch (_e) { html = null; }
+  if (html && typeof showTooltip === 'function') showTooltip(html);
+  // Re-inject the live current-conditions weather row (lost on rebuild) so it
+  // re-appears in the newly chosen unit.
+  if (html && key.indexOf('country:') === 0) {
+    var iso = key.slice('country:'.length);
+    var c = (typeof COUNTRY_CENTERS !== 'undefined') ? COUNTRY_CENTERS[iso] : null;
+    if (c && typeof _injectWeatherRow === 'function') { try { _injectWeatherRow(iso, c[0], c[1]); } catch (_e) {} }
+  }
 }
 
 // Builds a detailed climate card for the weather info section.
@@ -4293,6 +4393,10 @@ function _buildSeasonCalendar(iso2) {
   var maxT = Math.max.apply(null, valid);
   var minT = Math.min.apply(null, valid);
   var rng = maxT - minT || 1;
+  // Convert for display; bar heights/colours stay on the raw Celsius scale.
+  var _impSC = (typeof _tempUnit !== 'undefined' && _tempUnit === 'F');
+  var _scT = function (c) { return _impSC ? Math.round(c * 9 / 5 + 32) : c; };
+  var _scU = _impSC ? '°F' : '°C';
   var mn = ['J','F','M','A','M','J','J','A','S','O','N','D'];
   var bars = temps.map(function(t,i) {
     if (t == null) return '<div style="flex:1"></div>';
@@ -4300,8 +4404,8 @@ function _buildSeasonCalendar(iso2) {
     var col = t > 25 ? '#ef4444' : t > 15 ? '#fbbf24' : t > 5 ? '#22d3ee' : '#818cf8';
     var h = Math.max(4, Math.round(pct * 0.36));
     var active = (i === activeMonth) ? 'box-shadow:0 0 4px ' + col + ';outline:1px solid ' + col + ';outline-offset:1px;' : '';
-    return '<div style="display:flex;flex-direction:column;align-items:center;flex:1;cursor:default" title="' + mn[i] + ': ' + t + (typeof _tempUnit!=='undefined'&&_tempUnit==='F'?'°F':'°C') + '">' +
-      '<div style="font-size:6.5px;color:var(--dim);margin-bottom:1px">' + t + '°</div>' +
+    return '<div style="display:flex;flex-direction:column;align-items:center;flex:1;cursor:default" title="' + mn[i] + ': ' + _scT(t) + _scU + '">' +
+      '<div style="font-size:6.5px;color:var(--dim);margin-bottom:1px">' + _scT(t) + '°</div>' +
       '<div style="width:8px;height:' + h + 'px;background:' + col + ';border-radius:2px 2px 0 0;' + active + '"></div>' +
       '<div style="font-size:5.5px;color:var(--dim);margin-top:2px">' + mn[i] + '</div>' +
       '</div>';
@@ -4310,8 +4414,8 @@ function _buildSeasonCalendar(iso2) {
     '<div style="font-size:7.5px;color:var(--dim);margin-bottom:6px">📅 Temperature year-round (click month bar to filter)</div>' +
     '<div style="display:flex;align-items:flex-end;height:52px;gap:1px">' + bars + '</div>' +
     '<div style="display:flex;justify-content:space-between;margin-top:4px">' +
-    '<span style="font-size:7px;color:var(--dim)">❄️ ' + minT + (typeof _tempUnit!=='undefined'&&_tempUnit==='F'?'°F':'°C') + '</span>' +
-    '<span style="font-size:7px;color:var(--dim)">☀️ ' + maxT + (typeof _tempUnit!=='undefined'&&_tempUnit==='F'?'°F':'°C') + '</span></div>' +
+    '<span style="font-size:7px;color:var(--dim)">❄️ ' + _scT(minT) + _scU + '</span>' +
+    '<span style="font-size:7px;color:var(--dim)">☀️ ' + _scT(maxT) + _scU + '</span></div>' +
     '</div>';
 }
 
@@ -4517,14 +4621,138 @@ function _buildPlanBook(label, lat, lng) {
   return '<div class="pb-section"><div class="pb-title">Plan / Book</div><div class="pb-links">' + btns + '</div></div>';
 }
 
+// ─── Enriched country dossier sections (always rendered, layer-independent) ─────
+function _fmtPop(n) {
+  if (typeof n !== 'number' || !isFinite(n)) return null;
+  if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1).replace(/\.0$/, '') + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+  if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+  return String(n);
+}
+
+// "At a glance" fact grid: capital, population, currency, languages, power,
+// calling code, driving side, region. Renders any subset that has data.
+function buildCountryFactsSection(iso2) {
+  var F   = (typeof COUNTRY_FACTS   !== 'undefined') ? COUNTRY_FACTS[iso2]   : null;
+  var cap = (typeof COUNTRY_CAPITALS !== 'undefined') ? COUNTRY_CAPITALS[iso2] : null;
+  if (!F && !cap) return '';
+  F = F || {};
+  function fact(ico, label, val, title) {
+    if (val === null || val === undefined || val === '') return '';
+    var t = title ? ' title="' + _esc(title) + '"' : '';
+    return '<div class="na-fact"' + t + '><span class="na-fact-ico">' + ico + '</span>' +
+      '<span class="na-fact-body"><span class="na-fact-label">' + label + '</span>' +
+      '<span class="na-fact-val">' + val + '</span></span></div>';
+  }
+  var popVal = (typeof F.pop === 'number') ? _fmtPop(F.pop) : null;
+  var popTitle = (typeof F.pop === 'number') ? (F.pop.toLocaleString() + (F.popYear ? ' (' + F.popYear + ')' : '')) : '';
+  var popStr = popVal ? (popVal + (F.popYear ? ' <span class="na-fact-sub">' + F.popYear + '</span>' : '')) : null;
+  var curStr = (F.cur && F.cur.code)
+    ? (_esc(F.cur.sym || '') + ' ' + _esc(F.cur.code) + (F.cur.name ? ' <span class="na-fact-sub">' + _esc(F.cur.name) + '</span>' : ''))
+    : ((typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? _esc(CURRENCY[iso2]) : null);
+  var langStr  = (F.langs && F.langs.length) ? _esc(F.langs.join(', ')) : null;
+  var plugStr  = (F.plugs && F.plugs.length)
+    ? ('Type ' + F.plugs.map(_esc).join(' / ') + (F.volt ? ' <span class="na-fact-sub">' + _esc(F.volt) + (F.freq ? ' ' + _esc(F.freq) : '') + '</span>' : ''))
+    : null;
+  var driveStr = F.drive ? (F.drive === 'left' ? 'Left-hand' : 'Right-hand') : null;
+  var callStr  = F.call ? _esc(F.call) : null;
+  var grid = fact('🏛', 'Capital', cap ? _esc(cap) : null)
+    + fact('👥', 'Population', popStr, popTitle)
+    + fact('💱', 'Currency', curStr)
+    + fact('🗣️', 'Languages', langStr)
+    + fact('🔌', 'Power', plugStr)
+    + fact('📞', 'Calling code', callStr)
+    + fact('🚗', 'Driving', driveStr)
+    + fact('🧭', 'Region', F.region ? _esc(F.region) : null);
+  if (!grid) return '';
+  return '<div class="na-facts"><div class="na-sec-h">At a glance</div><div class="na-facts-grid">' + grid + '</div></div>';
+}
+
+// Prominent emergency-numbers band (safety-critical, visually distinct).
+function buildEmergencySection(iso2) {
+  var F = (typeof COUNTRY_FACTS !== 'undefined') ? COUNTRY_FACTS[iso2] : null;
+  if (!F || !F.emerg) return '';
+  var e = F.emerg, items = [];
+  if (e.all)    items.push(['General', e.all]);
+  if (e.police) items.push(['Police', e.police]);
+  if (e.amb)    items.push(['Ambulance', e.amb]);
+  if (e.fire)   items.push(['Fire', e.fire]);
+  if (!items.length) return '';
+  var chips = items.map(function (it) {
+    return '<span class="na-emg-chip"><span class="na-emg-k">' + _esc(it[0]) + '</span><span class="na-emg-n">' + _esc(it[1]) + '</span></span>';
+  }).join('');
+  return '<div class="na-emergency"><span class="na-emg-ico">🆘</span><div class="na-emg-body">' +
+    '<div class="na-emg-h">Emergency</div><div class="na-emg-chips">' + chips + '</div></div></div>';
+}
+
+// Brief, neutral country history.
+function buildHistorySection(iso2) {
+  var F = (typeof COUNTRY_FACTS !== 'undefined') ? COUNTRY_FACTS[iso2] : null;
+  if (!F || !F.hist) return '';
+  return '<div class="na-history"><div class="na-sec-h">History</div><p class="na-history-p">' + _esc(F.hist) + '</p></div>';
+}
+
+// Resolve a country's primary language to a PHRASES_BY_LANG key.
+function _phraseLangFor(iso2) {
+  var F = (typeof COUNTRY_FACTS !== 'undefined') ? COUNTRY_FACTS[iso2] : null;
+  if (!F || !F.langs || !F.langs.length || typeof PHRASES_BY_LANG === 'undefined') return null;
+  var SYN = {
+    'Mandarin': 'Mandarin Chinese', 'Chinese': 'Mandarin Chinese', 'Cantonese': 'Mandarin Chinese',
+    'Farsi': 'Persian (Farsi)', 'Persian': 'Persian (Farsi)', 'Dari': 'Persian (Farsi)',
+    'Tagalog': 'Filipino (Tagalog)', 'Filipino': 'Filipino (Tagalog)',
+    'Castilian': 'Spanish', 'Serbian': 'Serbian/Croatian', 'Croatian': 'Serbian/Croatian',
+    'Bosnian': 'Serbian/Croatian', 'Montenegrin': 'Serbian/Croatian',
+  };
+  for (var i = 0; i < F.langs.length; i++) {
+    var L = F.langs[i];
+    if (PHRASES_BY_LANG[L]) return L;
+    if (SYN[L] && PHRASES_BY_LANG[SYN[L]]) return SYN[L];
+  }
+  return null;
+}
+
+// Traveler phrasebook for the country's primary language: 5 essential phrases
+// up-front, the rest plus numbers in an expandable section.
+function buildPhrasebookSection(iso2) {
+  var lang = _phraseLangFor(iso2);
+  if (!lang) return '';
+  var P = PHRASES_BY_LANG[lang];
+  if (!P || !P.phrases || !P.phrases.length) return '';
+  function row(p) {
+    return '<tr><td class="na-ph-en">' + _esc(p.en || '') + '</td><td class="na-ph-loc">' +
+      _esc(p.loc || '') + (p.pron ? ' <span class="na-ph-pron">' + _esc(p.pron) + '</span>' : '') + '</td></tr>';
+  }
+  var preview = P.phrases.slice(0, 5).map(row).join('');
+  var rest    = P.phrases.slice(5).map(row).join('');
+  var nums = (P.numbers && P.numbers.length)
+    ? '<div class="na-ph-nums-h">Numbers</div><div class="na-ph-nums">' + P.numbers.map(function (n) {
+        return '<span class="na-ph-num"><b>' + _esc(String(n.n)) + '</b> ' + _esc(n.loc || '') +
+          (n.pron ? ' <span class="na-ph-pron">' + _esc(n.pron) + '</span>' : '') + '</span>';
+      }).join('') + '</div>'
+    : '';
+  var nativeName = P.native ? ' <span class="na-ph-native">' + _esc(P.native) + '</span>' : '';
+  return '<div class="na-phrasebook"><div class="na-sec-h">Phrasebook — ' + _esc(lang) + nativeName + '</div>' +
+    '<table class="na-ph-table"><tbody>' + preview + '</tbody></table>' +
+    ((rest || nums)
+      ? '<details class="na-ph-more"><summary>More phrases &amp; numbers</summary>' +
+        (rest ? '<table class="na-ph-table"><tbody>' + rest + '</tbody></table>' : '') + nums + '</details>'
+      : '') +
+    '</div>';
+}
+
 function buildCountryTooltip(iso2) {
-  if (activeLayers.size === 0) return null;
+  // Enriched dossier renders ALWAYS — country facts, history and phrasebook show
+  // even with no active layer; only the per-layer rows/sections gate on activeLayers.
   // Robust name: countryNames is missing a few entries (e.g. FR) — fall back to
   // COUNTRY_NAMES so the title and Plan/Book links read the real country name.
   const name = countryNames[iso2] || (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[iso2]) || iso2;
   const _cc = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[iso2]) || null;
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? ` <span style="font-size:9px;color:var(--gold);font-weight:400;letter-spacing:1px">${CURRENCY[iso2]}</span>` : '';
-  const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
+  // Per-layer rows only when a layer is active; the enriched facts/history/
+  // phrasebook below carry the dossier in clean-open (no-layer) mode.
+  const rows = (activeLayers.size > 0)
+    ? (CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>')
+    : '';
   const costSection    = buildCostDetailsSection(iso2);
   const healthSection  = buildHealthSection(iso2);
   const climateSection = buildClimateWheelSection(iso2);
@@ -4532,6 +4760,11 @@ function buildCountryTooltip(iso2) {
   const visaSection    = buildVisaSection(iso2);
   const tippingSection  = activeLayers.has('tipping') ? _buildTippingTooltip(iso2) : '';
   const languageSection = buildLanguageSection(iso2);
+  const factsSection     = (typeof buildCountryFactsSection === 'function') ? buildCountryFactsSection(iso2) : '';
+  const emergencySection = (typeof buildEmergencySection === 'function') ? buildEmergencySection(iso2) : '';
+  const historySection   = (typeof buildHistorySection === 'function') ? buildHistorySection(iso2) : '';
+  const phrasebookSection = (typeof buildPhrasebookSection === 'function') ? buildPhrasebookSection(iso2) : '';
+  const unitToggle = `<button class="na-unit-master" onclick="na_toggleUnitSystem()" title="Toggle all units — temperature, distance, elevation">${(typeof _unitsAreImperial === 'function' && _unitsAreImperial()) ? '°F · mi' : '°C · km'}</button>`;
   const tzSection      = buildTimezoneSection(iso2);
   const holSection     = buildHolidaysSection(iso2);
   const journalSection = buildJournalSection(iso2);
@@ -4584,13 +4817,14 @@ function buildCountryTooltip(iso2) {
     }
   } catch(_e) {}
   return `<div class="tth">
+    ${unitToggle}
     <h3 id="tt-name">${_countryFlag(iso2) ? _countryFlag(iso2) + ' ' : ''}${_esc(name)}${curr}</h3>
     <div class="ts" id="tt-sub">${iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
     ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}
+  <div class="ttb" id="tt-body">${factsSection}${emergencySection}${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${historySection}${phrasebookSection}${journalSection}${visitedBtn}
   <div class="intel-wrap"><div class="intel-hdr">Country Intelligence <span class="intel-badge">AI</span></div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
   ${_buildPlanBook(name, _cc && _cc[0], _cc && _cc[1])}
   </div>${pinSection}${similarSection}`;
@@ -5904,48 +6138,13 @@ function buildLanguageSection(iso2) {
       }</div>`
     : '';
 
-  // Phrasebook section
-  let phrasebookHtml = '';
-  if (typeof PHRASEBOOK_DATA !== 'undefined' && PHRASEBOOK_DATA[iso2]) {
-    const pb = PHRASEBOOK_DATA[iso2];
-    const langName = pb.lang || iso2;
-    const scriptName = pb.script || '';
-    const phrases = Array.isArray(pb.phrases) ? pb.phrases : [];
-
-    let phraseRows = '';
-    for (let i = 0; i < phrases.length; i++) {
-      const p = phrases[i];
-      const eng = _esc(p.en || '');
-      const local = p.local || '';
-      const pron = p.pron ? ` <span class="tt-phrase-pron">(${_esc(p.pron)})</span>` : '';
-      phraseRows += `<tr>
-        <td style="padding:3px 6px 3px 0;font-size:7.5px;color:rgba(232,213,163,0.7);vertical-align:top;white-space:nowrap">${eng}</td>
-        <td style="padding:3px 0;font-size:7.5px;vertical-align:top"><span class="tt-phrase-local">${_esc(local)}</span>${pron}</td>
-      </tr>`;
-    }
-
-    const scriptBadge = scriptName
-      ? `<div style="margin-top:5px;font-size:6.5px;color:rgba(201,168,76,0.5);letter-spacing:0.8px">Script: ${_esc(scriptName)}</div>`
-      : '';
-
-    phrasebookHtml = `<div class="tt-phrasebook" style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(201,168,76,0.10)">
-      <details>
-        <summary style="cursor:pointer;font-size:7px;color:#c9a84c;letter-spacing:0.8px;text-transform:uppercase;font-weight:700;list-style:none;outline:none">Phrasebook &mdash; ${_esc(langName)}</summary>
-        <div style="margin-top:5px">
-          <table class="tt-phrase-table" style="width:100%;border-collapse:collapse">
-            <tbody>${phraseRows}</tbody>
-          </table>
-          ${scriptBadge}
-        </div>
-      </details>
-    </div>`;
-  }
+  // (The phrasebook now lives in its own always-on dossier section,
+  // buildPhrasebookSection(), powered by PHRASES_BY_LANG — see buildCountryTooltip.)
 
   return `<div style="margin-top:8px;padding:8px 10px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.10);border-radius:7px">
     <div style="font-size:6.5px;color:rgba(201,168,76,0.6);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px;font-weight:700">&#x1F5E3; LANGUAGE &amp; CONNECTIVITY</div>
     <div>${rows}</div>
     ${notesHtml}
-    ${phrasebookHtml}
   </div>`;
 }
 
@@ -6801,22 +7000,223 @@ function updateBestPanel() {
   autoExpandBestPanel();
 }
 
-// ─── Onboarding Hint ─────────────────────────────────────────────────────────
-// Displayed once on first visit for 4 seconds, then never again.
+// ─── Welcome Card ────────────────────────────────────────────────────────────
+// Shown once to first-time visitors. Unlike the old "flash" hint, it PERSISTS
+// until the traveller interacts with the site — any click, key press, or map
+// gesture dismisses it. It also offers a guided walkthrough of the almanac.
 function showOnboardingHint() {
   try { if (localStorage.getItem('na_hint_seen')) return; } catch (_) {}
+  if (document.getElementById('onboarding-hint')) return;
   const el = document.createElement('div');
   el.id = 'onboarding-hint';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-label', 'Welcome to the Nomadic Almanac');
   el.innerHTML = `
-    <p>Click any country &nbsp;&middot;&nbsp; Switch months &nbsp;&middot;&nbsp; Select a passport for visa data</p>
-    <p class="hint-sub">Zoom to level&nbsp;5+ for province&nbsp;detail &nbsp;&middot;&nbsp; Level&nbsp;6+ for county&nbsp;detail</p>`;
+    <p class="hint-title">Welcome, traveller</p>
+    <p>An atlas of where to go and when. Click any country for its dossier, scrub the
+       months to see the seasons turn, and add layers to read the world your way.</p>
+    <p class="hint-sub">Zoom in for province &amp; county detail &middot; pick a passport for visa colours</p>
+    <div class="hint-actions">
+      <button type="button" class="hint-btn primary" id="na-hint-tour">Take the tour</button>
+      <button type="button" class="hint-btn" id="na-hint-dismiss">Explore on my own</button>
+    </div>`;
   document.body.appendChild(el);
-  // Remove element after animation completes (4 s) and mark as seen
-  setTimeout(() => {
-    if (el.parentNode) el.remove();
+
+  let dismissed = false;
+  function teardownListeners() {
+    document.removeEventListener('pointerdown', onInteract, true);
+    document.removeEventListener('keydown', onInteract, true);
+    if (map && map.off) map.off('movestart zoomstart dragstart', dismiss);
+  }
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    teardownListeners();
     try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
-  }, 4200);
+    el.classList.add('na-hint-out');
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 320);
+  }
+  function onInteract(ev) {
+    // Clicks on the card's own buttons are handled by their own listeners.
+    if (ev && ev.target && el.contains(ev.target)) return;
+    dismiss();
+  }
+
+  el.querySelector('#na-hint-dismiss').addEventListener('click', e => { e.stopPropagation(); dismiss(); });
+  el.querySelector('#na-hint-tour').addEventListener('click', e => {
+    e.stopPropagation();
+    dismiss();
+    if (typeof startTour === 'function') setTimeout(startTour, 360);
+  });
+
+  // Any interaction anywhere else on the site dismisses the card. A short delay
+  // ensures the page-load settling does not count as an interaction.
+  setTimeout(() => {
+    if (dismissed) return;
+    document.addEventListener('pointerdown', onInteract, true);
+    document.addEventListener('keydown', onInteract, true);
+    if (map && map.on) map.on('movestart zoomstart dragstart', dismiss);
+  }, 450);
 }
+
+// ─── Guided Walkthrough Tour ─────────────────────────────────────────────────
+// A lightweight coachmark tour for new (and returning) users. Each step points
+// at a real control; steps whose target is not visible in the current layout are
+// skipped automatically, so the same tour works on mobile, tablet, and desktop.
+var _tourState = null;
+
+function _naTourSteps() {
+  return [
+    { target: null, center: true, title: 'Welcome to the Almanac',
+      body: 'A living atlas of where to go and when. Here is a quick tour of the essentials — it takes about a minute.' },
+    { target: ['#map'], center: true, title: 'The world map',
+      body: 'Click any country for a full travel dossier. The glowing dots are notable cities — zoom in and the map reveals more cities, then provinces, then counties.' },
+    { target: ['#na-sidebar-months', '#na-month-strip', '.na-month-row'], title: 'Travel through the year',
+      body: 'Scrub the months to watch climate, crowds, and prices shift. Every colour on the map reflects the month you have chosen.' },
+    { target: ['.na-accordion-trigger[data-accordion="layers"]', '#na-layers-toggle', '#na-layers-list'], title: 'Intelligence layers',
+      body: 'Switch on layers — weather, safety, cost, visas, events, and more. One layer paints the map; stack several and each appears as its own coloured chip.' },
+    { target: ['#na-sidebar-passport', '#na-passport-chip'], title: 'Your passport',
+      body: 'Choose your nationality and the map recolours every country by how easy it is for you to enter — from visa-free to visa-required.' },
+    { target: ['#btn-trip-planner'], title: 'Plan a trip',
+      body: 'Open the Trip Planner, press “Add Pin”, then click the map to drop waypoints. A route line links your journey, and you can share or pack for it.' },
+    { target: ['#na-theme-btn'], title: 'Day or night',
+      body: 'Flip between a daylight chart and a night chart. By night the map can glow with the Earth-from-space city lights.' },
+    { target: ['#na-search-btn'], title: 'Search anything',
+      body: 'Jump to any country, city, or layer instantly. Press ⌘K (or /) at any time.' },
+    { target: null, center: true, title: 'You are ready to roam',
+      body: 'That is the tour. You can reopen it anytime from Preferences. Safe travels!' },
+  ];
+}
+
+function _tourFirstVisible(selList) {
+  if (!selList) return null;
+  for (const sel of selList) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    // offsetParent is null for position:fixed elements (e.g. the floating trip
+    // planner button) even when visible, so test computed style + box instead.
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) continue;
+    const b = el.getBoundingClientRect();
+    if (b.width > 0 && b.height > 0) return el;
+  }
+  return null;
+}
+
+function startTour() {
+  endTour();
+  // Build the runnable step list: a step survives if it is centered (no target)
+  // or its target resolves to a visible element in the current layout.
+  const steps = _naTourSteps().filter(s => s.center || !s.target || _tourFirstVisible(s.target));
+  if (!steps.length) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'na-tour-overlay';
+  overlay.innerHTML = '<div id="na-tour-spotlight"></div><div id="na-tour-pop"></div>';
+  document.body.appendChild(overlay);
+  // Clicking the dimmed backdrop does nothing destructive; navigation is via buttons.
+  overlay.addEventListener('click', e => { if (e.target === overlay) e.stopPropagation(); });
+
+  _tourState = { steps, i: 0, overlay,
+    onKey: e => {
+      if (e.key === 'Escape') { e.preventDefault(); endTour(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); _tourGo(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); _tourGo(-1); }
+    },
+    onResize: () => _renderTourStep() };
+  document.addEventListener('keydown', _tourState.onKey, true);
+  window.addEventListener('resize', _tourState.onResize);
+  _renderTourStep();
+}
+
+function _tourGo(delta) {
+  if (!_tourState) return;
+  const ni = _tourState.i + delta;
+  if (ni < 0) return;
+  if (ni >= _tourState.steps.length) { endTour(); return; }
+  _tourState.i = ni;
+  _renderTourStep();
+}
+
+function _renderTourStep() {
+  if (!_tourState) return;
+  const { steps, i, overlay } = _tourState;
+  const step = steps[i];
+  const spot = overlay.querySelector('#na-tour-spotlight');
+  const pop  = overlay.querySelector('#na-tour-pop');
+  const targetEl = step.center ? null : _tourFirstVisible(step.target);
+
+  let rect = null;
+  if (targetEl) {
+    rect = targetEl.getBoundingClientRect();
+    const pad = 6;
+    overlay.classList.remove('no-spot');
+    spot.style.top = (rect.top - pad) + 'px';
+    spot.style.left = (rect.left - pad) + 'px';
+    spot.style.width = (rect.width + pad * 2) + 'px';
+    spot.style.height = (rect.height + pad * 2) + 'px';
+  } else {
+    overlay.classList.add('no-spot');
+  }
+
+  const dots = steps.map((_, k) => `<span class="tour-dot${k === i ? ' on' : ''}"></span>`).join('');
+  const isLast = i === steps.length - 1;
+  pop.innerHTML = `
+    <button type="button" class="tour-skip" id="na-tour-skip" aria-label="Skip tour">✕</button>
+    <div class="tour-step">Step ${i + 1} of ${steps.length}</div>
+    <div class="tour-title">${step.title}</div>
+    <p class="tour-body">${step.body}</p>
+    <div class="tour-nav">
+      <div class="tour-dots">${dots}</div>
+      <div class="tour-btns">
+        ${i > 0 ? '<button type="button" class="tour-btn" id="na-tour-back">Back</button>' : ''}
+        <button type="button" class="tour-btn primary" id="na-tour-next">${isLast ? 'Done' : 'Next'}</button>
+      </div>
+    </div>`;
+  pop.querySelector('#na-tour-skip').addEventListener('click', endTour);
+  pop.querySelector('#na-tour-next').addEventListener('click', () => _tourGo(1));
+  const backBtn = pop.querySelector('#na-tour-back');
+  if (backBtn) backBtn.addEventListener('click', () => _tourGo(-1));
+
+  // Position the pop card: below the target if there is room, else above, else center.
+  pop.style.visibility = 'hidden';
+  requestAnimationFrame(() => {
+    const pr = pop.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight, m = 14;
+    let top, left;
+    if (rect) {
+      const below = rect.bottom + 12;
+      const above = rect.top - pr.height - 12;
+      if (below + pr.height <= vh - m) top = below;
+      else if (above >= m) top = above;
+      else top = Math.max(m, (vh - pr.height) / 2);
+      left = rect.left + rect.width / 2 - pr.width / 2;
+      left = Math.min(Math.max(m, left), vw - pr.width - m);
+    } else {
+      top = (vh - pr.height) / 2;
+      left = (vw - pr.width) / 2;
+    }
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+    pop.style.visibility = 'visible';
+  });
+}
+
+function endTour() {
+  if (!_tourState) {
+    const stray = document.getElementById('na-tour-overlay');
+    if (stray) stray.remove();
+    return;
+  }
+  document.removeEventListener('keydown', _tourState.onKey, true);
+  window.removeEventListener('resize', _tourState.onResize);
+  if (_tourState.overlay && _tourState.overlay.parentNode) _tourState.overlay.remove();
+  _tourState = null;
+  try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
+}
+
+// Expose so Preferences / keyboard shortcuts can relaunch the walkthrough.
+window.startTour = startTour;
 
 // ─── Comparison Panel ─────────────────────────────────────────────────────────
 // Up to 10 countries can be pinned; panel slides in from the right.
@@ -6897,7 +7297,8 @@ function renderComparePanel() {
   function tempCell(iso2) {
     if (typeof CD_CLIMATE === 'undefined' || !CD_CLIMATE[iso2]) return '—';
     var t = CD_CLIMATE[iso2].temp[activeMonth];
-    return t != null ? t + '°C' : '—';
+    if (t == null) return '—';
+    return (typeof _tempUnit !== 'undefined' && _tempUnit === 'F') ? (Math.round(t * 9 / 5 + 32) + '°F') : (t + '°C');
   }
 
   function budgetCell(iso2) {
@@ -7643,6 +8044,7 @@ function _naApplyEffective(effective) {
 // both. Only ever swaps those two default views, and never once the traveller
 // has pinned a basemap explicitly (Street / Terrain / Satellite are respected).
 function _naSyncBasemapToTheme() {
+  if (_naBootstrapping) return;   // first load opens on satellite even under the dark default
   if (_basemapUserPinned) return;
   if (typeof na_setBasemap !== 'function' || !map || !window._BASEMAP_CONFIGS) return;
   if (_naEffective === 'dark') {
@@ -7679,8 +8081,9 @@ function _naAutoReResolve() {
 function na_initTheme() {
   var stored = null;
   try { stored = localStorage.getItem('na_theme'); } catch(e) {}
-  // New visitors get the sun-aware 'auto' identity; returning users keep their pick.
-  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'auto');
+  // New visitors open in DARK (the almanac's default night identity); returning
+  // users keep whatever they last chose (light / dark / sun-aware auto).
+  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'dark');
   // Re-check when the tab regains focus (e.g., left open past dusk).
   if (!_naThemeFocusBound) {
     _naThemeFocusBound = true;
@@ -8148,6 +8551,13 @@ function na_initPrefsSheet() {
     });
   });
 
+  // Guided tour launcher (not a toggle-group — handled separately).
+  var tourBtn = document.getElementById('na-prefs-tour');
+  if (tourBtn) tourBtn.addEventListener('click', function () {
+    na_closePrefsSheet();
+    if (typeof startTour === 'function') setTimeout(startTour, 280);
+  });
+
   na_syncPrefsUI();
 }
 
@@ -8556,6 +8966,38 @@ function na_initMapResize() {
   });
 }
 
+// ── Click-to-collapse sidebar (desktop) ───────────────────────────────────
+// The sidebar logo doubles as a collapse toggle: click (or Enter/Space) shrinks
+// the sidebar to an icon rail and the map + legend reclaim the space. State is
+// persisted so returning desktop users keep their preferred layout.
+function na_initSidebarCollapse() {
+  var sidebar = document.getElementById('na-sidebar');
+  var logo    = document.getElementById('na-sidebar-logo');
+  if (!sidebar || !logo) return;
+
+  function apply(collapsed, persist) {
+    sidebar.classList.toggle('collapsed', collapsed);
+    logo.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    logo.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    logo.setAttribute('aria-label', collapsed ? 'Expand navigation sidebar' : 'Collapse navigation sidebar');
+    if (persist) { try { localStorage.setItem('na_sidebar_collapsed', collapsed ? '1' : '0'); } catch (e) {} }
+    // Tell Leaflet about the new map width once the width transition settles
+    // (na_initMapResize also catches transitionend; this is a belt-and-braces).
+    if (map) setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) {} }, 320);
+  }
+
+  logo.setAttribute('role', 'button');
+  logo.setAttribute('tabindex', '0');
+  logo.addEventListener('click', function () { apply(!sidebar.classList.contains('collapsed'), true); });
+  logo.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply(!sidebar.classList.contains('collapsed'), true); }
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem('na_sidebar_collapsed'); } catch (e) {}
+  apply(saved === '1', false);
+}
+
 // ── Master init ───────────────────────────────────────────────────────────
 function navInit() {
   na_initTheme();
@@ -8575,11 +9017,16 @@ function navInit() {
   na_patchURLState();
   na_initLogoHover();
   na_initMapResize();
+  na_initSidebarCollapse();
   na_initPrefsLauncher();
 
   // Layer-state UI is synced event-driven from refresh() (which runs on every
   // layer / month / passport change) — no idle polling timer. Initial sync now.
   na_updateLayerActiveStates();
+
+  // Boot is complete. Re-enable theme→basemap coupling so a later Day/Night
+  // toggle can swap satellite ↔ night-lights. The first load stays on satellite.
+  _naBootstrapping = false;
 }
 
 // Call navInit after the DOM is ready and the map has initialised.
