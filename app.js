@@ -7310,6 +7310,53 @@ function na_populateLayerSurfaces() {
 
   var list = document.getElementById('na-layers-list');
   if (list) { list.textContent = ''; ordered.forEach(function (k) { list.appendChild(buildItem(k, 'na-nav-item na-layer-item', 'na-nav-item-label')); }); }
+  na_buildPersonaRow();
+}
+
+// "Who's travelling?" persona presets — one tap activates a curated layer basket,
+// giving the clean-open map an on-ramp. Only keys present in LAYERS are applied.
+var NA_PERSONAS = [
+  { id: 'solo',   label: 'Solo',   emoji: '🎒', layers: ['safety', 'cost', 'solo', 'nightlife', 'english'] },
+  { id: 'couple', label: 'Couple', emoji: '💞', layers: ['weather', 'safety', 'beaches', 'cost', 'nightlife'] },
+  { id: 'family', label: 'Family', emoji: '👪', layers: ['family', 'safety', 'healthcare', 'malaria', 'weather'] },
+  { id: 'nomad',  label: 'Nomad',  emoji: '💻', layers: ['cost', 'internet', 'safety', 'visa', 'english'] },
+];
+function na_applyPersona(id) {
+  var p = NA_PERSONAS.find(function (x) { return x.id === id; });
+  if (!p || typeof activeLayers === 'undefined' || typeof LAYERS === 'undefined') return;
+  activeLayers.clear();
+  var on = [];
+  p.layers.forEach(function (k) { if (LAYERS[k]) { activeLayers.add(k); on.push(k); } });
+  if (typeof refresh === 'function') refresh();
+  if (typeof updateURLState === 'function') updateURLState();
+  if (typeof saveState === 'function') saveState();
+  if (typeof na_closeLayersSheet === 'function') na_closeLayersSheet();
+  if (typeof na_toast === 'function') na_toast(p.emoji + ' ' + p.label + ' view — ' + on.length + ' layers on', 2600);
+}
+function na_buildPersonaRow() {
+  var panel = document.getElementById('na-sheet-panel');
+  var grid = document.getElementById('na-sheet-grid');
+  if (!panel || !grid || document.getElementById('na-persona-row')) return;
+  var row = document.createElement('div');
+  row.id = 'na-persona-row';
+  var lbl = document.createElement('div');
+  lbl.className = 'na-persona-label';
+  lbl.textContent = "Who's travelling?";
+  row.appendChild(lbl);
+  var btns = document.createElement('div');
+  btns.className = 'na-persona-btns';
+  NA_PERSONAS.forEach(function (p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'na-persona-btn';
+    b.setAttribute('data-persona', p.id);
+    b.setAttribute('aria-label', p.label + ' traveller preset');
+    b.innerHTML = '<span class="na-persona-emoji" aria-hidden="true">' + p.emoji + '</span>' + p.label;
+    b.addEventListener('click', function () { na_applyPersona(p.id); });
+    btns.appendChild(b);
+  });
+  row.appendChild(btns);
+  panel.insertBefore(row, grid);
 }
 
 function na_initLayerItems() {
