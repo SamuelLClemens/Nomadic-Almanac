@@ -1299,6 +1299,11 @@ html, body {
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
+  /* Positioning context for the absolutely-positioned legend so it anchors to the
+     map column (right of the sidebar) instead of the viewport edge, where the
+     sidebar was covering it. Fixed children (tooltip, status, launcher) are
+     unaffected. Works at every breakpoint since #na-main starts after the sidebar. */
+  position: relative;
 }
 
 /* ── Sidebar (desktop: 1280px+, always expanded) ─────────────────────────── */
