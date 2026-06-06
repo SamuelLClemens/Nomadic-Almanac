@@ -4139,9 +4139,34 @@ function buildLayerRows(dataObj, context) {
   return html;
 }
 
+// "Plan / Book" deep-links — built entirely from data already held (name + coords +
+// active month), opening in a new tab with NO API keys. Turns the atlas into a tool a
+// traveller can act on. Providers: Google Flights, Booking, Rome2Rio, Google Maps,
+// GetYourGuide. Month is woven into the flights query when available.
+function _buildPlanBook(label, lat, lng) {
+  if (!label) return '';
+  var monthName = (typeof MONTHS_F !== 'undefined' && typeof activeMonth !== 'undefined' && MONTHS_F[activeMonth]) ? (' in ' + MONTHS_F[activeMonth]) : '';
+  var q = encodeURIComponent(label);
+  var coord = (typeof lat === 'number' && typeof lng === 'number') ? (lat + ',' + lng) : '';
+  var links = [
+    ['✈', 'Flights', 'https://www.google.com/travel/flights?q=' + encodeURIComponent('Flights to ' + label + monthName)],
+    ['🛏', 'Stays', 'https://www.booking.com/searchresults.html?ss=' + q],
+    ['🧭', 'Routes', 'https://www.rome2rio.com/map/' + q],
+    ['🗺', 'Map', 'https://www.google.com/maps/search/?api=1&query=' + (coord || q)],
+    ['🎟', 'Tours', 'https://www.getyourguide.com/s/?q=' + q],
+  ];
+  var btns = links.map(function (l) {
+    return '<a class="pb-link" href="' + l[2] + '" target="_blank" rel="noopener noreferrer" title="' + l[1] + ' — ' + _esc(label) + '"><span class="pb-ic" aria-hidden="true">' + l[0] + '</span>' + l[1] + '</a>';
+  }).join('');
+  return '<div class="pb-section"><div class="pb-title">Plan / Book</div><div class="pb-links">' + btns + '</div></div>';
+}
+
 function buildCountryTooltip(iso2) {
   if (activeLayers.size === 0) return null;
-  const name = countryNames[iso2] || iso2;
+  // Robust name: countryNames is missing a few entries (e.g. FR) — fall back to
+  // COUNTRY_NAMES so the title and Plan/Book links read the real country name.
+  const name = countryNames[iso2] || (typeof COUNTRY_NAMES !== 'undefined' && COUNTRY_NAMES[iso2]) || iso2;
+  const _cc = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[iso2]) || null;
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? ` <span style="font-size:9px;color:var(--gold);font-weight:400;letter-spacing:1px">${CURRENCY[iso2]}</span>` : '';
   const rows = CD[iso2] ? buildLayerRows(CD[iso2], {iso2}) : '<div style="color:#5a4a20;font-size:8px;padding:4px 0">No data available for this territory.</div>';
   const costSection    = buildCostDetailsSection(iso2);
@@ -4211,6 +4236,7 @@ function buildCountryTooltip(iso2) {
   </div>${ctxBand}
   <div class="ttb" id="tt-body">${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${journalSection}${visitedBtn}
   <div class="intel-wrap"><div class="intel-hdr">Country Intelligence <span class="intel-badge">AI</span></div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
+  ${_buildPlanBook(name, _cc && _cc[0], _cc && _cc[1])}
   </div>${pinSection}${similarSection}`;
 }
 
@@ -4222,7 +4248,7 @@ function buildCityTooltip(city) {
     <div class="ts" id="tt-sub">${cname}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
-  <div class="ttb" id="tt-body">${rows}</div>`;
+  <div class="ttb" id="tt-body">${rows}${_buildPlanBook(city.name, city.lat, city.lng)}</div>`;
 }
 
 function buildBorderTooltip(bc) {
@@ -7741,6 +7767,32 @@ function na_initSearch() {
 }
 
 // ── Keyboard navigation ───────────────────────────────────────────────────
+// Trap Tab focus within whichever aria-modal sheet is open (search / layers / prefs)
+// so keyboard users cannot tab out into the page behind the modal (WCAG 2.4.3).
+function na_initFocusTraps() {
+  function openModalPanel() {
+    var s = document.getElementById('na-search-overlay');
+    if (s && !s.hidden) return document.getElementById('na-search-panel') || s;
+    var l = document.getElementById('na-layers-sheet');
+    if (l && !l.hidden) return document.getElementById('na-sheet-panel') || l;
+    var p = document.getElementById('na-prefs-sheet');
+    if (p && !p.hidden) return document.getElementById('na-prefs-panel') || p;
+    return null;
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab') return;
+    var modal = openModalPanel();
+    if (!modal) return;
+    var sel = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    var f = [].filter.call(modal.querySelectorAll(sel), function (el) { return el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (!modal.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+}
+
 function na_initKeyboard() {
   document.addEventListener('keydown', function(e) {
     // Cmd/Ctrl+K — command palette (search), from anywhere including inputs.
@@ -7989,6 +8041,7 @@ function navInit() {
   na_initPrefsSheet();
   na_initSearch();
   na_initKeyboard();
+  na_initFocusTraps();
   na_initHeaderActions();
   na_initSidebarMirrors();
   na_initPageVisibility();
