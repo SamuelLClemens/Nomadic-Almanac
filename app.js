@@ -2504,8 +2504,13 @@ function renderBeachMarkers() {
 // ─── Seasonal Event Markers ───────────────────────────────────────────────────
 let eventMarkers = [];
 function renderEventMarkers() {
+  // On-map seasonal-event emoji icons (e.g. rain over India, a guitar over London)
+  // are disabled by design — they cluttered the map. The event details still appear
+  // as text inside the country/city dossier. Clear any existing markers and stop.
   eventMarkers.forEach(m => m.remove());
   eventMarkers = [];
+  return;
+  // --- legacy rendering retained for reference (intentionally unreachable) ---
   if (typeof SEASONAL_EVENTS === 'undefined') return;
   const zoom = map ? map.getZoom() : 0;
   if (zoom < 2) return;
@@ -7698,6 +7703,26 @@ function na_initSearch() {
   // Header search button
   var btn = document.getElementById('na-search-btn');
   if (btn) btn.addEventListener('click', na_openSearch);
+
+  // Surface the criteria-finder + Surprise Me on mobile: the inline #search-wrap
+  // (which hosts those buttons) is hidden < 540px, so add the triggers into the
+  // full-screen search overlay, which is the mobile discovery surface.
+  var sPanel = document.getElementById('na-search-panel');
+  var sResults = document.getElementById('na-search-results');
+  if (sPanel && sResults && !document.getElementById('na-search-quick')) {
+    var qa = document.createElement('div');
+    qa.id = 'na-search-quick';
+    var b1 = document.createElement('button');
+    b1.type = 'button'; b1.className = 'na-search-quick-btn';
+    b1.textContent = '🎯 Best countries for…';
+    b1.addEventListener('click', function () { na_closeSearch(); if (typeof _toggleBestForXPanel === 'function') _toggleBestForXPanel(); });
+    var b2 = document.createElement('button');
+    b2.type = 'button'; b2.className = 'na-search-quick-btn';
+    b2.textContent = '🎲 Surprise me';
+    b2.addEventListener('click', function () { na_closeSearch(); if (typeof _surpriseMe === 'function') _surpriseMe(); });
+    qa.appendChild(b1); qa.appendChild(b2);
+    sPanel.insertBefore(qa, sResults);
+  }
 }
 
 // ── Keyboard navigation ───────────────────────────────────────────────────
