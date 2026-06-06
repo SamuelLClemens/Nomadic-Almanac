@@ -870,15 +870,23 @@ html, body {
 }
 
 /* ─── First-visit onboarding hint ───────────────────────────────────────── */
+/* Welcome card — persists until the traveller interacts with the site (any click,
+   key, or map gesture dismisses it). No auto-fade: it must not "flash". */
 #onboarding-hint {
   position: fixed; z-index: 3000;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: rgba(16,12,5,0.96); border: 1px solid var(--b2);
-  border-top: 2px solid var(--gold); border-radius: 10px;
-  padding: 18px 24px; text-align: center;
-  font-family: var(--fm); pointer-events: none;
+  background: rgba(16,12,5,0.97); border: 1px solid var(--b2);
+  border-top: 2px solid var(--gold); border-radius: 14px;
+  padding: 22px 26px 20px; text-align: center;
+  font-family: var(--fm); pointer-events: auto;
   box-shadow: 0 16px 48px rgba(0,0,0,.88);
-  animation: hint-fade 4s forwards;
+  max-width: min(430px, 92vw);
+  animation: na-hint-in .45s ease forwards;
+}
+#onboarding-hint.na-hint-out { animation: na-hint-out .3s ease forwards; }
+#onboarding-hint .hint-title {
+  font-size: 15px; color: var(--gold); letter-spacing: 0.10em;
+  margin: 0 0 10px; text-transform: uppercase; font-weight: 600;
 }
 #onboarding-hint p {
   font-size: 11px; color: var(--sand); letter-spacing: 0.06em;
@@ -888,12 +896,59 @@ html, body {
   font-size: 8.5px; color: var(--dim); letter-spacing: 1.2px;
   margin-top: 6px; text-transform: uppercase;
 }
-@keyframes hint-fade {
-  0%   { opacity: 0; transform: translate(-50%, -52%); }
-  12%  { opacity: 1; transform: translate(-50%, -50%); }
-  75%  { opacity: 1; }
-  100% { opacity: 0; pointer-events: none; }
+#onboarding-hint .hint-actions {
+  display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap;
 }
+#onboarding-hint .hint-btn {
+  font-family: var(--fm); font-size: 10px; letter-spacing: 0.08em;
+  padding: 8px 16px; border-radius: 7px; cursor: pointer;
+  background: rgba(201,168,76,0.08); border: 1px solid var(--b2);
+  color: var(--sand); transition: background .15s, border-color .15s;
+}
+#onboarding-hint .hint-btn:hover { background: rgba(201,168,76,0.16); border-color: var(--gold); }
+#onboarding-hint .hint-btn.primary {
+  background: var(--gold); border-color: var(--gold); color: #1a1305; font-weight: 600;
+}
+#onboarding-hint .hint-btn.primary:hover { background: #d9b94f; }
+@keyframes na-hint-in {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes na-hint-out {
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to   { opacity: 0; transform: translate(-50%, -54%); }
+}
+
+/* ─── Guided walkthrough tour ────────────────────────────────────────────── */
+#na-tour-overlay { position: fixed; inset: 0; z-index: 4000; }
+#na-tour-spotlight {
+  position: fixed; border-radius: 10px; border: 2px solid var(--gold);
+  box-shadow: 0 0 0 9999px rgba(8,6,2,0.66), 0 0 22px rgba(201,168,76,0.55);
+  pointer-events: none; transition: top .28s ease, left .28s ease, width .28s ease, height .28s ease;
+}
+#na-tour-overlay.no-spot #na-tour-spotlight { display: none; }
+#na-tour-overlay.no-spot::before { content: ''; position: fixed; inset: 0; background: rgba(8,6,2,0.66); }
+#na-tour-pop {
+  position: fixed; z-index: 4001; max-width: min(340px, 92vw); width: max-content;
+  background: rgba(16,12,5,0.98); border: 1px solid var(--b2);
+  border-top: 2px solid var(--gold); border-radius: 12px;
+  padding: 16px 18px 14px; font-family: var(--fm);
+  box-shadow: 0 16px 48px rgba(0,0,0,.9);
+  transition: top .24s ease, left .24s ease;
+}
+#na-tour-pop .tour-step { font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+#na-tour-pop .tour-title { font-size: 13px; color: var(--gold); letter-spacing: 0.06em; margin: 4px 0 8px; font-weight: 600; }
+#na-tour-pop .tour-body { font-size: 10.5px; color: var(--sand); line-height: 1.65; margin: 0; max-width: 300px; }
+#na-tour-pop .tour-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 10px; }
+#na-tour-pop .tour-dots { display: flex; gap: 4px; }
+#na-tour-pop .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(201,168,76,0.25); }
+#na-tour-pop .tour-dot.on { background: var(--gold); }
+#na-tour-pop .tour-btns { display: flex; gap: 6px; }
+#na-tour-pop .tour-btn { font-family: var(--fm); font-size: 10px; padding: 6px 13px; border-radius: 6px; cursor: pointer; border: 1px solid var(--b2); background: rgba(201,168,76,0.08); color: var(--sand); transition: background .15s, border-color .15s; }
+#na-tour-pop .tour-btn:hover { background: rgba(201,168,76,0.16); border-color: var(--gold); }
+#na-tour-pop .tour-btn.primary { background: var(--gold); border-color: var(--gold); color: #1a1305; font-weight: 600; }
+#na-tour-pop .tour-skip { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--dim); font-size: 15px; cursor: pointer; line-height: 1; padding: 2px 4px; }
+#na-tour-pop .tour-skip:hover { color: var(--sand); }
 
 /* ─── Comparison panel (pinned countries) ────────────────────────────────── */
 #compare-panel {
@@ -1512,6 +1567,26 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   color: var(--na-navy);
   border-color: var(--na-gold-mid);
   font-weight: 700;
+}
+
+/* ── Click-to-collapse (desktop ≥1280px) ───────────────────────────────────
+   Clicking the sidebar logo toggles .collapsed: the sidebar shrinks to a slim
+   icon rail and the map column (with its absolutely-positioned legend/"key")
+   reclaims the freed space. The logo stays visible so the rail can re-expand. */
+#na-sidebar-logo { cursor: pointer; }
+#na-sidebar-logo:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 3px; border-radius: 6px; }
+@media (min-width: 1280px) {
+  #na-sidebar.collapsed { width: var(--rail-w); }
+  #na-sidebar.collapsed #na-sidebar-inner { padding: var(--sp-2); align-items: center; }
+  #na-sidebar.collapsed .na-sidebar-brand { display: none; }
+  #na-sidebar.collapsed .na-nav-item-label,
+  #na-sidebar.collapsed .na-nav-group-label { display: none; }
+  #na-sidebar.collapsed .na-nav-item { justify-content: center; padding: var(--sp-3) 0; }
+  #na-sidebar.collapsed #na-sidebar-footer { display: none; }
+  #na-sidebar.collapsed .na-accordion-body { display: none; }
+  #na-sidebar.collapsed .na-accordion-arrow { display: none; }
+  #na-sidebar.collapsed #na-sidebar-logo { justify-content: center; }
+  #na-sidebar.collapsed .gold-rule { display: none; }
 }
 
 /* ── Sidebar — LAPTOP (1024–1279px): icon rail, expands smoothly on hover ─── */

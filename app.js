@@ -46,6 +46,7 @@ var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
 var _basemapLayer     = null;  // reference to the current basemap tile layer
 var _basemapUserPinned = false; // true once the traveller explicitly picks a basemap; then the Day/Night theme stops auto-swapping satellite <-> night-lights
+var _naBootstrapping  = true;  // true during initial boot — the dark default theme must NOT auto-swap the satellite basemap to night-lights on first load (the site opens on satellite + dark). Cleared once boot completes; later theme toggles then sync normally.
 var _labelLayer       = null;  // reference to the place-labels overlay tile layer
 var _labelsOn         = (localStorage.getItem('na_labels') !== '0'); // place labels visible?
 let climateZoneLayer  = null;
@@ -888,15 +889,11 @@ function initTripPlanner() {
     panel.classList.toggle('open');
   });
 
-  // Add Pin button
+  // Add Pin button — toggles continuous placement mode.
   document.getElementById('btn-add-pin').addEventListener('click', () => {
-    _placingPin = !_placingPin;
-    document.getElementById('btn-add-pin').classList.toggle('placing', _placingPin);
-    document.getElementById('btn-add-pin').textContent = _placingPin ? '🎯 Click Map…' : '+ Add Pin';
-    document.getElementById('trip-hint').textContent = _placingPin
-      ? 'Click anywhere on the map to place a pin.'
-      : 'Click "Add Pin" to start placing waypoints.';
-    if (map) map.getContainer().style.cursor = _placingPin ? 'crosshair' : '';
+    _setPlacingPin(!_placingPin);
+    // Make sure the panel is open so the user can see the pin list grow.
+    if (_placingPin) panel.classList.add('open');
   });
 
   // Clear All button — two-click confirmation (no blocking window.confirm)
@@ -960,27 +957,58 @@ function initTripPlanner() {
   shareTripCardBtn.addEventListener('click', function() { _shareTrip(); });
   document.getElementById('trip-panel-actions').appendChild(shareTripCardBtn);
 
-  // Map click handler — place pin when _placingPin is active.
-  // Guard: if a Leaflet feature (country polygon, POI marker) was clicked, that
-  // handler sets _featureClicked=true for 10 ms. We skip placement in that window
-  // to prevent placing a pin AND opening a country tooltip simultaneously.
+  // Map click handler — place a pin whenever "Add Pin" mode is active.
+  //
+  // Pin placement takes priority over every feature tooltip: the country / admin /
+  // territory / city click handlers now bail out early while _placingPin is true
+  // (see their handlers), so they neither open a tooltip nor set _featureClicked.
+  // That means a click anywhere over land drops a pin instead of being swallowed
+  // by the full-coverage country polygon underneath the cursor — the bug that
+  // made pin placement impossible.
+  //
+  // Placement is CONTINUOUS: each click adds the next waypoint and we stay in
+  // placing mode, so a multi-stop trip is just click-click-click. The user exits
+  // by pressing the "Add Pin" toggle again (now labelled "✓ Done") or Escape.
   if (map) {
     map.on('click', e => {
-      if (!_placingPin || _featureClicked) return;
-      const name = `Pin ${_tripPins.length + 1}`;
-      const pin = { id: 'tp_' + Date.now(), lat: e.latlng.lat, lng: e.latlng.lng, name };
-      _tripPins.push(pin);
-      _saveTripPins();
-      _renderTripPinMarker(pin, _tripPins.length - 1);
-      _updateTripPlannerPanel();
-      _placingPin = false;
-      const addBtn = document.getElementById('btn-add-pin');
-      if (addBtn) { addBtn.classList.remove('placing'); addBtn.textContent = '+ Add Pin'; }
-      const hint = document.getElementById('trip-hint');
-      if (hint) hint.textContent = 'Click "Add Pin" to place more waypoints. Drag pins to reposition.';
-      if (map) map.getContainer().style.cursor = '';
+      if (!_placingPin) return;
+      _placeTripPinAt(e.latlng.lat, e.latlng.lng);
+    });
+    // Escape leaves placing mode without dropping a pin.
+    document.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape' && _placingPin) _setPlacingPin(false);
     });
   }
+}
+
+// Drop a waypoint at the given coordinates and refresh the panel + route line,
+// keeping placing mode active for the next click.
+function _placeTripPinAt(lat, lng) {
+  const name = `Pin ${_tripPins.length + 1}`;
+  const pin = { id: 'tp_' + Date.now() + '_' + _tripPins.length, lat, lng, name };
+  _tripPins.push(pin);
+  _saveTripPins();
+  _renderTripPinMarker(pin, _tripPins.length - 1);
+  _renderTripRouteLine();
+  _updateTripPlannerPanel();
+  const hint = document.getElementById('trip-hint');
+  if (hint) hint.textContent = `Placed ${_tripPins.length} pin${_tripPins.length === 1 ? '' : 's'}. Keep clicking to add more · drag to reposition · press "✓ Done" or Esc to finish.`;
+}
+
+// Single source of truth for entering/leaving pin-placement mode, so the button
+// label, cursor, hint, and panel state never drift apart.
+function _setPlacingPin(on) {
+  _placingPin = !!on;
+  const addBtn = document.getElementById('btn-add-pin');
+  if (addBtn) {
+    addBtn.classList.toggle('placing', _placingPin);
+    addBtn.textContent = _placingPin ? '✓ Done' : '+ Add Pin';
+  }
+  const hint = document.getElementById('trip-hint');
+  if (hint) hint.textContent = _placingPin
+    ? 'Click anywhere on the map to drop a waypoint. Keep clicking to add more.'
+    : (_tripPins.length ? 'Drag pins to reposition · click "Add Pin" to add more.' : 'Click "Add Pin", then tap the map to place your first waypoint.');
+  if (map) map.getContainer().style.cursor = _placingPin ? 'crosshair' : '';
 }
 
 let _ttX = 0, _ttY = 0;
@@ -2026,8 +2054,9 @@ function makeMarkerIcon(city, zoom) {
 
   // Dots shrink as the user zooms in — a city fills a screen at zoom 12+ so
   // a large dot would obscure it.  At world zoom dots are larger so they are
-  // easy to find and click.  Minimum radius 4 to remain clickable at all times.
-  const SZ = zoom >= 12 ? 4 : zoom >= 10 ? 5 : zoom >= 8 ? 6 : zoom >= 6 ? 7 : 8;
+  // easy to find and click.  Radii are 25% smaller than the original ramp
+  // (8/7/6/5/4 → 6/5/4.5/4/3) for a lighter, less cluttered map.
+  const SZ = zoom >= 12 ? 3 : zoom >= 10 ? 4 : zoom >= 8 ? 4.5 : zoom >= 6 ? 5 : 6;
   const D = SZ * 2;
   const lw = SZ <= 4 ? 1 : 1.5;  // thinner stroke on small markers
 
@@ -2189,6 +2218,7 @@ function initPoliticalLayers() {
         layer.setStyle(getTerritoryStyle(p, false));
       });
       layer.on('click', e => {
+        if (_placingPin) return;   // yield to trip-pin placement
         _featureClicked = true;
         toggleTooltip('territory:' + p.id, buildTerritoryTooltip(p.id, p.name, p.type, p.adminIso), e.originalEvent.clientX, e.originalEvent.clientY);
         setTimeout(() => { _featureClicked = false; }, 10);
@@ -2266,6 +2296,7 @@ async function initChoropleth() {
         layer.setStyle(getCountryStyle(iso2, false));
       });
       layer.on('click', e => {
+        if (_placingPin) return;   // yield to trip-pin placement
         _featureClicked = true;
         const html = buildCountryTooltip(iso2);
         if (html) {
@@ -2393,6 +2424,7 @@ async function initAdmin1Choropleth() {
           layer.setStyle(getAdmin1Style(iso2, subCode, false));
         });
         layer.on('click', e => {
+          if (_placingPin) return;   // yield to trip-pin placement
           _featureClicked = true;
           const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
           if (html) toggleTooltip('admin1:' + subCode, html, e.originalEvent.clientX, e.originalEvent.clientY);
@@ -2460,6 +2492,7 @@ async function loadAdmin2Country(iso2) {
           layer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
         });
         layer.on('click', e => {
+          if (_placingPin) return;   // yield to trip-pin placement
           _featureClicked = true;
           const stateName   = (parentA1 && _admin1NameCache[parentA1]) || parentA1 || '';
           const countryName = countryNames[iso2] || iso2;
@@ -2532,22 +2565,28 @@ function onZoomAdmin2() {
 }
 
 // ─── City Markers ─────────────────────────────────────────────────────────────
+// Country capitals only — computed once from COUNTRY_CAPITALS (ISO-2 → capital
+// name) by matching against the CITIES list. Used for the first zoom tier.
+let _capitalCitiesCache = null;
+function _capitalCities() {
+  if (_capitalCitiesCache) return _capitalCitiesCache;
+  if (typeof COUNTRY_CAPITALS === 'undefined') { _capitalCitiesCache = []; return _capitalCitiesCache; }
+  _capitalCitiesCache = CITIES.filter(c => c && COUNTRY_CAPITALS[c.country] === c.name);
+  return _capitalCitiesCache;
+}
+
 function renderCityMarkers() {
   cityMarkers.forEach(m => m.remove());
   cityMarkers = [];
-  // Clean open: city discovery markers are shown even with no active layer.
 
   const zoom = map.getZoom();
-  // Don't clutter the far world-view; reveal progressively more cities on zoom-in.
-  // Sparse at continent view (zoom 3), a representative third at zoom 4, all at 5+.
-  if (zoom < 3) return;
-  if (zoom < 4) {
-    _placeCities(CITIES.filter((_, i) => i % 5 === 0));
-  } else if (zoom < 5) {
-    _placeCities(CITIES.filter((_, i) => i % 3 === 0));
-  } else {
-    _placeCities(CITIES);
-  }
+  // Three-tier reveal, calm at world view and progressively richer on zoom-in:
+  //   • world view (zoom < 4)      → no city dots at all
+  //   • first zoom step (zoom 4)   → country capitals only
+  //   • zoomed in (zoom ≥ 5)       → every city dot
+  if (zoom < 4) return;
+  if (zoom < 5) { _placeCities(_capitalCities()); return; }
+  _placeCities(CITIES);
 }
 
 function _placeCities(list) {
@@ -2558,6 +2597,7 @@ function _placeCities(list) {
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
 
     marker.on('click', e => {
+      if (_placingPin) { _placeTripPinAt(city.lat, city.lng); return; }   // drop a pin on the city
       _featureClicked = true;
       toggleTooltip('city:' + city.name + ':' + city.lat, buildCityTooltip(city), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -6801,22 +6841,223 @@ function updateBestPanel() {
   autoExpandBestPanel();
 }
 
-// ─── Onboarding Hint ─────────────────────────────────────────────────────────
-// Displayed once on first visit for 4 seconds, then never again.
+// ─── Welcome Card ────────────────────────────────────────────────────────────
+// Shown once to first-time visitors. Unlike the old "flash" hint, it PERSISTS
+// until the traveller interacts with the site — any click, key press, or map
+// gesture dismisses it. It also offers a guided walkthrough of the almanac.
 function showOnboardingHint() {
   try { if (localStorage.getItem('na_hint_seen')) return; } catch (_) {}
+  if (document.getElementById('onboarding-hint')) return;
   const el = document.createElement('div');
   el.id = 'onboarding-hint';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-label', 'Welcome to the Nomadic Almanac');
   el.innerHTML = `
-    <p>Click any country &nbsp;&middot;&nbsp; Switch months &nbsp;&middot;&nbsp; Select a passport for visa data</p>
-    <p class="hint-sub">Zoom to level&nbsp;5+ for province&nbsp;detail &nbsp;&middot;&nbsp; Level&nbsp;6+ for county&nbsp;detail</p>`;
+    <p class="hint-title">Welcome, traveller</p>
+    <p>An atlas of where to go and when. Click any country for its dossier, scrub the
+       months to see the seasons turn, and add layers to read the world your way.</p>
+    <p class="hint-sub">Zoom in for province &amp; county detail &middot; pick a passport for visa colours</p>
+    <div class="hint-actions">
+      <button type="button" class="hint-btn primary" id="na-hint-tour">Take the tour</button>
+      <button type="button" class="hint-btn" id="na-hint-dismiss">Explore on my own</button>
+    </div>`;
   document.body.appendChild(el);
-  // Remove element after animation completes (4 s) and mark as seen
-  setTimeout(() => {
-    if (el.parentNode) el.remove();
+
+  let dismissed = false;
+  function teardownListeners() {
+    document.removeEventListener('pointerdown', onInteract, true);
+    document.removeEventListener('keydown', onInteract, true);
+    if (map && map.off) map.off('movestart zoomstart dragstart', dismiss);
+  }
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    teardownListeners();
     try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
-  }, 4200);
+    el.classList.add('na-hint-out');
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 320);
+  }
+  function onInteract(ev) {
+    // Clicks on the card's own buttons are handled by their own listeners.
+    if (ev && ev.target && el.contains(ev.target)) return;
+    dismiss();
+  }
+
+  el.querySelector('#na-hint-dismiss').addEventListener('click', e => { e.stopPropagation(); dismiss(); });
+  el.querySelector('#na-hint-tour').addEventListener('click', e => {
+    e.stopPropagation();
+    dismiss();
+    if (typeof startTour === 'function') setTimeout(startTour, 360);
+  });
+
+  // Any interaction anywhere else on the site dismisses the card. A short delay
+  // ensures the page-load settling does not count as an interaction.
+  setTimeout(() => {
+    if (dismissed) return;
+    document.addEventListener('pointerdown', onInteract, true);
+    document.addEventListener('keydown', onInteract, true);
+    if (map && map.on) map.on('movestart zoomstart dragstart', dismiss);
+  }, 450);
 }
+
+// ─── Guided Walkthrough Tour ─────────────────────────────────────────────────
+// A lightweight coachmark tour for new (and returning) users. Each step points
+// at a real control; steps whose target is not visible in the current layout are
+// skipped automatically, so the same tour works on mobile, tablet, and desktop.
+var _tourState = null;
+
+function _naTourSteps() {
+  return [
+    { target: null, center: true, title: 'Welcome to the Almanac',
+      body: 'A living atlas of where to go and when. Here is a quick tour of the essentials — it takes about a minute.' },
+    { target: ['#map'], center: true, title: 'The world map',
+      body: 'Click any country for a full travel dossier. The glowing dots are notable cities — zoom in and the map reveals more cities, then provinces, then counties.' },
+    { target: ['#na-sidebar-months', '#na-month-strip', '.na-month-row'], title: 'Travel through the year',
+      body: 'Scrub the months to watch climate, crowds, and prices shift. Every colour on the map reflects the month you have chosen.' },
+    { target: ['.na-accordion-trigger[data-accordion="layers"]', '#na-layers-toggle', '#na-layers-list'], title: 'Intelligence layers',
+      body: 'Switch on layers — weather, safety, cost, visas, events, and more. One layer paints the map; stack several and each appears as its own coloured chip.' },
+    { target: ['#na-sidebar-passport', '#na-passport-chip'], title: 'Your passport',
+      body: 'Choose your nationality and the map recolours every country by how easy it is for you to enter — from visa-free to visa-required.' },
+    { target: ['#btn-trip-planner'], title: 'Plan a trip',
+      body: 'Open the Trip Planner, press “Add Pin”, then click the map to drop waypoints. A route line links your journey, and you can share or pack for it.' },
+    { target: ['#na-theme-btn'], title: 'Day or night',
+      body: 'Flip between a daylight chart and a night chart. By night the map can glow with the Earth-from-space city lights.' },
+    { target: ['#na-search-btn'], title: 'Search anything',
+      body: 'Jump to any country, city, or layer instantly. Press ⌘K (or /) at any time.' },
+    { target: null, center: true, title: 'You are ready to roam',
+      body: 'That is the tour. You can reopen it anytime from Preferences. Safe travels!' },
+  ];
+}
+
+function _tourFirstVisible(selList) {
+  if (!selList) return null;
+  for (const sel of selList) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    // offsetParent is null for position:fixed elements (e.g. the floating trip
+    // planner button) even when visible, so test computed style + box instead.
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) continue;
+    const b = el.getBoundingClientRect();
+    if (b.width > 0 && b.height > 0) return el;
+  }
+  return null;
+}
+
+function startTour() {
+  endTour();
+  // Build the runnable step list: a step survives if it is centered (no target)
+  // or its target resolves to a visible element in the current layout.
+  const steps = _naTourSteps().filter(s => s.center || !s.target || _tourFirstVisible(s.target));
+  if (!steps.length) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'na-tour-overlay';
+  overlay.innerHTML = '<div id="na-tour-spotlight"></div><div id="na-tour-pop"></div>';
+  document.body.appendChild(overlay);
+  // Clicking the dimmed backdrop does nothing destructive; navigation is via buttons.
+  overlay.addEventListener('click', e => { if (e.target === overlay) e.stopPropagation(); });
+
+  _tourState = { steps, i: 0, overlay,
+    onKey: e => {
+      if (e.key === 'Escape') { e.preventDefault(); endTour(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); _tourGo(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); _tourGo(-1); }
+    },
+    onResize: () => _renderTourStep() };
+  document.addEventListener('keydown', _tourState.onKey, true);
+  window.addEventListener('resize', _tourState.onResize);
+  _renderTourStep();
+}
+
+function _tourGo(delta) {
+  if (!_tourState) return;
+  const ni = _tourState.i + delta;
+  if (ni < 0) return;
+  if (ni >= _tourState.steps.length) { endTour(); return; }
+  _tourState.i = ni;
+  _renderTourStep();
+}
+
+function _renderTourStep() {
+  if (!_tourState) return;
+  const { steps, i, overlay } = _tourState;
+  const step = steps[i];
+  const spot = overlay.querySelector('#na-tour-spotlight');
+  const pop  = overlay.querySelector('#na-tour-pop');
+  const targetEl = step.center ? null : _tourFirstVisible(step.target);
+
+  let rect = null;
+  if (targetEl) {
+    rect = targetEl.getBoundingClientRect();
+    const pad = 6;
+    overlay.classList.remove('no-spot');
+    spot.style.top = (rect.top - pad) + 'px';
+    spot.style.left = (rect.left - pad) + 'px';
+    spot.style.width = (rect.width + pad * 2) + 'px';
+    spot.style.height = (rect.height + pad * 2) + 'px';
+  } else {
+    overlay.classList.add('no-spot');
+  }
+
+  const dots = steps.map((_, k) => `<span class="tour-dot${k === i ? ' on' : ''}"></span>`).join('');
+  const isLast = i === steps.length - 1;
+  pop.innerHTML = `
+    <button type="button" class="tour-skip" id="na-tour-skip" aria-label="Skip tour">✕</button>
+    <div class="tour-step">Step ${i + 1} of ${steps.length}</div>
+    <div class="tour-title">${step.title}</div>
+    <p class="tour-body">${step.body}</p>
+    <div class="tour-nav">
+      <div class="tour-dots">${dots}</div>
+      <div class="tour-btns">
+        ${i > 0 ? '<button type="button" class="tour-btn" id="na-tour-back">Back</button>' : ''}
+        <button type="button" class="tour-btn primary" id="na-tour-next">${isLast ? 'Done' : 'Next'}</button>
+      </div>
+    </div>`;
+  pop.querySelector('#na-tour-skip').addEventListener('click', endTour);
+  pop.querySelector('#na-tour-next').addEventListener('click', () => _tourGo(1));
+  const backBtn = pop.querySelector('#na-tour-back');
+  if (backBtn) backBtn.addEventListener('click', () => _tourGo(-1));
+
+  // Position the pop card: below the target if there is room, else above, else center.
+  pop.style.visibility = 'hidden';
+  requestAnimationFrame(() => {
+    const pr = pop.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight, m = 14;
+    let top, left;
+    if (rect) {
+      const below = rect.bottom + 12;
+      const above = rect.top - pr.height - 12;
+      if (below + pr.height <= vh - m) top = below;
+      else if (above >= m) top = above;
+      else top = Math.max(m, (vh - pr.height) / 2);
+      left = rect.left + rect.width / 2 - pr.width / 2;
+      left = Math.min(Math.max(m, left), vw - pr.width - m);
+    } else {
+      top = (vh - pr.height) / 2;
+      left = (vw - pr.width) / 2;
+    }
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+    pop.style.visibility = 'visible';
+  });
+}
+
+function endTour() {
+  if (!_tourState) {
+    const stray = document.getElementById('na-tour-overlay');
+    if (stray) stray.remove();
+    return;
+  }
+  document.removeEventListener('keydown', _tourState.onKey, true);
+  window.removeEventListener('resize', _tourState.onResize);
+  if (_tourState.overlay && _tourState.overlay.parentNode) _tourState.overlay.remove();
+  _tourState = null;
+  try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
+}
+
+// Expose so Preferences / keyboard shortcuts can relaunch the walkthrough.
+window.startTour = startTour;
 
 // ─── Comparison Panel ─────────────────────────────────────────────────────────
 // Up to 10 countries can be pinned; panel slides in from the right.
@@ -7643,6 +7884,7 @@ function _naApplyEffective(effective) {
 // both. Only ever swaps those two default views, and never once the traveller
 // has pinned a basemap explicitly (Street / Terrain / Satellite are respected).
 function _naSyncBasemapToTheme() {
+  if (_naBootstrapping) return;   // first load opens on satellite even under the dark default
   if (_basemapUserPinned) return;
   if (typeof na_setBasemap !== 'function' || !map || !window._BASEMAP_CONFIGS) return;
   if (_naEffective === 'dark') {
@@ -7679,8 +7921,9 @@ function _naAutoReResolve() {
 function na_initTheme() {
   var stored = null;
   try { stored = localStorage.getItem('na_theme'); } catch(e) {}
-  // New visitors get the sun-aware 'auto' identity; returning users keep their pick.
-  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'auto');
+  // New visitors open in DARK (the almanac's default night identity); returning
+  // users keep whatever they last chose (light / dark / sun-aware auto).
+  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'dark');
   // Re-check when the tab regains focus (e.g., left open past dusk).
   if (!_naThemeFocusBound) {
     _naThemeFocusBound = true;
@@ -8148,6 +8391,13 @@ function na_initPrefsSheet() {
     });
   });
 
+  // Guided tour launcher (not a toggle-group — handled separately).
+  var tourBtn = document.getElementById('na-prefs-tour');
+  if (tourBtn) tourBtn.addEventListener('click', function () {
+    na_closePrefsSheet();
+    if (typeof startTour === 'function') setTimeout(startTour, 280);
+  });
+
   na_syncPrefsUI();
 }
 
@@ -8556,6 +8806,38 @@ function na_initMapResize() {
   });
 }
 
+// ── Click-to-collapse sidebar (desktop) ───────────────────────────────────
+// The sidebar logo doubles as a collapse toggle: click (or Enter/Space) shrinks
+// the sidebar to an icon rail and the map + legend reclaim the space. State is
+// persisted so returning desktop users keep their preferred layout.
+function na_initSidebarCollapse() {
+  var sidebar = document.getElementById('na-sidebar');
+  var logo    = document.getElementById('na-sidebar-logo');
+  if (!sidebar || !logo) return;
+
+  function apply(collapsed, persist) {
+    sidebar.classList.toggle('collapsed', collapsed);
+    logo.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    logo.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    logo.setAttribute('aria-label', collapsed ? 'Expand navigation sidebar' : 'Collapse navigation sidebar');
+    if (persist) { try { localStorage.setItem('na_sidebar_collapsed', collapsed ? '1' : '0'); } catch (e) {} }
+    // Tell Leaflet about the new map width once the width transition settles
+    // (na_initMapResize also catches transitionend; this is a belt-and-braces).
+    if (map) setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) {} }, 320);
+  }
+
+  logo.setAttribute('role', 'button');
+  logo.setAttribute('tabindex', '0');
+  logo.addEventListener('click', function () { apply(!sidebar.classList.contains('collapsed'), true); });
+  logo.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply(!sidebar.classList.contains('collapsed'), true); }
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem('na_sidebar_collapsed'); } catch (e) {}
+  apply(saved === '1', false);
+}
+
 // ── Master init ───────────────────────────────────────────────────────────
 function navInit() {
   na_initTheme();
@@ -8575,11 +8857,16 @@ function navInit() {
   na_patchURLState();
   na_initLogoHover();
   na_initMapResize();
+  na_initSidebarCollapse();
   na_initPrefsLauncher();
 
   // Layer-state UI is synced event-driven from refresh() (which runs on every
   // layer / month / passport change) — no idle polling timer. Initial sync now.
   na_updateLayerActiveStates();
+
+  // Boot is complete. Re-enable theme→basemap coupling so a later Day/Night
+  // toggle can swap satellite ↔ night-lights. The first load stays on satellite.
+  _naBootstrapping = false;
 }
 
 // Call navInit after the DOM is ready and the map has initialised.

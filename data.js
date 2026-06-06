@@ -622,7 +622,7 @@ const CD_TIMEZONE = {
 // Distinct from COUNTRY_HOLIDAYS (statutory public holidays): these are the events a
 // traveller plans a trip around. Rendered on the map by _renderHolidayMarkers().
 const COUNTRY_EVENTS = {
-  US: { 2:['🎸 SXSW — Austin music & tech (Mar)'], 3:['🎡 Coachella — California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
+  US: { 0:['🎬 Sundance Film Festival — Park City (late Jan)'], 1:['💗 Mardi Gras — New Orleans (Feb/Mar)'], 2:['🎸 SXSW — Austin music & tech (Mar)'], 3:['🎡 Coachella — California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 6:['🎆 Independence Day (Jul 4)'], 8:['🔥 Burning Man — Nevada (late Aug/Sep)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
   GB: { 5:['🎶 Glastonbury Festival (late Jun)'], 7:['🎭 Edinburgh Festival Fringe (Aug)',"🎉 Notting Hill Carnival — London (late Aug)"], 11:['🎄 Christmas markets (Dec)'] },
   IE: { 2:["🍀 St Patrick's Day — Dublin (Mar 17)"] },
   FR: { 4:['🎬 Cannes Film Festival (May)'], 5:['🎵 Fête de la Musique (Jun 21)'], 6:['🇫🇷 Bastille Day (Jul 14)'] },
@@ -644,21 +644,60 @@ const COUNTRY_EVENTS = {
   PE: { 5:['☀ Inti Raymi — Cusco (Jun 24)'] },
   CO: { 0:['🎉 Feria de Cali (early Jan)'], 7:['🌸 Feria de las Flores — Medellín (Aug)'] },
   AR: { 2:['💃 Tango Festival — Buenos Aires (Mar)'] },
-  JP: { 2:['🌸 Cherry Blossom (Hanami) — late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri — Kyoto (Jul)'] },
+  JP: { 2:['🌸 Cherry Blossom (Hanami) — late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri — Kyoto (Jul)','🏮 Nebuta Matsuri — Aomori (early Aug)'], 7:['💃 Awa Odori — Tokushima (Aug)'], 10:['🍁 Autumn foliage (kōyō) — nationwide (Nov)'] },
   KR: { 3:['🌸 Cherry Blossom — Jinhae (Apr)'], 10:['🏮 Seoul Lantern Festival (Nov)'] },
   CN: { 1:['🏮 Spring Festival / Chinese New Year (Jan/Feb)'], 8:['🥮 Mid-Autumn Festival (Sep/Oct)'] },
   TW: { 1:['🏮 Lantern Festival (Feb)'] },
   TH: { 3:['💦 Songkran — Thai New Year water festival (Apr 13–15)'], 10:['🪔 Loy Krathong / Yi Peng — lights (Nov)'] },
   VN: { 0:['🧧 Tết — Lunar New Year (Jan/Feb)'] },
   ID: { 2:['🌑 Nyepi — Balinese Day of Silence (Mar)'] },
-  IN: { 2:['🎨 Holi — festival of colours (Mar)'], 10:['🪔 Diwali — festival of lights (Oct/Nov)'] },
+  IN: { 0:['🎉 Pongal & Republic Day (Jan)'], 2:['🎨 Holi — festival of colours (Mar)'], 7:['🐘 Onam — Kerala (Aug/Sep)'], 9:['🪔 Diwali — festival of lights (Oct/Nov)','🎭 Durga Puja — Kolkata (Oct)'], 10:['🐪 Pushkar Camel Fair — Rajasthan (Nov)'] },
   NP: { 2:['🎨 Holi (Mar)'] },
   AU: { 0:['🎆 Sydney Festival (Jan)','🇦🇺 Australia Day (Jan 26)'], 2:['🏳️‍🌈 Sydney Gay & Lesbian Mardi Gras (Feb/Mar)'] },
   NZ: { 1:['⛵ Waitangi Day (Feb 6)'] },
   AE: { 0:['🛍 Dubai Shopping Festival (Dec–Jan)'] },
   TR: { 3:['🌷 Istanbul Tulip Festival (Apr)'] },
-  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'] },
-  ZA: { 2:['🎷 Cape Town Intl Jazz Festival (Mar)'] },
+  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'], 5:['🌃 White Nights — St Petersburg (Jun)'] },
+  ZA: { 2:['🎷 Cape Town Intl Jazz Festival (Mar)'], 8:['🌸 Namaqualand wildflowers (Aug/Sep)'] },
+  // ── Americas ──
+  CA: { 1:['🧊 Quebec Winter Carnival (Feb)'], 6:['🎆 Canada Day (Jul 1)'], 8:['🎬 Toronto Intl Film Festival (Sep)'] },
+  CU: { 6:['🎺 Fiesta del Fuego — Santiago (Jul)'], 11:['🎬 Havana Film Festival (Dec)'] },
+  JM: { 6:['🎶 Reggae Sumfest — Montego Bay (Jul)'] },
+  CR: { 11:['🎉 Fiestas de Zapote — San José (late Dec)'] },
+  GT: { 2:['✝ Semana Santa — Antigua (Mar/Apr)'], 10:['🪁 Giant Kite Festival — Sumpango (Nov 1)'] },
+  CL: { 1:['🎶 Festival de Viña del Mar (Feb)'] },
+  EC: { 1:['🎭 Carnival (Feb)'], 5:['☀ Inti Raymi — Andes (Jun)'] },
+  BO: { 1:['🎭 Carnaval de Oruro (Feb)'] },
+  // ── Africa ──
+  EG: { 1:['🌞 Abu Simbel Sun Festival (Feb 22)'], 9:['🌞 Abu Simbel Sun Festival (Oct 22)'] },
+  MA: { 5:['🎵 Fès Festival of World Sacred Music (Jun)','🎶 Mawazine — Rabat (Jun)'], 11:['🎬 Marrakech Intl Film Festival (Nov/Dec)'] },
+  KE: { 6:['🦓 Great Migration — Maasai Mara (Jul–Oct)'] },
+  TZ: { 1:['🎶 Sauti za Busara — Zanzibar (Feb)'], 6:['🦓 Serengeti river crossings (Jul–Sep)'] },
+  ET: { 0:['✝ Timkat — Epiphany (Jan 19)'], 8:['🌼 Meskel — Finding of the True Cross (Sep 27)'] },
+  MG: { 5:['🐋 Humpback whale watching — Île Sainte-Marie (Jun–Sep)'], 9:['🎶 Madajazzcar — Antananarivo (Oct)'] },
+  NG: { 1:['🎭 Lagos Carnival (Feb)'], 11:['🎭 Calabar Carnival (Dec)'] },
+  GH: { 7:['🥁 Homowo Festival (Aug/Sep)'], 11:['🎉 December in GH / Afro festivals — Accra (Dec)'] },
+  SN: { 4:['🎷 Saint-Louis Jazz Festival (May)'] },
+  // ── Middle East ──
+  IL: { 2:['🎭 Purim (Mar)'], 8:['🍎 Rosh Hashanah (Sep/Oct)'] },
+  LB: { 6:['🎶 Baalbeck Intl Festival (Jul–Aug)'] },
+  SA: { 9:['🎉 Riyadh Season (Oct–Mar)'] },
+  // ── Asia-Pacific ──
+  SG: { 0:['🏮 Chinese New Year (Jan/Feb)'], 8:['🏎 F1 Singapore Grand Prix — night race (Sep)'] },
+  MY: { 0:['🏮 Thaipusam (Jan/Feb)'] },
+  PH: { 0:['🎭 Sinulog — Cebu & Ati-Atihan — Kalibo (Jan)'], 11:['🎄 Christmas season — world\'s longest (Sep–Dec)'] },
+  LK: { 7:['🐘 Esala Perahera — Kandy (Jul/Aug)'] },
+  MM: { 3:['💦 Thingyan — water festival (Apr)'] },
+  KH: { 10:['🌕 Bon Om Touk — Water Festival (Nov)'] },
+  LA: { 3:['💦 Pi Mai — Lao New Year (Apr)'], 10:['🕯 That Luang Festival (Nov)'] },
+  MN: { 6:['🏇 Naadam Festival (Jul)'] },
+  // ── More of Europe ──
+  PL: { 11:['🎄 Christmas Markets — Kraków (Dec)'] },
+  HU: { 7:['🎶 Sziget Festival — Budapest (Aug)'] },
+  DK: { 5:['🎶 Roskilde Festival (late Jun/Jul)'] },
+  FI: { 11:['🎅 Santa Claus Village — Rovaniemi (Dec)'] },
+  HR: { 6:['🎶 Ultra Europe — Split (Jul)'] },
+  MT: { 1:['🎭 Carnival — Valletta (Feb)'] },
 };
 
 const COUNTRY_HOLIDAYS = {
@@ -1278,7 +1317,6 @@ const CD = {
   'AE': { weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(1), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,1,1,1,1,1,1,2,2,2), disaster:rep(0), visa:rep(0), lgbtq:rep(3), beaches:s12(3,3,3,2,1,3,3,3,2,1,3,3), road:rep(1), vaccines:rep(0) },
   'SA': { weather:s12(0,0,1,2,3,3,3,3,2,1,0,0), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(3), remote:rep(1), corrupt:rep(2), health:rep(0), crowds:rep(1), disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:rep(2), road:rep(1), vaccines:rep(0) },
   'TR': { weather:s12(1,1,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,2,2,2,3,3,2,1,0,0), disaster:rep(2), visa:rep(1), lgbtq:rep(3), beaches:s12(3,3,3,2,1,0,0,0,1,2,3,3), road:rep(1), vaccines:rep(1) },
-  'IL': { weather:s12(1,1,0,0,0,0,0,0,0,0,1,1), safety:rep(2), cost:rep(3), family:rep(1), solo:rep(1), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
   'JO': { weather:s12(1,1,0,0,0,1,1,1,0,0,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:rep(0), disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:s12(3,3,3,3,1,0,0,0,1,2,3,3), road:rep(1), vaccines:rep(1) },
   'LB': { weather:s12(1,1,0,0,0,0,0,0,0,0,1,1), safety:rep(3), cost:rep(2), family:rep(3), solo:rep(3), remote:rep(3), corrupt:rep(3), health:rep(2), crowds:rep(0), disaster:rep(1), visa:rep(2), lgbtq:rep(3), beaches:rep(2), road:rep(2), vaccines:rep(1) },
   'OM': { weather:s12(0,0,0,1,2,3,3,3,2,1,0,0), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(1), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:rep(0), disaster:rep(0), visa:rep(1), lgbtq:rep(3), beaches:s12(1,1,1,1,3,3,3,3,3,1,1,1), road:rep(1), vaccines:rep(0) },
@@ -2191,7 +2229,7 @@ const CITIES = [
     // Terracotta warriors; ancient Silk Road capital; dry continental climate
     weather:s12(2,2,1,1,0,1,1,2,0,0,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
     remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,2,2,2,2,2,1,1,0,0),
-    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), vaccines:rep(0)
+    disaster:rep(1), visa:rep(2), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(0)
   }),
   mk('Fukuoka','JP',33.590,130.401,{
     // Japan's most liveable city; gateway to Korea/China; mild climate; affordable
@@ -52610,3 +52648,58 @@ CITIES.push(mk('Metro','ID',-5.1135,105.3068,{ weather:s12(3,3,2,2,1,1,1,1,1,2,2
 CITIES.push(mk('Pangkal Pinang','ID',-2.1316,106.1169,{ weather:s12(3,3,2,2,1,1,1,1,1,2,3,3), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) }));
 CITIES.push(mk('Tanjung Pinang','ID',0.9187,104.4529,{ weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) }));
 CITIES.push(mk('Batam','ID',1.0784,104.0305,{ weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,2), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(1), vaccines:rep(2) }));
+
+// ── Madagascar — additional cities (highlands, coasts, and remote regions) ──
+CITIES.push(mk('Antsirabe','MG',-19.8659,47.0333,{ weather:s12(2,2,1,1,1,1,1,1,1,1,1,2), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(3) }));
+CITIES.push(mk('Morondava','MG',-20.2848,44.2841,{ weather:s12(3,3,2,1,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(1), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Sambava','MG',-14.2667,50.1667,{ weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Manakara','MG',-22.1451,48.0115,{ weather:s12(3,3,2,2,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Ambositra','MG',-20.5300,47.2441,{ weather:s12(2,2,1,1,1,1,1,1,1,1,1,2), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Tolanaro','MG',-25.0319,46.9956,{ weather:s12(2,2,2,2,1,1,1,1,1,1,2,2), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(1), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Antalaha','MG',-14.8833,50.2833,{ weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Maroantsetra','MG',-15.4333,49.7333,{ weather:s12(3,3,3,2,2,1,1,2,2,3,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Mananjary','MG',-21.2300,48.3439,{ weather:s12(3,3,2,2,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));
+CITIES.push(mk('Ihosy','MG',-22.4021,46.1278,{ weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(2), cost:rep(0), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(0,0,0,0,0,0,0,0,0,0,0,0), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(3), vaccines:rep(3) }));
+
+// ── Capital cities missing from the main set (needed for the capital zoom tier) ──
+CITIES.push(mk('Sofia','BG',42.6977,23.3219,{ weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,2,2,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
+CITIES.push(mk('Algiers','DZ',36.7538,3.0588,{ weather:s12(1,1,1,0,0,1,2,2,1,0,0,1), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(2), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(1) }));
+CITIES.push(mk('Bucharest','RO',44.4268,26.1025,{ weather:s12(2,2,1,1,0,0,1,1,0,1,1,2), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
+CITIES.push(mk('Bratislava','SK',48.1486,17.1077,{ weather:s12(2,2,1,1,0,0,0,0,0,1,1,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(1), health:rep(1), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
+
+// ── Country capitals (ISO-2 → capital city name) ───────────────────────────
+// Drives the zoom-tiered city reveal: at the first zoom step only the city whose
+// name matches its country's capital here is shown. Names match the CITIES data
+// (de-facto/most-recognised seat of government where it differs from the city set).
+const COUNTRY_CAPITALS = {
+  AF:'Kabul', AL:'Tirana', DZ:'Algiers', AO:'Luanda', AR:'Buenos Aires', AM:'Yerevan',
+  AU:'Canberra', AT:'Vienna', AZ:'Baku', BS:'Nassau', BH:'Manama', BD:'Dhaka',
+  BY:'Minsk', BE:'Brussels', BZ:'Belmopan', BJ:'Porto-Novo', BT:'Thimphu', BO:'La Paz',
+  BA:'Sarajevo', BW:'Gaborone', BR:'Brasilia', BN:'Bandar Seri Begawan', BG:'Sofia',
+  BF:'Ouagadougou', BI:'Gitega', KH:'Phnom Penh', CM:'Yaounde', CA:'Ottawa', CV:'Praia',
+  TD:"N'Djamena", CL:'Santiago', CN:'Beijing', CO:'Bogota', CG:'Brazzaville',
+  CD:'Kinshasa', CR:'San Jose', CI:'Yamoussoukro', HR:'Zagreb', CU:'Havana', CY:'Nicosia',
+  CZ:'Prague', DK:'Copenhagen', DJ:'Djibouti', DO:'Santo Domingo', EC:'Quito', EG:'Cairo',
+  SV:'San Salvador', GQ:'Malabo', ER:'Asmara', EE:'Tallinn', SZ:'Mbabane', ET:'Addis Ababa',
+  FJ:'Suva', FI:'Helsinki', FR:'Paris', GA:'Libreville', GM:'Banjul', GE:'Tbilisi',
+  DE:'Berlin', GH:'Accra', GR:'Athens', GT:'Guatemala City', GN:'Conakry', GW:'Bissau',
+  GY:'Georgetown', HT:'Port-au-Prince', HN:'Tegucigalpa', HU:'Budapest', IS:'Reykjavik',
+  IN:'New Delhi', ID:'Jakarta', IR:'Tehran', IQ:'Baghdad', IE:'Dublin', IL:'Jerusalem',
+  IT:'Rome', JM:'Kingston', JP:'Tokyo', JO:'Amman', KZ:'Astana', KE:'Nairobi',
+  KP:'Pyongyang', KR:'Seoul', KW:'Kuwait City', KG:'Bishkek', LA:'Vientiane', LV:'Riga',
+  LB:'Beirut', LS:'Maseru', LR:'Monrovia', LY:'Tripoli', LT:'Vilnius', LU:'Luxembourg City',
+  MG:'Antananarivo', MW:'Lilongwe', MY:'Kuala Lumpur', MV:'Male', ML:'Bamako', MT:'Valletta',
+  MR:'Nouakchott', MU:'Port Louis', MX:'Mexico City', MD:'Chisinau', MC:'Monaco',
+  MN:'Ulaanbaatar', ME:'Podgorica', MA:'Rabat', MZ:'Maputo', MM:'Naypyidaw', NA:'Windhoek',
+  NP:'Kathmandu', NL:'Amsterdam', NZ:'Wellington', NI:'Managua', NE:'Niamey', NG:'Abuja',
+  MK:'Skopje', NO:'Oslo', OM:'Muscat', PK:'Islamabad', PA:'Panama City', PG:'Port Moresby',
+  PY:'Asuncion', PE:'Lima', PH:'Manila', PL:'Warsaw', PT:'Lisbon', QA:'Doha',
+  RO:'Bucharest', RU:'Moscow', RW:'Kigali', SA:'Riyadh', SN:'Dakar', RS:'Belgrade',
+  SC:'Victoria', SL:'Freetown', SG:'Singapore', SK:'Bratislava', SI:'Ljubljana',
+  SO:'Mogadishu', ZA:'Pretoria', SS:'Juba', ES:'Madrid', LK:'Colombo', SD:'Khartoum',
+  SR:'Paramaribo', SE:'Stockholm', CH:'Bern', SY:'Damascus', TW:'Taipei', TJ:'Dushanbe',
+  TZ:'Dodoma', TH:'Bangkok', TL:'Dili', TG:'Lome', TT:'Port of Spain', TN:'Tunis',
+  TR:'Ankara', TM:'Ashgabat', UG:'Kampala', UA:'Kyiv', AE:'Abu Dhabi', GB:'London',
+  US:'Washington', UY:'Montevideo', UZ:'Tashkent', VE:'Caracas', VN:'Hanoi', YE:'Sanaa',
+  ZM:'Lusaka', ZW:'Harare',
+};
