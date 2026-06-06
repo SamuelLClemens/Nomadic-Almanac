@@ -58525,3 +58525,11072 @@ const COUNTRY_FACTS = {
   }
  }
 };
+
+// ─── PHRASES_BY_LANG — traveler phrasebook keyed by language (28 phrases + numbers
+// 1-10, native script + pronunciation). Generated then verified by a fluent-speaker
+// reviewer per language. Consumed by buildPhrasebookSection() via the country's
+// primary language (COUNTRY_FACTS[iso2].langs).
+const PHRASES_BY_LANG = {
+ "English": {
+  "native": "English",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hello",
+    "pron": "huh-LOH"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Goodbye",
+    "pron": "good-BYE"
+   },
+   {
+    "en": "Please",
+    "loc": "Please",
+    "pron": "pleez"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Thank you",
+    "pron": "THANK yoo"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "You're welcome",
+    "pron": "yor WEL-kum"
+   },
+   {
+    "en": "Yes",
+    "loc": "Yes",
+    "pron": "yes"
+   },
+   {
+    "en": "No",
+    "loc": "No",
+    "pron": "noh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Excuse me",
+    "pron": "ik-SKYOOZ mee"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Sorry",
+    "pron": "SOR-ee"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Do you speak English?",
+    "pron": "doo yoo speek ING-glish"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "I don't understand",
+    "pron": "eye dohnt un-der-STAND"
+   },
+   {
+    "en": "Help!",
+    "loc": "Help!",
+    "pron": "help"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "How much is this?",
+    "pron": "how much iz this"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Where is the toilet?",
+    "pron": "wair iz thuh TOY-let"
+   },
+   {
+    "en": "I would like this",
+    "loc": "I would like this",
+    "pron": "eye wood lyke this"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "The bill, please",
+    "pron": "thuh bil, pleez"
+   },
+   {
+    "en": "Water",
+    "loc": "Water",
+    "pron": "WAH-ter"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Good morning",
+    "pron": "good MOR-ning"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Good evening",
+    "pron": "good EEV-ning"
+   },
+   {
+    "en": "My name is …",
+    "loc": "My name is …",
+    "pron": "my naym iz …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "How are you?",
+    "pron": "how ar yoo"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "I need a doctor",
+    "pron": "eye need uh DOK-ter"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Call the police",
+    "pron": "kawl thuh puh-LEES"
+   },
+   {
+    "en": "Left",
+    "loc": "Left",
+    "pron": "left"
+   },
+   {
+    "en": "Right",
+    "loc": "Right",
+    "pron": "rite"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Where is the train station?",
+    "pron": "wair iz thuh trayn STAY-shun"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "How do I get to …?",
+    "pron": "how doo eye get too …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Delicious!",
+    "pron": "dih-LISH-us"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "one",
+    "pron": "wun"
+   },
+   {
+    "n": 2,
+    "loc": "two",
+    "pron": "too"
+   },
+   {
+    "n": 3,
+    "loc": "three",
+    "pron": "three"
+   },
+   {
+    "n": 4,
+    "loc": "four",
+    "pron": "for"
+   },
+   {
+    "n": 5,
+    "loc": "five",
+    "pron": "fyve"
+   },
+   {
+    "n": 6,
+    "loc": "six",
+    "pron": "siks"
+   },
+   {
+    "n": 7,
+    "loc": "seven",
+    "pron": "SEV-en"
+   },
+   {
+    "n": 8,
+    "loc": "eight",
+    "pron": "ayt"
+   },
+   {
+    "n": 9,
+    "loc": "nine",
+    "pron": "nyne"
+   },
+   {
+    "n": 10,
+    "loc": "ten",
+    "pron": "ten"
+   }
+  ]
+ },
+ "Spanish": {
+  "native": "español",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hola",
+    "pron": "OH-lah"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Adiós",
+    "pron": "ah-DYOHS"
+   },
+   {
+    "en": "Please",
+    "loc": "Por favor",
+    "pron": "por fah-VOR"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Gracias",
+    "pron": "GRAH-syahs"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "De nada",
+    "pron": "deh NAH-dah"
+   },
+   {
+    "en": "Yes",
+    "loc": "Sí",
+    "pron": "see"
+   },
+   {
+    "en": "No",
+    "loc": "No",
+    "pron": "noh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Disculpe",
+    "pron": "dees-KOOL-peh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Perdón",
+    "pron": "pehr-DOHN"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "¿Habla inglés?",
+    "pron": "AH-blah een-GLEHS"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "No entiendo",
+    "pron": "noh ehn-TYEHN-doh"
+   },
+   {
+    "en": "Help!",
+    "loc": "¡Socorro!",
+    "pron": "soh-KOH-rroh"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "¿Cuánto cuesta esto?",
+    "pron": "KWAHN-toh KWEHS-tah EHS-toh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "¿Dónde está el baño?",
+    "pron": "DOHN-deh ehs-TAH ehl BAH-nyoh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Quisiera esto",
+    "pron": "kee-SYEH-rah EHS-toh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "La cuenta, por favor",
+    "pron": "lah KWEHN-tah, por fah-VOR"
+   },
+   {
+    "en": "Water",
+    "loc": "Agua",
+    "pron": "AH-gwah"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Buenos días",
+    "pron": "BWEH-nohs DEE-ahs"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Buenas tardes",
+    "pron": "BWEH-nahs TAR-dehs"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Me llamo …",
+    "pron": "meh YAH-moh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "¿Cómo está?",
+    "pron": "KOH-moh ehs-TAH"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Necesito un médico",
+    "pron": "neh-seh-SEE-toh oon MEH-dee-koh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Llame a la policía",
+    "pron": "YAH-meh ah lah poh-lee-SEE-ah"
+   },
+   {
+    "en": "Left",
+    "loc": "Izquierda",
+    "pron": "ees-KYEHR-dah"
+   },
+   {
+    "en": "Right",
+    "loc": "Derecha",
+    "pron": "deh-REH-chah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "¿Dónde está la estación de tren?",
+    "pron": "DOHN-deh ehs-TAH lah ehs-tah-SYOHN deh trehn"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "¿Cómo llego a …?",
+    "pron": "KOH-moh YEH-goh ah …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "¡Delicioso!",
+    "pron": "deh-lee-SYOH-soh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "uno",
+    "pron": "OO-noh"
+   },
+   {
+    "n": 2,
+    "loc": "dos",
+    "pron": "dohs"
+   },
+   {
+    "n": 3,
+    "loc": "tres",
+    "pron": "trehs"
+   },
+   {
+    "n": 4,
+    "loc": "cuatro",
+    "pron": "KWAH-troh"
+   },
+   {
+    "n": 5,
+    "loc": "cinco",
+    "pron": "SEEN-koh"
+   },
+   {
+    "n": 6,
+    "loc": "seis",
+    "pron": "SEH-ees"
+   },
+   {
+    "n": 7,
+    "loc": "siete",
+    "pron": "SYEH-teh"
+   },
+   {
+    "n": 8,
+    "loc": "ocho",
+    "pron": "OH-choh"
+   },
+   {
+    "n": 9,
+    "loc": "nueve",
+    "pron": "NWEH-veh"
+   },
+   {
+    "n": 10,
+    "loc": "diez",
+    "pron": "DYEHS"
+   }
+  ]
+ },
+ "French": {
+  "native": "Français",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Bonjour",
+    "pron": "bohn-ZHOOR"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Au revoir",
+    "pron": "oh ruh-VWAR"
+   },
+   {
+    "en": "Please",
+    "loc": "S'il vous plaît",
+    "pron": "seel voo PLEH"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Merci",
+    "pron": "mehr-SEE"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Je vous en prie",
+    "pron": "zhuh voo zahn PREE"
+   },
+   {
+    "en": "Yes",
+    "loc": "Oui",
+    "pron": "WEE"
+   },
+   {
+    "en": "No",
+    "loc": "Non",
+    "pron": "NOHN"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Excusez-moi",
+    "pron": "eks-kew-zay MWAH"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Pardon",
+    "pron": "par-DOHN"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Parlez-vous anglais ?",
+    "pron": "par-lay VOO ahn-GLEH"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Je ne comprends pas",
+    "pron": "zhuh nuh kohm-PRAHN pah"
+   },
+   {
+    "en": "Help!",
+    "loc": "Au secours !",
+    "pron": "oh suh-KOOR"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Combien ça coûte ?",
+    "pron": "kohm-bee-AHN sah KOOT"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Où sont les toilettes ?",
+    "pron": "oo sohn lay twah-LET"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Je voudrais ceci",
+    "pron": "zhuh voo-DREH suh-SEE"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "L'addition, s'il vous plaît",
+    "pron": "lah-dee-see-OHN, seel voo PLEH"
+   },
+   {
+    "en": "Water",
+    "loc": "Eau",
+    "pron": "OH"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Bonjour",
+    "pron": "bohn-ZHOOR"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Bonsoir",
+    "pron": "bohn-SWAR"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Je m'appelle …",
+    "pron": "zhuh mah-PELL …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Comment allez-vous ?",
+    "pron": "koh-mahn tah-lay VOO"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "J'ai besoin d'un médecin",
+    "pron": "zhay buh-ZWAHN duhn mayd-SAN"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Appelez la police",
+    "pron": "ah-play lah poh-LEES"
+   },
+   {
+    "en": "Left",
+    "loc": "Gauche",
+    "pron": "GOHSH"
+   },
+   {
+    "en": "Right",
+    "loc": "Droite",
+    "pron": "DRWAHT"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Où est la gare ?",
+    "pron": "oo eh lah GAR"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Comment puis-je aller à … ?",
+    "pron": "koh-mahn pwee-zhuh ah-LAY ah …"
+   },
+   {
+    "en": "Cheers!",
+    "loc": "Santé !",
+    "pron": "sahn-TAY"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Délicieux !",
+    "pron": "day-lee-see-UH"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "un",
+    "pron": "UHN"
+   },
+   {
+    "n": 2,
+    "loc": "deux",
+    "pron": "DUH"
+   },
+   {
+    "n": 3,
+    "loc": "trois",
+    "pron": "TRWAH"
+   },
+   {
+    "n": 4,
+    "loc": "quatre",
+    "pron": "KAT-ruh"
+   },
+   {
+    "n": 5,
+    "loc": "cinq",
+    "pron": "SANK"
+   },
+   {
+    "n": 6,
+    "loc": "six",
+    "pron": "SEES"
+   },
+   {
+    "n": 7,
+    "loc": "sept",
+    "pron": "SET"
+   },
+   {
+    "n": 8,
+    "loc": "huit",
+    "pron": "WEET"
+   },
+   {
+    "n": 9,
+    "loc": "neuf",
+    "pron": "NUHF"
+   },
+   {
+    "n": 10,
+    "loc": "dix",
+    "pron": "DEES"
+   }
+  ]
+ },
+ "Arabic": {
+  "native": "العربية",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "مرحبا",
+    "pron": "MAR-ha-ban"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "مع السلامة",
+    "pron": "maa-as-sa-LAA-ma"
+   },
+   {
+    "en": "Please",
+    "loc": "من فضلك",
+    "pron": "min FAD-lik"
+   },
+   {
+    "en": "Thank you",
+    "loc": "شكرا",
+    "pron": "SHUK-ran"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "عفوا",
+    "pron": "AF-wan"
+   },
+   {
+    "en": "Yes",
+    "loc": "نعم",
+    "pron": "NA-am"
+   },
+   {
+    "en": "No",
+    "loc": "لا",
+    "pron": "laa"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "عن إذنك",
+    "pron": "an IZ-nak"
+   },
+   {
+    "en": "Sorry",
+    "loc": "آسف",
+    "pron": "AA-sif"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "هل تتحدث الإنجليزية؟",
+    "pron": "hal ta-ta-HAD-dath al-in-jee-LEE-zee-ya"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "لا أفهم",
+    "pron": "laa AF-ham"
+   },
+   {
+    "en": "Help!",
+    "loc": "النجدة!",
+    "pron": "an-NAJ-da"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "كم سعر هذا؟",
+    "pron": "kam SI-ar HAA-za"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "أين الحمام؟",
+    "pron": "AY-na al-ham-MAAM"
+   },
+   {
+    "en": "I would like this",
+    "loc": "أريد هذا",
+    "pron": "u-REED HAA-za"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "الحساب من فضلك",
+    "pron": "al-hi-SAAB min FAD-lik"
+   },
+   {
+    "en": "Water",
+    "loc": "ماء",
+    "pron": "maa"
+   },
+   {
+    "en": "Good morning",
+    "loc": "صباح الخير",
+    "pron": "sa-BAAH al-KHAYR"
+   },
+   {
+    "en": "Good evening",
+    "loc": "مساء الخير",
+    "pron": "ma-SAA al-KHAYR"
+   },
+   {
+    "en": "My name is …",
+    "loc": "اسمي …",
+    "pron": "IS-mee …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "كيف حالك؟",
+    "pron": "KAY-fa HAA-lak"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "أحتاج إلى طبيب",
+    "pron": "ah-TAAJ i-laa ta-BEEB"
+   },
+   {
+    "en": "Call the police",
+    "loc": "اتصل بالشرطة",
+    "pron": "it-TA-sil bish-SHUR-ta"
+   },
+   {
+    "en": "Left",
+    "loc": "يسار",
+    "pron": "ya-SAAR"
+   },
+   {
+    "en": "Right",
+    "loc": "يمين",
+    "pron": "ya-MEEN"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "أين محطة القطار؟",
+    "pron": "AY-na ma-HAT-tat al-qi-TAAR"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "كيف أصل إلى …؟",
+    "pron": "KAY-fa A-sil i-laa …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "لذيذ!",
+    "pron": "la-ZEEZ"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "واحد",
+    "pron": "WAA-hid"
+   },
+   {
+    "n": 2,
+    "loc": "اثنان",
+    "pron": "ith-NAAN"
+   },
+   {
+    "n": 3,
+    "loc": "ثلاثة",
+    "pron": "tha-LAA-tha"
+   },
+   {
+    "n": 4,
+    "loc": "أربعة",
+    "pron": "AR-ba-a"
+   },
+   {
+    "n": 5,
+    "loc": "خمسة",
+    "pron": "KHAM-sa"
+   },
+   {
+    "n": 6,
+    "loc": "ستة",
+    "pron": "SIT-ta"
+   },
+   {
+    "n": 7,
+    "loc": "سبعة",
+    "pron": "SAB-a"
+   },
+   {
+    "n": 8,
+    "loc": "ثمانية",
+    "pron": "tha-MAA-ni-ya"
+   },
+   {
+    "n": 9,
+    "loc": "تسعة",
+    "pron": "TIS-a"
+   },
+   {
+    "n": 10,
+    "loc": "عشرة",
+    "pron": "A-sha-ra"
+   }
+  ]
+ },
+ "Portuguese": {
+  "native": "Português",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Olá",
+    "pron": "oh-LAH"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Adeus",
+    "pron": "ah-DEH-oosh"
+   },
+   {
+    "en": "Please",
+    "loc": "Por favor",
+    "pron": "poor fah-VOR"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Obrigado (m.) / Obrigada (f.)",
+    "pron": "oh-bree-GAH-doo / oh-bree-GAH-dah"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "De nada",
+    "pron": "duh NAH-dah"
+   },
+   {
+    "en": "Yes",
+    "loc": "Sim",
+    "pron": "seeng"
+   },
+   {
+    "en": "No",
+    "loc": "Não",
+    "pron": "nowng"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Com licença",
+    "pron": "kong lee-SEN-sah"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Desculpe",
+    "pron": "dish-KOOL-puh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Fala inglês?",
+    "pron": "FAH-lah eeng-GLESH"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Não percebo",
+    "pron": "nowng per-SEH-boo"
+   },
+   {
+    "en": "Help!",
+    "loc": "Socorro!",
+    "pron": "soo-KOH-rroo"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Quanto custa isto?",
+    "pron": "KWAN-too KOOSH-tah EESH-too"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Onde é a casa de banho?",
+    "pron": "ON-duh eh ah KAH-zah duh BAH-nyoo"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Eu queria isto",
+    "pron": "EH-oo keh-REE-ah EESH-too"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "A conta, por favor",
+    "pron": "ah KON-tah, poor fah-VOR"
+   },
+   {
+    "en": "Water",
+    "loc": "Água",
+    "pron": "AH-gwah"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Bom dia",
+    "pron": "bong DEE-ah"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Boa noite",
+    "pron": "BOH-ah NOY-tuh"
+   },
+   {
+    "en": "My name is …",
+    "loc": "O meu nome é …",
+    "pron": "oo MEH-oo NOH-muh eh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Como está?",
+    "pron": "KOH-moo shtah"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Preciso de um médico",
+    "pron": "preh-SEE-zoo duh oong MEH-dee-koo"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Chame a polícia",
+    "pron": "SHAH-muh ah poo-LEE-see-ah"
+   },
+   {
+    "en": "Left",
+    "loc": "Esquerda",
+    "pron": "ish-KEHR-dah"
+   },
+   {
+    "en": "Right",
+    "loc": "Direita",
+    "pron": "dee-RAY-tah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Onde é a estação de comboios?",
+    "pron": "ON-duh eh ah ish-tah-SOWNG duh kong-BOY-oosh"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Como chego a …?",
+    "pron": "KOH-moo SHEH-goo ah …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Delicioso!",
+    "pron": "deh-lee-see-OH-zoo"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "um",
+    "pron": "oong"
+   },
+   {
+    "n": 2,
+    "loc": "dois",
+    "pron": "doysh"
+   },
+   {
+    "n": 3,
+    "loc": "três",
+    "pron": "tresh"
+   },
+   {
+    "n": 4,
+    "loc": "quatro",
+    "pron": "KWAH-troo"
+   },
+   {
+    "n": 5,
+    "loc": "cinco",
+    "pron": "SEEN-koo"
+   },
+   {
+    "n": 6,
+    "loc": "seis",
+    "pron": "saysh"
+   },
+   {
+    "n": 7,
+    "loc": "sete",
+    "pron": "SEH-tuh"
+   },
+   {
+    "n": 8,
+    "loc": "oito",
+    "pron": "OY-too"
+   },
+   {
+    "n": 9,
+    "loc": "nove",
+    "pron": "NOH-vuh"
+   },
+   {
+    "n": 10,
+    "loc": "dez",
+    "pron": "desh"
+   }
+  ]
+ },
+ "Russian": {
+  "native": "Русский",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Здравствуйте",
+    "pron": "ZDRAST-vooy-tyeh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "До свидания",
+    "pron": "duh svee-DAH-nee-yah"
+   },
+   {
+    "en": "Please",
+    "loc": "Пожалуйста",
+    "pron": "pah-ZHAH-loo-stah"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Спасибо",
+    "pron": "spah-SEE-bah"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Пожалуйста",
+    "pron": "pah-ZHAH-loo-stah"
+   },
+   {
+    "en": "Yes",
+    "loc": "Да",
+    "pron": "dah"
+   },
+   {
+    "en": "No",
+    "loc": "Нет",
+    "pron": "nyet"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Извините",
+    "pron": "eez-vee-NEE-tyeh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Простите",
+    "pron": "prah-STEE-tyeh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Вы говорите по-английски?",
+    "pron": "vy gah-vah-REE-tyeh pah ahn-GLEE-skee?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Я не понимаю",
+    "pron": "yah nee pah-nee-MAH-yoo"
+   },
+   {
+    "en": "Help!",
+    "loc": "Помогите!",
+    "pron": "pah-mah-GEE-tyeh!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Сколько это стоит?",
+    "pron": "SKOL-kah EH-tah STOH-eet?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Где туалет?",
+    "pron": "gdyeh too-ah-LYET?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Я хотел бы это",
+    "pron": "yah khah-TYEL by EH-tah"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Счёт, пожалуйста",
+    "pron": "shchot, pah-ZHAH-loo-stah"
+   },
+   {
+    "en": "Water",
+    "loc": "Вода",
+    "pron": "vah-DAH"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Доброе утро",
+    "pron": "DOH-brah-yeh OO-trah"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Добрый вечер",
+    "pron": "DOH-bry VYEH-chuhr"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Меня зовут …",
+    "pron": "mee-NYAH zah-VOOT …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Как дела?",
+    "pron": "kahk dee-LAH?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Мне нужен врач",
+    "pron": "mnyeh NOO-zhen vrahch"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Вызовите полицию",
+    "pron": "VY-zah-vee-tyeh pah-LEE-tsee-yoo"
+   },
+   {
+    "en": "Left",
+    "loc": "Налево",
+    "pron": "nah-LYEH-vah"
+   },
+   {
+    "en": "Right",
+    "loc": "Направо",
+    "pron": "nah-PRAH-vah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Где вокзал?",
+    "pron": "gdyeh vahk-ZAHL?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Как добраться до …?",
+    "pron": "kahk dah-BRAH-tsah dah …?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Вкусно!",
+    "pron": "VKOOS-nah!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "один",
+    "pron": "ah-DEEN"
+   },
+   {
+    "n": 2,
+    "loc": "два",
+    "pron": "dvah"
+   },
+   {
+    "n": 3,
+    "loc": "три",
+    "pron": "tree"
+   },
+   {
+    "n": 4,
+    "loc": "четыре",
+    "pron": "chee-TY-ree"
+   },
+   {
+    "n": 5,
+    "loc": "пять",
+    "pron": "pyaht"
+   },
+   {
+    "n": 6,
+    "loc": "шесть",
+    "pron": "shest"
+   },
+   {
+    "n": 7,
+    "loc": "семь",
+    "pron": "syem"
+   },
+   {
+    "n": 8,
+    "loc": "восемь",
+    "pron": "VOH-syem"
+   },
+   {
+    "n": 9,
+    "loc": "девять",
+    "pron": "DYEH-vyaht"
+   },
+   {
+    "n": 10,
+    "loc": "десять",
+    "pron": "DYEH-syaht"
+   }
+  ]
+ },
+ "German": {
+  "native": "Deutsch",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hallo",
+    "pron": "HAH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Auf Wiedersehen",
+    "pron": "owf VEE-der-zayn"
+   },
+   {
+    "en": "Please",
+    "loc": "Bitte",
+    "pron": "BIT-tuh"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Danke",
+    "pron": "DAHN-kuh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Bitte schön",
+    "pron": "BIT-tuh shurn"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ja",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Nein",
+    "pron": "nine"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Entschuldigung",
+    "pron": "ent-SHOOL-di-goong"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Es tut mir leid",
+    "pron": "es toot meer lite"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Sprechen Sie Englisch?",
+    "pron": "SHPREKH-en zee ENG-lish"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ich verstehe nicht",
+    "pron": "ikh fer-SHTAY-uh nikht"
+   },
+   {
+    "en": "Help!",
+    "loc": "Hilfe!",
+    "pron": "HIL-fuh"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Wie viel kostet das?",
+    "pron": "vee feel KOS-tet dahs"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Wo ist die Toilette?",
+    "pron": "voh ist dee twah-LET-tuh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ich hätte gern das",
+    "pron": "ikh HET-tuh gairn dahs"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Die Rechnung, bitte",
+    "pron": "dee REKH-noong, BIT-tuh"
+   },
+   {
+    "en": "Water",
+    "loc": "Wasser",
+    "pron": "VAH-ser"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Guten Morgen",
+    "pron": "GOO-ten MOR-gen"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Guten Abend",
+    "pron": "GOO-ten AH-bent"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Ich heiße …",
+    "pron": "ikh HY-suh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Wie geht es Ihnen?",
+    "pron": "vee gayt es EE-nen"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ich brauche einen Arzt",
+    "pron": "ikh BROW-khuh INE-en artst"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Rufen Sie die Polizei",
+    "pron": "ROO-fen zee dee po-li-TSY"
+   },
+   {
+    "en": "Left",
+    "loc": "Links",
+    "pron": "links"
+   },
+   {
+    "en": "Right",
+    "loc": "Rechts",
+    "pron": "rekhts"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Wo ist der Bahnhof?",
+    "pron": "voh ist dair BAHN-hohf"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Wie komme ich nach …?",
+    "pron": "vee KOM-muh ikh nakh …"
+   },
+   {
+    "en": "Cheers!",
+    "loc": "Prost!",
+    "pron": "prohst"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Lecker!",
+    "pron": "LEK-er"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "eins",
+    "pron": "eyenss"
+   },
+   {
+    "n": 2,
+    "loc": "zwei",
+    "pron": "tsvy"
+   },
+   {
+    "n": 3,
+    "loc": "drei",
+    "pron": "dry"
+   },
+   {
+    "n": 4,
+    "loc": "vier",
+    "pron": "feer"
+   },
+   {
+    "n": 5,
+    "loc": "fünf",
+    "pron": "fuunf (ü as in French 'u')"
+   },
+   {
+    "n": 6,
+    "loc": "sechs",
+    "pron": "zeks"
+   },
+   {
+    "n": 7,
+    "loc": "sieben",
+    "pron": "ZEE-ben"
+   },
+   {
+    "n": 8,
+    "loc": "acht",
+    "pron": "akht"
+   },
+   {
+    "n": 9,
+    "loc": "neun",
+    "pron": "noyn"
+   },
+   {
+    "n": 10,
+    "loc": "zehn",
+    "pron": "tsayn"
+   }
+  ]
+ },
+ "Italian": {
+  "native": "Italiano",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Salve",
+    "pron": "SAHL-veh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Arrivederci",
+    "pron": "ah-ree-veh-DEHR-chee"
+   },
+   {
+    "en": "Please",
+    "loc": "Per favore",
+    "pron": "pehr fah-VOH-reh"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Grazie",
+    "pron": "GRAH-tsyeh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Prego",
+    "pron": "PREH-goh"
+   },
+   {
+    "en": "Yes",
+    "loc": "Sì",
+    "pron": "see"
+   },
+   {
+    "en": "No",
+    "loc": "No",
+    "pron": "noh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Mi scusi",
+    "pron": "mee SKOO-zee"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Mi dispiace",
+    "pron": "mee dees-PYAH-cheh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Parla inglese?",
+    "pron": "PAR-lah een-GLEH-zeh"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Non capisco",
+    "pron": "nohn kah-PEES-koh"
+   },
+   {
+    "en": "Help!",
+    "loc": "Aiuto!",
+    "pron": "ah-YOO-toh"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Quanto costa questo?",
+    "pron": "KWAN-toh KOH-stah KWEH-stoh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Dov'è il bagno?",
+    "pron": "doh-VEH eel BAH-nyoh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Vorrei questo",
+    "pron": "vor-RAY KWEH-stoh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Il conto, per favore",
+    "pron": "eel KOHN-toh, pehr fah-VOH-reh"
+   },
+   {
+    "en": "Water",
+    "loc": "Acqua",
+    "pron": "AH-kwah"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Buongiorno",
+    "pron": "bwohn-JOR-noh"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Buonasera",
+    "pron": "bwoh-nah-SEH-rah"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Mi chiamo …",
+    "pron": "mee KYAH-moh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Come sta?",
+    "pron": "KOH-meh stah"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ho bisogno di un medico",
+    "pron": "oh bee-ZOH-nyoh dee oon MEH-dee-koh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Chiami la polizia",
+    "pron": "KYAH-mee lah poh-lee-TSEE-ah"
+   },
+   {
+    "en": "Left",
+    "loc": "Sinistra",
+    "pron": "see-NEE-strah"
+   },
+   {
+    "en": "Right",
+    "loc": "Destra",
+    "pron": "DEH-strah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Dov'è la stazione dei treni?",
+    "pron": "doh-VEH lah stah-TSYOH-neh day TREH-nee"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Come arrivo a …?",
+    "pron": "KOH-meh ar-REE-voh ah …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Delizioso!",
+    "pron": "deh-lee-TSYOH-zoh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "uno",
+    "pron": "OO-noh"
+   },
+   {
+    "n": 2,
+    "loc": "due",
+    "pron": "DOO-eh"
+   },
+   {
+    "n": 3,
+    "loc": "tre",
+    "pron": "treh"
+   },
+   {
+    "n": 4,
+    "loc": "quattro",
+    "pron": "KWAH-troh"
+   },
+   {
+    "n": 5,
+    "loc": "cinque",
+    "pron": "CHEEN-kweh"
+   },
+   {
+    "n": 6,
+    "loc": "sei",
+    "pron": "say"
+   },
+   {
+    "n": 7,
+    "loc": "sette",
+    "pron": "SEH-teh"
+   },
+   {
+    "n": 8,
+    "loc": "otto",
+    "pron": "OH-toh"
+   },
+   {
+    "n": 9,
+    "loc": "nove",
+    "pron": "NOH-veh"
+   },
+   {
+    "n": 10,
+    "loc": "dieci",
+    "pron": "DYEH-chee"
+   }
+  ]
+ },
+ "Mandarin Chinese": {
+  "native": "普通话",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "你好",
+    "pron": "nǐ hǎo (nee how)"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "再见",
+    "pron": "zài jiàn (dzye jyen)"
+   },
+   {
+    "en": "Please",
+    "loc": "请",
+    "pron": "qǐng (ching)"
+   },
+   {
+    "en": "Thank you",
+    "loc": "谢谢",
+    "pron": "xiè xie (shyeh shyeh)"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "不客气",
+    "pron": "bú kè qi (boo kuh chee)"
+   },
+   {
+    "en": "Yes",
+    "loc": "是",
+    "pron": "shì (shrr)"
+   },
+   {
+    "en": "No",
+    "loc": "不是",
+    "pron": "bú shì (boo shrr)"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "请问",
+    "pron": "qǐng wèn (ching wun)"
+   },
+   {
+    "en": "Sorry",
+    "loc": "对不起",
+    "pron": "duì bu qǐ (dway boo chee)"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "你会说英语吗？",
+    "pron": "nǐ huì shuō yīng yǔ ma? (nee hway shwor ying yoo ma)"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "我不明白",
+    "pron": "wǒ bù míng bai (wor boo ming bye)"
+   },
+   {
+    "en": "Help!",
+    "loc": "救命！",
+    "pron": "jiù mìng! (jyoh ming)"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "这个多少钱？",
+    "pron": "zhè ge duō shao qián? (juh guh dwor shao chyen)"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "洗手间在哪里？",
+    "pron": "xǐ shǒu jiān zài nǎ lǐ? (shee show jyen dzye nah lee)"
+   },
+   {
+    "en": "I would like this",
+    "loc": "我想要这个",
+    "pron": "wǒ xiǎng yào zhè ge (wor shyang yao juh guh)"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "请买单",
+    "pron": "qǐng mǎi dān (ching my dan)"
+   },
+   {
+    "en": "Water",
+    "loc": "水",
+    "pron": "shuǐ (shway)"
+   },
+   {
+    "en": "Good morning",
+    "loc": "早上好",
+    "pron": "zǎo shang hǎo (dzao shang how)"
+   },
+   {
+    "en": "Good evening",
+    "loc": "晚上好",
+    "pron": "wǎn shang hǎo (wan shang how)"
+   },
+   {
+    "en": "My name is …",
+    "loc": "我叫……",
+    "pron": "wǒ jiào … (wor jyao …)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "你好吗？",
+    "pron": "nǐ hǎo ma? (nee how ma)"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "我需要看医生",
+    "pron": "wǒ xū yào kàn yī shēng (wor shoo yao kan ee shung)"
+   },
+   {
+    "en": "Call the police",
+    "loc": "请报警",
+    "pron": "qǐng bào jǐng (ching bao jing)"
+   },
+   {
+    "en": "Left",
+    "loc": "左",
+    "pron": "zuǒ (dzwor)"
+   },
+   {
+    "en": "Right",
+    "loc": "右",
+    "pron": "yòu (yoh)"
+   },
+   {
+    "en": "Straight ahead",
+    "loc": "一直走",
+    "pron": "yì zhí zǒu (ee jrr dzoh)"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "火车站在哪里？",
+    "pron": "huǒ chē zhàn zài nǎ lǐ? (hwor chuh jan dzye nah lee)"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "怎么去……？",
+    "pron": "zěn me qù …? (dzun muh chyoo …)"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "好吃！",
+    "pron": "hǎo chī! (how chrr)"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "一",
+    "pron": "yī (ee)"
+   },
+   {
+    "n": 2,
+    "loc": "二",
+    "pron": "èr (arr)"
+   },
+   {
+    "n": 3,
+    "loc": "三",
+    "pron": "sān (san)"
+   },
+   {
+    "n": 4,
+    "loc": "四",
+    "pron": "sì (srr)"
+   },
+   {
+    "n": 5,
+    "loc": "五",
+    "pron": "wǔ (woo)"
+   },
+   {
+    "n": 6,
+    "loc": "六",
+    "pron": "liù (lyoh)"
+   },
+   {
+    "n": 7,
+    "loc": "七",
+    "pron": "qī (chee)"
+   },
+   {
+    "n": 8,
+    "loc": "八",
+    "pron": "bā (bah)"
+   },
+   {
+    "n": 9,
+    "loc": "九",
+    "pron": "jiǔ (jyoh)"
+   },
+   {
+    "n": 10,
+    "loc": "十",
+    "pron": "shí (shrr)"
+   }
+  ]
+ },
+ "Japanese": {
+  "native": "日本語",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "こんにちは",
+    "pron": "kon-nee-chee-wah"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "さようなら",
+    "pron": "sah-yoh-nah-rah"
+   },
+   {
+    "en": "Please",
+    "loc": "お願いします",
+    "pron": "oh-neh-gai-shee-mahss"
+   },
+   {
+    "en": "Thank you",
+    "loc": "ありがとうございます",
+    "pron": "ah-ree-gah-toh goh-zai-mahss"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "どういたしまして",
+    "pron": "doh-ee-tah-shee-mah-shteh"
+   },
+   {
+    "en": "Yes",
+    "loc": "はい",
+    "pron": "hai"
+   },
+   {
+    "en": "No",
+    "loc": "いいえ",
+    "pron": "ee-eh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "すみません",
+    "pron": "soo-mee-mah-sen"
+   },
+   {
+    "en": "Sorry",
+    "loc": "ごめんなさい",
+    "pron": "goh-men-nah-sai"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "英語を話せますか？",
+    "pron": "ay-go oh hah-nah-seh-mahss kah?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "わかりません",
+    "pron": "wah-kah-ree-mah-sen"
+   },
+   {
+    "en": "Help!",
+    "loc": "助けて！",
+    "pron": "tah-soo-keh-teh!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "これはいくらですか？",
+    "pron": "koh-reh wah ee-koo-rah dess kah?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "トイレはどこですか？",
+    "pron": "toy-reh wah doh-koh dess kah?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "これをください",
+    "pron": "koh-reh oh koo-dah-sai"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "お会計をお願いします",
+    "pron": "oh-kai-kay oh oh-neh-gai-shee-mahss"
+   },
+   {
+    "en": "Water",
+    "loc": "水",
+    "pron": "mee-zoo"
+   },
+   {
+    "en": "Good morning",
+    "loc": "おはようございます",
+    "pron": "oh-hah-yoh goh-zai-mahss"
+   },
+   {
+    "en": "Good evening",
+    "loc": "こんばんは",
+    "pron": "kon-bahn-wah"
+   },
+   {
+    "en": "My name is …",
+    "loc": "私の名前は…です",
+    "pron": "wah-tah-shee no nah-mah-eh wah … dess"
+   },
+   {
+    "en": "How are you?",
+    "loc": "お元気ですか？",
+    "pron": "oh-gen-kee dess kah?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "医者が必要です",
+    "pron": "ee-shah gah hee-tsoo-yoh dess"
+   },
+   {
+    "en": "Call the police",
+    "loc": "警察を呼んでください",
+    "pron": "kay-sah-tsoo oh yon-deh koo-dah-sai"
+   },
+   {
+    "en": "Left",
+    "loc": "左",
+    "pron": "hee-dah-ree"
+   },
+   {
+    "en": "Right",
+    "loc": "右",
+    "pron": "mee-gee"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "駅はどこですか？",
+    "pron": "eh-kee wah doh-koh dess kah?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "…へはどうやって行きますか？",
+    "pron": "… eh wah doh-yah-tteh ee-kee-mahss kah?"
+   },
+   {
+    "en": "Cheers!",
+    "loc": "乾杯！",
+    "pron": "kahm-pai!"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "おいしい！",
+    "pron": "oy-shee!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "一",
+    "pron": "ee-chee"
+   },
+   {
+    "n": 2,
+    "loc": "二",
+    "pron": "nee"
+   },
+   {
+    "n": 3,
+    "loc": "三",
+    "pron": "sahn"
+   },
+   {
+    "n": 4,
+    "loc": "四",
+    "pron": "shee / yon"
+   },
+   {
+    "n": 5,
+    "loc": "五",
+    "pron": "goh"
+   },
+   {
+    "n": 6,
+    "loc": "六",
+    "pron": "roh-koo"
+   },
+   {
+    "n": 7,
+    "loc": "七",
+    "pron": "shee-chee / nah-nah"
+   },
+   {
+    "n": 8,
+    "loc": "八",
+    "pron": "hah-chee"
+   },
+   {
+    "n": 9,
+    "loc": "九",
+    "pron": "kyoo / koo"
+   },
+   {
+    "n": 10,
+    "loc": "十",
+    "pron": "joo"
+   }
+  ]
+ },
+ "Korean": {
+  "native": "한국어",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "안녕하세요",
+    "pron": "an-nyeong-ha-se-yo"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "안녕히 가세요",
+    "pron": "an-nyeong-hi ga-se-yo (to someone leaving); an-nyeong-hi gye-se-yo (안녕히 계세요, to someone staying)"
+   },
+   {
+    "en": "Please",
+    "loc": "부탁합니다",
+    "pron": "bu-tak-ham-ni-da"
+   },
+   {
+    "en": "Thank you",
+    "loc": "감사합니다",
+    "pron": "gam-sa-ham-ni-da"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "천만에요",
+    "pron": "cheon-ma-ne-yo"
+   },
+   {
+    "en": "Yes",
+    "loc": "네",
+    "pron": "ne"
+   },
+   {
+    "en": "No",
+    "loc": "아니요",
+    "pron": "a-ni-yo"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "실례합니다",
+    "pron": "sil-lye-ham-ni-da"
+   },
+   {
+    "en": "Sorry",
+    "loc": "죄송합니다",
+    "pron": "joe-song-ham-ni-da"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "영어 할 줄 아세요?",
+    "pron": "yeong-eo hal jul a-se-yo?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "이해 못 하겠어요",
+    "pron": "i-hae mot ha-ge-sseo-yo"
+   },
+   {
+    "en": "Help!",
+    "loc": "도와주세요!",
+    "pron": "do-wa-ju-se-yo!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "이거 얼마예요?",
+    "pron": "i-geo eol-ma-ye-yo?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "화장실이 어디예요?",
+    "pron": "hwa-jang-si-ri eo-di-ye-yo?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "이거 주세요",
+    "pron": "i-geo ju-se-yo"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "계산서 주세요",
+    "pron": "gye-san-seo ju-se-yo"
+   },
+   {
+    "en": "Water",
+    "loc": "물",
+    "pron": "mul"
+   },
+   {
+    "en": "Good morning",
+    "loc": "안녕하세요",
+    "pron": "an-nyeong-ha-se-yo (general greeting used in the morning); jo-eun a-chim-i-e-yo (좋은 아침이에요, literally 'good morning')"
+   },
+   {
+    "en": "Good evening",
+    "loc": "안녕하세요",
+    "pron": "an-nyeong-ha-se-yo (the standard polite greeting, used in the evening as well)"
+   },
+   {
+    "en": "My name is …",
+    "loc": "제 이름은 …이에요",
+    "pron": "je i-reu-meun … i-e-yo (use 예요 / ye-yo after a vowel-final name, 이에요 / i-e-yo after a consonant-final name)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "어떻게 지내세요?",
+    "pron": "eo-tteo-ke ji-nae-se-yo?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "의사가 필요해요",
+    "pron": "ui-sa-ga pi-ryo-hae-yo"
+   },
+   {
+    "en": "Call the police",
+    "loc": "경찰을 불러 주세요",
+    "pron": "gyeong-cha-reul bul-leo ju-se-yo"
+   },
+   {
+    "en": "Left",
+    "loc": "왼쪽",
+    "pron": "oen-jjok"
+   },
+   {
+    "en": "Right",
+    "loc": "오른쪽",
+    "pron": "o-reun-jjok"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "기차역이 어디예요?",
+    "pron": "gi-cha-yeo-gi eo-di-ye-yo?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "…에 어떻게 가요?",
+    "pron": "… e eo-tteo-ke ga-yo?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "맛있어요!",
+    "pron": "ma-si-sseo-yo!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "하나",
+    "pron": "ha-na (native Korean); il (일, Sino-Korean)"
+   },
+   {
+    "n": 2,
+    "loc": "둘",
+    "pron": "dul (native); i (이, Sino-Korean)"
+   },
+   {
+    "n": 3,
+    "loc": "셋",
+    "pron": "set (native); sam (삼, Sino-Korean)"
+   },
+   {
+    "n": 4,
+    "loc": "넷",
+    "pron": "net (native); sa (사, Sino-Korean)"
+   },
+   {
+    "n": 5,
+    "loc": "다섯",
+    "pron": "da-seot (native); o (오, Sino-Korean)"
+   },
+   {
+    "n": 6,
+    "loc": "여섯",
+    "pron": "yeo-seot (native); yuk (육, Sino-Korean)"
+   },
+   {
+    "n": 7,
+    "loc": "일곱",
+    "pron": "il-gop (native); chil (칠, Sino-Korean)"
+   },
+   {
+    "n": 8,
+    "loc": "여덟",
+    "pron": "yeo-deol (native); pal (팔, Sino-Korean)"
+   },
+   {
+    "n": 9,
+    "loc": "아홉",
+    "pron": "a-hop (native); gu (구, Sino-Korean)"
+   },
+   {
+    "n": 10,
+    "loc": "열",
+    "pron": "yeol (native); sip (십, Sino-Korean)"
+   }
+  ]
+ },
+ "Hindi": {
+  "native": "हिन्दी",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "नमस्ते",
+    "pron": "nuh-muh-STAY"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "नमस्ते / अलविदा",
+    "pron": "nuh-muh-STAY / al-vi-DAA"
+   },
+   {
+    "en": "Please",
+    "loc": "कृपया",
+    "pron": "KRIP-yaa"
+   },
+   {
+    "en": "Thank you",
+    "loc": "धन्यवाद",
+    "pron": "DHUN-yuh-vaad"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "कोई बात नहीं",
+    "pron": "koh-EE baat nuh-HEEN"
+   },
+   {
+    "en": "Yes",
+    "loc": "जी हाँ",
+    "pron": "jee HAAN"
+   },
+   {
+    "en": "No",
+    "loc": "जी नहीं",
+    "pron": "jee nuh-HEEN"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "सुनिए",
+    "pron": "SOO-ni-yay"
+   },
+   {
+    "en": "Sorry",
+    "loc": "माफ़ कीजिए",
+    "pron": "maaf KEE-ji-yay"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "क्या आप अंग्रेज़ी बोलते हैं?",
+    "pron": "kyaa aap an-GRAY-zee BOL-tay hain?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "मुझे समझ नहीं आया",
+    "pron": "MUJH-ay sa-MAJH nuh-HEEN AA-yaa"
+   },
+   {
+    "en": "Help!",
+    "loc": "बचाओ!",
+    "pron": "buh-CHAA-oh!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "यह कितने का है?",
+    "pron": "yeh KIT-nay kaa hai?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "शौचालय कहाँ है?",
+    "pron": "shau-CHAA-luh-yuh ka-HAAN hai?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "मुझे यह चाहिए",
+    "pron": "MUJH-ay yeh CHAA-hi-yay"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "बिल लाइए",
+    "pron": "bill LAA-i-yay"
+   },
+   {
+    "en": "Water",
+    "loc": "पानी",
+    "pron": "PAA-nee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "सुप्रभात",
+    "pron": "su-pruh-BHAAT"
+   },
+   {
+    "en": "Good evening",
+    "loc": "शुभ संध्या",
+    "pron": "shubh SUN-dhyaa"
+   },
+   {
+    "en": "Good night",
+    "loc": "शुभ रात्रि",
+    "pron": "shubh RAA-tri"
+   },
+   {
+    "en": "My name is …",
+    "loc": "मेरा नाम … है",
+    "pron": "MAY-raa naam … hai"
+   },
+   {
+    "en": "How are you?",
+    "loc": "आप कैसे हैं?",
+    "pron": "aap KAI-say hain?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "मुझे डॉक्टर की ज़रूरत है",
+    "pron": "MUJH-ay DOCK-tar kee zuh-ROO-rat hai"
+   },
+   {
+    "en": "Call the police",
+    "loc": "पुलिस को बुलाइए",
+    "pron": "po-LEES koh boo-LAA-i-yay"
+   },
+   {
+    "en": "Left",
+    "loc": "बायाँ",
+    "pron": "BAA-yaan"
+   },
+   {
+    "en": "Right",
+    "loc": "दायाँ",
+    "pron": "DAA-yaan"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "रेलवे स्टेशन कहाँ है?",
+    "pron": "RAIL-way STAY-shun ka-HAAN hai?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "मैं … कैसे पहुँचूँ?",
+    "pron": "main … KAI-say puh-HUN-choon?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "बहुत स्वादिष्ट!",
+    "pron": "buh-HOOT swaa-DISHT!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "एक",
+    "pron": "ek"
+   },
+   {
+    "n": 2,
+    "loc": "दो",
+    "pron": "doh"
+   },
+   {
+    "n": 3,
+    "loc": "तीन",
+    "pron": "teen"
+   },
+   {
+    "n": 4,
+    "loc": "चार",
+    "pron": "chaar"
+   },
+   {
+    "n": 5,
+    "loc": "पाँच",
+    "pron": "paanch"
+   },
+   {
+    "n": 6,
+    "loc": "छह",
+    "pron": "chheh"
+   },
+   {
+    "n": 7,
+    "loc": "सात",
+    "pron": "saat"
+   },
+   {
+    "n": 8,
+    "loc": "आठ",
+    "pron": "aath"
+   },
+   {
+    "n": 9,
+    "loc": "नौ",
+    "pron": "nau"
+   },
+   {
+    "n": 10,
+    "loc": "दस",
+    "pron": "dus"
+   }
+  ]
+ },
+ "Bengali": {
+  "native": "বাংলা",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "নমস্কার",
+    "pron": "no-mosh-KAR (Hindu/secular); as-sa-laamu a-laai-kum for Muslims"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "বিদায়",
+    "pron": "bee-DAI (or 'aabar dekha hobe' = see you again)"
+   },
+   {
+    "en": "Please",
+    "loc": "দয়া করে",
+    "pron": "DOY-aa KO-re"
+   },
+   {
+    "en": "Thank you",
+    "loc": "ধন্যবাদ",
+    "pron": "DHON-no-baad"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "স্বাগতম",
+    "pron": "SHAA-go-tom"
+   },
+   {
+    "en": "Yes",
+    "loc": "হ্যাঁ",
+    "pron": "hæ̃ (nasal 'haa')"
+   },
+   {
+    "en": "No",
+    "loc": "না",
+    "pron": "naa"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "শুনুন",
+    "pron": "SHOO-noon (lit. 'listen', to get attention)"
+   },
+   {
+    "en": "Sorry",
+    "loc": "দুঃখিত",
+    "pron": "DOOK-khito"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "আপনি কি ইংরেজি বলতে পারেন?",
+    "pron": "AAP-ni ki ING-reji BOL-te PAA-ren?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "আমি বুঝতে পারছি না",
+    "pron": "AA-mi BOOJH-te PAAR-chi naa"
+   },
+   {
+    "en": "Help!",
+    "loc": "সাহায্য করুন!",
+    "pron": "SHA-haaj-jo KOH-roon!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "এটার দাম কত?",
+    "pron": "EH-taar daam KOH-to?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "টয়লেট কোথায়?",
+    "pron": "TOY-let KO-thai?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "আমি এটা চাই",
+    "pron": "AA-mi EH-taa chai"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "দয়া করে বিলটা দিন",
+    "pron": "DOY-aa KO-re BIL-taa deen"
+   },
+   {
+    "en": "Water",
+    "loc": "জল / পানি",
+    "pron": "jol (West Bengal) / PAA-ni (Bangladesh)"
+   },
+   {
+    "en": "Good morning",
+    "loc": "সুপ্রভাত",
+    "pron": "shu-pro-BHAAT"
+   },
+   {
+    "en": "Good evening",
+    "loc": "শুভ সন্ধ্যা",
+    "pron": "SHU-bho SHON-dhaa"
+   },
+   {
+    "en": "My name is …",
+    "loc": "আমার নাম …",
+    "pron": "AA-maar naam …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "আপনি কেমন আছেন?",
+    "pron": "AAP-ni KEH-mon AA-chen?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "আমার একজন ডাক্তার দরকার",
+    "pron": "AA-maar EK-jon DAAK-taar DOR-kaar"
+   },
+   {
+    "en": "Call the police",
+    "loc": "পুলিশ ডাকুন",
+    "pron": "POO-lish DAA-koon"
+   },
+   {
+    "en": "Left",
+    "loc": "বাম",
+    "pron": "baam"
+   },
+   {
+    "en": "Right",
+    "loc": "ডান",
+    "pron": "daan"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "ট্রেন স্টেশন কোথায়?",
+    "pron": "TREN STE-shon KO-thai?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "আমি … কীভাবে যাব?",
+    "pron": "AA-mi … KEE-bhaa-be JAA-bo?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "সুস্বাদু!",
+    "pron": "shu-SHAA-doo!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "এক",
+    "pron": "ek"
+   },
+   {
+    "n": 2,
+    "loc": "দুই",
+    "pron": "dui"
+   },
+   {
+    "n": 3,
+    "loc": "তিন",
+    "pron": "teen"
+   },
+   {
+    "n": 4,
+    "loc": "চার",
+    "pron": "chaar"
+   },
+   {
+    "n": 5,
+    "loc": "পাঁচ",
+    "pron": "paanch (nasal)"
+   },
+   {
+    "n": 6,
+    "loc": "ছয়",
+    "pron": "chhoy"
+   },
+   {
+    "n": 7,
+    "loc": "সাত",
+    "pron": "shaat"
+   },
+   {
+    "n": 8,
+    "loc": "আট",
+    "pron": "aat"
+   },
+   {
+    "n": 9,
+    "loc": "নয়",
+    "pron": "noy"
+   },
+   {
+    "n": 10,
+    "loc": "দশ",
+    "pron": "dosh"
+   }
+  ]
+ },
+ "Urdu": {
+  "native": "اردو",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "السلام علیکم",
+    "pron": "as-salaam-u alai-kum"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "اللہ حافظ",
+    "pron": "al-laah haa-fiz"
+   },
+   {
+    "en": "Please",
+    "loc": "براہِ کرم",
+    "pron": "ba-raa-e ka-ram"
+   },
+   {
+    "en": "Thank you",
+    "loc": "شکریہ",
+    "pron": "shuk-ri-yaa"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "کوئی بات نہیں",
+    "pron": "ko-ee baat na-heen"
+   },
+   {
+    "en": "Yes",
+    "loc": "جی ہاں",
+    "pron": "jee haan"
+   },
+   {
+    "en": "No",
+    "loc": "جی نہیں",
+    "pron": "jee na-heen"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "معاف کیجیے",
+    "pron": "maaf kee-ji-ye"
+   },
+   {
+    "en": "Sorry",
+    "loc": "معذرت",
+    "pron": "maa-zi-rat"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "کیا آپ انگریزی بولتے ہیں؟",
+    "pron": "kyaa aap an-gre-zee bol-te hain?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "میں نہیں سمجھا",
+    "pron": "main na-heen sam-jhaa"
+   },
+   {
+    "en": "Help!",
+    "loc": "مدد!",
+    "pron": "ma-dad!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "یہ کتنے کا ہے؟",
+    "pron": "yeh kit-ne kaa hai?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "بیت الخلا کہاں ہے؟",
+    "pron": "bait-ul-kha-laa ka-haan hai?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "مجھے یہ چاہیے",
+    "pron": "mu-jhe yeh chaa-hi-ye"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "بل دیجیے، براہِ کرم",
+    "pron": "bill dee-ji-ye, ba-raa-e ka-ram"
+   },
+   {
+    "en": "Water",
+    "loc": "پانی",
+    "pron": "paa-nee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "صبح بخیر",
+    "pron": "su-bah ba-khair"
+   },
+   {
+    "en": "Good evening",
+    "loc": "شام بخیر",
+    "pron": "shaam ba-khair"
+   },
+   {
+    "en": "My name is …",
+    "loc": "میرا نام … ہے",
+    "pron": "me-raa naam … hai"
+   },
+   {
+    "en": "How are you?",
+    "loc": "آپ کیسے ہیں؟",
+    "pron": "aap kai-se hain?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "مجھے ڈاکٹر کی ضرورت ہے",
+    "pron": "mu-jhe daak-tar kee za-roo-rat hai"
+   },
+   {
+    "en": "Call the police",
+    "loc": "پولیس کو بلائیں",
+    "pron": "po-lees ko bu-laa-en"
+   },
+   {
+    "en": "Left",
+    "loc": "بائیں",
+    "pron": "baa-en"
+   },
+   {
+    "en": "Right",
+    "loc": "دائیں",
+    "pron": "daa-en"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "ریلوے اسٹیشن کہاں ہے؟",
+    "pron": "rail-we ish-tay-shan ka-haan hai?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "میں … کیسے پہنچوں؟",
+    "pron": "main … kai-se pa-hun-choon?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "بہت مزیدار!",
+    "pron": "ba-hut ma-ze-daar!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ایک",
+    "pron": "ek"
+   },
+   {
+    "n": 2,
+    "loc": "دو",
+    "pron": "do"
+   },
+   {
+    "n": 3,
+    "loc": "تین",
+    "pron": "teen"
+   },
+   {
+    "n": 4,
+    "loc": "چار",
+    "pron": "chaar"
+   },
+   {
+    "n": 5,
+    "loc": "پانچ",
+    "pron": "paanch"
+   },
+   {
+    "n": 6,
+    "loc": "چھ",
+    "pron": "chhe"
+   },
+   {
+    "n": 7,
+    "loc": "سات",
+    "pron": "saat"
+   },
+   {
+    "n": 8,
+    "loc": "آٹھ",
+    "pron": "aath"
+   },
+   {
+    "n": 9,
+    "loc": "نو",
+    "pron": "nau"
+   },
+   {
+    "n": 10,
+    "loc": "دس",
+    "pron": "das"
+   }
+  ]
+ },
+ "Indonesian": {
+  "native": "Bahasa Indonesia",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Halo",
+    "pron": "HAH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Selamat tinggal",
+    "pron": "suh-LAH-mat TING-gal (said to the one staying; the one leaving says: Selamat jalan, suh-LAH-mat JAH-lan)"
+   },
+   {
+    "en": "Please",
+    "loc": "Tolong",
+    "pron": "TOH-long (for requests; use 'silakan' / see-LAH-kan when offering or inviting)"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Terima kasih",
+    "pron": "tuh-REE-mah KAH-see"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Sama-sama",
+    "pron": "SAH-mah SAH-mah"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ya",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Tidak",
+    "pron": "TEE-dak"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Permisi",
+    "pron": "per-MEE-see"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Maaf",
+    "pron": "mah-AHF"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Apakah Anda bisa berbahasa Inggris?",
+    "pron": "AH-pah-kah AHN-dah BEE-sah ber-bah-SAH ING-gris"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Saya tidak mengerti",
+    "pron": "SAH-yah TEE-dak muh-NGUHR-tee"
+   },
+   {
+    "en": "Help!",
+    "loc": "Tolong!",
+    "pron": "TOH-long"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Ini berapa harganya?",
+    "pron": "EE-nee buh-RAH-pah HAR-gah-nyah"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Di mana toilet?",
+    "pron": "dee MAH-nah TOY-let"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Saya mau ini",
+    "pron": "SAH-yah MAH-oo EE-nee"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Minta bonnya",
+    "pron": "MIN-tah BON-nyah"
+   },
+   {
+    "en": "Water",
+    "loc": "Air",
+    "pron": "AH-eer"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Selamat pagi",
+    "pron": "suh-LAH-mat PAH-gee"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Selamat malam",
+    "pron": "suh-LAH-mat MAH-lam"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Nama saya …",
+    "pron": "NAH-mah SAH-yah …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Apa kabar?",
+    "pron": "AH-pah KAH-bar"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Saya butuh dokter",
+    "pron": "SAH-yah BOO-too DOK-ter"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Panggil polisi",
+    "pron": "PANG-gil poh-LEE-see"
+   },
+   {
+    "en": "Left",
+    "loc": "Kiri",
+    "pron": "KEE-ree"
+   },
+   {
+    "en": "Right",
+    "loc": "Kanan",
+    "pron": "KAH-nan"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Di mana stasiun kereta?",
+    "pron": "dee MAH-nah stah-see-OON kuh-REH-tah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Bagaimana cara ke …?",
+    "pron": "bah-gai-MAH-nah CHAH-rah kuh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Enak!",
+    "pron": "EH-nak"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "satu",
+    "pron": "SAH-too"
+   },
+   {
+    "n": 2,
+    "loc": "dua",
+    "pron": "DOO-ah"
+   },
+   {
+    "n": 3,
+    "loc": "tiga",
+    "pron": "TEE-gah"
+   },
+   {
+    "n": 4,
+    "loc": "empat",
+    "pron": "UM-pat"
+   },
+   {
+    "n": 5,
+    "loc": "lima",
+    "pron": "LEE-mah"
+   },
+   {
+    "n": 6,
+    "loc": "enam",
+    "pron": "UH-nam"
+   },
+   {
+    "n": 7,
+    "loc": "tujuh",
+    "pron": "TOO-joo"
+   },
+   {
+    "n": 8,
+    "loc": "delapan",
+    "pron": "duh-LAH-pan"
+   },
+   {
+    "n": 9,
+    "loc": "sembilan",
+    "pron": "sem-BEE-lan"
+   },
+   {
+    "n": 10,
+    "loc": "sepuluh",
+    "pron": "suh-POO-loo"
+   }
+  ]
+ },
+ "Malay": {
+  "native": "Bahasa Melayu",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Helo",
+    "pron": "HEH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Selamat tinggal",
+    "pron": "suh-LAH-mat TING-gal"
+   },
+   {
+    "en": "Please",
+    "loc": "Tolong",
+    "pron": "TOH-long"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Terima kasih",
+    "pron": "tuh-REE-mah KAH-seh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Sama-sama",
+    "pron": "SAH-mah SAH-mah"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ya",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Tidak",
+    "pron": "TEE-dah"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Maafkan saya",
+    "pron": "mah-AHF-kan SAH-yah"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Maaf",
+    "pron": "mah-AHF"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Adakah anda bercakap bahasa Inggeris?",
+    "pron": "AH-dah-kah AHN-dah ber-CHAH-kap bah-HAH-sah ING-guh-ris"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Saya tidak faham",
+    "pron": "SAH-yah TEE-dah FAH-ham"
+   },
+   {
+    "en": "Help!",
+    "loc": "Tolong!",
+    "pron": "TOH-long"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Berapa harga ini?",
+    "pron": "buh-RAH-pah HAR-gah EE-nee"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Di mana tandas?",
+    "pron": "dee MAH-nah TAN-das"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Saya mahu yang ini",
+    "pron": "SAH-yah MAH-hoo yang EE-nee"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Tolong berikan bil",
+    "pron": "TOH-long buh-REE-kan bil"
+   },
+   {
+    "en": "Water",
+    "loc": "Air",
+    "pron": "AH-yer"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Selamat pagi",
+    "pron": "suh-LAH-mat PAH-gee"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Selamat petang",
+    "pron": "suh-LAH-mat puh-TANG"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Nama saya …",
+    "pron": "NAH-mah SAH-yah …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Apa khabar?",
+    "pron": "AH-pah KAH-bar"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Saya perlukan doktor",
+    "pron": "SAH-yah per-LOO-kan DOK-tor"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Panggil polis",
+    "pron": "PANG-gil poh-LEES"
+   },
+   {
+    "en": "Left",
+    "loc": "Kiri",
+    "pron": "KEE-ree"
+   },
+   {
+    "en": "Right",
+    "loc": "Kanan",
+    "pron": "KAH-nan"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Di mana stesen kereta api?",
+    "pron": "dee MAH-nah STEH-sen kuh-REH-tah AH-pee"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Bagaimana saya hendak ke …?",
+    "pron": "bah-GUY-mah-nah SAH-yah HEN-dak kuh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Sedap!",
+    "pron": "suh-DAP"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "satu",
+    "pron": "SAH-too"
+   },
+   {
+    "n": 2,
+    "loc": "dua",
+    "pron": "DOO-ah"
+   },
+   {
+    "n": 3,
+    "loc": "tiga",
+    "pron": "TEE-gah"
+   },
+   {
+    "n": 4,
+    "loc": "empat",
+    "pron": "uhm-PAT"
+   },
+   {
+    "n": 5,
+    "loc": "lima",
+    "pron": "LEE-mah"
+   },
+   {
+    "n": 6,
+    "loc": "enam",
+    "pron": "uh-NAM"
+   },
+   {
+    "n": 7,
+    "loc": "tujuh",
+    "pron": "TOO-joh"
+   },
+   {
+    "n": 8,
+    "loc": "lapan",
+    "pron": "LAH-pan"
+   },
+   {
+    "n": 9,
+    "loc": "sembilan",
+    "pron": "sem-BEE-lan"
+   },
+   {
+    "n": 10,
+    "loc": "sepuluh",
+    "pron": "suh-POO-loh"
+   }
+  ]
+ },
+ "Thai": {
+  "native": "ภาษาไทย",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "สวัสดีครับ / สวัสดีค่ะ",
+    "pron": "sa-wàt-dee khráp (m) / sa-wàt-dee khâ (f)"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "ลาก่อนครับ / ลาก่อนค่ะ",
+    "pron": "laa-gòn khráp / khâ"
+   },
+   {
+    "en": "Please",
+    "loc": "กรุณา",
+    "pron": "ga-rú-naa"
+   },
+   {
+    "en": "Thank you",
+    "loc": "ขอบคุณครับ / ขอบคุณค่ะ",
+    "pron": "khàwp-khun khráp / khâ"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "ไม่เป็นไรครับ / ไม่เป็นไรค่ะ",
+    "pron": "mâi pen rai khráp / khâ"
+   },
+   {
+    "en": "Yes",
+    "loc": "ใช่ครับ / ใช่ค่ะ",
+    "pron": "châi khráp / khâ"
+   },
+   {
+    "en": "No",
+    "loc": "ไม่ใช่ครับ / ไม่ใช่ค่ะ",
+    "pron": "mâi châi khráp / khâ"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "ขอโทษครับ / ขอโทษค่ะ",
+    "pron": "khǎw-thôht khráp / khâ"
+   },
+   {
+    "en": "Sorry",
+    "loc": "ขอโทษครับ / ขอโทษค่ะ",
+    "pron": "khǎw-thôht khráp / khâ"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "คุณพูดภาษาอังกฤษได้ไหมครับ / คะ",
+    "pron": "khun phûut phaa-sǎa ang-grìt dâi mǎi khráp / khá"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "ผมไม่เข้าใจ / ดิฉันไม่เข้าใจ",
+    "pron": "phǒm mâi khâo-jai (m) / di-chǎn mâi khâo-jai (f)"
+   },
+   {
+    "en": "Help!",
+    "loc": "ช่วยด้วย!",
+    "pron": "chûay dûay!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "อันนี้เท่าไหร่ครับ / คะ",
+    "pron": "an-níi thâo-rài khráp / khá"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "ห้องน้ำอยู่ที่ไหนครับ / คะ",
+    "pron": "hâwng-náam yùu thîi-nǎi khráp / khá"
+   },
+   {
+    "en": "I would like this",
+    "loc": "ขออันนี้ครับ / ค่ะ",
+    "pron": "khǎw an-níi khráp / khâ"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "เก็บเงินด้วยครับ / ค่ะ",
+    "pron": "gèp ngern dûay khráp / khâ"
+   },
+   {
+    "en": "Water",
+    "loc": "น้ำ",
+    "pron": "náam"
+   },
+   {
+    "en": "Good morning",
+    "loc": "สวัสดีตอนเช้าครับ / ค่ะ",
+    "pron": "sa-wàt-dee dtawn-cháo khráp / khâ"
+   },
+   {
+    "en": "Good evening",
+    "loc": "สวัสดีตอนเย็นครับ / ค่ะ",
+    "pron": "sa-wàt-dee dtawn-yen khráp / khâ"
+   },
+   {
+    "en": "My name is …",
+    "loc": "ผมชื่อ … / ดิฉันชื่อ …",
+    "pron": "phǒm chûe … (m) / di-chǎn chûe … (f)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "สบายดีไหมครับ / คะ",
+    "pron": "sa-baai-dee mǎi khráp / khá"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "ผมต้องการหมอ / ดิฉันต้องการหมอ",
+    "pron": "phǒm / di-chǎn dtâwng-gaan mǎw"
+   },
+   {
+    "en": "Call the police",
+    "loc": "เรียกตำรวจหน่อยครับ / ค่ะ",
+    "pron": "rîak dtam-rùat nàwy khráp / khâ"
+   },
+   {
+    "en": "Left",
+    "loc": "ซ้าย",
+    "pron": "sáai"
+   },
+   {
+    "en": "Right",
+    "loc": "ขวา",
+    "pron": "khwǎa"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "สถานีรถไฟอยู่ที่ไหนครับ / คะ",
+    "pron": "sa-thǎa-nee rót-fai yùu thîi-nǎi khráp / khá"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "ไป … ยังไงครับ / คะ",
+    "pron": "bpai … yang-ngai khráp / khá"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "อร่อย!",
+    "pron": "a-ràwy!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "หนึ่ง",
+    "pron": "nèung"
+   },
+   {
+    "n": 2,
+    "loc": "สอง",
+    "pron": "sǎwng"
+   },
+   {
+    "n": 3,
+    "loc": "สาม",
+    "pron": "sǎam"
+   },
+   {
+    "n": 4,
+    "loc": "สี่",
+    "pron": "sìi"
+   },
+   {
+    "n": 5,
+    "loc": "ห้า",
+    "pron": "hâa"
+   },
+   {
+    "n": 6,
+    "loc": "หก",
+    "pron": "hòk"
+   },
+   {
+    "n": 7,
+    "loc": "เจ็ด",
+    "pron": "jèt"
+   },
+   {
+    "n": 8,
+    "loc": "แปด",
+    "pron": "bpàet"
+   },
+   {
+    "n": 9,
+    "loc": "เก้า",
+    "pron": "gâo"
+   },
+   {
+    "n": 10,
+    "loc": "สิบ",
+    "pron": "sìp"
+   }
+  ]
+ },
+ "Vietnamese": {
+  "native": "Tiếng Việt",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Xin chào",
+    "pron": "sin chow (chow with falling-rising tone)"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Tạm biệt",
+    "pron": "tahm bee-uht (tahm low/heavy, bee-uht low/heavy)"
+   },
+   {
+    "en": "Please",
+    "loc": "Làm ơn",
+    "pron": "lahm un (lahm falling, un mid)"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Cảm ơn",
+    "pron": "gahm un (gahm falling-rising, un mid)"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Không có gì",
+    "pron": "khohng gaw zee (north) / khohng gaw yee (south); khohng mid, gaw rising, zee/yee falling"
+   },
+   {
+    "en": "Yes",
+    "loc": "Vâng",
+    "pron": "vung (mid level; southern: dạ = 'yah' heavy)"
+   },
+   {
+    "en": "No",
+    "loc": "Không",
+    "pron": "khohng (mid level tone)"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Xin lỗi",
+    "pron": "sin loy (loy with broken/glottal rising tone)"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Xin lỗi",
+    "pron": "sin loy (loy with broken/glottal rising tone)"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Bạn có nói tiếng Anh không?",
+    "pron": "bahn gaw noy tee-uhng ahng khohng (bahn heavy, gaw rising, noy rising, tee-uhng rising)"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Tôi không hiểu",
+    "pron": "toy khohng hee-oo (toy mid, khohng mid, hee-oo falling-rising)"
+   },
+   {
+    "en": "Help!",
+    "loc": "Cứu với!",
+    "pron": "guh-oo voy (guh-oo rising, voy falling-rising)"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Cái này bao nhiêu tiền?",
+    "pron": "gai nai bow nyee-oo tee-uhn (gai falling, nai falling, bow mid, nyee-oo mid, tee-uhn falling)"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Nhà vệ sinh ở đâu?",
+    "pron": "nyah veh sing uh dow (nyah falling, veh heavy, sing mid, uh falling-rising, dow mid)"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Tôi muốn cái này",
+    "pron": "toy moo-uhn gai nai (toy mid, moo-uhn rising, gai falling, nai falling)"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Cho tôi tính tiền",
+    "pron": "chaw toy ting tee-uhn (chaw mid, toy mid, ting rising, tee-uhn falling)"
+   },
+   {
+    "en": "Water",
+    "loc": "Nước",
+    "pron": "nuh-uhk (rising/sharp tone)"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Chào buổi sáng",
+    "pron": "chow boo-oy sahng (chow falling-rising, boo-oy falling-rising, sahng rising)"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Chào buổi tối",
+    "pron": "chow boo-oy toy (chow falling-rising, boo-oy falling-rising, toy rising)"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Tôi tên là …",
+    "pron": "toy tehn lah … (toy mid, tehn mid, lah falling)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Bạn có khỏe không?",
+    "pron": "bahn gaw khwe khohng (bahn heavy, gaw rising, khwe falling-rising, khohng mid)"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Tôi cần bác sĩ",
+    "pron": "toy gun bahk see (toy mid, gun falling, bahk rising, see falling-rising)"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Gọi cảnh sát",
+    "pron": "goy gahng saht (goy heavy, gahng falling-rising, saht rising)"
+   },
+   {
+    "en": "Left",
+    "loc": "Bên trái",
+    "pron": "behn chai (behn mid, chai rising)"
+   },
+   {
+    "en": "Right",
+    "loc": "Bên phải",
+    "pron": "behn fai (behn mid, fai falling-rising)"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Ga tàu ở đâu?",
+    "pron": "gah tow uh dow (gah mid, tow falling, uh falling-rising, dow mid)"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Làm sao để đến …?",
+    "pron": "lahm sow deh dehn … (lahm falling, sow mid, deh falling-rising, dehn rising)"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Ngon quá!",
+    "pron": "ngawn gwah (ngawn mid, gwah rising)"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "một",
+    "pron": "moht (heavy/low-glottal tone)"
+   },
+   {
+    "n": 2,
+    "loc": "hai",
+    "pron": "high (mid level tone)"
+   },
+   {
+    "n": 3,
+    "loc": "ba",
+    "pron": "bah (mid level tone)"
+   },
+   {
+    "n": 4,
+    "loc": "bốn",
+    "pron": "bohn (rising tone)"
+   },
+   {
+    "n": 5,
+    "loc": "năm",
+    "pron": "nahm (mid level tone)"
+   },
+   {
+    "n": 6,
+    "loc": "sáu",
+    "pron": "sow (rising tone)"
+   },
+   {
+    "n": 7,
+    "loc": "bảy",
+    "pron": "bye (falling-rising tone)"
+   },
+   {
+    "n": 8,
+    "loc": "tám",
+    "pron": "tahm (rising tone)"
+   },
+   {
+    "n": 9,
+    "loc": "chín",
+    "pron": "cheen (rising tone)"
+   },
+   {
+    "n": 10,
+    "loc": "mười",
+    "pron": "muh-uhy (falling tone)"
+   }
+  ]
+ },
+ "Khmer": {
+  "native": "ភាសាខ្មែរ",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "សួស្តី",
+    "pron": "sua-sdei"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "លាហើយ",
+    "pron": "lia haeuy"
+   },
+   {
+    "en": "Please",
+    "loc": "សូម",
+    "pron": "som"
+   },
+   {
+    "en": "Thank you",
+    "loc": "អរគុណ",
+    "pron": "or-kun (very much: or-kun ch'raeun)"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "មិនអីទេ",
+    "pron": "min ei te"
+   },
+   {
+    "en": "Yes",
+    "loc": "បាទ / ចាស",
+    "pron": "baat (male) / chaa (female)"
+   },
+   {
+    "en": "No",
+    "loc": "ទេ",
+    "pron": "te"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "សុំទោស",
+    "pron": "som toh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "សុំទោស",
+    "pron": "som toh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "តើអ្នកនិយាយភាសាអង់គ្លេសទេ?",
+    "pron": "tae neak ni-yeay phiesa ong-kleh te?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "ខ្ញុំមិនយល់ទេ",
+    "pron": "khnyom min yul te"
+   },
+   {
+    "en": "Help!",
+    "loc": "ជួយផង!",
+    "pron": "chuoy phong!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "តើនេះថ្លៃប៉ុន្មាន?",
+    "pron": "tae nih thlai pon-maan?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "តើបង្គន់នៅឯណា?",
+    "pron": "tae bong-kun nov ae naa?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "ខ្ញុំចង់បានមួយនេះ",
+    "pron": "khnyom chong baan muoy nih"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "សូមគិតលុយ",
+    "pron": "som kit luy"
+   },
+   {
+    "en": "Water",
+    "loc": "ទឹក",
+    "pron": "tuk"
+   },
+   {
+    "en": "Good morning",
+    "loc": "អរុណសួស្តី",
+    "pron": "a-run sua-sdei"
+   },
+   {
+    "en": "Good evening",
+    "loc": "សាយ័ណ្ហសួស្តី",
+    "pron": "sayoanh sua-sdei"
+   },
+   {
+    "en": "Good night",
+    "loc": "រាត្រីសួស្តី",
+    "pron": "reaktrei sua-sdei"
+   },
+   {
+    "en": "My name is …",
+    "loc": "ខ្ញុំឈ្មោះ …",
+    "pron": "khnyom chmuoh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "តើអ្នកសុខសប្បាយជាទេ?",
+    "pron": "tae neak sok sa-baay chie te?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "ខ្ញុំត្រូវការគ្រូពេទ្យ",
+    "pron": "khnyom trov kaa kru-pet"
+   },
+   {
+    "en": "Call the police",
+    "loc": "សូមហៅប៉ូលីស",
+    "pron": "som hav po-lih"
+   },
+   {
+    "en": "Left",
+    "loc": "ឆ្វេង",
+    "pron": "chveng"
+   },
+   {
+    "en": "Right",
+    "loc": "ស្ដាំ",
+    "pron": "sdam"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "តើស្ថានីយ៍រថភ្លើងនៅឯណា?",
+    "pron": "tae sthaanii roteh-phloeung nov ae naa?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "តើខ្ញុំទៅ … ដោយរបៀបណា?",
+    "pron": "tae khnyom tov … daoy ro-biep naa?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "ឆ្ងាញ់ណាស់!",
+    "pron": "chnganh nah!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "មួយ",
+    "pron": "muoy"
+   },
+   {
+    "n": 2,
+    "loc": "ពីរ",
+    "pron": "pii"
+   },
+   {
+    "n": 3,
+    "loc": "បី",
+    "pron": "bei"
+   },
+   {
+    "n": 4,
+    "loc": "បួន",
+    "pron": "buon"
+   },
+   {
+    "n": 5,
+    "loc": "ប្រាំ",
+    "pron": "pram"
+   },
+   {
+    "n": 6,
+    "loc": "ប្រាំមួយ",
+    "pron": "pram-muoy"
+   },
+   {
+    "n": 7,
+    "loc": "ប្រាំពីរ",
+    "pron": "pram-pii"
+   },
+   {
+    "n": 8,
+    "loc": "ប្រាំបី",
+    "pron": "pram-bei"
+   },
+   {
+    "n": 9,
+    "loc": "ប្រាំបួន",
+    "pron": "pram-buon"
+   },
+   {
+    "n": 10,
+    "loc": "ដប់",
+    "pron": "dop"
+   }
+  ]
+ },
+ "Lao": {
+  "native": "ພາສາລາວ",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "ສະບາຍດີ",
+    "pron": "sa-bai-dii"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "ລາກ່ອນ",
+    "pron": "laa-kòn (low tone on second syllable)"
+   },
+   {
+    "en": "Please",
+    "loc": "ກະລຸນາ",
+    "pron": "ga-lu-naa"
+   },
+   {
+    "en": "Thank you",
+    "loc": "ຂອບໃຈ",
+    "pron": "khàwp-jai (low then mid)"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "ບໍ່ເປັນຫຍັງ",
+    "pron": "baw-pen-nyang (low-mid-mid)"
+   },
+   {
+    "en": "Yes",
+    "loc": "ແມ່ນ",
+    "pron": "mâen (high-falling); the fuller ແມ່ນແລ້ວ mâen-láew = 'that's right'"
+   },
+   {
+    "en": "No",
+    "loc": "ບໍ່",
+    "pron": "baw (low tone)"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "ຂໍໂທດ",
+    "pron": "khǎw-thôot (rising then falling)"
+   },
+   {
+    "en": "Sorry",
+    "loc": "ຂໍໂທດ",
+    "pron": "khǎw-thôot (rising then falling)"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "ເຈົ້າເວົ້າພາສາອັງກິດໄດ້ບໍ່?",
+    "pron": "jâo wâo phaa-sǎa ang-kit dâi baw? (sentence-final baw marks the question)"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "ຂ້ອຍບໍ່ເຂົ້າໃຈ",
+    "pron": "khàwy baw khào-jai"
+   },
+   {
+    "en": "Help!",
+    "loc": "ຊ່ວຍດ້ວຍ!",
+    "pron": "suay-dûay!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "ອັນນີ້ລາຄາເທົ່າໃດ?",
+    "pron": "an-níi laa-khaa thao-dai?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "ຫ້ອງນ້ຳຢູ່ໃສ?",
+    "pron": "hâwng-nâm yuu sǎi? (rising on sǎi)"
+   },
+   {
+    "en": "I would like this",
+    "loc": "ຂ້ອຍຢາກໄດ້ອັນນີ້",
+    "pron": "khàwy yàak dâi an-níi"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "ຂໍເກັບເງິນແດ່",
+    "pron": "khǎw kep ngern dae (rising on khǎw)"
+   },
+   {
+    "en": "Water",
+    "loc": "ນ້ຳ",
+    "pron": "nâm (high-falling)"
+   },
+   {
+    "en": "Good morning",
+    "loc": "ສະບາຍດີຕອນເຊົ້າ",
+    "pron": "sa-bai-dii tawn-sâo"
+   },
+   {
+    "en": "Good evening",
+    "loc": "ສະບາຍດີຕອນແລງ",
+    "pron": "sa-bai-dii tawn-laeng"
+   },
+   {
+    "en": "My name is …",
+    "loc": "ຂ້ອຍຊື່ …",
+    "pron": "khàwy seu … (falling khàwy, mid seu)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "ສະບາຍດີບໍ່?",
+    "pron": "sa-bai-dii baw? (final baw marks the question)"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "ຂ້ອຍຕ້ອງການໝໍ",
+    "pron": "khàwy tâwng-kaan mǎw (rising on mǎw)"
+   },
+   {
+    "en": "Call the police",
+    "loc": "ໂທຫາຕຳຫຼວດ",
+    "pron": "thoo-hǎa tam-luat"
+   },
+   {
+    "en": "Left",
+    "loc": "ຊ້າຍ",
+    "pron": "sâai (high-falling)"
+   },
+   {
+    "en": "Right",
+    "loc": "ຂວາ",
+    "pron": "khwǎa (rising)"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "ສະຖານີລົດໄຟຢູ່ໃສ?",
+    "pron": "sa-thǎa-nii lot-fai yuu sǎi?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "ໄປ … ໄປທາງໃດ?",
+    "pron": "pai … pai thaang-dai?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "ແຊບ!",
+    "pron": "saep! (high tone)"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ໜຶ່ງ",
+    "pron": "neung (low tone)"
+   },
+   {
+    "n": 2,
+    "loc": "ສອງ",
+    "pron": "sǎwng (rising)"
+   },
+   {
+    "n": 3,
+    "loc": "ສາມ",
+    "pron": "sǎam (rising)"
+   },
+   {
+    "n": 4,
+    "loc": "ສີ່",
+    "pron": "sii (low tone)"
+   },
+   {
+    "n": 5,
+    "loc": "ຫ້າ",
+    "pron": "hâa (high-falling)"
+   },
+   {
+    "n": 6,
+    "loc": "ຫົກ",
+    "pron": "hok (low tone)"
+   },
+   {
+    "n": 7,
+    "loc": "ເຈັດ",
+    "pron": "jet (low tone)"
+   },
+   {
+    "n": 8,
+    "loc": "ແປດ",
+    "pron": "paet (low tone)"
+   },
+   {
+    "n": 9,
+    "loc": "ເກົ້າ",
+    "pron": "kâo (high-falling)"
+   },
+   {
+    "n": 10,
+    "loc": "ສິບ",
+    "pron": "sip (low tone)"
+   }
+  ]
+ },
+ "Burmese": {
+  "native": "မြန်မာဘာသာ",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "မင်္ဂလာပါ",
+    "pron": "ming-ga-la-ba"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "သွားတော့မယ်",
+    "pron": "thwa-daw-meh"
+   },
+   {
+    "en": "Please",
+    "loc": "ကျေးဇူးပြု၍",
+    "pron": "kyay-zu-pyu-ywei"
+   },
+   {
+    "en": "Thank you",
+    "loc": "ကျေးဇူးတင်ပါတယ်",
+    "pron": "kyay-zu-tin-ba-deh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "ရပါတယ်",
+    "pron": "ya-ba-deh"
+   },
+   {
+    "en": "Yes",
+    "loc": "ဟုတ်ကဲ့",
+    "pron": "hoke-keh"
+   },
+   {
+    "en": "No",
+    "loc": "မဟုတ်ပါဘူး",
+    "pron": "ma-hoke-pa-bu"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "တစ်ဆိတ်လောက်",
+    "pron": "ta-seik-lauk"
+   },
+   {
+    "en": "Sorry",
+    "loc": "တောင်းပန်ပါတယ်",
+    "pron": "taung-pan-ba-deh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "အင်္ဂလိပ်စကား ပြောတတ်လား",
+    "pron": "in-ga-leik sa-ga pyaw-tat-la"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "နားမလည်ပါဘူး",
+    "pron": "na-ma-leh-ba-bu"
+   },
+   {
+    "en": "Help!",
+    "loc": "ကူညီပါ",
+    "pron": "ku-nyi-ba"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "ဒါ ဘယ်လောက်လဲ",
+    "pron": "da beh-lauk-leh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "အိမ်သာ ဘယ်မှာလဲ",
+    "pron": "ein-tha beh-hma-leh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "ဒါ လိုချင်ပါတယ်",
+    "pron": "da lo-chin-ba-deh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "ငွေရှင်းမယ်",
+    "pron": "ngway-shin-meh"
+   },
+   {
+    "en": "Water",
+    "loc": "ရေ",
+    "pron": "yay"
+   },
+   {
+    "en": "Good morning",
+    "loc": "မင်္ဂလာနံနက်ခင်းပါ",
+    "pron": "ming-ga-la nan-net-khin-ba"
+   },
+   {
+    "en": "Good evening",
+    "loc": "မင်္ဂလာညနေခင်းပါ",
+    "pron": "ming-ga-la nya-nay-khin-ba"
+   },
+   {
+    "en": "My name is …",
+    "loc": "ကျွန်တော့်နာမည်က …",
+    "pron": "kya-naw na-meh-ga … (male) / kya-ma na-meh-ga … (female)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "နေကောင်းလား",
+    "pron": "nay-kaung-la"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "ဆရာဝန် လိုအပ်ပါတယ်",
+    "pron": "sa-ya-wun lo-ap-pa-deh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "ရဲ ခေါ်ပေးပါ",
+    "pron": "yeh khaw-pay-ba"
+   },
+   {
+    "en": "Left",
+    "loc": "ဘယ်ဘက်",
+    "pron": "beh-bet"
+   },
+   {
+    "en": "Right",
+    "loc": "ညာဘက်",
+    "pron": "nya-bet"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "ဘူတာရုံ ဘယ်မှာလဲ",
+    "pron": "bu-da-yon beh-hma-leh"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… ကို ဘယ်လိုသွားရမလဲ",
+    "pron": "… ko beh-lo thwa-ya-ma-leh"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "စားလို့ကောင်းတယ်",
+    "pron": "sa-lo-kaung-deh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "တစ်",
+    "pron": "tit"
+   },
+   {
+    "n": 2,
+    "loc": "နှစ်",
+    "pron": "hnit"
+   },
+   {
+    "n": 3,
+    "loc": "သုံး",
+    "pron": "thoun"
+   },
+   {
+    "n": 4,
+    "loc": "လေး",
+    "pron": "lay"
+   },
+   {
+    "n": 5,
+    "loc": "ငါး",
+    "pron": "nga"
+   },
+   {
+    "n": 6,
+    "loc": "ခြောက်",
+    "pron": "chauk"
+   },
+   {
+    "n": 7,
+    "loc": "ခုနစ်",
+    "pron": "khun-nit"
+   },
+   {
+    "n": 8,
+    "loc": "ရှစ်",
+    "pron": "shit"
+   },
+   {
+    "n": 9,
+    "loc": "ကိုး",
+    "pron": "ko"
+   },
+   {
+    "n": 10,
+    "loc": "ဆယ်",
+    "pron": "seh"
+   }
+  ]
+ },
+ "Filipino (Tagalog)": {
+  "native": "Filipino / Tagalog",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Kumusta",
+    "pron": "koo-moos-TAH"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Paalam",
+    "pron": "pah-AH-lahm"
+   },
+   {
+    "en": "Please",
+    "loc": "Pakiusap",
+    "pron": "pah-kee-OO-sahp"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Salamat po",
+    "pron": "sah-LAH-maht poh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Walang anuman",
+    "pron": "WAH-lang ah-noo-MAHN"
+   },
+   {
+    "en": "Yes",
+    "loc": "Oo",
+    "pron": "OH-oh"
+   },
+   {
+    "en": "No",
+    "loc": "Hindi",
+    "pron": "hin-DEE"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Paumanhin po",
+    "pron": "pah-oo-MAHN-hin poh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Pasensya na po",
+    "pron": "pah-SEN-syah nah poh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Marunong po ba kayong mag-Ingles?",
+    "pron": "mah-ROO-nong poh bah KAH-yong mahg-ing-GLESS"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Hindi ko po naiintindihan",
+    "pron": "hin-DEE koh poh nah-ee-in-tin-dee-HAHN"
+   },
+   {
+    "en": "Help!",
+    "loc": "Saklolo!",
+    "pron": "sahk-loh-LOH"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Magkano po ito?",
+    "pron": "mahg-KAH-noh poh ee-TOH"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Nasaan po ang banyo?",
+    "pron": "nah-sah-AHN poh ahng BAHN-yoh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Gusto ko po ito",
+    "pron": "goos-TOH koh poh ee-TOH"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Pakibigay po ang bill",
+    "pron": "pah-kee-bee-GAHY poh ahng bill"
+   },
+   {
+    "en": "Water",
+    "loc": "Tubig",
+    "pron": "TOO-big"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Magandang umaga po",
+    "pron": "mah-gahn-DAHNG oo-MAH-gah poh"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Magandang gabi po",
+    "pron": "mah-gahn-DAHNG gah-BEE poh"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Ang pangalan ko ay …",
+    "pron": "ahng pah-NGAH-lahn koh eye …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Kumusta po kayo?",
+    "pron": "koo-moos-TAH poh kah-YOH"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Kailangan ko po ng doktor",
+    "pron": "kah-ee-LAH-ngahn koh poh nahng DOK-tor"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Tawagin po ninyo ang pulis",
+    "pron": "tah-WAH-gin poh nin-YOH ahng poo-LEES"
+   },
+   {
+    "en": "Left",
+    "loc": "Kaliwa",
+    "pron": "kah-lee-WAH"
+   },
+   {
+    "en": "Right",
+    "loc": "Kanan",
+    "pron": "KAH-nahn"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Nasaan po ang istasyon ng tren?",
+    "pron": "nah-sah-AHN poh ahng ees-tah-SYOHN nahng tren"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Paano po ako makakarating sa …?",
+    "pron": "pah-AH-noh poh ah-KOH mah-kah-kah-RAH-ting sah …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Masarap!",
+    "pron": "mah-sah-RAHP"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "isa",
+    "pron": "ee-SAH"
+   },
+   {
+    "n": 2,
+    "loc": "dalawa",
+    "pron": "dah-lah-WAH"
+   },
+   {
+    "n": 3,
+    "loc": "tatlo",
+    "pron": "taht-LOH"
+   },
+   {
+    "n": 4,
+    "loc": "apat",
+    "pron": "AH-paht"
+   },
+   {
+    "n": 5,
+    "loc": "lima",
+    "pron": "lee-MAH"
+   },
+   {
+    "n": 6,
+    "loc": "anim",
+    "pron": "AH-nim"
+   },
+   {
+    "n": 7,
+    "loc": "pito",
+    "pron": "pee-TOH"
+   },
+   {
+    "n": 8,
+    "loc": "walo",
+    "pron": "wah-LOH"
+   },
+   {
+    "n": 9,
+    "loc": "siyam",
+    "pron": "see-YAHM"
+   },
+   {
+    "n": 10,
+    "loc": "sampu",
+    "pron": "sahm-POO"
+   }
+  ]
+ },
+ "Turkish": {
+  "native": "Türkçe",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Merhaba",
+    "pron": "MEHR-hah-bah"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Hoşça kalın",
+    "pron": "HOSH-cha kah-LUHN (said by the one leaving); the one staying says 'Güle güle' — gew-LEH gew-LEH"
+   },
+   {
+    "en": "Please",
+    "loc": "Lütfen",
+    "pron": "LEWT-fen"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Teşekkür ederim",
+    "pron": "teh-shek-KEWR eh-deh-RIM"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Rica ederim",
+    "pron": "ree-JAH eh-deh-RIM"
+   },
+   {
+    "en": "Yes",
+    "loc": "Evet",
+    "pron": "EH-vet"
+   },
+   {
+    "en": "No",
+    "loc": "Hayır",
+    "pron": "HAH-yuhr"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Affedersiniz",
+    "pron": "ahf-feh-DEHR-see-niz"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Özür dilerim",
+    "pron": "er-ZEWR dee-leh-RIM"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "İngilizce biliyor musunuz?",
+    "pron": "een-gee-LEEZ-jeh bee-lee-YOR moo-soo-nooz"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Anlamıyorum",
+    "pron": "ahn-lah-MUH-yoh-room"
+   },
+   {
+    "en": "Help!",
+    "loc": "İmdat!",
+    "pron": "eem-DAHT"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Bu ne kadar?",
+    "pron": "boo neh kah-DAHR"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Tuvalet nerede?",
+    "pron": "too-vah-LET NEH-reh-deh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Bunu istiyorum",
+    "pron": "boo-NOO ees-tee-YOH-room"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Hesap, lütfen",
+    "pron": "heh-SAHP, LEWT-fen"
+   },
+   {
+    "en": "Water",
+    "loc": "Su",
+    "pron": "soo"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Günaydın",
+    "pron": "gew-nahy-DUHN"
+   },
+   {
+    "en": "Good evening",
+    "loc": "İyi akşamlar",
+    "pron": "ee-YEE ahk-shahm-LAHR"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Adım …",
+    "pron": "ah-DUHM … (or 'Benim adım …' — beh-NEEM ah-DUHM)"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Nasılsınız?",
+    "pron": "NAH-suhl-suh-nuhz"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Bir doktora ihtiyacım var",
+    "pron": "beer dok-toh-RAH eeh-tee-yah-JUHM vahr"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Polisi arayın",
+    "pron": "poh-lee-SEE ah-RAH-yuhn"
+   },
+   {
+    "en": "Left",
+    "loc": "Sol",
+    "pron": "sol"
+   },
+   {
+    "en": "Right",
+    "loc": "Sağ",
+    "pron": "sah (the 'ğ' is silent, lengthening the vowel)"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Tren istasyonu nerede?",
+    "pron": "tren ees-tahs-yoh-NOO NEH-reh-deh"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… nasıl gidebilirim?",
+    "pron": "… NAH-suhl gee-deh-bee-lee-RIM (e.g. '…-e nasıl gidebilirim?')"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Çok lezzetli!",
+    "pron": "chok lez-zet-LEE"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "bir",
+    "pron": "beer"
+   },
+   {
+    "n": 2,
+    "loc": "iki",
+    "pron": "ee-KEE"
+   },
+   {
+    "n": 3,
+    "loc": "üç",
+    "pron": "ewch"
+   },
+   {
+    "n": 4,
+    "loc": "dört",
+    "pron": "dert"
+   },
+   {
+    "n": 5,
+    "loc": "beş",
+    "pron": "besh"
+   },
+   {
+    "n": 6,
+    "loc": "altı",
+    "pron": "ahl-TUH"
+   },
+   {
+    "n": 7,
+    "loc": "yedi",
+    "pron": "yeh-DEE"
+   },
+   {
+    "n": 8,
+    "loc": "sekiz",
+    "pron": "seh-KEEZ"
+   },
+   {
+    "n": 9,
+    "loc": "dokuz",
+    "pron": "doh-KOOZ"
+   },
+   {
+    "n": 10,
+    "loc": "on",
+    "pron": "on"
+   }
+  ]
+ },
+ "Persian (Farsi)": {
+  "native": "فارسی",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "سلام",
+    "pron": "sa-LÂM"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "خداحافظ",
+    "pron": "kho-dâ-HÂ-fez"
+   },
+   {
+    "en": "Please",
+    "loc": "لطفاً",
+    "pron": "lot-FAN"
+   },
+   {
+    "en": "Thank you",
+    "loc": "متشکرم",
+    "pron": "mo-ta-SHAK-ke-ram"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "خواهش می‌کنم",
+    "pron": "KHÂH-esh mee-ko-nam"
+   },
+   {
+    "en": "Yes",
+    "loc": "بله",
+    "pron": "BA-le"
+   },
+   {
+    "en": "No",
+    "loc": "نه",
+    "pron": "na"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "ببخشید",
+    "pron": "be-bakh-SHEED"
+   },
+   {
+    "en": "Sorry",
+    "loc": "متأسفم",
+    "pron": "mo-ta-AS-se-fam"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "آیا انگلیسی صحبت می‌کنید؟",
+    "pron": "ÂY-â en-ge-lee-SEE soh-BAT mee-ko-need?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "متوجه نمی‌شوم",
+    "pron": "mo-ta-VAJ-jeh ne-mee-sha-vam"
+   },
+   {
+    "en": "Help!",
+    "loc": "کمک!",
+    "pron": "ko-MAK!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "این چند است؟",
+    "pron": "een CHAND ast?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "دستشویی کجاست؟",
+    "pron": "dast-shu-YEE ko-JÂST?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "این را می‌خواهم",
+    "pron": "EEN râ mee-KHÂH-am"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "لطفاً صورتحساب",
+    "pron": "lot-FAN su-RAT-he-sâb"
+   },
+   {
+    "en": "Water",
+    "loc": "آب",
+    "pron": "âb"
+   },
+   {
+    "en": "Good morning",
+    "loc": "صبح بخیر",
+    "pron": "sobh be-KHEYR"
+   },
+   {
+    "en": "Good evening",
+    "loc": "عصر بخیر",
+    "pron": "asr be-KHEYR"
+   },
+   {
+    "en": "My name is …",
+    "loc": "اسم من … است",
+    "pron": "ESM-e man … ast"
+   },
+   {
+    "en": "How are you?",
+    "loc": "حال شما چطور است؟",
+    "pron": "HÂL-e sho-MÂ che-TOWR ast?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "من به دکتر نیاز دارم",
+    "pron": "man be DOK-tor nee-ÂZ dâ-ram"
+   },
+   {
+    "en": "Call the police",
+    "loc": "به پلیس زنگ بزنید",
+    "pron": "be po-LEES zang be-za-need"
+   },
+   {
+    "en": "Left",
+    "loc": "چپ",
+    "pron": "chap"
+   },
+   {
+    "en": "Right",
+    "loc": "راست",
+    "pron": "râst"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "ایستگاه قطار کجاست؟",
+    "pron": "eest-GÂH-e gha-TÂR ko-JÂST?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "چطور به … بروم؟",
+    "pron": "che-TOWR be … be-ra-vam?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "خوشمزه است!",
+    "pron": "khosh-MA-ze ast!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "یک",
+    "pron": "yek"
+   },
+   {
+    "n": 2,
+    "loc": "دو",
+    "pron": "do"
+   },
+   {
+    "n": 3,
+    "loc": "سه",
+    "pron": "se"
+   },
+   {
+    "n": 4,
+    "loc": "چهار",
+    "pron": "cha-HÂR"
+   },
+   {
+    "n": 5,
+    "loc": "پنج",
+    "pron": "panj"
+   },
+   {
+    "n": 6,
+    "loc": "شش",
+    "pron": "shesh"
+   },
+   {
+    "n": 7,
+    "loc": "هفت",
+    "pron": "haft"
+   },
+   {
+    "n": 8,
+    "loc": "هشت",
+    "pron": "hasht"
+   },
+   {
+    "n": 9,
+    "loc": "نه",
+    "pron": "noh"
+   },
+   {
+    "n": 10,
+    "loc": "ده",
+    "pron": "dah"
+   }
+  ]
+ },
+ "Hebrew": {
+  "native": "עברית",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "שלום",
+    "pron": "sha-LOM"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "להתראות",
+    "pron": "le-hit-ra-OT"
+   },
+   {
+    "en": "Please",
+    "loc": "בבקשה",
+    "pron": "be-va-ka-SHA"
+   },
+   {
+    "en": "Thank you",
+    "loc": "תודה",
+    "pron": "to-DA"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "על לא דבר",
+    "pron": "al lo da-VAR"
+   },
+   {
+    "en": "Yes",
+    "loc": "כן",
+    "pron": "ken"
+   },
+   {
+    "en": "No",
+    "loc": "לא",
+    "pron": "lo"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "סליחה",
+    "pron": "sli-KHA"
+   },
+   {
+    "en": "Sorry",
+    "loc": "אני מצטער",
+    "pron": "a-NEE mitz-ta-ER (m.) / a-NEE mitz-ta-E-ret (f.)"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "אתה מדבר אנגלית?",
+    "pron": "a-TA me-da-BER ang-LEET? (to a man) / at me-da-BE-ret ang-LEET? (to a woman)"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "אני לא מבין",
+    "pron": "a-NEE lo me-VEEN (m.) / a-NEE lo me-vi-NA (f.)"
+   },
+   {
+    "en": "Help!",
+    "loc": "הצילו!",
+    "pron": "ha-TSEE-loo!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "כמה זה עולה?",
+    "pron": "KA-ma ze o-LE?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "איפה השירותים?",
+    "pron": "EY-fo ha-shey-roo-TEEM?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "אני רוצה את זה",
+    "pron": "a-NEE ro-TSE et ze (m.) / a-NEE ro-TSA et ze (f.)"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "החשבון, בבקשה",
+    "pron": "ha-khesh-BON, be-va-ka-SHA"
+   },
+   {
+    "en": "Water",
+    "loc": "מים",
+    "pron": "MA-yim"
+   },
+   {
+    "en": "Good morning",
+    "loc": "בוקר טוב",
+    "pron": "BO-ker tov"
+   },
+   {
+    "en": "Good evening",
+    "loc": "ערב טוב",
+    "pron": "E-rev tov"
+   },
+   {
+    "en": "My name is …",
+    "loc": "קוראים לי …",
+    "pron": "kor-EEM lee …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "מה שלומך?",
+    "pron": "ma shlom-KHA? (to a man) / ma shlo-MEKH? (to a woman)"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "אני צריך רופא",
+    "pron": "a-NEE tsa-REEKH ro-FE (m.) / a-NEE tsri-KHA ro-FE (f.)"
+   },
+   {
+    "en": "Call the police",
+    "loc": "תתקשרו למשטרה",
+    "pron": "tit-kash-ROO la-mish-ta-RA"
+   },
+   {
+    "en": "Left",
+    "loc": "שמאל",
+    "pron": "smol"
+   },
+   {
+    "en": "Right",
+    "loc": "ימין",
+    "pron": "ya-MEEN"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "איפה תחנת הרכבת?",
+    "pron": "EY-fo ta-kha-NAT ha-ra-KE-vet?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "איך מגיעים ל…?",
+    "pron": "eykh ma-gee-EEM le…?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "טעים!",
+    "pron": "ta-EEM!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "אחת",
+    "pron": "a-KHAT"
+   },
+   {
+    "n": 2,
+    "loc": "שתיים",
+    "pron": "SHTA-yim"
+   },
+   {
+    "n": 3,
+    "loc": "שלוש",
+    "pron": "sha-LOSH"
+   },
+   {
+    "n": 4,
+    "loc": "ארבע",
+    "pron": "AR-ba"
+   },
+   {
+    "n": 5,
+    "loc": "חמש",
+    "pron": "kha-MESH"
+   },
+   {
+    "n": 6,
+    "loc": "שש",
+    "pron": "shesh"
+   },
+   {
+    "n": 7,
+    "loc": "שבע",
+    "pron": "SHE-va"
+   },
+   {
+    "n": 8,
+    "loc": "שמונה",
+    "pron": "shmo-NE"
+   },
+   {
+    "n": 9,
+    "loc": "תשע",
+    "pron": "TE-sha"
+   },
+   {
+    "n": 10,
+    "loc": "עשר",
+    "pron": "E-ser"
+   }
+  ]
+ },
+ "Greek": {
+  "native": "Ελληνικά",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Γεια σας",
+    "pron": "YAH sas"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Αντίο",
+    "pron": "ah-DEE-oh"
+   },
+   {
+    "en": "Please",
+    "loc": "Παρακαλώ",
+    "pron": "pah-rah-kah-LOH"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Ευχαριστώ",
+    "pron": "ef-khah-ree-STOH"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Παρακαλώ",
+    "pron": "pah-rah-kah-LOH"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ναι",
+    "pron": "neh"
+   },
+   {
+    "en": "No",
+    "loc": "Όχι",
+    "pron": "OH-khee"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Με συγχωρείτε",
+    "pron": "meh seeng-khoh-REE-teh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Συγγνώμη",
+    "pron": "see-GHNOH-mee"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Μιλάτε αγγλικά;",
+    "pron": "mee-LAH-teh ahng-glee-KAH"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Δεν καταλαβαίνω",
+    "pron": "then kah-tah-lah-VEH-noh"
+   },
+   {
+    "en": "Help!",
+    "loc": "Βοήθεια!",
+    "pron": "vo-EE-thee-ah"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Πόσο κάνει αυτό;",
+    "pron": "POH-soh KAH-nee af-TOH"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Πού είναι η τουαλέτα;",
+    "pron": "poo EE-neh ee too-ah-LEH-tah"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Θα ήθελα αυτό",
+    "pron": "thah EE-theh-lah af-TOH"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Τον λογαριασμό, παρακαλώ",
+    "pron": "ton lo-gha-ryah-SMOH, pah-rah-kah-LOH"
+   },
+   {
+    "en": "Water",
+    "loc": "Νερό",
+    "pron": "neh-ROH"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Καλημέρα",
+    "pron": "kah-lee-MEH-rah"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Καλησπέρα",
+    "pron": "kah-lee-SPEH-rah"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Με λένε …",
+    "pron": "meh LEH-neh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Τι κάνετε;",
+    "pron": "tee KAH-neh-teh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Χρειάζομαι γιατρό",
+    "pron": "khree-AH-zoh-meh yah-TROH"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Καλέστε την αστυνομία",
+    "pron": "kah-LEH-steh teen ah-stee-noh-MEE-ah"
+   },
+   {
+    "en": "Left",
+    "loc": "Αριστερά",
+    "pron": "ah-ree-steh-RAH"
+   },
+   {
+    "en": "Right",
+    "loc": "Δεξιά",
+    "pron": "thek-see-AH"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Πού είναι ο σιδηροδρομικός σταθμός;",
+    "pron": "poo EE-neh oh see-thee-roh-throh-mee-KOS stath-MOS"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Πώς πάω στο …;",
+    "pron": "pos PAH-oh stoh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Νόστιμο!",
+    "pron": "NOH-stee-moh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ένα",
+    "pron": "EH-nah"
+   },
+   {
+    "n": 2,
+    "loc": "δύο",
+    "pron": "THEE-oh"
+   },
+   {
+    "n": 3,
+    "loc": "τρία",
+    "pron": "TREE-ah"
+   },
+   {
+    "n": 4,
+    "loc": "τέσσερα",
+    "pron": "TEH-seh-rah"
+   },
+   {
+    "n": 5,
+    "loc": "πέντε",
+    "pron": "PEN-deh"
+   },
+   {
+    "n": 6,
+    "loc": "έξι",
+    "pron": "EK-see"
+   },
+   {
+    "n": 7,
+    "loc": "επτά",
+    "pron": "ep-TAH"
+   },
+   {
+    "n": 8,
+    "loc": "οκτώ",
+    "pron": "ok-TOH"
+   },
+   {
+    "n": 9,
+    "loc": "εννέα",
+    "pron": "eh-NEH-ah"
+   },
+   {
+    "n": 10,
+    "loc": "δέκα",
+    "pron": "THEH-kah"
+   }
+  ]
+ },
+ "Dutch": {
+  "native": "Nederlands",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hallo",
+    "pron": "HAH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Tot ziens",
+    "pron": "tot zeens"
+   },
+   {
+    "en": "Please",
+    "loc": "Alstublieft",
+    "pron": "AHL-stew-bleeft"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Dank u wel",
+    "pron": "dahnk ew vel"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Graag gedaan",
+    "pron": "khraakh khuh-DAAN"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ja",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Nee",
+    "pron": "nay"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Pardon",
+    "pron": "par-DON"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Sorry",
+    "pron": "SOR-ree"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Spreekt u Engels?",
+    "pron": "spraykt ew ENG-uls"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ik begrijp het niet",
+    "pron": "ik buh-KHRAYP ut neet"
+   },
+   {
+    "en": "Help!",
+    "loc": "Help!",
+    "pron": "help"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hoeveel kost dit?",
+    "pron": "HOO-vayl kost dit"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Waar is het toilet?",
+    "pron": "vaar is ut twah-LET"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ik wil dit graag",
+    "pron": "ik vil dit khraakh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "De rekening, alstublieft",
+    "pron": "duh RAY-kuh-ning, AHL-stew-bleeft"
+   },
+   {
+    "en": "Water",
+    "loc": "Water",
+    "pron": "VAH-ter"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Goedemorgen",
+    "pron": "khoo-duh-MOR-khun"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Goedenavond",
+    "pron": "khoo-duh-NAH-vont"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Mijn naam is …",
+    "pron": "mayn naam is …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hoe gaat het met u?",
+    "pron": "hoo khaat ut met ew"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ik heb een dokter nodig",
+    "pron": "ik hep un DOK-ter NOH-dukh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Bel de politie",
+    "pron": "bel duh poh-LEET-see"
+   },
+   {
+    "en": "Left",
+    "loc": "Links",
+    "pron": "links"
+   },
+   {
+    "en": "Right",
+    "loc": "Rechts",
+    "pron": "rekhts"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Waar is het treinstation?",
+    "pron": "vaar is ut TRAYN-stah-shon"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hoe kom ik bij …?",
+    "pron": "hoo kom ik bay …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Heerlijk!",
+    "pron": "HAYR-luk"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "één",
+    "pron": "ayn"
+   },
+   {
+    "n": 2,
+    "loc": "twee",
+    "pron": "tvay"
+   },
+   {
+    "n": 3,
+    "loc": "drie",
+    "pron": "dree"
+   },
+   {
+    "n": 4,
+    "loc": "vier",
+    "pron": "veer"
+   },
+   {
+    "n": 5,
+    "loc": "vijf",
+    "pron": "vayf"
+   },
+   {
+    "n": 6,
+    "loc": "zes",
+    "pron": "zes"
+   },
+   {
+    "n": 7,
+    "loc": "zeven",
+    "pron": "ZAY-vun"
+   },
+   {
+    "n": 8,
+    "loc": "acht",
+    "pron": "akht"
+   },
+   {
+    "n": 9,
+    "loc": "negen",
+    "pron": "NAY-khun"
+   },
+   {
+    "n": 10,
+    "loc": "tien",
+    "pron": "teen"
+   }
+  ]
+ },
+ "Swedish": {
+  "native": "Svenska",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hej",
+    "pron": "hey"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Hej då",
+    "pron": "hey daw"
+   },
+   {
+    "en": "Please",
+    "loc": "Snälla",
+    "pron": "SNEL-lah"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Tack",
+    "pron": "tahk"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Varsågod",
+    "pron": "VAR-shaw-good"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ja",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Nej",
+    "pron": "ney"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Ursäkta",
+    "pron": "OOR-shek-tah"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Förlåt",
+    "pron": "fur-LAWT"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Talar du engelska?",
+    "pron": "TAH-lar doo ENG-el-skah"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Jag förstår inte",
+    "pron": "yah fur-STAWR IN-teh"
+   },
+   {
+    "en": "Help!",
+    "loc": "Hjälp!",
+    "pron": "yelp"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hur mycket kostar det här?",
+    "pron": "hoor MEW-keh KOSS-tar deh hair"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Var är toaletten?",
+    "pron": "var air too-ah-LEH-ten"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Jag skulle vilja ha det här",
+    "pron": "yah SKOO-leh VIL-yah hah deh hair"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Notan, tack",
+    "pron": "NOO-tan, tahk"
+   },
+   {
+    "en": "Water",
+    "loc": "Vatten",
+    "pron": "VAH-ten"
+   },
+   {
+    "en": "Good morning",
+    "loc": "God morgon",
+    "pron": "goo MOR-ron"
+   },
+   {
+    "en": "Good evening",
+    "loc": "God kväll",
+    "pron": "goo KVELL"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Jag heter …",
+    "pron": "yah HEH-ter …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hur mår du?",
+    "pron": "hoor mawr doo"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Jag behöver en läkare",
+    "pron": "yah beh-HUR-ver en LAY-kah-reh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Ring polisen",
+    "pron": "ring poo-LEE-sen"
+   },
+   {
+    "en": "Left",
+    "loc": "Vänster",
+    "pron": "VEN-ster"
+   },
+   {
+    "en": "Right",
+    "loc": "Höger",
+    "pron": "HUR-ger"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Var ligger tågstationen?",
+    "pron": "var LIG-er TAWG-stah-shoo-nen"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hur kommer jag till …?",
+    "pron": "hoor KOM-er yah till …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Utsökt!",
+    "pron": "OOT-surkt"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ett",
+    "pron": "ett"
+   },
+   {
+    "n": 2,
+    "loc": "två",
+    "pron": "tvaw"
+   },
+   {
+    "n": 3,
+    "loc": "tre",
+    "pron": "treh"
+   },
+   {
+    "n": 4,
+    "loc": "fyra",
+    "pron": "FEW-rah"
+   },
+   {
+    "n": 5,
+    "loc": "fem",
+    "pron": "fem"
+   },
+   {
+    "n": 6,
+    "loc": "sex",
+    "pron": "seks"
+   },
+   {
+    "n": 7,
+    "loc": "sju",
+    "pron": "hwoo"
+   },
+   {
+    "n": 8,
+    "loc": "åtta",
+    "pron": "OT-tah"
+   },
+   {
+    "n": 9,
+    "loc": "nio",
+    "pron": "NEE-oo"
+   },
+   {
+    "n": 10,
+    "loc": "tio",
+    "pron": "TEE-oo"
+   }
+  ]
+ },
+ "Norwegian": {
+  "native": "Norsk",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hallo",
+    "pron": "HAH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Ha det",
+    "pron": "HAH deh"
+   },
+   {
+    "en": "Please",
+    "loc": "Vær så snill",
+    "pron": "vair soh SNILL"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Takk",
+    "pron": "tahk"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Vær så god",
+    "pron": "vair soh GOO"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ja",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Nei",
+    "pron": "nay"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Unnskyld meg",
+    "pron": "OON-shewl migh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Beklager",
+    "pron": "beh-KLAH-gehr"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Snakker du engelsk?",
+    "pron": "SNAH-kehr dew EHNG-elsk"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Jeg forstår ikke",
+    "pron": "yigh fawr-STAWR IH-keh"
+   },
+   {
+    "en": "Help!",
+    "loc": "Hjelp!",
+    "pron": "yelp"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hvor mye koster dette?",
+    "pron": "voor MEW-eh KOSS-tehr DEH-teh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Hvor er toalettet?",
+    "pron": "voor air too-ah-LEH-teh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Jeg vil gjerne ha denne",
+    "pron": "yigh vil YAIR-neh hah DEH-neh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Regningen, takk",
+    "pron": "RYE-ning-en tahk"
+   },
+   {
+    "en": "Water",
+    "loc": "Vann",
+    "pron": "vahn"
+   },
+   {
+    "en": "Good morning",
+    "loc": "God morgen",
+    "pron": "goo MOR-ern"
+   },
+   {
+    "en": "Good evening",
+    "loc": "God kveld",
+    "pron": "goo kvel"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Jeg heter …",
+    "pron": "yigh HEH-tehr …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hvordan har du det?",
+    "pron": "VOOR-dahn hahr dew deh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Jeg trenger en lege",
+    "pron": "yigh TREHNG-ehr ehn LEH-geh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Ring politiet",
+    "pron": "ring poo-lee-TEE-eh"
+   },
+   {
+    "en": "Left",
+    "loc": "Venstre",
+    "pron": "VEHN-streh"
+   },
+   {
+    "en": "Right",
+    "loc": "Høyre",
+    "pron": "HOY-reh"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Hvor er togstasjonen?",
+    "pron": "voor air TOHG-stah-shoo-nen"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hvordan kommer jeg til …?",
+    "pron": "VOOR-dahn KAW-mehr yigh til …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Nydelig!",
+    "pron": "NEW-deh-lee"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "en",
+    "pron": "ehn"
+   },
+   {
+    "n": 2,
+    "loc": "to",
+    "pron": "too"
+   },
+   {
+    "n": 3,
+    "loc": "tre",
+    "pron": "treh"
+   },
+   {
+    "n": 4,
+    "loc": "fire",
+    "pron": "FEE-reh"
+   },
+   {
+    "n": 5,
+    "loc": "fem",
+    "pron": "fehm"
+   },
+   {
+    "n": 6,
+    "loc": "seks",
+    "pron": "sehks"
+   },
+   {
+    "n": 7,
+    "loc": "sju",
+    "pron": "shew"
+   },
+   {
+    "n": 8,
+    "loc": "åtte",
+    "pron": "AW-teh"
+   },
+   {
+    "n": 9,
+    "loc": "ni",
+    "pron": "nee"
+   },
+   {
+    "n": 10,
+    "loc": "ti",
+    "pron": "tee"
+   }
+  ]
+ },
+ "Danish": {
+  "native": "dansk",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hej",
+    "pron": "hye"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Farvel",
+    "pron": "fah-VEL"
+   },
+   {
+    "en": "Please",
+    "loc": "Vær så venlig",
+    "pron": "vehr saw VEN-lee"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Tak",
+    "pron": "tahk"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Selv tak",
+    "pron": "sel tahk"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ja",
+    "pron": "ya"
+   },
+   {
+    "en": "No",
+    "loc": "Nej",
+    "pron": "nye"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Undskyld",
+    "pron": "OON-skewl"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Undskyld",
+    "pron": "OON-skewl"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Taler du engelsk?",
+    "pron": "TAH-lah doo ENG-elsk"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Jeg forstår ikke",
+    "pron": "yai for-STOR IK-keh"
+   },
+   {
+    "en": "Help!",
+    "loc": "Hjælp!",
+    "pron": "yelp"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hvor meget koster det?",
+    "pron": "vor MY-eth KOS-tah deh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Hvor er toilettet?",
+    "pron": "vor air toy-LET-eth"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Jeg vil gerne have det her",
+    "pron": "yai vil GEHR-neh ha deh hair"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Regningen, tak",
+    "pron": "RYE-ning-en tahk"
+   },
+   {
+    "en": "Water",
+    "loc": "Vand",
+    "pron": "van"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Godmorgen",
+    "pron": "goh-MORN"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Godaften",
+    "pron": "goh-AF-ten"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Jeg hedder …",
+    "pron": "yai HEH-thah …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hvordan har du det?",
+    "pron": "vor-DAN hah doo deh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Jeg har brug for en læge",
+    "pron": "yai hah broo for en LAI-eh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Ring til politiet",
+    "pron": "ring til poh-lee-TEE-eth"
+   },
+   {
+    "en": "Left",
+    "loc": "Venstre",
+    "pron": "VEN-stra"
+   },
+   {
+    "en": "Right",
+    "loc": "Højre",
+    "pron": "HOY-ra"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Hvor er togstationen?",
+    "pron": "vor air TOH-stah-shoh-nen"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hvordan kommer jeg til …?",
+    "pron": "vor-DAN KOM-ah yai til …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Lækkert!",
+    "pron": "LEK-ket"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "en",
+    "pron": "ehn"
+   },
+   {
+    "n": 2,
+    "loc": "to",
+    "pron": "toh"
+   },
+   {
+    "n": 3,
+    "loc": "tre",
+    "pron": "treh"
+   },
+   {
+    "n": 4,
+    "loc": "fire",
+    "pron": "FEE-ah"
+   },
+   {
+    "n": 5,
+    "loc": "fem",
+    "pron": "fem"
+   },
+   {
+    "n": 6,
+    "loc": "seks",
+    "pron": "seks"
+   },
+   {
+    "n": 7,
+    "loc": "syv",
+    "pron": "syoo"
+   },
+   {
+    "n": 8,
+    "loc": "otte",
+    "pron": "OH-deh"
+   },
+   {
+    "n": 9,
+    "loc": "ni",
+    "pron": "nee"
+   },
+   {
+    "n": 10,
+    "loc": "ti",
+    "pron": "tee"
+   }
+  ]
+ },
+ "Finnish": {
+  "native": "suomi",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hei",
+    "pron": "hay"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Näkemiin",
+    "pron": "NAK-eh-meen"
+   },
+   {
+    "en": "Please",
+    "loc": "Ole hyvä",
+    "pron": "OH-leh HUU-va"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Kiitos",
+    "pron": "KEE-toss"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Ole hyvä",
+    "pron": "OH-leh HUU-va"
+   },
+   {
+    "en": "Yes",
+    "loc": "Kyllä",
+    "pron": "KUUL-la"
+   },
+   {
+    "en": "No",
+    "loc": "Ei",
+    "pron": "ay"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Anteeksi",
+    "pron": "AHN-tayk-see"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Anteeksi",
+    "pron": "AHN-tayk-see"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Puhutteko englantia?",
+    "pron": "POO-hoot-teh-koh ENG-lahn-tee-ah"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "En ymmärrä",
+    "pron": "en UUM-mar-ra"
+   },
+   {
+    "en": "Help!",
+    "loc": "Apua!",
+    "pron": "AH-poo-ah"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Paljonko tämä maksaa?",
+    "pron": "PAHL-yon-koh TA-ma MAHK-saa"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Missä on vessa?",
+    "pron": "MIS-sa on VES-sah"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Haluaisin tämän",
+    "pron": "HAH-loo-eye-sin TA-man"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Lasku, kiitos",
+    "pron": "LAHS-koo, KEE-toss"
+   },
+   {
+    "en": "Water",
+    "loc": "Vesi",
+    "pron": "VEH-see"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Hyvää huomenta",
+    "pron": "HUU-vaa HOO-oh-men-tah"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Hyvää iltaa",
+    "pron": "HUU-vaa IL-taa"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Nimeni on …",
+    "pron": "NEE-meh-nee on …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Mitä kuuluu?",
+    "pron": "MEE-ta KOO-loo"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Tarvitsen lääkärin",
+    "pron": "TAHR-vit-sen LAA-ka-rin"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Soittakaa poliisille",
+    "pron": "SOIT-tah-kaa POH-lee-sil-leh"
+   },
+   {
+    "en": "Left",
+    "loc": "Vasen",
+    "pron": "VAH-sen"
+   },
+   {
+    "en": "Right",
+    "loc": "Oikea",
+    "pron": "OY-keh-ah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Missä on rautatieasema?",
+    "pron": "MIS-sa on ROW-tah-tee-eh-ah-seh-mah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Miten pääsen …?",
+    "pron": "MEE-ten PAA-sen …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Herkullista!",
+    "pron": "HER-kool-lis-tah"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "yksi",
+    "pron": "UUK-see"
+   },
+   {
+    "n": 2,
+    "loc": "kaksi",
+    "pron": "KAHK-see"
+   },
+   {
+    "n": 3,
+    "loc": "kolme",
+    "pron": "KOL-meh"
+   },
+   {
+    "n": 4,
+    "loc": "neljä",
+    "pron": "NEL-ya"
+   },
+   {
+    "n": 5,
+    "loc": "viisi",
+    "pron": "VEE-see"
+   },
+   {
+    "n": 6,
+    "loc": "kuusi",
+    "pron": "KOO-see"
+   },
+   {
+    "n": 7,
+    "loc": "seitsemän",
+    "pron": "SAYT-seh-man"
+   },
+   {
+    "n": 8,
+    "loc": "kahdeksan",
+    "pron": "KAH-dek-sahn"
+   },
+   {
+    "n": 9,
+    "loc": "yhdeksän",
+    "pron": "UUH-dek-san"
+   },
+   {
+    "n": 10,
+    "loc": "kymmenen",
+    "pron": "KUUM-meh-nen"
+   }
+  ]
+ },
+ "Polish": {
+  "native": "polski",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Dzień dobry",
+    "pron": "jen DOH-bri"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Do widzenia",
+    "pron": "doh vee-DZEN-yah"
+   },
+   {
+    "en": "Please",
+    "loc": "Proszę",
+    "pron": "PROH-sheh"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Dziękuję",
+    "pron": "jen-KOO-yeh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Proszę bardzo",
+    "pron": "PROH-sheh BAR-dzo"
+   },
+   {
+    "en": "Yes",
+    "loc": "Tak",
+    "pron": "tahk"
+   },
+   {
+    "en": "No",
+    "loc": "Nie",
+    "pron": "nyeh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Przepraszam",
+    "pron": "psheh-PRAH-shahm"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Przepraszam",
+    "pron": "psheh-PRAH-shahm"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Czy mówi pan/pani po angielsku?",
+    "pron": "chih MOO-vee pahn/PAH-nee poh ahn-GYEL-skoo"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Nie rozumiem",
+    "pron": "nyeh roh-ZOO-myem"
+   },
+   {
+    "en": "Help!",
+    "loc": "Pomocy!",
+    "pron": "poh-MOH-tsih"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Ile to kosztuje?",
+    "pron": "EE-leh toh kosh-TOO-yeh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Gdzie jest toaleta?",
+    "pron": "g-jeh yest toh-ah-LEH-tah"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Poproszę to",
+    "pron": "poh-PROH-sheh toh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Poproszę rachunek",
+    "pron": "poh-PROH-sheh rah-HOO-nek"
+   },
+   {
+    "en": "Water",
+    "loc": "Woda",
+    "pron": "VOH-dah"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Dzień dobry",
+    "pron": "jen DOH-bri"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Dobry wieczór",
+    "pron": "DOH-bri VYEH-choor"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Nazywam się …",
+    "pron": "nah-ZIH-vahm sheh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Jak się pan/pani ma?",
+    "pron": "yahk sheh pahn/PAH-nee mah"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Potrzebuję lekarza",
+    "pron": "poh-tsheh-BOO-yeh leh-KAH-zhah"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Proszę zadzwonić na policję",
+    "pron": "PROH-sheh zah-DZVOH-neech nah poh-LEE-tsyeh"
+   },
+   {
+    "en": "Left",
+    "loc": "Lewo",
+    "pron": "LEH-voh"
+   },
+   {
+    "en": "Right",
+    "loc": "Prawo",
+    "pron": "PRAH-voh"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Gdzie jest dworzec kolejowy?",
+    "pron": "g-jeh yest DVOH-zhets koh-leh-YOH-vih"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Jak dojść do …?",
+    "pron": "yahk doysh doh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Pyszne!",
+    "pron": "PISH-neh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "jeden",
+    "pron": "YEH-den"
+   },
+   {
+    "n": 2,
+    "loc": "dwa",
+    "pron": "dvah"
+   },
+   {
+    "n": 3,
+    "loc": "trzy",
+    "pron": "tshih"
+   },
+   {
+    "n": 4,
+    "loc": "cztery",
+    "pron": "CHTEH-rih"
+   },
+   {
+    "n": 5,
+    "loc": "pięć",
+    "pron": "pyench"
+   },
+   {
+    "n": 6,
+    "loc": "sześć",
+    "pron": "sheshch"
+   },
+   {
+    "n": 7,
+    "loc": "siedem",
+    "pron": "SHYEH-dem"
+   },
+   {
+    "n": 8,
+    "loc": "osiem",
+    "pron": "OH-shem"
+   },
+   {
+    "n": 9,
+    "loc": "dziewięć",
+    "pron": "JEH-vyench"
+   },
+   {
+    "n": 10,
+    "loc": "dziesięć",
+    "pron": "JEH-shench"
+   }
+  ]
+ },
+ "Czech": {
+  "native": "čeština",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Dobrý den",
+    "pron": "DOH-bree den"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Na shledanou",
+    "pron": "NA-skhle-da-noh"
+   },
+   {
+    "en": "Please",
+    "loc": "Prosím",
+    "pron": "PRO-seem"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Děkuji",
+    "pron": "DYE-koo-yih"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Není zač",
+    "pron": "NEH-nyee zahch"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ano",
+    "pron": "AH-no"
+   },
+   {
+    "en": "No",
+    "loc": "Ne",
+    "pron": "neh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Promiňte",
+    "pron": "PRO-min-yteh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Promiňte",
+    "pron": "PRO-min-yteh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Mluvíte anglicky?",
+    "pron": "MLOO-vee-teh AHN-glits-kih"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Nerozumím",
+    "pron": "NEH-ro-zoo-meem"
+   },
+   {
+    "en": "Help!",
+    "loc": "Pomoc!",
+    "pron": "PO-mots"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Kolik to stojí?",
+    "pron": "KO-lik to STO-yee"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Kde je záchod?",
+    "pron": "k-deh yeh ZAA-khot"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Chtěl bych tohle",
+    "pron": "KHtyel bikh TO-hleh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Účet, prosím",
+    "pron": "OO-chet PRO-seem"
+   },
+   {
+    "en": "Water",
+    "loc": "Voda",
+    "pron": "VO-da"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Dobré ráno",
+    "pron": "DOH-breh RAA-no"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Dobrý večer",
+    "pron": "DOH-bree VEH-cher"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Jmenuji se …",
+    "pron": "YMEH-noo-yih seh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Jak se máte?",
+    "pron": "yak seh MAA-teh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Potřebuji lékaře",
+    "pron": "PO-trzhe-boo-yih LEH-ka-rzheh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Zavolejte policii",
+    "pron": "ZA-vo-ley-teh PO-li-tsee-ih"
+   },
+   {
+    "en": "Left",
+    "loc": "Vlevo",
+    "pron": "VLEH-vo"
+   },
+   {
+    "en": "Right",
+    "loc": "Vpravo",
+    "pron": "VPRA-vo"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Kde je nádraží?",
+    "pron": "k-deh yeh NAA-dra-zhee"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Jak se dostanu do …?",
+    "pron": "yak seh DOS-ta-noo do …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Výborné!",
+    "pron": "VEE-bor-neh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "jedna",
+    "pron": "YED-na"
+   },
+   {
+    "n": 2,
+    "loc": "dva",
+    "pron": "dva"
+   },
+   {
+    "n": 3,
+    "loc": "tři",
+    "pron": "trzhee"
+   },
+   {
+    "n": 4,
+    "loc": "čtyři",
+    "pron": "CHTI-rzhih"
+   },
+   {
+    "n": 5,
+    "loc": "pět",
+    "pron": "pyet"
+   },
+   {
+    "n": 6,
+    "loc": "šest",
+    "pron": "shest"
+   },
+   {
+    "n": 7,
+    "loc": "sedm",
+    "pron": "SE-doom"
+   },
+   {
+    "n": 8,
+    "loc": "osm",
+    "pron": "O-soom"
+   },
+   {
+    "n": 9,
+    "loc": "devět",
+    "pron": "DEH-vyet"
+   },
+   {
+    "n": 10,
+    "loc": "deset",
+    "pron": "DEH-set"
+   }
+  ]
+ },
+ "Hungarian": {
+  "native": "magyar",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Jó napot kívánok",
+    "pron": "YOH naa-pot KEE-vaa-nok"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Viszontlátásra",
+    "pron": "VEE-sont-laa-taash-ro"
+   },
+   {
+    "en": "Please",
+    "loc": "Kérem",
+    "pron": "KAY-rem"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Köszönöm",
+    "pron": "KUH-suh-nuhm"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Szívesen",
+    "pron": "SEE-veh-shen"
+   },
+   {
+    "en": "Yes",
+    "loc": "Igen",
+    "pron": "EE-gen"
+   },
+   {
+    "en": "No",
+    "loc": "Nem",
+    "pron": "nem"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Elnézést",
+    "pron": "EL-nay-zaysht"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Bocsánat",
+    "pron": "BO-chaa-not"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Beszél angolul?",
+    "pron": "BES-sayl ON-go-lool"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Nem értem",
+    "pron": "nem AYR-tem"
+   },
+   {
+    "en": "Help!",
+    "loc": "Segítség!",
+    "pron": "SHEH-geet-shayg"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Mennyibe kerül ez?",
+    "pron": "MEN-nyee-beh KEH-rewl ez"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Hol van a mosdó?",
+    "pron": "hol von o MOSH-doh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ezt szeretném",
+    "pron": "ezt SEH-ret-naym"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "A számlát, kérem",
+    "pron": "o SAAM-laat, KAY-rem"
+   },
+   {
+    "en": "Water",
+    "loc": "Víz",
+    "pron": "veez"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Jó reggelt kívánok",
+    "pron": "YOH REG-gelt KEE-vaa-nok"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Jó estét kívánok",
+    "pron": "YOH ESH-tayt KEE-vaa-nok"
+   },
+   {
+    "en": "My name is …",
+    "loc": "A nevem …",
+    "pron": "o NEH-vem …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hogy van?",
+    "pron": "hodj von"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Orvosra van szükségem",
+    "pron": "OR-vosh-ro von SEWK-shay-gem"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Hívja a rendőrséget",
+    "pron": "HEEV-yo o REN-dur-shay-get"
+   },
+   {
+    "en": "Left",
+    "loc": "Bal",
+    "pron": "bol"
+   },
+   {
+    "en": "Right",
+    "loc": "Jobb",
+    "pron": "yob"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Hol van a vasútállomás?",
+    "pron": "hol von o VOSH-oot-aal-lo-maash"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hogyan jutok el …?",
+    "pron": "HO-dyon YOO-tok el …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Finom!",
+    "pron": "FEE-nom"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "egy",
+    "pron": "edj"
+   },
+   {
+    "n": 2,
+    "loc": "kettő",
+    "pron": "KET-tur"
+   },
+   {
+    "n": 3,
+    "loc": "három",
+    "pron": "HAA-rom"
+   },
+   {
+    "n": 4,
+    "loc": "négy",
+    "pron": "naydj"
+   },
+   {
+    "n": 5,
+    "loc": "öt",
+    "pron": "uht"
+   },
+   {
+    "n": 6,
+    "loc": "hat",
+    "pron": "hot"
+   },
+   {
+    "n": 7,
+    "loc": "hét",
+    "pron": "hayt"
+   },
+   {
+    "n": 8,
+    "loc": "nyolc",
+    "pron": "nyolts"
+   },
+   {
+    "n": 9,
+    "loc": "kilenc",
+    "pron": "KEE-lents"
+   },
+   {
+    "n": 10,
+    "loc": "tíz",
+    "pron": "teez"
+   }
+  ]
+ },
+ "Romanian": {
+  "native": "română",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Bună ziua",
+    "pron": "BOO-nuh ZEE-wah"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "La revedere",
+    "pron": "lah reh-veh-DEH-reh"
+   },
+   {
+    "en": "Please",
+    "loc": "Vă rog",
+    "pron": "vuh ROHG"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Mulțumesc",
+    "pron": "mool-tsoo-MESK"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Cu plăcere",
+    "pron": "koo pluh-CHEH-reh"
+   },
+   {
+    "en": "Yes",
+    "loc": "Da",
+    "pron": "dah"
+   },
+   {
+    "en": "No",
+    "loc": "Nu",
+    "pron": "noo"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Scuzați-mă",
+    "pron": "skoo-ZAH-tsee-muh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Îmi pare rău",
+    "pron": "uhm PAH-reh RUH-oo"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Vorbiți engleză?",
+    "pron": "vor-BEE-tsee en-GLEH-zuh"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Nu înțeleg",
+    "pron": "noo uhn-tseh-LEG"
+   },
+   {
+    "en": "Help!",
+    "loc": "Ajutor!",
+    "pron": "ah-zhoo-TOR"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Cât costă?",
+    "pron": "kuht KOS-tuh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Unde este toaleta?",
+    "pron": "OON-deh YES-teh twah-LEH-tah"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Aș dori asta",
+    "pron": "ash do-REE AHS-tah"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Nota, vă rog",
+    "pron": "NOH-tah, vuh ROHG"
+   },
+   {
+    "en": "Water",
+    "loc": "Apă",
+    "pron": "AH-puh"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Bună dimineața",
+    "pron": "BOO-nuh dee-mee-NYAH-tsah"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Bună seara",
+    "pron": "BOO-nuh SYAH-rah"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Mă numesc …",
+    "pron": "muh noo-MESK …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Ce mai faceți?",
+    "pron": "cheh my FAH-chets"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Am nevoie de un medic",
+    "pron": "ahm neh-VOH-yeh deh oon MEH-deek"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Chemați poliția",
+    "pron": "keh-MAHTS po-LEE-tsee-ah"
+   },
+   {
+    "en": "Left",
+    "loc": "Stânga",
+    "pron": "STUHN-gah"
+   },
+   {
+    "en": "Right",
+    "loc": "Dreapta",
+    "pron": "DRYAHP-tah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Unde este gara?",
+    "pron": "OON-deh YES-teh GAH-rah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Cum ajung la …?",
+    "pron": "koom ah-ZHOONG lah …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Delicios!",
+    "pron": "deh-lee-CHOSS"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "unu",
+    "pron": "OO-noo"
+   },
+   {
+    "n": 2,
+    "loc": "doi",
+    "pron": "doy"
+   },
+   {
+    "n": 3,
+    "loc": "trei",
+    "pron": "tray"
+   },
+   {
+    "n": 4,
+    "loc": "patru",
+    "pron": "PAH-troo"
+   },
+   {
+    "n": 5,
+    "loc": "cinci",
+    "pron": "cheench"
+   },
+   {
+    "n": 6,
+    "loc": "șase",
+    "pron": "SHAH-seh"
+   },
+   {
+    "n": 7,
+    "loc": "șapte",
+    "pron": "SHAHP-teh"
+   },
+   {
+    "n": 8,
+    "loc": "opt",
+    "pron": "opt"
+   },
+   {
+    "n": 9,
+    "loc": "nouă",
+    "pron": "NOH-wuh"
+   },
+   {
+    "n": 10,
+    "loc": "zece",
+    "pron": "ZEH-cheh"
+   }
+  ]
+ },
+ "Bulgarian": {
+  "native": "български",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Здравейте",
+    "pron": "zdra-VEY-teh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Довиждане",
+    "pron": "do-VEEZH-da-neh"
+   },
+   {
+    "en": "Please",
+    "loc": "Моля",
+    "pron": "MOH-lya"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Благодаря",
+    "pron": "bla-go-da-RYA"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Няма защо",
+    "pron": "NYA-ma za-SHTO"
+   },
+   {
+    "en": "Yes",
+    "loc": "Да",
+    "pron": "da"
+   },
+   {
+    "en": "No",
+    "loc": "Не",
+    "pron": "neh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Извинете",
+    "pron": "iz-vi-NEH-teh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Съжалявам",
+    "pron": "suh-zha-LYA-vam"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Говорите ли английски?",
+    "pron": "go-VO-ri-teh lee an-GLEE-skee"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Не разбирам",
+    "pron": "neh raz-BEE-ram"
+   },
+   {
+    "en": "Help!",
+    "loc": "Помощ!",
+    "pron": "PO-mosht"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Колко струва това?",
+    "pron": "KOL-ko STROO-va to-VAH"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Къде е тоалетната?",
+    "pron": "kuh-DEH eh to-a-LET-na-ta"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Бих искал това",
+    "pron": "bih EES-kal to-VAH"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Сметката, моля",
+    "pron": "SMET-ka-ta, MOH-lya"
+   },
+   {
+    "en": "Water",
+    "loc": "Вода",
+    "pron": "vo-DAH"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Добро утро",
+    "pron": "do-BRO OO-tro"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Добър вечер",
+    "pron": "do-BUHR VEH-cher"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Казвам се …",
+    "pron": "KAZ-vam seh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Как сте?",
+    "pron": "kak steh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Трябва ми лекар",
+    "pron": "TRYAB-va mee LEH-kar"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Извикайте полиция",
+    "pron": "iz-VEE-kai-teh po-LEE-tsi-ya"
+   },
+   {
+    "en": "Left",
+    "loc": "Ляво",
+    "pron": "LYA-vo"
+   },
+   {
+    "en": "Right",
+    "loc": "Дясно",
+    "pron": "DYAS-no"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Къде е гарата?",
+    "pron": "kuh-DEH eh GA-ra-ta"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Как да стигна до …?",
+    "pron": "kak da STEEG-na do …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Вкусно!",
+    "pron": "VKOOS-no"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "едно",
+    "pron": "ed-NOH"
+   },
+   {
+    "n": 2,
+    "loc": "две",
+    "pron": "dveh"
+   },
+   {
+    "n": 3,
+    "loc": "три",
+    "pron": "tree"
+   },
+   {
+    "n": 4,
+    "loc": "четири",
+    "pron": "CHE-ti-ri"
+   },
+   {
+    "n": 5,
+    "loc": "пет",
+    "pron": "pet"
+   },
+   {
+    "n": 6,
+    "loc": "шест",
+    "pron": "shest"
+   },
+   {
+    "n": 7,
+    "loc": "седем",
+    "pron": "SE-dem"
+   },
+   {
+    "n": 8,
+    "loc": "осем",
+    "pron": "O-sem"
+   },
+   {
+    "n": 9,
+    "loc": "девет",
+    "pron": "DE-vet"
+   },
+   {
+    "n": 10,
+    "loc": "десет",
+    "pron": "DE-set"
+   }
+  ]
+ },
+ "Serbian/Croatian": {
+  "native": "srpskohrvatski / hrvatskosrpski (српскохрватски)",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Dobar dan",
+    "pron": "DOH-bar dahn"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Doviđenja",
+    "pron": "doh-vee-JEH-nyah"
+   },
+   {
+    "en": "Please",
+    "loc": "Molim",
+    "pron": "MOH-leem"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Hvala",
+    "pron": "HVAH-lah"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Nema na čemu",
+    "pron": "NEH-mah nah CHEH-moo"
+   },
+   {
+    "en": "Yes",
+    "loc": "Da",
+    "pron": "dah"
+   },
+   {
+    "en": "No",
+    "loc": "Ne",
+    "pron": "neh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Oprostite",
+    "pron": "oh-PROH-stee-teh"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Žao mi je",
+    "pron": "ZHAH-oh mee yeh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Govorite li engleski?",
+    "pron": "goh-VOH-ree-teh lee EN-gleh-skee"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ne razumem",
+    "pron": "neh rah-ZOO-mehm"
+   },
+   {
+    "en": "Help!",
+    "loc": "Upomoć!",
+    "pron": "OO-poh-moch"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Koliko ovo košta?",
+    "pron": "KOH-lee-koh OH-voh KOH-shtah"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Gde je toalet?",
+    "pron": "gdeh yeh toh-ah-LEHT"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Želeo bih ovo",
+    "pron": "ZHEH-leh-oh beeh OH-voh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Račun, molim",
+    "pron": "RAH-choon, MOH-leem"
+   },
+   {
+    "en": "Water",
+    "loc": "Voda",
+    "pron": "VOH-dah"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Dobro jutro",
+    "pron": "DOH-broh YOO-troh"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Dobro veče",
+    "pron": "DOH-broh VEH-cheh"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Zovem se …",
+    "pron": "ZOH-vehm seh …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Kako ste?",
+    "pron": "KAH-koh steh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Treba mi lekar",
+    "pron": "TREH-bah mee LEH-kar"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Pozovite policiju",
+    "pron": "poh-ZOH-vee-teh poh-LEE-tsee-yoo"
+   },
+   {
+    "en": "Left",
+    "loc": "Levo",
+    "pron": "LEH-voh"
+   },
+   {
+    "en": "Right",
+    "loc": "Desno",
+    "pron": "DEH-snoh"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Gde je železnička stanica?",
+    "pron": "gdeh yeh zheh-LEHZ-neech-kah STAH-nee-tsah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Kako da dođem do …?",
+    "pron": "KAH-koh dah DOH-jehm doh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Ukusno!",
+    "pron": "OO-koos-noh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "jedan",
+    "pron": "YEH-dahn"
+   },
+   {
+    "n": 2,
+    "loc": "dva",
+    "pron": "dvah"
+   },
+   {
+    "n": 3,
+    "loc": "tri",
+    "pron": "tree"
+   },
+   {
+    "n": 4,
+    "loc": "četiri",
+    "pron": "CHEH-tee-ree"
+   },
+   {
+    "n": 5,
+    "loc": "pet",
+    "pron": "peht"
+   },
+   {
+    "n": 6,
+    "loc": "šest",
+    "pron": "shehst"
+   },
+   {
+    "n": 7,
+    "loc": "sedam",
+    "pron": "SEH-dahm"
+   },
+   {
+    "n": 8,
+    "loc": "osam",
+    "pron": "OH-sahm"
+   },
+   {
+    "n": 9,
+    "loc": "devet",
+    "pron": "DEH-veht"
+   },
+   {
+    "n": 10,
+    "loc": "deset",
+    "pron": "DEH-seht"
+   }
+  ]
+ },
+ "Ukrainian": {
+  "native": "Українська мова",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Доброго дня",
+    "pron": "DOH-broh-ho DNYA"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "До побачення",
+    "pron": "doh poh-BAH-chen-nya"
+   },
+   {
+    "en": "Please",
+    "loc": "Будь ласка",
+    "pron": "bood LAS-ka"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Дякую",
+    "pron": "DYAH-koo-yoo"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Будь ласка",
+    "pron": "bood LAS-ka"
+   },
+   {
+    "en": "Yes",
+    "loc": "Так",
+    "pron": "tahk"
+   },
+   {
+    "en": "No",
+    "loc": "Ні",
+    "pron": "nee"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Перепрошую",
+    "pron": "peh-reh-PROH-shoo-yoo"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Вибачте",
+    "pron": "VIH-bach-teh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Ви розмовляєте англійською?",
+    "pron": "vih roz-mov-LYAH-yeh-teh an-HLEE-skoh-yoo"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Я не розумію",
+    "pron": "ya neh roh-zoo-MEE-yoo"
+   },
+   {
+    "en": "Help!",
+    "loc": "Допоможіть!",
+    "pron": "doh-poh-moh-ZHEET"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Скільки це коштує?",
+    "pron": "SKEEL-kih tseh KOSH-too-yeh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Де туалет?",
+    "pron": "deh too-ah-LET"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Я хотів би це",
+    "pron": "ya khoh-TEEV bih tseh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Рахунок, будь ласка",
+    "pron": "rah-KHOO-nok, bood LAS-ka"
+   },
+   {
+    "en": "Water",
+    "loc": "Вода",
+    "pron": "voh-DAH"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Доброго ранку",
+    "pron": "DOH-broh-ho RAHN-koo"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Добрий вечір",
+    "pron": "DOH-briy VEH-cheer"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Мене звати …",
+    "pron": "MEH-neh ZVAH-tih …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Як справи?",
+    "pron": "yak SPRAH-vih"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Мені потрібен лікар",
+    "pron": "meh-NEE poh-TREE-ben LEE-kar"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Викличте поліцію",
+    "pron": "VIH-klich-teh poh-LEE-tsee-yoo"
+   },
+   {
+    "en": "Left",
+    "loc": "Ліворуч",
+    "pron": "lee-VOH-rooch"
+   },
+   {
+    "en": "Right",
+    "loc": "Праворуч",
+    "pron": "prah-VOH-rooch"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Де залізничний вокзал?",
+    "pron": "deh zah-leez-NICH-niy vok-ZAL"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Як дістатися до …?",
+    "pron": "yak dee-STAH-tih-sya doh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Смачно!",
+    "pron": "SMACH-no"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "один",
+    "pron": "oh-DYN"
+   },
+   {
+    "n": 2,
+    "loc": "два",
+    "pron": "dvah"
+   },
+   {
+    "n": 3,
+    "loc": "три",
+    "pron": "trih"
+   },
+   {
+    "n": 4,
+    "loc": "чотири",
+    "pron": "choh-TIH-rih"
+   },
+   {
+    "n": 5,
+    "loc": "п'ять",
+    "pron": "pyat"
+   },
+   {
+    "n": 6,
+    "loc": "шість",
+    "pron": "sheest"
+   },
+   {
+    "n": 7,
+    "loc": "сім",
+    "pron": "seem"
+   },
+   {
+    "n": 8,
+    "loc": "вісім",
+    "pron": "VEE-seem"
+   },
+   {
+    "n": 9,
+    "loc": "дев'ять",
+    "pron": "DEH-vyat"
+   },
+   {
+    "n": 10,
+    "loc": "десять",
+    "pron": "DEH-syat"
+   }
+  ]
+ },
+ "Swahili": {
+  "native": "Kiswahili",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Habari",
+    "pron": "ha-BA-ree"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Kwaheri",
+    "pron": "kwa-HE-ree"
+   },
+   {
+    "en": "Please",
+    "loc": "Tafadhali",
+    "pron": "ta-fa-DHA-lee"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Asante",
+    "pron": "ah-SAN-teh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Karibu",
+    "pron": "ka-REE-boo"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ndiyo",
+    "pron": "n-DEE-yo"
+   },
+   {
+    "en": "No",
+    "loc": "Hapana",
+    "pron": "ha-PA-na"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Samahani",
+    "pron": "sa-ma-HA-nee"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Pole",
+    "pron": "PO-leh"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Unazungumza Kiingereza?",
+    "pron": "oo-na-zoon-GOOM-za kee-een-geh-RE-za"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Sielewi",
+    "pron": "see-eh-LE-wee"
+   },
+   {
+    "en": "Help!",
+    "loc": "Saidia!",
+    "pron": "sah-ee-DEE-ah"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hii ni bei gani?",
+    "pron": "HEE nee bay GA-nee"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Choo kiko wapi?",
+    "pron": "CHO kee-ko WA-pee"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ningependa hii",
+    "pron": "neen-geh-PEN-da HEE"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Bili, tafadhali",
+    "pron": "BEE-lee, ta-fa-DHA-lee"
+   },
+   {
+    "en": "Water",
+    "loc": "Maji",
+    "pron": "MA-jee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Habari za asubuhi",
+    "pron": "ha-BA-ree za a-soo-BOO-hee"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Habari za jioni",
+    "pron": "ha-BA-ree za jee-O-nee"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Jina langu ni …",
+    "pron": "JEE-na LAN-goo nee …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Habari yako?",
+    "pron": "ha-BA-ree YA-ko"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Nahitaji daktari",
+    "pron": "na-hee-TA-jee dak-TA-ree"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Piga simu polisi",
+    "pron": "PEE-ga SEE-moo po-LEE-see"
+   },
+   {
+    "en": "Left",
+    "loc": "Kushoto",
+    "pron": "koo-SHO-to"
+   },
+   {
+    "en": "Right",
+    "loc": "Kulia",
+    "pron": "koo-LEE-ah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Stesheni ya treni iko wapi?",
+    "pron": "steh-SHE-nee ya TRE-nee ee-ko WA-pee"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Nawezaje kufika …?",
+    "pron": "na-we-ZA-jeh koo-FEE-ka …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Tamu sana!",
+    "pron": "TA-moo SA-na"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "moja",
+    "pron": "MO-ja"
+   },
+   {
+    "n": 2,
+    "loc": "mbili",
+    "pron": "m-BEE-lee"
+   },
+   {
+    "n": 3,
+    "loc": "tatu",
+    "pron": "TA-too"
+   },
+   {
+    "n": 4,
+    "loc": "nne",
+    "pron": "n-NEH"
+   },
+   {
+    "n": 5,
+    "loc": "tano",
+    "pron": "TA-no"
+   },
+   {
+    "n": 6,
+    "loc": "sita",
+    "pron": "SEE-ta"
+   },
+   {
+    "n": 7,
+    "loc": "saba",
+    "pron": "SA-ba"
+   },
+   {
+    "n": 8,
+    "loc": "nane",
+    "pron": "NA-neh"
+   },
+   {
+    "n": 9,
+    "loc": "tisa",
+    "pron": "TEE-sa"
+   },
+   {
+    "n": 10,
+    "loc": "kumi",
+    "pron": "KOO-mee"
+   }
+  ]
+ },
+ "Amharic": {
+  "native": "አማርኛ",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "ሰላም",
+    "pron": "se-LAM"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "ደህና ሁን",
+    "pron": "deh-NA hun (to a man) / deh-NA hugn (to a woman)"
+   },
+   {
+    "en": "Please",
+    "loc": "እባክህ",
+    "pron": "e-BAK-ih (to a man) / e-BAK-ish (to a woman)"
+   },
+   {
+    "en": "Thank you",
+    "loc": "አመሰግናለሁ",
+    "pron": "a-me-seg-NA-le-hu"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "ምንም አይደለም",
+    "pron": "MIN-im ai-de-LEM"
+   },
+   {
+    "en": "Yes",
+    "loc": "አዎ",
+    "pron": "a-WO"
+   },
+   {
+    "en": "No",
+    "loc": "አይ",
+    "pron": "AY"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "ይቅርታ",
+    "pron": "yi-KIR-ta"
+   },
+   {
+    "en": "Sorry",
+    "loc": "አዝናለሁ",
+    "pron": "az-NA-le-hu"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "እንግሊዝኛ ይችላሉ?",
+    "pron": "in-gli-ZIGN-ya yich-LAL-u?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "አልገባኝም",
+    "pron": "al-ge-BAGN-im"
+   },
+   {
+    "en": "Help!",
+    "loc": "እርዱኝ!",
+    "pron": "ir-DUGN!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "ይህ ስንት ነው?",
+    "pron": "yih sint new?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "መጸዳጃ ቤት የት ነው?",
+    "pron": "me-tse-DA-ja bet yet new?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "ይህን እፈልጋለሁ",
+    "pron": "YI-hin e-fel-GA-le-hu"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "ሂሳቡን እባክዎ",
+    "pron": "hi-SA-bun e-BAK-wo"
+   },
+   {
+    "en": "Water",
+    "loc": "ውሃ",
+    "pron": "WU-ha"
+   },
+   {
+    "en": "Good morning",
+    "loc": "እንደምን አደሩ",
+    "pron": "in-de-MIN a-DE-ru"
+   },
+   {
+    "en": "Good evening",
+    "loc": "እንደምን አመሹ",
+    "pron": "in-de-MIN a-ME-shu"
+   },
+   {
+    "en": "My name is …",
+    "loc": "ስሜ … ነው",
+    "pron": "si-ME … new"
+   },
+   {
+    "en": "How are you?",
+    "loc": "እንደምን ነዎት?",
+    "pron": "in-de-MIN ne-WOT?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "ዶክተር እፈልጋለሁ",
+    "pron": "DOK-ter e-fel-GA-le-hu"
+   },
+   {
+    "en": "Call the police",
+    "loc": "ፖሊስ ይጥሩ",
+    "pron": "po-LIS yi-TI-ru"
+   },
+   {
+    "en": "Left",
+    "loc": "ግራ",
+    "pron": "gi-RA"
+   },
+   {
+    "en": "Right",
+    "loc": "ቀኝ",
+    "pron": "keGN"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "የባቡር ጣቢያ የት ነው?",
+    "pron": "ye-ba-BUR ta-BI-ya yet new?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "ወደ … እንዴት እደርሳለሁ?",
+    "pron": "we-de … in-DET e-der-SA-le-hu?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "ጣፋጭ ነው!",
+    "pron": "ta-FACH new!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "አንድ",
+    "pron": "and"
+   },
+   {
+    "n": 2,
+    "loc": "ሁለት",
+    "pron": "hu-LET"
+   },
+   {
+    "n": 3,
+    "loc": "ሶስት",
+    "pron": "SOST"
+   },
+   {
+    "n": 4,
+    "loc": "አራት",
+    "pron": "a-RAT"
+   },
+   {
+    "n": 5,
+    "loc": "አምስት",
+    "pron": "AM-mist"
+   },
+   {
+    "n": 6,
+    "loc": "ስድስት",
+    "pron": "SI-dist"
+   },
+   {
+    "n": 7,
+    "loc": "ሰባት",
+    "pron": "se-BAT"
+   },
+   {
+    "n": 8,
+    "loc": "ስምንት",
+    "pron": "si-MINT"
+   },
+   {
+    "n": 9,
+    "loc": "ዘጠኝ",
+    "pron": "ze-TEGN"
+   },
+   {
+    "n": 10,
+    "loc": "አስር",
+    "pron": "AS-ir"
+   }
+  ]
+ },
+ "Yoruba": {
+  "native": "Èdè Yorùbá",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Báwo ni",
+    "pron": "BAH-waw nee"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Ó dàbọ̀",
+    "pron": "oh DAH-baw"
+   },
+   {
+    "en": "Please",
+    "loc": "Jọ̀wọ́",
+    "pron": "JAW-waw"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Ẹ ṣé",
+    "pron": "eh SHEH"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Kò sí nǹkan",
+    "pron": "koh SEE n-KAHN"
+   },
+   {
+    "en": "Yes",
+    "loc": "Bẹ́ẹ̀ ni",
+    "pron": "BEH-eh nee"
+   },
+   {
+    "en": "No",
+    "loc": "Bẹ́ẹ̀ kọ́",
+    "pron": "BEH-eh kaw"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Ẹ jọ̀wọ́",
+    "pron": "eh JAW-waw"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Ẹ má bínú",
+    "pron": "eh mah BEE-noo"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Ṣé o ń sọ èdè Gẹ̀ẹ́sì?",
+    "pron": "sheh oh n saw EH-deh GEH-eh-see"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Mi ò yé mi",
+    "pron": "mee oh YEH mee"
+   },
+   {
+    "en": "Help!",
+    "loc": "Ẹ gbà mí!",
+    "pron": "eh GBAH mee"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Èló ni èyí?",
+    "pron": "EH-loh nee EH-yee"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Níbo ni ilé ìgbọ̀nsẹ̀ wà?",
+    "pron": "NEE-boh nee ee-LEH ee-GBAWN-seh wah"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Mo fẹ́ èyí",
+    "pron": "moh FEH EH-yee"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Ẹ jọ̀wọ́, ẹ mú ìwé owó wá",
+    "pron": "eh JAW-waw, eh moo EE-weh oh-WOH wah"
+   },
+   {
+    "en": "Water",
+    "loc": "Omi",
+    "pron": "OH-mee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Ẹ kàárọ̀",
+    "pron": "eh KAH-ah-raw"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Ẹ kú ìrọ̀lẹ́",
+    "pron": "eh koo ee-RAW-leh"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Orúkọ mi ni …",
+    "pron": "oh-ROO-kaw mee nee …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Báwo ni o ṣe wà?",
+    "pron": "BAH-waw nee oh sheh wah"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Mo nílò dókítà",
+    "pron": "moh NEE-loh DOH-kee-tah"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Ẹ pe ọlọ́pàá",
+    "pron": "eh peh aw-LAW-pah-AH"
+   },
+   {
+    "en": "Left",
+    "loc": "Òsì",
+    "pron": "OH-see"
+   },
+   {
+    "en": "Right",
+    "loc": "Ọ̀tún",
+    "pron": "AW-toon"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Níbo ni ibùdó ọkọ̀ ojú irin wà?",
+    "pron": "NEE-boh nee ee-BOO-doh aw-KAW oh-JOO ee-reen wah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Báwo ni mo ṣe lè dé …?",
+    "pron": "BAH-waw nee moh sheh leh DEH …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Ó dùn!",
+    "pron": "oh DOON"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ọ̀kan",
+    "pron": "AW-kahn"
+   },
+   {
+    "n": 2,
+    "loc": "èjì",
+    "pron": "EH-jee"
+   },
+   {
+    "n": 3,
+    "loc": "ẹ̀ta",
+    "pron": "EH-tah"
+   },
+   {
+    "n": 4,
+    "loc": "ẹ̀rin",
+    "pron": "EH-reen"
+   },
+   {
+    "n": 5,
+    "loc": "àrún",
+    "pron": "AH-roon"
+   },
+   {
+    "n": 6,
+    "loc": "ẹ̀fà",
+    "pron": "EH-fah"
+   },
+   {
+    "n": 7,
+    "loc": "èje",
+    "pron": "EH-jeh"
+   },
+   {
+    "n": 8,
+    "loc": "ẹ̀jọ̀",
+    "pron": "EH-jaw"
+   },
+   {
+    "n": 9,
+    "loc": "ẹ̀sàn",
+    "pron": "EH-sahn"
+   },
+   {
+    "n": 10,
+    "loc": "ẹ̀wá",
+    "pron": "EH-wah"
+   }
+  ]
+ },
+ "Hausa": {
+  "native": "Harshen Hausa",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Sannu",
+    "pron": "SAN-noo"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Sai an jima",
+    "pron": "sigh an JEE-ma"
+   },
+   {
+    "en": "Please",
+    "loc": "Don Allah",
+    "pron": "don AL-lah"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Na gode",
+    "pron": "na GOH-deh"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Babu komai",
+    "pron": "BAH-boo KOH-my"
+   },
+   {
+    "en": "Yes",
+    "loc": "Eh",
+    "pron": "eh"
+   },
+   {
+    "en": "No",
+    "loc": "A'a",
+    "pron": "AH-ah"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Yi hakuri",
+    "pron": "yee ha-KOO-ree"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Yi hakuri",
+    "pron": "yee ha-KOO-ree"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Kana jin Turanci?",
+    "pron": "KA-na jin too-RAN-chee"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ban gane ba",
+    "pron": "ban GA-neh ba"
+   },
+   {
+    "en": "Help!",
+    "loc": "Taimako!",
+    "pron": "tie-MA-koh"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Nawa ne wannan?",
+    "pron": "NA-wa neh WAN-nan"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Ina bayan gida?",
+    "pron": "EE-na BA-yan GEE-da"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ina son wannan",
+    "pron": "EE-na son WAN-nan"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Lissafi, don Allah",
+    "pron": "lis-SA-fee, don AL-lah"
+   },
+   {
+    "en": "Water",
+    "loc": "Ruwa",
+    "pron": "ROO-wa"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Ina kwana",
+    "pron": "EE-na KWA-na"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Barka da yamma",
+    "pron": "BAR-ka da YAM-ma"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Sunana …",
+    "pron": "soo-NA-na …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Yaya kake?",
+    "pron": "YA-ya KA-keh"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ina bukatar likita",
+    "pron": "EE-na boo-KA-tar lee-KEE-ta"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Kira 'yan sanda",
+    "pron": "KEE-ra yan SAN-da"
+   },
+   {
+    "en": "Left",
+    "loc": "Hagu",
+    "pron": "HA-goo"
+   },
+   {
+    "en": "Right",
+    "loc": "Dama",
+    "pron": "DA-ma"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Ina tashar jirgin ƙasa?",
+    "pron": "EE-na TA-shar JEER-gin KA-sa"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Yaya zan je …?",
+    "pron": "YA-ya zan jeh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Mai daɗi!",
+    "pron": "my DA-dee"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ɗaya",
+    "pron": "DA-ya"
+   },
+   {
+    "n": 2,
+    "loc": "biyu",
+    "pron": "BEE-yoo"
+   },
+   {
+    "n": 3,
+    "loc": "uku",
+    "pron": "OO-koo"
+   },
+   {
+    "n": 4,
+    "loc": "huɗu",
+    "pron": "HOO-doo"
+   },
+   {
+    "n": 5,
+    "loc": "biyar",
+    "pron": "BEE-yar"
+   },
+   {
+    "n": 6,
+    "loc": "shida",
+    "pron": "SHEE-da"
+   },
+   {
+    "n": 7,
+    "loc": "bakwai",
+    "pron": "BAK-why"
+   },
+   {
+    "n": 8,
+    "loc": "takwas",
+    "pron": "TAK-was"
+   },
+   {
+    "n": 9,
+    "loc": "tara",
+    "pron": "TA-ra"
+   },
+   {
+    "n": 10,
+    "loc": "goma",
+    "pron": "GOH-ma"
+   }
+  ]
+ },
+ "Zulu": {
+  "native": "isiZulu",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Sawubona",
+    "pron": "sah-woo-BOH-nah (to one person; to several say 'Sanibonani' sah-nee-boh-NAH-nee)"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Sala kahle",
+    "pron": "SAH-lah KAH-hleh (said to one staying; 'hl' is a breathy lateral, not 'sh'); the one leaving says 'Hamba kahle' HAHM-bah KAH-hleh"
+   },
+   {
+    "en": "Please",
+    "loc": "Ngicela",
+    "pron": "ngee-CEH-lah ('c' is a dental click — tongue tip on the teeth)"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Ngiyabonga",
+    "pron": "ngee-yah-BOH-ngah"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Wamukelekile",
+    "pron": "wah-moo-keh-leh-KEE-leh"
+   },
+   {
+    "en": "Yes",
+    "loc": "Yebo",
+    "pron": "YEH-boh"
+   },
+   {
+    "en": "No",
+    "loc": "Cha",
+    "pron": "!ah ('c' is a dental click, not 'tsh' — click the tongue off the teeth, then 'ah')"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Uxolo",
+    "pron": "oo-XOH-loh ('x' is a lateral click — like the sound used to urge on a horse)"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Ngiyaxolisa",
+    "pron": "ngee-yah-XOH-lee-sah ('x' is a lateral click)"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Ingabe uyakhuluma isiNgisi?",
+    "pron": "ee-NGAH-beh oo-yah-koo-LOO-mah ee-see-NGEE-see"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Angiqondi",
+    "pron": "ah-ngee-QOHN-dee ('q' is a palatal click — tongue pulled sharply off the roof of the mouth)"
+   },
+   {
+    "en": "Help!",
+    "loc": "Ngisizeni!",
+    "pron": "ngee-see-ZEH-nee (to a group/for urgency); to one person 'Ngisize' ngee-SEE-zeh"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Kubiza malini lokhu?",
+    "pron": "koo-BEE-zah mah-LEE-nee LOH-koo"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Liphi ithoyilethe?",
+    "pron": "LEE-pee ee-toh-yee-LEH-teh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ngingathanda lokhu",
+    "pron": "ngee-ngah-TAHN-dah LOH-koo"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Ngicela ibhili",
+    "pron": "ngee-CEH-lah ee-BEE-lee ('c' is a dental click)"
+   },
+   {
+    "en": "Water",
+    "loc": "Amanzi",
+    "pron": "ah-MAHN-zee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Sawubona ekuseni",
+    "pron": "sah-woo-BOH-nah eh-koo-SEH-nee"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Sawubona kusihlwa",
+    "pron": "sah-woo-BOH-nah koo-SEE-hlwah ('hl' is a breathy lateral)"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Igama lami ngu …",
+    "pron": "ee-GAH-mah LAH-mee ngoo …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Unjani?",
+    "pron": "oon-JAH-nee (to one person; to several 'Ninjani?' neen-JAH-nee)"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ngidinga udokotela",
+    "pron": "ngee-DEE-ngah oo-doh-koh-TEH-lah"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Biza amaphoyisa",
+    "pron": "BEE-zah ah-mah-poh-YEE-sah"
+   },
+   {
+    "en": "Left",
+    "loc": "Kwesokunxele",
+    "pron": "kweh-soh-koo-NXEH-leh ('nx' is a nasalised lateral click)"
+   },
+   {
+    "en": "Right",
+    "loc": "Kwesokudla",
+    "pron": "kweh-soh-KOOD-lah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Sikuphi isiteshi sesitimela?",
+    "pron": "see-KOO-pee ee-see-TEH-shee seh-see-tee-MEH-lah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Ngifika kanjani e…?",
+    "pron": "ngee-FEE-kah kahn-JAH-nee eh-…"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Kumnandi!",
+    "pron": "koom-NAHN-dee"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "kunye",
+    "pron": "KOON-yeh"
+   },
+   {
+    "n": 2,
+    "loc": "kubili",
+    "pron": "koo-BEE-lee"
+   },
+   {
+    "n": 3,
+    "loc": "kuthathu",
+    "pron": "koo-TAH-too"
+   },
+   {
+    "n": 4,
+    "loc": "kune",
+    "pron": "KOO-neh"
+   },
+   {
+    "n": 5,
+    "loc": "kuhlanu",
+    "pron": "koo-HLAH-noo ('hl' is a breathy lateral, not 'shl')"
+   },
+   {
+    "n": 6,
+    "loc": "isithupha",
+    "pron": "ee-see-TOO-pah"
+   },
+   {
+    "n": 7,
+    "loc": "isikhombisa",
+    "pron": "ee-see-kohm-BEE-sah"
+   },
+   {
+    "n": 8,
+    "loc": "isishiyagalombili",
+    "pron": "ee-see-shee-yah-gah-lohm-BEE-lee"
+   },
+   {
+    "n": 9,
+    "loc": "isishiyagalolunye",
+    "pron": "ee-see-shee-yah-gah-loh-LOON-yeh"
+   },
+   {
+    "n": 10,
+    "loc": "ishumi",
+    "pron": "ee-SHOO-mee"
+   }
+  ]
+ },
+ "Afrikaans": {
+  "native": "Afrikaans",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Hallo",
+    "pron": "HAH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Totsiens",
+    "pron": "TOT-seens"
+   },
+   {
+    "en": "Please",
+    "loc": "Asseblief",
+    "pron": "AH-suh-bleef"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Dankie",
+    "pron": "DUNK-ee"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Dis 'n plesier",
+    "pron": "dis uh pluh-SEER"
+   },
+   {
+    "en": "Yes",
+    "loc": "Ja",
+    "pron": "yah"
+   },
+   {
+    "en": "No",
+    "loc": "Nee",
+    "pron": "neh-uh (ee like 'ay' in 'day')"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Verskoon my",
+    "pron": "fer-SKOON may"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Jammer",
+    "pron": "YUH-mer"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Praat u Engels?",
+    "pron": "praht oo ENG-uls?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ek verstaan nie",
+    "pron": "ek fer-STAHN nee"
+   },
+   {
+    "en": "Help!",
+    "loc": "Help!",
+    "pron": "help!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hoeveel kos dit?",
+    "pron": "HOO-fel kos dit?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Waar is die toilet?",
+    "pron": "vahr is dee toy-LET?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ek wil hierdie hê",
+    "pron": "ek vil HEER-dee heh"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Die rekening, asseblief",
+    "pron": "dee RAY-kuh-ning, AH-suh-bleef"
+   },
+   {
+    "en": "Water",
+    "loc": "Water",
+    "pron": "VAH-ter"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Goeiemôre",
+    "pron": "GHOY-uh-maw-ruh"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Goeienaand",
+    "pron": "GHOY-uh-nahnt"
+   },
+   {
+    "en": "My name is …",
+    "loc": "My naam is …",
+    "pron": "may nahm is …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hoe gaan dit met u?",
+    "pron": "hoo ghahn dit met oo?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ek het 'n dokter nodig",
+    "pron": "ek het uh DOK-ter NOH-dikh"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Bel die polisie",
+    "pron": "bel dee poo-LEE-see"
+   },
+   {
+    "en": "Left",
+    "loc": "Links",
+    "pron": "links"
+   },
+   {
+    "en": "Right",
+    "loc": "Regs",
+    "pron": "rekhs"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Waar is die treinstasie?",
+    "pron": "vahr is dee TRAYN-stah-see?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hoe kom ek by … uit?",
+    "pron": "hoo kom ek bay … oyt?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Heerlik!",
+    "pron": "HEER-lik!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "een",
+    "pron": "ee-uhn (ee like 'ay' in 'day')"
+   },
+   {
+    "n": 2,
+    "loc": "twee",
+    "pron": "tvee"
+   },
+   {
+    "n": 3,
+    "loc": "drie",
+    "pron": "dree"
+   },
+   {
+    "n": 4,
+    "loc": "vier",
+    "pron": "feer"
+   },
+   {
+    "n": 5,
+    "loc": "vyf",
+    "pron": "fayf"
+   },
+   {
+    "n": 6,
+    "loc": "ses",
+    "pron": "ses"
+   },
+   {
+    "n": 7,
+    "loc": "sewe",
+    "pron": "SEH-vuh"
+   },
+   {
+    "n": 8,
+    "loc": "agt",
+    "pron": "akht"
+   },
+   {
+    "n": 9,
+    "loc": "nege",
+    "pron": "NEH-ghuh"
+   },
+   {
+    "n": 10,
+    "loc": "tien",
+    "pron": "teen"
+   }
+  ]
+ },
+ "Somali": {
+  "native": "Af-Soomaali",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Salaan / Iska warran",
+    "pron": "sa-LAAN / is-ka WA-rran"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Nabadgelyo",
+    "pron": "na-bad-GEL-yo"
+   },
+   {
+    "en": "Please",
+    "loc": "Fadlan",
+    "pron": "FAD-lan"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Mahadsanid",
+    "pron": "ma-had-SA-nid"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Adaa mudan",
+    "pron": "a-DAA MU-dan"
+   },
+   {
+    "en": "Yes",
+    "loc": "Haa",
+    "pron": "HAA"
+   },
+   {
+    "en": "No",
+    "loc": "Maya",
+    "pron": "MA-ya"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Iga raali ahow",
+    "pron": "i-ga RAA-li A-how"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Waan ka xumahay",
+    "pron": "waan ka HU-ma-hay (h = throaty)"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Ma ku hadashaa Ingiriisi?",
+    "pron": "ma ku ha-da-SHAA in-gi-REE-si"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ma fahmin",
+    "pron": "ma FAH-min"
+   },
+   {
+    "en": "Help!",
+    "loc": "Caawi!",
+    "pron": "AA-wi (deep throat onset)"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Waa intee qiimihiisu?",
+    "pron": "waa in-TEE qee-mi-HEE-su"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Musqushu xaggee bay tahay?",
+    "pron": "mus-QU-shu hag-GEE bay TA-hay (h = throaty)"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Waxaan jeclaan lahaa kan",
+    "pron": "wa-HAAN jec-LAAN la-HAA kan (h = throaty)"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Biilka, fadlan",
+    "pron": "BEEL-ka, FAD-lan"
+   },
+   {
+    "en": "Water",
+    "loc": "Biyo",
+    "pron": "BI-yo"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Subax wanaagsan",
+    "pron": "SU-bah wa-NAAG-san (h = throaty)"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Fiid wanaagsan",
+    "pron": "FEED wa-NAAG-san"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Magacaygu waa …",
+    "pron": "ma-ga-CAY-gu waa …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Sidee tahay?",
+    "pron": "si-DEE TA-hay"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Waxaan u baahanahay dhakhtar",
+    "pron": "wa-HAAN u baa-ha-na-HAY DHAKH-tar (h = throaty)"
+   },
+   {
+    "en": "Call the police",
+    "loc": "U yeer booliska",
+    "pron": "u YEER BOO-lis-ka"
+   },
+   {
+    "en": "Left",
+    "loc": "Bidix",
+    "pron": "BI-dih (h = throaty)"
+   },
+   {
+    "en": "Right",
+    "loc": "Midig",
+    "pron": "MI-dig"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Saldhigga tareenku xaggee buu ku yaallaa?",
+    "pron": "sal-DHIG-ga ta-REEN-ku hag-GEE buu ku yaal-LAA (h = throaty)"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Sideen u tagaa …?",
+    "pron": "si-DEEN u ta-GAA …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Aad u macaan!",
+    "pron": "AAD u ma-CAAN (c = deep throat onset)"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "kow",
+    "pron": "KOW"
+   },
+   {
+    "n": 2,
+    "loc": "laba",
+    "pron": "LA-ba"
+   },
+   {
+    "n": 3,
+    "loc": "saddex",
+    "pron": "SAD-deh (h = throaty)"
+   },
+   {
+    "n": 4,
+    "loc": "afar",
+    "pron": "A-far"
+   },
+   {
+    "n": 5,
+    "loc": "shan",
+    "pron": "SHAN"
+   },
+   {
+    "n": 6,
+    "loc": "lix",
+    "pron": "LIH (h = throaty)"
+   },
+   {
+    "n": 7,
+    "loc": "toddoba",
+    "pron": "TOD-do-ba"
+   },
+   {
+    "n": 8,
+    "loc": "siddeed",
+    "pron": "sid-DEED"
+   },
+   {
+    "n": 9,
+    "loc": "sagaal",
+    "pron": "sa-GAAL"
+   },
+   {
+    "n": 10,
+    "loc": "toban",
+    "pron": "TO-ban"
+   }
+  ]
+ },
+ "Nepali": {
+  "native": "नेपाली",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "नमस्ते",
+    "pron": "na-mas-TE"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "नमस्ते / फेरि भेटौंला",
+    "pron": "na-mas-TE / PHE-ri bhe-TAUN-laa"
+   },
+   {
+    "en": "Please",
+    "loc": "कृपया",
+    "pron": "KRI-pa-yaa"
+   },
+   {
+    "en": "Thank you",
+    "loc": "धन्यवाद",
+    "pron": "DHAN-ya-baad"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "स्वागत छ",
+    "pron": "SWAA-gat cha"
+   },
+   {
+    "en": "Yes",
+    "loc": "हो",
+    "pron": "ho"
+   },
+   {
+    "en": "No",
+    "loc": "होइन",
+    "pron": "HO-ina"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "माफ गर्नुहोस्",
+    "pron": "MAAPH gar-nu-hos"
+   },
+   {
+    "en": "Sorry",
+    "loc": "माफ गर्नुहोस्",
+    "pron": "MAAPH gar-nu-hos"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "तपाईं अङ्ग्रेजी बोल्नुहुन्छ?",
+    "pron": "ta-PAA-i ang-GRE-jee BOL-nu-hun-cha"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "मैले बुझिनँ",
+    "pron": "MAI-le BU-jhi-na"
+   },
+   {
+    "en": "Help!",
+    "loc": "मद्दत गर्नुहोस्!",
+    "pron": "MAD-dat gar-nu-hos"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "यो कति हो?",
+    "pron": "yo KA-ti ho"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "शौचालय कहाँ छ?",
+    "pron": "SHAU-cha-laya ka-HAAN cha"
+   },
+   {
+    "en": "I would like this",
+    "loc": "मलाई यो चाहियो",
+    "pron": "ma-LAA-i yo chaa-hi-yo"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "बिल दिनुहोस्",
+    "pron": "bil DI-nu-hos"
+   },
+   {
+    "en": "Water",
+    "loc": "पानी",
+    "pron": "PAA-nee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "शुभ प्रभात",
+    "pron": "SHU-bha pra-BHAAT"
+   },
+   {
+    "en": "Good evening",
+    "loc": "शुभ सन्ध्या",
+    "pron": "SHU-bha SAN-dhyaa"
+   },
+   {
+    "en": "My name is …",
+    "loc": "मेरो नाम … हो",
+    "pron": "ME-ro naam … ho"
+   },
+   {
+    "en": "How are you?",
+    "loc": "तपाईंलाई कस्तो छ?",
+    "pron": "ta-PAA-i-laa-i KAS-to cha"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "मलाई डाक्टर चाहियो",
+    "pron": "ma-LAA-i DAAK-tar chaa-hi-yo"
+   },
+   {
+    "en": "Call the police",
+    "loc": "प्रहरीलाई बोलाउनुहोस्",
+    "pron": "pra-ha-REE-laa-i bo-LAAU-nu-hos"
+   },
+   {
+    "en": "Left",
+    "loc": "बायाँ",
+    "pron": "BAA-yaan"
+   },
+   {
+    "en": "Right",
+    "loc": "दायाँ",
+    "pron": "DAA-yaan"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "रेल स्टेशन कहाँ छ?",
+    "pron": "rel STE-shan ka-HAAN cha"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… कसरी पुग्ने?",
+    "pron": "… KA-sa-ree PUG-ne"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "मिठो छ!",
+    "pron": "MI-tho cha"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "एक",
+    "pron": "ek"
+   },
+   {
+    "n": 2,
+    "loc": "दुई",
+    "pron": "DU-ee"
+   },
+   {
+    "n": 3,
+    "loc": "तीन",
+    "pron": "teen"
+   },
+   {
+    "n": 4,
+    "loc": "चार",
+    "pron": "chaar"
+   },
+   {
+    "n": 5,
+    "loc": "पाँच",
+    "pron": "paanch"
+   },
+   {
+    "n": 6,
+    "loc": "छ",
+    "pron": "chha"
+   },
+   {
+    "n": 7,
+    "loc": "सात",
+    "pron": "saat"
+   },
+   {
+    "n": 8,
+    "loc": "आठ",
+    "pron": "aath"
+   },
+   {
+    "n": 9,
+    "loc": "नौ",
+    "pron": "nau"
+   },
+   {
+    "n": 10,
+    "loc": "दस",
+    "pron": "das"
+   }
+  ]
+ },
+ "Sinhala": {
+  "native": "සිංහල",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "ආයුබෝවන්",
+    "pron": "AH-yu-BOH-wan"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "ආයුබෝවන්",
+    "pron": "AH-yu-BOH-wan (also: gihin ennam – 'I will go and come back')"
+   },
+   {
+    "en": "Please",
+    "loc": "කරුණාකර",
+    "pron": "kah-roo-NAA-kah-rah"
+   },
+   {
+    "en": "Thank you",
+    "loc": "ස්තූතියි",
+    "pron": "sthoo-TEE-yi"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "කමක් නැහැ",
+    "pron": "KAH-mak NAA-hae"
+   },
+   {
+    "en": "Yes",
+    "loc": "ඔව්",
+    "pron": "OH-wu"
+   },
+   {
+    "en": "No",
+    "loc": "නැහැ",
+    "pron": "NAA-hae"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "සමාවෙන්න",
+    "pron": "sah-MAA-wen-nah"
+   },
+   {
+    "en": "Sorry",
+    "loc": "සමාවෙන්න",
+    "pron": "sah-MAA-wen-nah"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "ඔයා ඉංග්‍රීසි කතා කරනවාද?",
+    "pron": "OH-yaa ING-gree-see kah-TAA kah-rah-nah-WAA-dah?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "මට තේරෙන්නේ නැහැ",
+    "pron": "MAH-tah teh-REN-nay NAA-hae"
+   },
+   {
+    "en": "Help!",
+    "loc": "උදව් කරන්න!",
+    "pron": "OO-dow kah-RAN-nah!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "මේක කීයද?",
+    "pron": "MEH-kah KEE-yah-dah?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "වැසිකිළිය කොහෙද?",
+    "pron": "WAE-see-kih-lee-yah KOH-heh-dah?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "මට මේක ඕනේ",
+    "pron": "MAH-tah MEH-kah OH-nay"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "කරුණාකර බිල ගේන්න",
+    "pron": "kah-roo-NAA-kah-rah BIH-lah GEN-nah"
+   },
+   {
+    "en": "Water",
+    "loc": "වතුර",
+    "pron": "WAH-too-rah"
+   },
+   {
+    "en": "Good morning",
+    "loc": "සුබ උදෑසනක්",
+    "pron": "SOO-bah oo-DAE-sah-nak"
+   },
+   {
+    "en": "Good evening",
+    "loc": "සුබ සැන්දෑවක්",
+    "pron": "SOO-bah SAEN-dae-wak"
+   },
+   {
+    "en": "My name is …",
+    "loc": "මගේ නම …",
+    "pron": "mah-GAY NAH-mah …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "කොහොමද?",
+    "pron": "KOH-hoh-mah-dah?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "මට දොස්තර කෙනෙක් ඕනේ",
+    "pron": "MAH-tah DOS-tah-rah KEH-nek OH-nay"
+   },
+   {
+    "en": "Call the police",
+    "loc": "පොලීසියට කතා කරන්න",
+    "pron": "poh-LEE-see-yah-tah kah-TAA kah-RAN-nah"
+   },
+   {
+    "en": "Left",
+    "loc": "වම",
+    "pron": "WAH-mah"
+   },
+   {
+    "en": "Right",
+    "loc": "දකුණ",
+    "pron": "DAH-koo-nah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "දුම්රිය ස්ථානය කොහෙද?",
+    "pron": "DOOM-ree-yah STHAA-nah-yah KOH-heh-dah?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… යන්නේ කොහොමද?",
+    "pron": "… YAN-nay KOH-hoh-mah-dah?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "රසයි!",
+    "pron": "RAH-sah-yi!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "එක",
+    "pron": "EH-kah"
+   },
+   {
+    "n": 2,
+    "loc": "දෙක",
+    "pron": "DEH-kah"
+   },
+   {
+    "n": 3,
+    "loc": "තුන",
+    "pron": "TOO-nah"
+   },
+   {
+    "n": 4,
+    "loc": "හතර",
+    "pron": "HAH-tah-rah"
+   },
+   {
+    "n": 5,
+    "loc": "පහ",
+    "pron": "PAH-hah"
+   },
+   {
+    "n": 6,
+    "loc": "හය",
+    "pron": "HAH-yah"
+   },
+   {
+    "n": 7,
+    "loc": "හත",
+    "pron": "HAH-tah"
+   },
+   {
+    "n": 8,
+    "loc": "අට",
+    "pron": "AH-tah"
+   },
+   {
+    "n": 9,
+    "loc": "නවය",
+    "pron": "NAH-wah-yah"
+   },
+   {
+    "n": 10,
+    "loc": "දහය",
+    "pron": "DAH-hah-yah"
+   }
+  ]
+ },
+ "Tamil": {
+  "native": "தமிழ்",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "வணக்கம்",
+    "pron": "vuh-NUK-kum"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "போய் வருகிறேன்",
+    "pron": "poy va-ru-ki-REN"
+   },
+   {
+    "en": "Please",
+    "loc": "தயவு செய்து",
+    "pron": "tha-ya-vu SEY-thu"
+   },
+   {
+    "en": "Thank you",
+    "loc": "நன்றி",
+    "pron": "NUN-dri"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "பரவாயில்லை",
+    "pron": "pa-ra-VAA-yil-lai"
+   },
+   {
+    "en": "Yes",
+    "loc": "ஆம்",
+    "pron": "aam"
+   },
+   {
+    "en": "No",
+    "loc": "இல்லை",
+    "pron": "IL-lai"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "மன்னிக்கவும்",
+    "pron": "man-NIK-ka-vum"
+   },
+   {
+    "en": "Sorry",
+    "loc": "மன்னிக்கவும்",
+    "pron": "man-NIK-ka-vum"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "நீங்கள் ஆங்கிலம் பேசுவீர்களா?",
+    "pron": "NEENG-gal AANG-gi-lam PAY-su-veer-ga-laa?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "எனக்கு புரியவில்லை",
+    "pron": "e-NAK-ku pu-ri-ya-VIL-lai"
+   },
+   {
+    "en": "Help!",
+    "loc": "உதவி!",
+    "pron": "u-DA-vi!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "இது எவ்வளவு?",
+    "pron": "i-DHU ev-VA-la-vu?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "கழிப்பறை எங்கே இருக்கிறது?",
+    "pron": "ka-ZHIP-pa-rai ENG-gay i-ruk-ki-ra-dhu?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "எனக்கு இது வேண்டும்",
+    "pron": "e-NAK-ku i-DHU VEN-dum"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "பில் கொடுங்கள்",
+    "pron": "bil ko-DUNG-gal"
+   },
+   {
+    "en": "Water",
+    "loc": "தண்ணீர்",
+    "pron": "THUN-neer"
+   },
+   {
+    "en": "Good morning",
+    "loc": "காலை வணக்கம்",
+    "pron": "KAA-lai vuh-NUK-kum"
+   },
+   {
+    "en": "Good evening",
+    "loc": "மாலை வணக்கம்",
+    "pron": "MAA-lai vuh-NUK-kum"
+   },
+   {
+    "en": "My name is …",
+    "loc": "என் பெயர் …",
+    "pron": "en PE-yar …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "நீங்கள் எப்படி இருக்கிறீர்கள்?",
+    "pron": "NEENG-gal ep-pa-di i-ruk-ki-REER-gal?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "எனக்கு ஒரு மருத்துவர் வேண்டும்",
+    "pron": "e-NAK-ku o-ru ma-RUTH-thu-var VEN-dum"
+   },
+   {
+    "en": "Call the police",
+    "loc": "காவல்துறையை அழைக்கவும்",
+    "pron": "KAA-val-thu-rai-yai a-ZHAIK-ka-vum"
+   },
+   {
+    "en": "Left",
+    "loc": "இடது",
+    "pron": "i-DA-dhu"
+   },
+   {
+    "en": "Right",
+    "loc": "வலது",
+    "pron": "va-LA-dhu"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "ரயில் நிலையம் எங்கே இருக்கிறது?",
+    "pron": "ra-YIL ni-LAI-yam ENG-gay i-ruk-ki-ra-dhu?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… க்கு எப்படி போவது?",
+    "pron": "… -kku ep-pa-di POH-va-dhu?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "மிகவும் ருசியாக இருக்கிறது!",
+    "pron": "MI-ga-vum ru-si-YAA-ga i-ruk-ki-ra-dhu!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ஒன்று",
+    "pron": "ON-dru"
+   },
+   {
+    "n": 2,
+    "loc": "இரண்டு",
+    "pron": "i-RAN-du"
+   },
+   {
+    "n": 3,
+    "loc": "மூன்று",
+    "pron": "MOON-dru"
+   },
+   {
+    "n": 4,
+    "loc": "நான்கு",
+    "pron": "NAAN-gu"
+   },
+   {
+    "n": 5,
+    "loc": "ஐந்து",
+    "pron": "AIN-dhu"
+   },
+   {
+    "n": 6,
+    "loc": "ஆறு",
+    "pron": "AA-ru"
+   },
+   {
+    "n": 7,
+    "loc": "ஏழு",
+    "pron": "AY-zhu"
+   },
+   {
+    "n": 8,
+    "loc": "எட்டு",
+    "pron": "ET-tu"
+   },
+   {
+    "n": 9,
+    "loc": "ஒன்பது",
+    "pron": "om-BA-dhu"
+   },
+   {
+    "n": 10,
+    "loc": "பத்து",
+    "pron": "PUT-thu"
+   }
+  ]
+ },
+ "Mongolian": {
+  "native": "Монгол хэл",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Сайн байна уу?",
+    "pron": "SAIN bai-NOO"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Баяртai",
+    "pron": "ba-YAR-tai"
+   },
+   {
+    "en": "Please",
+    "loc": "Гуйя",
+    "pron": "GUI-ya"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Баярлалаа",
+    "pron": "ba-YAR-la-LAA"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Зүгээр зүгээр",
+    "pron": "ZUU-geer ZUU-geer"
+   },
+   {
+    "en": "Yes",
+    "loc": "Тийм",
+    "pron": "TEEM"
+   },
+   {
+    "en": "No",
+    "loc": "Үгүй",
+    "pron": "OO-gui"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Уучлаарай",
+    "pron": "OOCH-laa-rai"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Уучлаарай",
+    "pron": "OOCH-laa-rai"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Та англиар ярьдаг уу?",
+    "pron": "TA ANG-li-ar YARI-dag oo"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Би ойлгохгүй байна",
+    "pron": "BEE OIL-goh-gui bai-na"
+   },
+   {
+    "en": "Help!",
+    "loc": "Туслаарай!",
+    "pron": "TOOS-laa-rai"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Энэ хэдэн төгрөг вэ?",
+    "pron": "EN heh-DEN TUG-rug ve"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Жорлон хаана байдаг вэ?",
+    "pron": "JOR-lon HAA-na bai-dag ve"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Би үүнийг авмаар байна",
+    "pron": "BEE OO-niig AV-maar bai-na"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Тооцоогоо хийе",
+    "pron": "TOH-tsoo-goh HEE-ye"
+   },
+   {
+    "en": "Water",
+    "loc": "Ус",
+    "pron": "OOS"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Өглөөний мэнд",
+    "pron": "UG-luu-nii MEND"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Оройн мэнд",
+    "pron": "O-roin MEND"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Намайг … гэдэг",
+    "pron": "NA-maig … GE-deg"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Та сайн байна уу?",
+    "pron": "TA SAIN bai-NOO"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Надад эмч хэрэгтэй байна",
+    "pron": "NA-dad EMCH heh-REG-tei bai-na"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Цагдаа дуудаарай",
+    "pron": "TSAG-daa DOO-daa-rai"
+   },
+   {
+    "en": "Left",
+    "loc": "Зүүн",
+    "pron": "ZUUN"
+   },
+   {
+    "en": "Right",
+    "loc": "Баруун",
+    "pron": "ba-ROON"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Галт тэрэгний буудал хаана байдаг вэ?",
+    "pron": "GALT te-REG-nii BOO-dal HAA-na bai-dag ve"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… руу яаж очих вэ?",
+    "pron": "… ROO YAAJ O-chih ve"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Амттай байна!",
+    "pron": "AMT-tai bai-na"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "нэг",
+    "pron": "neg"
+   },
+   {
+    "n": 2,
+    "loc": "хоёр",
+    "pron": "ho-YOR"
+   },
+   {
+    "n": 3,
+    "loc": "гурав",
+    "pron": "GOO-rav"
+   },
+   {
+    "n": 4,
+    "loc": "дөрөв",
+    "pron": "DUR-uv"
+   },
+   {
+    "n": 5,
+    "loc": "тав",
+    "pron": "TAV"
+   },
+   {
+    "n": 6,
+    "loc": "зургаа",
+    "pron": "ZOOR-gaa"
+   },
+   {
+    "n": 7,
+    "loc": "долоо",
+    "pron": "DO-loo"
+   },
+   {
+    "n": 8,
+    "loc": "найм",
+    "pron": "NAIM"
+   },
+   {
+    "n": 9,
+    "loc": "ес",
+    "pron": "YUS"
+   },
+   {
+    "n": 10,
+    "loc": "арав",
+    "pron": "A-rav"
+   }
+  ]
+ },
+ "Georgian": {
+  "native": "ქართული",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "გამარჯობა",
+    "pron": "gah-mar-JO-bah"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "ნახვამდის",
+    "pron": "nakh-VAM-dis"
+   },
+   {
+    "en": "Please",
+    "loc": "გთხოვთ",
+    "pron": "g-TKHOVT"
+   },
+   {
+    "en": "Thank you",
+    "loc": "გმადლობთ",
+    "pron": "g-MAD-lobt"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "არაფრის",
+    "pron": "a-RAF-ris"
+   },
+   {
+    "en": "Yes",
+    "loc": "კი",
+    "pron": "kee (also 'diakh' — დიახ, more formal)"
+   },
+   {
+    "en": "No",
+    "loc": "არა",
+    "pron": "AH-rah"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "უკაცრავად",
+    "pron": "oo-KATS-ra-vad"
+   },
+   {
+    "en": "Sorry",
+    "loc": "ბოდიში",
+    "pron": "BO-dee-shee"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "ინგლისურად ლაპარაკობთ?",
+    "pron": "ing-lee-SOO-rad la-pa-ra-KOBT?"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "არ მესმის",
+    "pron": "ar MES-mis"
+   },
+   {
+    "en": "Help!",
+    "loc": "მიშველეთ!",
+    "pron": "mee-SHVE-let!"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "ეს რა ღირს?",
+    "pron": "es ra GHEERS?"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "სად არის ტუალეტი?",
+    "pron": "sad AH-ris too-a-LE-tee?"
+   },
+   {
+    "en": "I would like this",
+    "loc": "ეს მინდა",
+    "pron": "es MEEN-da"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "ანგარიში, თუ შეიძლება",
+    "pron": "an-ga-REE-shee, too SHE-eed-le-ba"
+   },
+   {
+    "en": "Water",
+    "loc": "წყალი",
+    "pron": "TS'KA-lee"
+   },
+   {
+    "en": "Good morning",
+    "loc": "დილა მშვიდობისა",
+    "pron": "DEE-la mshvee-DO-bee-sa"
+   },
+   {
+    "en": "Good evening",
+    "loc": "საღამო მშვიდობისა",
+    "pron": "SA-gha-mo mshvee-DO-bee-sa"
+   },
+   {
+    "en": "My name is …",
+    "loc": "მე მქვია …",
+    "pron": "me MKVEE-a …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "როგორ ხართ?",
+    "pron": "RO-gor KHART?"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "ექიმი მჭირდება",
+    "pron": "E-kee-mee m-CHEER-de-ba"
+   },
+   {
+    "en": "Call the police",
+    "loc": "გამოიძახეთ პოლიცია",
+    "pron": "ga-mo-ee-DZA-khet po-LEE-tsee-a"
+   },
+   {
+    "en": "Left",
+    "loc": "მარცხნივ",
+    "pron": "mar-TSKHNEEV"
+   },
+   {
+    "en": "Right",
+    "loc": "მარჯვნივ",
+    "pron": "mar-JVNEEV"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "სად არის რკინიგზის სადგური?",
+    "pron": "sad AH-ris r-kee-NEEG-zis SAD-goo-ree?"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "როგორ მივიდე …?",
+    "pron": "RO-gor mee-VEE-de …?"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "გემრიელია!",
+    "pron": "gem-ree-E-lee-a!"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "ერთი",
+    "pron": "ER-tee"
+   },
+   {
+    "n": 2,
+    "loc": "ორი",
+    "pron": "O-ree"
+   },
+   {
+    "n": 3,
+    "loc": "სამი",
+    "pron": "SA-mee"
+   },
+   {
+    "n": 4,
+    "loc": "ოთხი",
+    "pron": "OT-khee"
+   },
+   {
+    "n": 5,
+    "loc": "ხუთი",
+    "pron": "KHOO-tee"
+   },
+   {
+    "n": 6,
+    "loc": "ექვსი",
+    "pron": "EK-vsee"
+   },
+   {
+    "n": 7,
+    "loc": "შვიდი",
+    "pron": "SHVEE-dee"
+   },
+   {
+    "n": 8,
+    "loc": "რვა",
+    "pron": "r-VA"
+   },
+   {
+    "n": 9,
+    "loc": "ცხრა",
+    "pron": "ts-KHRA"
+   },
+   {
+    "n": 10,
+    "loc": "ათი",
+    "pron": "AH-tee"
+   }
+  ]
+ },
+ "Armenian": {
+  "native": "Հայերեն",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Բարև Ձեզ",
+    "pron": "bah-REV dzez"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Ցտեսություն",
+    "pron": "tsuh-teh-soo-TYOON"
+   },
+   {
+    "en": "Please",
+    "loc": "Խնդրում եմ",
+    "pron": "khun-DROOM em"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Շնորհակալություն",
+    "pron": "shnor-ha-ka-loo-TYOON"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Խնդրեմ",
+    "pron": "khun-DREM"
+   },
+   {
+    "en": "Yes",
+    "loc": "Այո",
+    "pron": "ah-YO"
+   },
+   {
+    "en": "No",
+    "loc": "Ոչ",
+    "pron": "voch"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Ներեցեք",
+    "pron": "neh-reh-TSEK"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Կներեք",
+    "pron": "kuh-neh-REK"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Դուք խոսո՞ւմ եք անգլերեն",
+    "pron": "dook kho-SOOM ek ang-leh-REN"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ես չեմ հասկանում",
+    "pron": "yes chem has-ka-NOOM"
+   },
+   {
+    "en": "Help!",
+    "loc": "Օգնությո՛ւն",
+    "pron": "og-noo-TYOON"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Սա ի՞նչ արժե",
+    "pron": "sah inch ar-ZHEH"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Որտե՞ղ է զուգարանը",
+    "pron": "vor-TEGH eh zoo-ga-RA-nuh"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ես սա կուզենայի",
+    "pron": "yes sah koo-zeh-NA-yee"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Հաշիվը, խնդրում եմ",
+    "pron": "ha-SHI-vuh, khun-DROOM em"
+   },
+   {
+    "en": "Water",
+    "loc": "Ջուր",
+    "pron": "joor"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Բարի լույս",
+    "pron": "BA-ree LOOYS"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Բարի երեկո",
+    "pron": "BA-ree yeh-reh-KO"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Իմ անունը … է",
+    "pron": "eem ah-NOO-nuh … eh"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Ինչպե՞ս եք",
+    "pron": "inch-PES ek"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ինձ բժիշկ է պետք",
+    "pron": "eendz buh-ZHISHK eh petk"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Ոստիկանություն կանչեք",
+    "pron": "vos-ti-ka-noo-TYOON kan-CHEK"
+   },
+   {
+    "en": "Left",
+    "loc": "Ձախ",
+    "pron": "dzakh"
+   },
+   {
+    "en": "Right",
+    "loc": "Աջ",
+    "pron": "aj"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Որտե՞ղ է երկաթուղային կայարանը",
+    "pron": "vor-TEGH eh yer-ka-too-gha-YIN ka-ya-RA-nuh"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Ինչպե՞ս հասնեմ …",
+    "pron": "inch-PES has-NEM …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Համե՛ղ է",
+    "pron": "ha-MEGH eh"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "մեկ",
+    "pron": "mek"
+   },
+   {
+    "n": 2,
+    "loc": "երկու",
+    "pron": "yer-KOO"
+   },
+   {
+    "n": 3,
+    "loc": "երեք",
+    "pron": "yeh-REK"
+   },
+   {
+    "n": 4,
+    "loc": "չորս",
+    "pron": "chors"
+   },
+   {
+    "n": 5,
+    "loc": "հինգ",
+    "pron": "hing"
+   },
+   {
+    "n": 6,
+    "loc": "վեց",
+    "pron": "vets"
+   },
+   {
+    "n": 7,
+    "loc": "յոթ",
+    "pron": "yot"
+   },
+   {
+    "n": 8,
+    "loc": "ութ",
+    "pron": "oot"
+   },
+   {
+    "n": 9,
+    "loc": "ինը",
+    "pron": "EE-nuh"
+   },
+   {
+    "n": 10,
+    "loc": "տասը",
+    "pron": "TA-suh"
+   }
+  ]
+ },
+ "Azerbaijani": {
+  "native": "Azərbaycan dili",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Salam",
+    "pron": "sah-LAHM"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Sağ olun",
+    "pron": "sah oh-LOON"
+   },
+   {
+    "en": "Please",
+    "loc": "Zəhmət olmasa",
+    "pron": "zeh-MET ol-mah-SAH"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Təşəkkür edirəm",
+    "pron": "teh-shek-KYUR eh-dee-REM"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Dəyməz",
+    "pron": "dey-MEZ"
+   },
+   {
+    "en": "Yes",
+    "loc": "Bəli",
+    "pron": "BEH-lee"
+   },
+   {
+    "en": "No",
+    "loc": "Xeyr",
+    "pron": "KHEYR"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Bağışlayın",
+    "pron": "bah-guhsh-lah-YUHN"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Üzr istəyirəm",
+    "pron": "UYZR is-teh-yee-REM"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "İngiliscə danışırsınız?",
+    "pron": "in-gee-LEES-jeh dah-nuh-shuhr-suh-NUHZ"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Başa düşmürəm",
+    "pron": "bah-SHAH dyush-myu-REM"
+   },
+   {
+    "en": "Help!",
+    "loc": "Kömək edin!",
+    "pron": "kuh-MEK eh-DEEN"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Bu neçəyədir?",
+    "pron": "boo neh-cheh-yeh-DEER"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Tualet haradadır?",
+    "pron": "too-ah-LET hah-rah-dah-DUHR"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Mən bunu istəyirəm",
+    "pron": "men boo-NOO is-teh-yee-REM"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Hesab, zəhmət olmasa",
+    "pron": "heh-SAHB, zeh-MET ol-mah-SAH"
+   },
+   {
+    "en": "Water",
+    "loc": "Su",
+    "pron": "SOO"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Sabahınız xeyir",
+    "pron": "sah-bah-huh-NUHZ KHEY-eer"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Axşamınız xeyir",
+    "pron": "akh-shah-muh-NUHZ KHEY-eer"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Mənim adım …",
+    "pron": "meh-NEEM ah-DUHM …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Necəsiniz?",
+    "pron": "neh-jeh-see-NEEZ"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Mənə həkim lazımdır",
+    "pron": "meh-NEH heh-KEEM lah-zuhm-DUHR"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Polisi çağırın",
+    "pron": "po-lee-SEE chah-guh-RUHN"
+   },
+   {
+    "en": "Left",
+    "loc": "Sol",
+    "pron": "SOL"
+   },
+   {
+    "en": "Right",
+    "loc": "Sağ",
+    "pron": "SAH"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Qatar stansiyası haradadır?",
+    "pron": "kah-TAHR stahn-see-yah-SUH hah-rah-dah-DUHR"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… necə gedə bilərəm?",
+    "pron": "… neh-JEH geh-DEH bee-leh-REM"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Dadlıdır!",
+    "pron": "dahd-luh-DUHR"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "bir",
+    "pron": "BEER"
+   },
+   {
+    "n": 2,
+    "loc": "iki",
+    "pron": "ee-KEE"
+   },
+   {
+    "n": 3,
+    "loc": "üç",
+    "pron": "UYCH"
+   },
+   {
+    "n": 4,
+    "loc": "dörd",
+    "pron": "DURD"
+   },
+   {
+    "n": 5,
+    "loc": "beş",
+    "pron": "BESH"
+   },
+   {
+    "n": 6,
+    "loc": "altı",
+    "pron": "ahl-TUH"
+   },
+   {
+    "n": 7,
+    "loc": "yeddi",
+    "pron": "yed-DEE"
+   },
+   {
+    "n": 8,
+    "loc": "səkkiz",
+    "pron": "sek-KEEZ"
+   },
+   {
+    "n": 9,
+    "loc": "doqquz",
+    "pron": "dok-KOOZ"
+   },
+   {
+    "n": 10,
+    "loc": "on",
+    "pron": "ON"
+   }
+  ]
+ },
+ "Kazakh": {
+  "native": "Қазақ тілі",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Сәлеметсіз бе",
+    "pron": "sa-le-met-SIZ be"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Сау болыңыз",
+    "pron": "saw bo-luh-NUHZ"
+   },
+   {
+    "en": "Please",
+    "loc": "Өтінемін",
+    "pron": "uh-ti-ne-MIN"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Рахмет",
+    "pron": "rakh-MET"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Оқасы жоқ",
+    "pron": "o-ka-suh ZHOK"
+   },
+   {
+    "en": "Yes",
+    "loc": "Иә",
+    "pron": "ee-YA"
+   },
+   {
+    "en": "No",
+    "loc": "Жоқ",
+    "pron": "ZHOK"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Кешіріңіз",
+    "pron": "ke-shi-ri-NIZ"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Кешірім сұраймын",
+    "pron": "ke-shi-RIM suh-RAI-muhn"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Сіз ағылшынша сөйлейсіз бе?",
+    "pron": "siz a-guhl-shuhn-SHA suoy-LAY-siz be"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Мен түсінбеймін",
+    "pron": "men tu-sin-BAY-min"
+   },
+   {
+    "en": "Help!",
+    "loc": "Көмектесіңіз!",
+    "pron": "kuh-mek-te-si-NIZ"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Бұл қанша тұрады?",
+    "pron": "buhl kan-SHA tuh-ra-DUH"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Дәретхана қайда?",
+    "pron": "da-ret-kha-NA KAI-da"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Маған осы керек",
+    "pron": "ma-GAN o-SUH ke-REK"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Шотты әкеліңізші",
+    "pron": "SHOT-tuh a-ke-li-niz-SHEE"
+   },
+   {
+    "en": "Water",
+    "loc": "Су",
+    "pron": "soo"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Қайырлы таң",
+    "pron": "kai-uhr-LUH TANG"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Қайырлы кеш",
+    "pron": "kai-uhr-LUH KESH"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Менің атым …",
+    "pron": "me-NIN a-TUHM …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Қалыңыз қалай?",
+    "pron": "ka-luh-NUHZ ka-LAI"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Маған дәрігер керек",
+    "pron": "ma-GAN da-ri-GER ke-REK"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Полицияны шақырыңыз",
+    "pron": "po-LI-tsi-ya-nuh sha-kuh-ruh-NUHZ"
+   },
+   {
+    "en": "Left",
+    "loc": "Сол",
+    "pron": "sol"
+   },
+   {
+    "en": "Right",
+    "loc": "Оң",
+    "pron": "ong"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Теміржол вокзалы қайда?",
+    "pron": "te-mir-ZHOL vok-za-LUH KAI-da"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "… қалай баруға болады?",
+    "pron": "… ka-LAI ba-ru-GA bo-la-DUH"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Дәмді!",
+    "pron": "dam-DI"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "бір",
+    "pron": "bir"
+   },
+   {
+    "n": 2,
+    "loc": "екі",
+    "pron": "ye-KI"
+   },
+   {
+    "n": 3,
+    "loc": "үш",
+    "pron": "ush"
+   },
+   {
+    "n": 4,
+    "loc": "төрт",
+    "pron": "turt"
+   },
+   {
+    "n": 5,
+    "loc": "бес",
+    "pron": "bes"
+   },
+   {
+    "n": 6,
+    "loc": "алты",
+    "pron": "al-TUH"
+   },
+   {
+    "n": 7,
+    "loc": "жеті",
+    "pron": "zhe-TI"
+   },
+   {
+    "n": 8,
+    "loc": "сегіз",
+    "pron": "se-GIZ"
+   },
+   {
+    "n": 9,
+    "loc": "тоғыз",
+    "pron": "to-GUHZ"
+   },
+   {
+    "n": 10,
+    "loc": "он",
+    "pron": "on"
+   }
+  ]
+ },
+ "Albanian": {
+  "native": "Shqip",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Përshëndetje",
+    "pron": "per-shen-DET-yeh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Mirupafshim",
+    "pron": "mee-roo-PAHF-sheem"
+   },
+   {
+    "en": "Please",
+    "loc": "Ju lutem",
+    "pron": "yoo LOO-tem"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Faleminderit",
+    "pron": "fah-leh-min-DEH-reet"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "S'ka përse",
+    "pron": "skah per-SEH"
+   },
+   {
+    "en": "Yes",
+    "loc": "Po",
+    "pron": "poh"
+   },
+   {
+    "en": "No",
+    "loc": "Jo",
+    "pron": "yoh"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Më falni",
+    "pron": "muh FAHL-nee"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Më vjen keq",
+    "pron": "muh vyen kech"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "A flisni anglisht?",
+    "pron": "ah FLEES-nee ahn-GLEESHT"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Nuk kuptoj",
+    "pron": "nook koop-TOY"
+   },
+   {
+    "en": "Help!",
+    "loc": "Ndihmë!",
+    "pron": "n-DEE-muh"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Sa kushton kjo?",
+    "pron": "sah koosh-TOHN kyoh"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Ku është tualeti?",
+    "pron": "koo uhsht too-ah-LEH-tee"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Do të doja këtë",
+    "pron": "doh tuh DOH-yah kuh-TUH"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Faturën, ju lutem",
+    "pron": "fah-TOO-ruhn, yoo LOO-tem"
+   },
+   {
+    "en": "Water",
+    "loc": "Ujë",
+    "pron": "OO-yuh"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Mirëmëngjes",
+    "pron": "mee-ruh-muhn-JEHS"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Mirëmbrëma",
+    "pron": "mee-ruhm-BRUH-mah"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Unë quhem …",
+    "pron": "OO-nuh CHOO-hem …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Si jeni?",
+    "pron": "see YEH-nee"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Më duhet një mjek",
+    "pron": "muh DOO-het nyuh myek"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Thirrni policinë",
+    "pron": "THEER-nee poh-lee-TSEE-nuh"
+   },
+   {
+    "en": "Left",
+    "loc": "Majtas",
+    "pron": "MY-tahs"
+   },
+   {
+    "en": "Right",
+    "loc": "Djathtas",
+    "pron": "DYAHTH-tahs"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Ku është stacioni i trenit?",
+    "pron": "koo uhsht stah-tsee-OH-nee ee TREH-neet"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Si shkohet te …?",
+    "pron": "see SHKOH-het teh …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Shijshëm!",
+    "pron": "SHEE-shuhm"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "një",
+    "pron": "nyuh"
+   },
+   {
+    "n": 2,
+    "loc": "dy",
+    "pron": "dee"
+   },
+   {
+    "n": 3,
+    "loc": "tre",
+    "pron": "treh"
+   },
+   {
+    "n": 4,
+    "loc": "katër",
+    "pron": "KAH-tuhr"
+   },
+   {
+    "n": 5,
+    "loc": "pesë",
+    "pron": "PEH-suh"
+   },
+   {
+    "n": 6,
+    "loc": "gjashtë",
+    "pron": "GYASH-tuh"
+   },
+   {
+    "n": 7,
+    "loc": "shtatë",
+    "pron": "SHTAH-tuh"
+   },
+   {
+    "n": 8,
+    "loc": "tetë",
+    "pron": "TEH-tuh"
+   },
+   {
+    "n": 9,
+    "loc": "nëntë",
+    "pron": "NUHN-tuh"
+   },
+   {
+    "n": 10,
+    "loc": "dhjetë",
+    "pron": "DHYEH-tuh"
+   }
+  ]
+ },
+ "Icelandic": {
+  "native": "íslenska",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Halló",
+    "pron": "HAH-loh"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Bless",
+    "pron": "bless"
+   },
+   {
+    "en": "Please",
+    "loc": "Vinsamlegast",
+    "pron": "VIN-sahm-leh-gahst"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Takk fyrir",
+    "pron": "tahk FIH-rir"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Ekkert að þakka",
+    "pron": "EH-kert ath THAH-ka"
+   },
+   {
+    "en": "Yes",
+    "loc": "Já",
+    "pron": "yow"
+   },
+   {
+    "en": "No",
+    "loc": "Nei",
+    "pron": "nay"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Afsakið",
+    "pron": "AHF-sah-kith"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Fyrirgefðu",
+    "pron": "FIH-rir-gyev-thu"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Talar þú ensku?",
+    "pron": "TAH-lar thoo EN-sku"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Ég skil ekki",
+    "pron": "yehg skil EH-ki"
+   },
+   {
+    "en": "Help!",
+    "loc": "Hjálp!",
+    "pron": "hyowlp"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Hvað kostar þetta?",
+    "pron": "kvath KOS-tar THEH-ta"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Hvar er klósettið?",
+    "pron": "kvar er KLOH-seh-tith"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Ég ætla að fá þetta",
+    "pron": "yehg AYT-la ath fow THEH-ta"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Reikninginn, takk",
+    "pron": "RAYK-ning-in tahk"
+   },
+   {
+    "en": "Water",
+    "loc": "Vatn",
+    "pron": "vahtn"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Góðan daginn",
+    "pron": "GOH-than DY-in"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Gott kvöld",
+    "pron": "got kvurld"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Ég heiti …",
+    "pron": "yehg HAY-ti …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Hvernig hefur þú það?",
+    "pron": "KVER-nig HEH-vur thoo thath"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Ég þarf lækni",
+    "pron": "yehg tharf LYE-kni"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Hringdu á lögregluna",
+    "pron": "HRING-du ow LURG-rehg-lu-na"
+   },
+   {
+    "en": "Left",
+    "loc": "Vinstri",
+    "pron": "VIN-stri"
+   },
+   {
+    "en": "Right",
+    "loc": "Hægri",
+    "pron": "HY-gri"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Hvar er lestarstöðin?",
+    "pron": "kvar er LES-tar-stur-thin"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Hvernig kemst ég til …?",
+    "pron": "KVER-nig kemst yehg til …"
+   },
+   {
+    "en": "Cheers!",
+    "loc": "Skál!",
+    "pron": "skowl"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "einn",
+    "pron": "aydn"
+   },
+   {
+    "n": 2,
+    "loc": "tveir",
+    "pron": "tvayr"
+   },
+   {
+    "n": 3,
+    "loc": "þrír",
+    "pron": "threer"
+   },
+   {
+    "n": 4,
+    "loc": "fjórir",
+    "pron": "FYOH-rir"
+   },
+   {
+    "n": 5,
+    "loc": "fimm",
+    "pron": "fim"
+   },
+   {
+    "n": 6,
+    "loc": "sex",
+    "pron": "seks"
+   },
+   {
+    "n": 7,
+    "loc": "sjö",
+    "pron": "syur"
+   },
+   {
+    "n": 8,
+    "loc": "átta",
+    "pron": "OW-ta"
+   },
+   {
+    "n": 9,
+    "loc": "níu",
+    "pron": "NEE-u"
+   },
+   {
+    "n": 10,
+    "loc": "tíu",
+    "pron": "TEE-u"
+   }
+  ]
+ },
+ "Malagasy": {
+  "native": "Malagasy",
+  "phrases": [
+   {
+    "en": "Hello",
+    "loc": "Manao ahoana",
+    "pron": "mah-NOW ah-OO-nah"
+   },
+   {
+    "en": "Goodbye",
+    "loc": "Veloma",
+    "pron": "veh-LOO-mah"
+   },
+   {
+    "en": "Please",
+    "loc": "Azafady",
+    "pron": "ah-zah-FAH-dee"
+   },
+   {
+    "en": "Thank you",
+    "loc": "Misaotra",
+    "pron": "mee-SOW-trah"
+   },
+   {
+    "en": "You're welcome",
+    "loc": "Tsy misy fisaorana",
+    "pron": "tsee MEE-see fee-sow-RAH-nah"
+   },
+   {
+    "en": "Yes",
+    "loc": "Eny",
+    "pron": "EH-nee"
+   },
+   {
+    "en": "No",
+    "loc": "Tsia",
+    "pron": "TSEE-ah"
+   },
+   {
+    "en": "Excuse me",
+    "loc": "Azafady",
+    "pron": "ah-zah-FAH-dee"
+   },
+   {
+    "en": "Sorry",
+    "loc": "Miala tsiny",
+    "pron": "mee-AH-lah TSEE-nee"
+   },
+   {
+    "en": "Do you speak English?",
+    "loc": "Miteny anglisy ve ianao?",
+    "pron": "mee-TEHN ahn-GLEE-see veh ya-NOW"
+   },
+   {
+    "en": "I don't understand",
+    "loc": "Tsy azoko",
+    "pron": "tsee AH-zoo-koo"
+   },
+   {
+    "en": "Help!",
+    "loc": "Vonjeo!",
+    "pron": "voon-JEH-oo"
+   },
+   {
+    "en": "How much is this?",
+    "loc": "Ohatrinona ity?",
+    "pron": "oo-ah-TREE-noo-nah EE-tee"
+   },
+   {
+    "en": "Where is the toilet?",
+    "loc": "Aiza ny trano fidiovana?",
+    "pron": "AH-ee-zah nee TRAH-noo fee-dee-OO-vah-nah"
+   },
+   {
+    "en": "I would like this",
+    "loc": "Tiako ity",
+    "pron": "TEE-ah-koo EE-tee"
+   },
+   {
+    "en": "The bill, please",
+    "loc": "Ny kaonty azafady",
+    "pron": "nee KOWN-tee ah-zah-FAH-dee"
+   },
+   {
+    "en": "Water",
+    "loc": "Rano",
+    "pron": "RAH-noo"
+   },
+   {
+    "en": "Good morning",
+    "loc": "Manao ahoana ny maraina",
+    "pron": "mah-NOW ah-OO-nah nee mah-RAH-ee-nah"
+   },
+   {
+    "en": "Good evening",
+    "loc": "Manao ahoana ny hariva",
+    "pron": "mah-NOW ah-OO-nah nee hah-REE-vah"
+   },
+   {
+    "en": "My name is …",
+    "loc": "Ny anarako dia …",
+    "pron": "nee ah-NAH-rah-koo dee-ah …"
+   },
+   {
+    "en": "How are you?",
+    "loc": "Manao ahoana ianao?",
+    "pron": "mah-NOW ah-OO-nah ya-NOW"
+   },
+   {
+    "en": "I need a doctor",
+    "loc": "Mila dokotera aho",
+    "pron": "MEE-lah doo-koo-TEH-rah ah-oo"
+   },
+   {
+    "en": "Call the police",
+    "loc": "Antsoy ny polisy",
+    "pron": "ahn-TSOO-ee nee poo-LEE-see"
+   },
+   {
+    "en": "Left",
+    "loc": "Havia",
+    "pron": "hah-VEE-ah"
+   },
+   {
+    "en": "Right",
+    "loc": "Havanana",
+    "pron": "hah-vah-NAH-nah"
+   },
+   {
+    "en": "Where is the train station?",
+    "loc": "Aiza ny gara?",
+    "pron": "AH-ee-zah nee GAH-rah"
+   },
+   {
+    "en": "How do I get to …?",
+    "loc": "Ahoana no andehanana ho any …?",
+    "pron": "ah-OO-nah noo ahn-deh-HAH-nah-nah hoo AH-nee …"
+   },
+   {
+    "en": "Delicious!",
+    "loc": "Matsiro!",
+    "pron": "mah-TSEE-roo"
+   }
+  ],
+  "numbers": [
+   {
+    "n": 1,
+    "loc": "iray",
+    "pron": "ee-RAH-ee"
+   },
+   {
+    "n": 2,
+    "loc": "roa",
+    "pron": "ROO-ah"
+   },
+   {
+    "n": 3,
+    "loc": "telo",
+    "pron": "TEH-loo"
+   },
+   {
+    "n": 4,
+    "loc": "efatra",
+    "pron": "EH-fah-trah"
+   },
+   {
+    "n": 5,
+    "loc": "dimy",
+    "pron": "DEE-mee"
+   },
+   {
+    "n": 6,
+    "loc": "enina",
+    "pron": "EH-nee-nah"
+   },
+   {
+    "n": 7,
+    "loc": "fito",
+    "pron": "FEE-too"
+   },
+   {
+    "n": 8,
+    "loc": "valo",
+    "pron": "VAH-loo"
+   },
+   {
+    "n": 9,
+    "loc": "sivy",
+    "pron": "SEE-vee"
+   },
+   {
+    "n": 10,
+    "loc": "folo",
+    "pron": "FOO-loo"
+   }
+  ]
+ }
+};
