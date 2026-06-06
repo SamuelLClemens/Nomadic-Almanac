@@ -1766,6 +1766,22 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 .pb-link:focus-visible { outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px; }
 .pb-ic { font-size: 12px; line-height: 1; }
 
+/* "Who's travelling?" persona presets at the top of the layers sheet. */
+#na-persona-row { margin: 2px 0 12px; }
+.na-persona-label { font-family: var(--font-label, 'Cinzel', Georgia, serif); font-size: 9px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--na-text-secondary, #A89060); margin-bottom: 8px; }
+.na-persona-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.na-persona-btn {
+  flex: 1 1 auto; min-width: 64px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 6px; border-radius: 10px; cursor: pointer;
+  background: rgba(200,168,75,0.08); border: 1px solid var(--na-glass-border, rgba(200,168,75,0.32));
+  color: var(--na-text-primary, #E8D8A0); font-family: var(--font-label, 'Cinzel', Georgia, serif);
+  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  transition: background .15s, color .15s, border-color .15s, transform .12s;
+}
+.na-persona-btn:hover { background: rgba(200,168,75,0.18); color: var(--na-gold-bright, #E2C06A); border-color: var(--na-gold-mid, #C8A84B); transform: translateY(-1px); }
+.na-persona-btn:focus-visible { outline: 2px solid var(--na-gold-mid, #C8A84B); outline-offset: 2px; }
+.na-persona-emoji { font-size: 20px; line-height: 1; }
+
 .na-bottom-item {
   flex: 1;
   display: flex;
