@@ -4568,6 +4568,8 @@ function refresh() {
   renderEventMarkers();
   // Keep the sidebar/sheet layer-item active states in sync without idle polling.
   if (typeof na_updateLayerActiveStates === 'function') na_updateLayerActiveStates();
+  // Re-evaluate the live crime overlay (no-op unless Safety is active and zoomed in).
+  if (typeof _renderLiveCrime === 'function') _renderLiveCrime();
 }
 
 // Update the legend zoom annotation note based on the current zoom level and
@@ -6776,7 +6778,7 @@ function initPOILayers() {
   });
 
   // NYC precinct crime sublayer: re-evaluate on pan.
-  map.on('moveend', () => { _renderNYCCrime(); });
+  map.on('moveend', () => { _renderNYCCrime(); _renderLiveCrime(); });
 }
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
@@ -6814,6 +6816,170 @@ function _clearNYCCrime() {
   _nycCrimeMarkers.forEach(function(m){map.removeLayer(m);});
   _nycCrimeMarkers = [];
   _nycCrimeActive = false;
+}
+
+// ─── Live crime-incident overlay (FREE, key-less open-data APIs) ─────────────
+// When the Safety layer is active and the map is zoomed in (z>=12) over a covered
+// city/region, fetch recent incident points from that area's free, key-less open
+// data API and plot them. Complements the curated NYC precinct overlay. Every
+// source is key-less — no API token is committed. Degrades gracefully: a status
+// chip while loading, a toast on error; never a silent blank state (per the
+// static-site runtime-dependency rule).
+//   type 'soda'        = Socrata SODA, flat numeric lat/lng columns
+//   type 'soda-point'  = Socrata SODA, coords nested in a Point column (within_box)
+//   type 'ckan'        = CKAN datastore_search (Boston)
+//   type 'police'      = data.police.uk (covers all of England/Wales/N. Ireland)
+var CRIME_SOURCES = [
+  { id:'chicago',     region:'Chicago',              type:'soda',       host:'https://data.cityofchicago.org',   ds:'ijzp-q8t2', f:{lat:'latitude',lng:'longitude',date:'date',cat:'primary_type'},               bbox:[41.62,-87.95,42.05,-87.52] },
+  { id:'la',          region:'Los Angeles',          type:'soda',       host:'https://data.lacity.org',          ds:'2nrs-mtv8', f:{lat:'lat',lng:'lon',date:'date_occ',cat:'crm_cd_desc'},                       bbox:[33.70,-118.67,34.34,-118.15] },
+  { id:'seattle',     region:'Seattle',              type:'soda',       host:'https://data.seattle.gov',         ds:'tazs-3rd5', f:{lat:'latitude',lng:'longitude',date:'offense_start_datetime',cat:'offense'},  bbox:[47.49,-122.44,47.74,-122.22] },
+  { id:'sf',          region:'San Francisco',        type:'soda',       host:'https://data.sfgov.org',           ds:'wg3w-h783', f:{lat:'latitude',lng:'longitude',date:'incident_datetime',cat:'incident_category'}, bbox:[37.70,-122.52,37.84,-122.35] },
+  { id:'cincinnati',  region:'Cincinnati',           type:'soda',       host:'https://data.cincinnati-oh.gov',   ds:'k59e-2pvf', f:{lat:'latitude_x',lng:'longitude_x',date:'date_reported',cat:'offense'},        bbox:[39.05,-84.71,39.22,-84.36] },
+  { id:'montgomery',  region:'Montgomery County, MD',type:'soda',       host:'https://data.montgomerycountymd.gov',ds:'icn6-v9z3',f:{lat:'latitude',lng:'longitude',date:'date',cat:'crimename2'},               bbox:[38.93,-77.53,39.35,-76.89] },
+  { id:'buffalo',     region:'Buffalo',              type:'soda',       host:'https://data.buffalony.gov',       ds:'d6g9-xbgu', f:{lat:'latitude',lng:'longitude',date:'incident_datetime',cat:'incident_type_primary'}, bbox:[42.82,-78.92,42.97,-78.79] },
+  { id:'nola',        region:'New Orleans',          type:'soda',       host:'https://data.nola.gov',            ds:'5fn8-vtui', f:{lat:'latitude',lng:'longitude',date:'timedispatch',cat:'typetext'},           bbox:[29.86,-90.14,30.07,-89.94] },
+  { id:'gainesville', region:'Gainesville, FL',      type:'soda',       host:'https://data.cityofgainesville.org',ds:'gvua-xt9q',f:{lat:'latitude',lng:'longitude',date:'offense_date',cat:'narrative'},        bbox:[29.58,-82.45,29.72,-82.25] },
+  { id:'dallas',      region:'Dallas',               type:'soda-point', host:'https://www.dallasopendata.com',   ds:'qv6i-rri7', pt:'geocoded_column', f:{date:'date1',cat:'nibrs_crime'},                       bbox:[32.62,-96.99,33.02,-96.55] },
+  { id:'kcmo',        region:'Kansas City, MO',      type:'soda-point', host:'https://data.kcmo.org',            ds:'f7wj-ckmw', pt:'location', f:{date:'report_date',cat:'offense'},                            bbox:[38.85,-94.78,39.35,-94.40] },
+  { id:'boston',      region:'Boston',               type:'ckan',       host:'https://data.boston.gov',          rid:'b973d8cb-eeb2-4e7e-99da-c92938efc9c0', f:{lat:'Lat',lng:'Long',date:'OCCURRED_ON_DATE',cat:'OFFENSE_DESCRIPTION'}, bbox:[42.23,-71.19,42.40,-70.99] },
+  { id:'uk',          region:'United Kingdom',       type:'police',                                                                                                                                            bbox:[49.8,-8.7,60.9,1.9] },
+];
+
+var _liveCrimeMarkers = [], _liveCrimeSig = null, _liveCrimeToken = 0, _liveCrimeTimer = null, _ukLatestMonth = null;
+
+function _crimeSourceForCenter(lat, lng) {
+  for (var i = 0; i < CRIME_SOURCES.length; i++) {
+    var b = CRIME_SOURCES[i].bbox;
+    if (lat >= b[0] && lat <= b[2] && lng >= b[1] && lng <= b[3]) return CRIME_SOURCES[i];
+  }
+  return null;
+}
+
+function _clearLiveCrime() {
+  for (var i = 0; i < _liveCrimeMarkers.length; i++) map.removeLayer(_liveCrimeMarkers[i]);
+  _liveCrimeMarkers = [];
+  _liveCrimeSig = null;
+}
+
+function _crimeStatus(msg) {
+  var el = document.getElementById('na-crime-status');
+  if (!el) {
+    if (!msg) return;
+    el = document.createElement('div');
+    el.id = 'na-crime-status';
+    (document.getElementById('na-main') || document.body).appendChild(el);
+  }
+  if (msg) { el.textContent = msg; el.style.display = 'block'; }
+  else { el.style.display = 'none'; }
+}
+
+function _crimeSeverityColor(cat) {
+  var s = (cat || '').toLowerCase();
+  if (/(assault|robber|homicide|murder|weapon|violen|shoot|gun|rape|sex|kidnap|battery|arson)/.test(s)) return '#C62828';
+  if (/(burglar|theft|larcen|stolen|vehicle|motor|break|damage|vandal|property|burglary)/.test(s)) return '#EF6C00';
+  if (/(drug|narcot|fraud|forg|dui|alcohol|disorder|anti-social|trespass|public)/.test(s)) return '#FDD835';
+  return '#9aa7b4';
+}
+
+// Evaluated on layer/zoom/pan changes; debounced before the actual network call.
+function _renderLiveCrime() {
+  if (!map) return;
+  if (!activeLayers.has('safety') || map.getZoom() < 12) { _clearLiveCrime(); _crimeStatus(null); return; }
+  var c = map.getCenter();
+  var src = _crimeSourceForCenter(c.lat, c.lng);
+  if (!src) { _clearLiveCrime(); _crimeStatus(null); return; }
+  clearTimeout(_liveCrimeTimer);
+  _liveCrimeTimer = setTimeout(function () { _fetchLiveCrime(src); }, 350);
+}
+
+function _fetchLiveCrime(src) {
+  if (!map) return;
+  var b = map.getBounds(), c = map.getCenter();
+  var minLat = b.getSouth(), maxLat = b.getNorth(), minLng = b.getWest(), maxLng = b.getEast();
+  var sig = src.id + ':' + [minLat, minLng, maxLat, maxLng].map(function (n) { return n.toFixed(2); }).join(',');
+  if (sig === _liveCrimeSig) return;            // already rendered for this view
+  var token = ++_liveCrimeToken;
+  _crimeStatus('Loading ' + src.region + ' crime data…');
+  _crimeFetch(src, minLat, minLng, maxLat, maxLng, c.lat, c.lng).then(function (rows) {
+    if (token !== _liveCrimeToken) return;       // a newer request superseded this one
+    _clearLiveCrime();
+    _liveCrimeSig = sig;
+    var capped = rows.slice(0, 600);
+    capped.forEach(function (p) {
+      var m = L.circleMarker([p.lat, p.lng], {
+        radius: 4, color: 'rgba(14,11,6,0.7)', weight: 0.6,
+        fillColor: _crimeSeverityColor(p.cat), fillOpacity: 0.82, pane: 'markersPane'
+      });
+      m.bindTooltip('<b>' + _esc(p.cat || 'Incident') + '</b><br><small>' + _esc(p.date || '') + ' · ' + _esc(src.region) + '</small>', { className: 'tt-sm' });
+      m.addTo(map);
+      _liveCrimeMarkers.push(m);
+    });
+    _crimeStatus(capped.length
+      ? (capped.length + (rows.length > capped.length ? '+' : '') + ' recent incidents · ' + src.region)
+      : ('No mapped incidents in view · ' + src.region));
+    setTimeout(function () { if (token === _liveCrimeToken) _crimeStatus(null); }, 2800);
+  }).catch(function () {
+    if (token !== _liveCrimeToken) return;
+    _crimeStatus(null);
+    if (typeof na_toast === 'function') na_toast(src.region + ' crime data is unavailable right now.', 3500);
+  });
+}
+
+function _inBounds(p, minLat, minLng, maxLat, maxLng) {
+  return !isNaN(p.lat) && !isNaN(p.lng) && p.lat >= minLat && p.lat <= maxLat && p.lng >= minLng && p.lng <= maxLng;
+}
+
+function _crimeFetch(src, minLat, minLng, maxLat, maxLng, cLat, cLng) {
+  var jsonOk = function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); };
+
+  if (src.type === 'police') {
+    var monthP = _ukLatestMonth
+      ? Promise.resolve(_ukLatestMonth)
+      : fetch('https://data.police.uk/api/crimes-street-dates').then(function (r) { return r.json(); })
+          .then(function (d) { _ukLatestMonth = (d && d[0] && d[0].date) || '2026-01'; return _ukLatestMonth; })
+          .catch(function () { return '2026-01'; });
+    return monthP.then(function (mo) {
+      return fetch('https://data.police.uk/api/crimes-street/all-crime?lat=' + cLat + '&lng=' + cLng + '&date=' + mo).then(jsonOk).then(function (j) {
+        return (j || []).filter(function (x) { return x.location; }).map(function (x) {
+          return { lat: parseFloat(x.location.latitude), lng: parseFloat(x.location.longitude), cat: (x.category || '').replace(/-/g, ' '), date: x.month };
+        }).filter(function (p) { return _inBounds(p, minLat, minLng, maxLat, maxLng); });
+      });
+    });
+  }
+
+  if (src.type === 'ckan') {
+    var u = src.host + '/api/3/action/datastore_search?resource_id=' + src.rid + '&limit=2000&sort=' + encodeURIComponent(src.f.date + ' desc');
+    return fetch(u).then(jsonOk).then(function (d) {
+      var recs = (d && d.result && d.result.records) || [];
+      return recs.map(function (x) {
+        return { lat: parseFloat(x[src.f.lat]), lng: parseFloat(x[src.f.lng]), cat: x[src.f.cat], date: (x[src.f.date] || '').slice(0, 10) };
+      }).filter(function (p) { return _inBounds(p, minLat, minLng, maxLat, maxLng); });
+    });
+  }
+
+  if (src.type === 'soda-point') {
+    var w = 'within_box(' + src.pt + ',' + maxLat + ',' + minLng + ',' + minLat + ',' + maxLng + ')';
+    var u2 = src.host + '/resource/' + src.ds + '.json?$where=' + encodeURIComponent(w) + '&$order=' + encodeURIComponent(src.f.date + ' DESC') + '&$limit=600';
+    return fetch(u2).then(jsonOk).then(function (j) {
+      return (j || []).map(function (x) {
+        var pt = x[src.pt], co = pt && pt.coordinates;
+        var lat = co ? parseFloat(co[1]) : (pt && pt.latitude ? parseFloat(pt.latitude) : NaN);
+        var lng = co ? parseFloat(co[0]) : (pt && pt.longitude ? parseFloat(pt.longitude) : NaN);
+        return { lat: lat, lng: lng, cat: x[src.f.cat], date: (x[src.f.date] || '').slice(0, 10) };
+      }).filter(function (p) { return _inBounds(p, minLat, minLng, maxLat, maxLng); });
+    });
+  }
+
+  // default: flat Socrata SODA
+  var fl = src.f;
+  var where = fl.lat + ' between ' + minLat + ' and ' + maxLat + ' AND ' + fl.lng + ' between ' + minLng + ' and ' + maxLng;
+  var u3 = src.host + '/resource/' + src.ds + '.json?$select=' + encodeURIComponent(fl.lat + ',' + fl.lng + ',' + fl.cat + ',' + fl.date) +
+    '&$where=' + encodeURIComponent(where) + '&$order=' + encodeURIComponent(fl.date + ' DESC') + '&$limit=600';
+  return fetch(u3).then(jsonOk).then(function (j) {
+    return (j || []).map(function (x) {
+      return { lat: parseFloat(x[fl.lat]), lng: parseFloat(x[fl.lng]), cat: x[fl.cat], date: (x[fl.date] || '').slice(0, 10) };
+    }).filter(function (p) { return _inBounds(p, minLat, minLng, maxLat, maxLng); });
+  });
 }
 
 // ─── Topbar hamburger toggle ──────────────────────────────────────────────────

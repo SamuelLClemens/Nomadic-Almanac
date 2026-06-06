@@ -1719,6 +1719,21 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 /* The sheet grid can now hold all 31 layers — let it scroll within the sheet. */
 #na-sheet-grid { max-height: 52vh; overflow-y: auto; }
 
+/* Live crime overlay status chip (bottom-center, clear of the mobile nav). */
+#na-crime-status {
+  position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%);
+  z-index: 1200; display: none; max-width: 80vw;
+  padding: 6px 12px; border-radius: 999px;
+  background: var(--na-glass-navy, rgba(11,22,40,0.9));
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--na-glass-border, rgba(200,168,75,0.35));
+  color: var(--na-text-primary, #E8D8A0);
+  font-family: var(--font-label, 'Cinzel', Georgia, serif);
+  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45); pointer-events: none; white-space: nowrap;
+}
+@media (min-width: 768px) { #na-crime-status { bottom: 28px; } }
+
 .na-bottom-item {
   flex: 1;
   display: flex;
