@@ -381,19 +381,101 @@ function _countryFlag(iso2) {
 
 // ─── Currency / distance / language globals ───────────────────────────────────
 var _currCode = localStorage.getItem('na_curr') || 'USD';
+// Static FX snapshot — units of each currency per 1 USD. Self-hosted (no live
+// API / external runtime dependency). Refresh at deploy time and bump the date.
+var _RATES_AS_OF = 'June 2026';
 var _RATES = {
-  USD:{rate:1,    sym:'$',   name:'US Dollar'},
-  EUR:{rate:0.92, sym:'€',   name:'Euro'},
-  GBP:{rate:0.79, sym:'£',   name:'Pound Sterling'},
-  AUD:{rate:1.54, sym:'A$',  name:'Aus Dollar'},
-  CAD:{rate:1.37, sym:'C$',  name:'Canadian Dollar'},
-  JPY:{rate:149,  sym:'¥',   name:'Japanese Yen'},
-  THB:{rate:35,   sym:'฿',   name:'Thai Baht'},
-  MXN:{rate:17.5, sym:'MX$', name:'Mexican Peso'},
-  SGD:{rate:1.35, sym:'S$',  name:'Singapore Dollar'},
-  CHF:{rate:0.90, sym:'CHF', name:'Swiss Franc'},
+  USD:{rate:1,     sym:'$',   name:'US Dollar'},
+  EUR:{rate:0.92,  sym:'€',   name:'Euro'},
+  GBP:{rate:0.79,  sym:'£',   name:'Pound Sterling'},
+  JPY:{rate:149,   sym:'¥',   name:'Japanese Yen'},
+  CNY:{rate:7.2,   sym:'¥',   name:'Chinese Yuan'},
+  INR:{rate:83,    sym:'₹',   name:'Indian Rupee'},
+  AUD:{rate:1.54,  sym:'A$',  name:'Australian Dollar'},
+  CAD:{rate:1.37,  sym:'C$',  name:'Canadian Dollar'},
+  CHF:{rate:0.90,  sym:'CHF', name:'Swiss Franc'},
+  SGD:{rate:1.35,  sym:'S$',  name:'Singapore Dollar'},
+  HKD:{rate:7.8,   sym:'HK$', name:'Hong Kong Dollar'},
+  NZD:{rate:1.65,  sym:'NZ$', name:'New Zealand Dollar'},
+  THB:{rate:35,    sym:'฿',   name:'Thai Baht'},
+  MXN:{rate:17.5,  sym:'MX$', name:'Mexican Peso'},
+  BRL:{rate:5.0,   sym:'R$',  name:'Brazilian Real'},
+  ZAR:{rate:18.5,  sym:'R',   name:'South African Rand'},
+  RUB:{rate:92,    sym:'₽',   name:'Russian Ruble'},
+  KRW:{rate:1330,  sym:'₩',   name:'South Korean Won'},
+  AED:{rate:3.67,  sym:'AED', name:'UAE Dirham'},
+  SAR:{rate:3.75,  sym:'SAR', name:'Saudi Riyal'},
+  TRY:{rate:32,    sym:'₺',   name:'Turkish Lira'},
+  IDR:{rate:15800, sym:'Rp',  name:'Indonesian Rupiah'},
+  MYR:{rate:4.7,   sym:'RM',  name:'Malaysian Ringgit'},
+  PHP:{rate:57,    sym:'₱',   name:'Philippine Peso'},
+  VND:{rate:24500, sym:'₫',   name:'Vietnamese Dong'},
+  SEK:{rate:10.6,  sym:'kr',  name:'Swedish Krona'},
+  NOK:{rate:10.7,  sym:'kr',  name:'Norwegian Krone'},
+  DKK:{rate:6.9,   sym:'kr',  name:'Danish Krone'},
+  PLN:{rate:4.0,   sym:'zł',  name:'Polish Zloty'},
+  CZK:{rate:23,    sym:'Kč',  name:'Czech Koruna'},
+  HUF:{rate:360,   sym:'Ft',  name:'Hungarian Forint'},
+  ILS:{rate:3.7,   sym:'₪',   name:'Israeli Shekel'},
+  EGP:{rate:48,    sym:'E£',  name:'Egyptian Pound'},
+  NGN:{rate:1500,  sym:'₦',   name:'Nigerian Naira'},
+  KES:{rate:130,   sym:'KSh', name:'Kenyan Shilling'},
+  MAD:{rate:10,    sym:'DH',  name:'Moroccan Dirham'},
+  ARS:{rate:900,   sym:'AR$', name:'Argentine Peso'},
+  CLP:{rate:950,   sym:'CLP$',name:'Chilean Peso'},
+  COP:{rate:4000,  sym:'CO$', name:'Colombian Peso'},
+  PEN:{rate:3.7,   sym:'S/',  name:'Peruvian Sol'},
+  TWD:{rate:32,    sym:'NT$', name:'Taiwan Dollar'},
 };
-var _CURR_KEYS = ['USD','EUR','GBP','AUD','CAD','JPY','THB','MXN','SGD','CHF'];
+// Short popular list for the legacy cycle button; the full picker uses _RATES.
+var _CURR_KEYS = ['USD','EUR','GBP','JPY','CNY','AUD','CAD','CHF','INR','BRL','MXN','SGD'];
+
+// Map of locale region (ISO country) → default currency for first-visit detection.
+var _REGION_CURR = {
+  US:'USD', GB:'GBP', IE:'EUR', FR:'EUR', DE:'EUR', ES:'EUR', IT:'EUR', PT:'EUR', NL:'EUR', BE:'EUR', AT:'EUR', GR:'EUR', FI:'EUR',
+  JP:'JPY', CN:'CNY', IN:'INR', AU:'AUD', CA:'CAD', CH:'CHF', SG:'SGD', HK:'HKD', NZ:'NZD', TH:'THB', MX:'MXN', BR:'BRL',
+  ZA:'ZAR', RU:'RUB', KR:'KRW', AE:'AED', SA:'SAR', TR:'TRY', ID:'IDR', MY:'MYR', PH:'PHP', VN:'VND', SE:'SEK', NO:'NOK',
+  DK:'DKK', PL:'PLN', CZ:'CZK', HU:'HUF', IL:'ILS', EG:'EGP', NG:'NGN', KE:'KES', MA:'MAD', AR:'ARS', CL:'CLP', CO:'COP', PE:'PEN', TW:'TWD',
+};
+
+function na_detectDefaultCurrency() {
+  try {
+    var loc = navigator.language || 'en-US';
+    var region = (String(loc).split('-')[1] || '').toUpperCase();
+    if (region && _REGION_CURR[region]) return _REGION_CURR[region];
+  } catch (_e) {}
+  return 'USD';
+}
+// First visit (no stored choice): default to the locale's currency.
+try { if (!localStorage.getItem('na_curr')) _currCode = na_detectDefaultCurrency(); } catch (_e) {}
+if (!_RATES[_currCode]) _currCode = 'USD';
+
+function na_setCurrency(code) {
+  if (!_RATES[code]) code = 'USD';
+  _currCode = code;
+  try { localStorage.setItem('na_curr', code); } catch (_e) {}
+  var btn = document.getElementById('btn-currency'); if (btn) btn.textContent = code;
+  document.querySelectorAll('.na-curr-opt').forEach(function (b) { b.classList.toggle('active', b.dataset.curr === code); });
+  document.querySelectorAll('.na-curr-current').forEach(function (el) { el.textContent = code; });
+  if (typeof _rerenderActiveDossier === 'function') { try { _rerenderActiveDossier(); } catch (_e) {} }
+}
+
+function na_buildCurrencyPicker() {
+  var html = '<div class="na-curr-picker" role="group" aria-label="Choose currency">';
+  Object.keys(_RATES).forEach(function (c) {
+    var r = _RATES[c];
+    html += '<button type="button" class="na-curr-opt' + (c === _currCode ? ' active' : '') + '" data-curr="' + c + '" title="' + r.name + '">' +
+            '<span class="na-curr-code">' + c + '</span><span class="na-curr-sym">' + r.sym + '</span></button>';
+  });
+  return html + '</div>';
+}
+
+function na_wireCurrencyPicker(root) {
+  (root || document).querySelectorAll('.na-curr-opt').forEach(function (b) {
+    if (b._naCurrWired) return; b._naCurrWired = true;
+    b.addEventListener('click', function (e) { e.stopPropagation(); na_setCurrency(b.dataset.curr); });
+  });
+}
 
 function _money(usdAmount) {
   if (usdAmount == null || isNaN(usdAmount)) return '';
@@ -404,15 +486,8 @@ function _money(usdAmount) {
 
 function _cycleCurrency() {
   var idx = _CURR_KEYS.indexOf(_currCode);
-  _currCode = _CURR_KEYS[(idx + 1) % _CURR_KEYS.length];
-  localStorage.setItem('na_curr', _currCode);
-  var btn = document.getElementById('btn-currency');
-  if (btn) btn.textContent = _currCode;
-  if (document.getElementById('tt') && document.getElementById('tt').style.display !== 'none') {
-    if (typeof _activeTooltipKey !== 'undefined' && _activeTooltipKey) {
-      if (typeof buildTooltip === 'function') buildTooltip(_activeTooltipKey);
-    }
-  }
+  if (idx < 0) idx = 0;
+  na_setCurrency(_CURR_KEYS[(idx + 1) % _CURR_KEYS.length]);
 }
 
 var _lang = localStorage.getItem('na_lang') || 'en';
@@ -429,12 +504,109 @@ function _t(key) {
   return strings[key] || (_STRINGS.en[key]) || key;
 }
 
+// ─── i18n engine (10 curated languages) ──────────────────────────────────────
+// The legacy _STRINGS block above is retained but superseded by _I18N below.
+// _t(), _cycleLang() and _lang are (re)defined here; function-declaration
+// hoisting makes these definitions authoritative throughout the file.
+var _LANG_META = {
+  en: { flag: '🇬🇧', name: 'English',    dir: 'ltr' },
+  es: { flag: '🇪🇸', name: 'Español',    dir: 'ltr' },
+  fr: { flag: '🇫🇷', name: 'Français',   dir: 'ltr' },
+  de: { flag: '🇩🇪', name: 'Deutsch',    dir: 'ltr' },
+  pt: { flag: '🇧🇷', name: 'Português',  dir: 'ltr' },
+  ar: { flag: '🇸🇦', name: 'العربية',    dir: 'rtl' },
+  zh: { flag: '🇨🇳', name: '中文',        dir: 'ltr' },
+  hi: { flag: '🇮🇳', name: 'हिन्दी',      dir: 'ltr' },
+  ja: { flag: '🇯🇵', name: '日本語',      dir: 'ltr' },
+  ru: { flag: '🇷🇺', name: 'Русский',    dir: 'ltr' },
+};
+_LANG_KEYS = ['en','es','fr','de','pt','ar','zh','hi','ja','ru'];
+
+// Master English dictionary. Other languages are curated patches (filled by the
+// translation workflow); any missing key falls back to English.
+var _I18N = {
+  en: {
+    'nav.worldMap':'World Map','nav.bestMonth':'Best This Month','nav.passport':'Passport & Visa',
+    'nav.planner':'Trip Planner','nav.compare':'Compare Countries','nav.preferences':'Preferences',
+    'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings',
+    'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
+    'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
+    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'A living atlas of where to go and when. Click any country to open its travel dossier, scrub the months to watch the seasons turn, and switch on layers to read the world your way.','welcome.sub':'Tip: zoom in for province and county detail, and choose your passport to colour the map by visa access.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
+    'prefs.title':'Preferences','prefs.mapView':'Map View','prefs.labels':'Place Labels','prefs.units':'Units','prefs.temp':'Temperature','prefs.dist':'Distance','prefs.elev':'Elevation','prefs.dateFormat':'Date Format','prefs.clock':'Clock','prefs.language':'Language','prefs.currency':'Currency','prefs.theme':'Theme','prefs.tour':'Replay guided tour','prefs.tutorial':'Written tutorial','prefs.faq':'FAQ','prefs.on':'On','prefs.off':'Off','prefs.dark':'Dark','prefs.light':'Light',
+    'bm.satellite':'Satellite','bm.streets':'Streets','bm.dark':'Dark','bm.terrain':'Terrain','bm.night':'Night Lights',
+    'doss.glance':'At a Glance','doss.emergency':'Emergency','doss.cost':'Cost of Living','doss.health':'Health','doss.climate':'Climate','doss.safety':'Safety','doss.tipping':'Tipping','doss.visa':'Visa Access','doss.timezone':'Time Zone','doss.holidays':'Holidays & Events','doss.history':'History','doss.phrasebook':'Phrasebook','doss.intel':'Country Intelligence','doss.language':'Language','doss.capital':'Capital','doss.population':'Population','doss.currency':'Currency','doss.languages':'Languages','doss.power':'Power','doss.calling':'Calling Code','doss.driving':'Driving','doss.region':'Region','doss.tapwater':'Tap Water','doss.etiquette':'Etiquette & Customs','doss.transport':'Getting Around','doss.connectivity':'Connectivity','doss.payments':'Money & Payments',
+    'common.close':'Close','common.loading':'Loading…','common.noData':'No data','common.more':'Show more','common.less':'Show less','common.search':'Search countries, cities, or layers',
+    'intel.title':'Country Intelligence','intel.origin':'Origin','intel.character':'Character','intel.complexity':'Honest Complexity','intel.bestFor':'Best For','intel.notKnown':'What Locals Know',
+  },
+  es:{}, fr:{}, de:{}, pt:{}, ar:{}, zh:{}, hi:{}, ja:{}, ru:{},
+};
+
+function na_detectDefaultLang() {
+  try {
+    var navs = navigator.languages || [navigator.language || 'en'];
+    for (var i = 0; i < navs.length; i++) {
+      var code = String(navs[i] || '').slice(0, 2).toLowerCase();
+      if (_LANG_KEYS.indexOf(code) >= 0) return code;
+    }
+  } catch (_e) {}
+  return 'en';
+}
+
+// On first visit (no stored choice) default to the browser locale.
+try { if (!localStorage.getItem('na_lang')) _lang = na_detectDefaultLang(); } catch (_e) {}
+if (_LANG_KEYS.indexOf(_lang) < 0) _lang = 'en';
+
+function _t(key) {
+  var s = _I18N[_lang] || _I18N.en;
+  return (s && s[key]) || _I18N.en[key] || key;
+}
+
+// Translate every static element carrying a data-i18n* attribute.
+function na_applyI18n(root) {
+  var r = root || document;
+  r.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = _t(el.getAttribute('data-i18n')); });
+  r.querySelectorAll('[data-i18n-title]').forEach(function (el) { el.setAttribute('title', _t(el.getAttribute('data-i18n-title'))); });
+  r.querySelectorAll('[data-i18n-aria]').forEach(function (el) { el.setAttribute('aria-label', _t(el.getAttribute('data-i18n-aria'))); });
+  r.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.setAttribute('placeholder', _t(el.getAttribute('data-i18n-ph'))); });
+}
+
+function na_setLang(code) {
+  if (!_I18N[code]) code = 'en';
+  _lang = code;
+  try { localStorage.setItem('na_lang', code); } catch (_e) {}
+  var meta = _LANG_META[code] || _LANG_META.en;
+  try {
+    document.documentElement.setAttribute('lang', code);
+    document.documentElement.setAttribute('dir', meta.dir || 'ltr');
+  } catch (_e) {}
+  na_applyI18n();
+  document.querySelectorAll('.na-lang-current-flag').forEach(function (el) { el.textContent = meta.flag; });
+  document.querySelectorAll('.na-lang-opt').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === code); });
+  if (typeof _rerenderActiveDossier === 'function') { try { _rerenderActiveDossier(); } catch (_e) {} }
+}
+
+// Reusable flag picker markup (used on the welcome card and in Preferences).
+function na_buildLangPicker() {
+  var html = '<div class="na-lang-picker" role="group" aria-label="' + _t('prefs.language') + '">';
+  _LANG_KEYS.forEach(function (c) {
+    var m = _LANG_META[c];
+    html += '<button type="button" class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '" title="' + m.name + '">' +
+            '<span class="na-lang-flag" aria-hidden="true">' + m.flag + '</span>' +
+            '<span class="na-lang-name">' + m.name + '</span></button>';
+  });
+  return html + '</div>';
+}
+
+function na_wireLangPicker(root) {
+  (root || document).querySelectorAll('.na-lang-opt').forEach(function (b) {
+    if (b._naLangWired) return; b._naLangWired = true;
+    b.addEventListener('click', function (e) { e.stopPropagation(); na_setLang(b.dataset.lang); });
+  });
+}
+
 function _cycleLang() {
   var idx = _LANG_KEYS.indexOf(_lang);
-  _lang = _LANG_KEYS[(idx + 1) % _LANG_KEYS.length];
-  localStorage.setItem('na_lang', _lang);
-  var btn = document.getElementById('btn-lang');
-  if (btn) btn.textContent = {en:'🌐 EN', es:'🌐 ES', fr:'🌐 FR', de:'🌐 DE'}[_lang] || '🌐';
+  na_setLang(_LANG_KEYS[(idx + 1) % _LANG_KEYS.length]);
 }
 
 // Distance helper
@@ -3585,29 +3757,43 @@ async function _getCountryIntelligence(iso2, countryName) {
   } catch(e) { return null; }
 }
 
+// Render a country intelligence brief. Prefers the static, pre-generated
+// dataset (COUNTRY_INTEL) so it works for everyone — offline, instantly, with no
+// API key. If a personal key is configured, a fresh live brief replaces it.
+function _renderIntelHTML(intel, containerEl) {
+  if (!intel || !containerEl) return;
+  var h = '<div class="intel-panel">';
+  if (intel.origin)     h += '<div class="intel-sect"><div class="intel-lbl">' + _esc(_t('intel.origin')) + '</div><p>' + _esc(intel.origin) + '</p></div>';
+  if (intel.character)  h += '<div class="intel-sect"><div class="intel-lbl">' + _esc(_t('intel.character')) + '</div><p>' + _esc(intel.character) + '</p></div>';
+  if (intel.bestFor && intel.bestFor.length) {
+    h += '<div class="intel-sect"><div class="intel-lbl">' + _esc(_t('intel.bestFor')) + '</div><ul>';
+    intel.bestFor.forEach(function (b) { h += '<li>' + _esc(b) + '</li>'; });
+    h += '</ul></div>';
+  }
+  if (intel.notKnown)   h += '<div class="intel-sect"><div class="intel-lbl">' + _esc(_t('intel.notKnown')) + '</div><p>' + _esc(intel.notKnown) + '</p></div>';
+  if (intel.complexity) h += '<div class="intel-sect intel-cx"><div class="intel-lbl">' + _esc(_t('intel.complexity')) + '</div><p>' + _esc(intel.complexity) + '</p></div>';
+  containerEl.innerHTML = h + '</div>';
+}
+
 function _renderCountryIntel(iso2, countryName, containerEl) {
   if (!containerEl) return;
-  var apiKey = sessionStorage.getItem("na_api_key");
-  if (!apiKey) {
-    containerEl.innerHTML = "<div class=\"intel-prompt\">Add your API key above to enable AI country intelligence.</div>";
-    return;
+  var stat = (typeof COUNTRY_INTEL !== 'undefined' && COUNTRY_INTEL[iso2]) ? COUNTRY_INTEL[iso2] : null;
+  if (stat) {
+    _renderIntelHTML(stat, containerEl);
+  } else {
+    containerEl.innerHTML = '<div class="intel-loading">' + _esc(_t('common.loading')) + '</div>';
   }
-  containerEl.innerHTML = "<div class=\"intel-loading\">Consulting the almanac…</div>";
-  _getCountryIntelligence(iso2, countryName).then(function(intel) {
-    if (!intel) { containerEl.innerHTML = "<div class=\"intel-error\">Brief unavailable.</div>"; return; }
-    var h = "<div class=\"intel-panel\">";
-    if (intel.origin)    h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">ORIGIN</div><p>" + _esc(intel.origin) + "</p></div>";
-    if (intel.character) h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">CHARACTER</div><p>" + _esc(intel.character) + "</p></div>";
-    if (intel.bestFor && intel.bestFor.length) {
-      h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">BEST FOR</div><ul>";
-      intel.bestFor.forEach(function(b){ h += "<li>" + _esc(b) + "</li>"; });
-      h += "</ul></div>";
-    }
-    if (intel.notKnown)   h += "<div class=\"intel-sect\"><div class=\"intel-lbl\">WHAT LOCALS KNOW</div><p>" + _esc(intel.notKnown) + "</p></div>";
-    if (intel.complexity) h += "<div class=\"intel-sect intel-cx\"><div class=\"intel-lbl\">HONEST COMPLEXITY</div><p>" + _esc(intel.complexity) + "</p></div>";
-    h += "</div>";
-    containerEl.innerHTML = h;
-  });
+  // Optional live enhancement when a personal API key is configured in session.
+  var apiKey = null;
+  try { apiKey = sessionStorage.getItem('na_api_key'); } catch (_e) {}
+  if (apiKey) {
+    _getCountryIntelligence(iso2, countryName).then(function (live) {
+      if (live) _renderIntelHTML(live, containerEl);
+      else if (!stat) containerEl.innerHTML = '<div class="intel-error">' + _esc(_t('common.noData')) + '</div>';
+    });
+  } else if (!stat) {
+    containerEl.innerHTML = '<div class="intel-error">' + _esc(_t('common.noData')) + '</div>';
+  }
 }
 
 // ─── Rail Stop Markers ────────────────────────────────────────────────────────
@@ -4665,7 +4851,7 @@ function buildCountryFactsSection(iso2) {
     + fact('🚗', 'Driving', driveStr)
     + fact('🧭', 'Region', F.region ? _esc(F.region) : null);
   if (!grid) return '';
-  return '<div class="na-facts"><div class="na-sec-h">At a glance</div><div class="na-facts-grid">' + grid + '</div></div>';
+  return '<div class="na-facts"><div class="na-sec-h">' + _esc(_t('doss.glance')) + '</div><div class="na-facts-grid">' + grid + '</div></div>';
 }
 
 // Prominent emergency-numbers band (safety-critical, visually distinct).
@@ -4689,7 +4875,38 @@ function buildEmergencySection(iso2) {
 function buildHistorySection(iso2) {
   var F = (typeof COUNTRY_FACTS !== 'undefined') ? COUNTRY_FACTS[iso2] : null;
   if (!F || !F.hist) return '';
-  return '<div class="na-history"><div class="na-sec-h">History</div><p class="na-history-p">' + _esc(F.hist) + '</p></div>';
+  return '<div class="na-history"><div class="na-sec-h">' + _esc(_t('doss.history')) + '</div><p class="na-history-p">' + _esc(F.hist) + '</p></div>';
+}
+
+// Additional traveler dossier content (tap water, etiquette, getting around,
+// connectivity, money & payments). Renders only when COUNTRY_EXTRA is present.
+function buildExtraSection(iso2) {
+  if (typeof COUNTRY_EXTRA === 'undefined' || !COUNTRY_EXTRA[iso2]) return '';
+  var E = COUNTRY_EXTRA[iso2];
+  var h = '';
+  if (E.tapWater && E.tapWater.status) {
+    var st = E.tapWater.status;
+    var cls = st === 'safe' ? 'tw-safe' : (st === 'caution' ? 'tw-caution' : 'tw-unsafe');
+    var ico = st === 'safe' ? '✓' : (st === 'caution' ? '!' : '✕');
+    h += '<div class="na-extra-tap ' + cls + '"><span class="na-extra-ico" aria-hidden="true">🚰</span>' +
+         '<div class="na-extra-tc"><div class="na-extra-h">' + _esc(_t('doss.tapwater')) +
+         ' <span class="tw-badge">' + ico + ' ' + _esc(st) + '</span></div>' +
+         '<div class="na-extra-p">' + _esc(E.tapWater.note || '') + '</div></div></div>';
+  }
+  function block(key, icon, inner) {
+    return '<div class="na-extra-block"><div class="na-extra-h">' + icon + ' ' + _esc(_t(key)) + '</div>' +
+           '<div class="na-extra-p">' + inner + '</div></div>';
+  }
+  var blocks = '';
+  if (E.etiquette && E.etiquette.length) {
+    blocks += block('doss.etiquette', '🤝', '<ul class="na-extra-ul">' +
+      E.etiquette.map(function (x) { return '<li>' + _esc(x) + '</li>'; }).join('') + '</ul>');
+  }
+  if (E.transport)     blocks += block('doss.transport', '🚕', _esc(E.transport));
+  if (E.connectivity)  blocks += block('doss.connectivity', '📶', _esc(E.connectivity));
+  if (E.payments)      blocks += block('doss.payments', '💳', _esc(E.payments));
+  if (blocks) h += '<div class="na-extra-grid">' + blocks + '</div>';
+  return h ? '<div class="na-extra-wrap">' + h + '</div>' : '';
 }
 
 // Resolve a country's primary language to a PHRASES_BY_LANG key.
@@ -4731,7 +4948,7 @@ function buildPhrasebookSection(iso2) {
       }).join('') + '</div>'
     : '';
   var nativeName = P.native ? ' <span class="na-ph-native">' + _esc(P.native) + '</span>' : '';
-  return '<div class="na-phrasebook"><div class="na-sec-h">Phrasebook — ' + _esc(lang) + nativeName + '</div>' +
+  return '<div class="na-phrasebook"><div class="na-sec-h">' + _esc(_t('doss.phrasebook')) + ' — ' + _esc(lang) + nativeName + '</div>' +
     '<table class="na-ph-table"><tbody>' + preview + '</tbody></table>' +
     ((rest || nums)
       ? '<details class="na-ph-more"><summary>More phrases &amp; numbers</summary>' +
@@ -4763,6 +4980,7 @@ function buildCountryTooltip(iso2) {
   const factsSection     = (typeof buildCountryFactsSection === 'function') ? buildCountryFactsSection(iso2) : '';
   const emergencySection = (typeof buildEmergencySection === 'function') ? buildEmergencySection(iso2) : '';
   const historySection   = (typeof buildHistorySection === 'function') ? buildHistorySection(iso2) : '';
+  const extraSection      = (typeof buildExtraSection === 'function') ? buildExtraSection(iso2) : '';
   const phrasebookSection = (typeof buildPhrasebookSection === 'function') ? buildPhrasebookSection(iso2) : '';
   const unitToggle = `<button class="na-unit-master" onclick="na_toggleUnitSystem()" title="Toggle all units — temperature, distance, elevation">${(typeof _unitsAreImperial === 'function' && _unitsAreImperial()) ? '°F · mi' : '°C · km'}</button>`;
   const tzSection      = buildTimezoneSection(iso2);
@@ -4824,8 +5042,8 @@ function buildCountryTooltip(iso2) {
     ${scoreChip}
     ${bestTimeLine}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${factsSection}${emergencySection}${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${historySection}${phrasebookSection}${journalSection}${visitedBtn}
-  <div class="intel-wrap"><div class="intel-hdr">Country Intelligence <span class="intel-badge">AI</span></div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
+  <div class="ttb" id="tt-body">${factsSection}${emergencySection}${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${historySection}${extraSection}${phrasebookSection}${journalSection}${visitedBtn}
+  <div class="intel-wrap"><div class="intel-hdr">${_esc(_t('intel.title'))}</div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
   ${_buildPlanBook(name, _cc && _cc[0], _cc && _cc[1])}
   </div>${pinSection}${similarSection}`;
 }
@@ -7012,15 +7230,28 @@ function showOnboardingHint() {
   el.setAttribute('role', 'dialog');
   el.setAttribute('aria-label', 'Welcome to the Nomadic Almanac');
   el.innerHTML = `
-    <p class="hint-title">Welcome, traveller</p>
-    <p>An atlas of where to go and when. Click any country for its dossier, scrub the
-       months to see the seasons turn, and add layers to read the world your way.</p>
-    <p class="hint-sub">Zoom in for province &amp; county detail &middot; pick a passport for visa colours</p>
+    <div class="hint-lang" id="na-hint-lang"></div>
+    <p class="hint-title" data-i18n="welcome.title">Welcome to the Nomadic Almanac</p>
+    <p data-i18n="welcome.body">A living atlas of where to go and when. Click any country to open its travel dossier, scrub the months to watch the seasons turn, and switch on layers to read the world your way.</p>
+    <p class="hint-sub" data-i18n="welcome.sub">Tip: zoom in for province and county detail, and choose your passport to colour the map by visa access.</p>
     <div class="hint-actions">
-      <button type="button" class="hint-btn primary" id="na-hint-tour">Take the tour</button>
-      <button type="button" class="hint-btn" id="na-hint-dismiss">Explore on my own</button>
+      <button type="button" class="hint-btn primary" id="na-hint-tour" data-i18n="welcome.tour">Take the guided tour</button>
+      <button type="button" class="hint-btn" id="na-hint-dismiss" data-i18n="welcome.explore">Explore on my own</button>
+    </div>
+    <div class="hint-links">
+      <button type="button" class="hint-link" id="na-hint-tutorial" data-i18n="welcome.tutorial">How it works</button>
+      <span class="hint-link-sep" aria-hidden="true">·</span>
+      <button type="button" class="hint-link" id="na-hint-faq" data-i18n="welcome.faq">FAQ</button>
     </div>`;
   document.body.appendChild(el);
+
+  // Inline language picker — choosing a flag re-translates the card live.
+  var langHost = el.querySelector('#na-hint-lang');
+  if (langHost && typeof na_buildLangPicker === 'function') {
+    langHost.innerHTML = na_buildLangPicker();
+    na_wireLangPicker(el);
+  }
+  if (typeof na_applyI18n === 'function') { try { na_applyI18n(el); } catch (_e) {} }
 
   let dismissed = false;
   function teardownListeners() {
@@ -7048,6 +7279,10 @@ function showOnboardingHint() {
     dismiss();
     if (typeof startTour === 'function') setTimeout(startTour, 360);
   });
+  var _htut = el.querySelector('#na-hint-tutorial');
+  if (_htut) _htut.addEventListener('click', e => { e.stopPropagation(); dismiss(); if (typeof na_openTutorial === 'function') setTimeout(na_openTutorial, 360); });
+  var _hfaq = el.querySelector('#na-hint-faq');
+  if (_hfaq) _hfaq.addEventListener('click', e => { e.stopPropagation(); dismiss(); if (typeof na_openFaq === 'function') setTimeout(na_openFaq, 360); });
 
   // Any interaction anywhere else on the site dismisses the card. A short delay
   // ensures the page-load settling does not count as an interaction.
@@ -7058,6 +7293,78 @@ function showOnboardingHint() {
     if (map && map.on) map.on('movestart zoomstart dragstart', dismiss);
   }, 450);
 }
+
+// ─── Written tutorial + FAQ (help modal) ────────────────────────────────────
+// A self-hosted, accessible modal. The interactive guided tour (startTour) is
+// the "video" counterpart; this is the written reference and FAQ.
+var _NA_TUTORIAL = [
+  { title: 'The world map', body: 'The almanac opens on a satellite view in dark mode. Drag to pan and scroll or pinch to zoom. Glowing dots mark notable cities; as you zoom in the map reveals more cities, then provinces, then counties.' },
+  { title: 'Open a country dossier', body: 'Click any country to open its travel dossier — emergency numbers, currency, power sockets, a phrasebook, climate, living costs, safety, visa access, a short history, and a country intelligence brief.' },
+  { title: 'Units and currency', body: 'Inside a dossier, one toggle switches every measurement at once (°C or °F, km or mi, m or ft). Choose your currency in Preferences and every cost figure converts automatically using a dated exchange-rate snapshot.' },
+  { title: 'Intelligence layers', body: 'Open Layers from the bottom menu and switch on weather, safety, cost, visas, events and more. A single layer paints the map by score; stack several and each country shows one coloured chip per layer so you can compare them in place.' },
+  { title: 'Travel through the year', body: 'Scrub the months to watch climate, crowds and prices shift. Every colour on the map reflects the month you have selected.' },
+  { title: 'Your passport', body: 'Choose your nationality and the map recolours every country by how easy it is for you to enter — from visa-free to visa-required.' },
+  { title: 'Plan and compare', body: 'Open the Trip Planner, press Add Pin and click the map to drop waypoints; a route line connects your journey. Compare countries side by side, and search anything with the search icon or the ⌘K / Ctrl+K shortcut.' },
+  { title: 'Make it yours', body: 'Preferences holds your language, currency, units, map view, place labels and the guided tour. Pick your language with the flag on the welcome screen or in Preferences at any time.' },
+];
+
+var _NA_FAQ = [
+  { q: 'Is the Nomadic Almanac free to use?', a: 'Yes. It runs entirely in your browser and no account is required.' },
+  { q: 'Does it work offline?', a: 'Largely, yes. Core data is bundled and cached, so the map and dossiers keep working without a connection after the first visit. Live overlays such as real-time transit or incident data require a connection.' },
+  { q: 'How current is the information?', a: 'Chart data is dated in the sidebar (currently June 2026), and exchange rates are a dated snapshot. Safety-critical facts such as emergency numbers, plug types and voltages are verified against authoritative sources.' },
+  { q: 'How accurate is the travel guidance?', a: 'It is carefully compiled and reviewed, but it remains general guidance. Always confirm visas, vaccinations, tap-water safety and emergency numbers with official sources before you travel.' },
+  { q: 'Can I change the language?', a: 'Yes. Use the flag picker on the welcome screen or in Preferences. The interface defaults to your browser language and falls back to English where a translation is unavailable.' },
+  { q: 'Can I change the currency?', a: 'Yes. Set it in Preferences and all cost figures convert to your chosen currency using a dated exchange-rate snapshot.' },
+  { q: 'How do I read several layers at once?', a: 'Switch on multiple layers; each country then displays one small coloured chip per active layer, so you can compare them without losing the map underneath.' },
+  { q: 'Is my data private?', a: 'Yes. Your preferences, trip pins and journal entries are stored only in your browser. Nothing is sent to a server, and your default language is read from your browser, not your IP address.' },
+  { q: 'How do I reopen this help?', a: 'Open Preferences and choose Written tutorial, FAQ, or Replay guided tour whenever you like.' },
+];
+
+function na_openHelp(kind) {
+  na_closeHelp();
+  var isTut = (kind === 'tutorial');
+  var title = isTut ? _t('welcome.tutorial') : _t('welcome.faq');
+  var bodyHtml;
+  if (isTut) {
+    bodyHtml = _NA_TUTORIAL.map(function (s, i) {
+      return '<section class="na-help-step"><div class="na-help-step-n">' + (i + 1) + '</div>' +
+             '<div class="na-help-step-c"><h3>' + _esc(s.title) + '</h3><p>' + _esc(s.body) + '</p></div></section>';
+    }).join('');
+    bodyHtml += '<div class="na-help-cta"><button type="button" class="hint-btn primary" id="na-help-tour">' + _esc(_t('welcome.tour')) + '</button></div>';
+  } else {
+    bodyHtml = _NA_FAQ.map(function (f) {
+      return '<details class="na-faq-item"><summary>' + _esc(f.q) + '</summary><p>' + _esc(f.a) + '</p></details>';
+    }).join('');
+  }
+  var overlay = document.createElement('div');
+  overlay.id = 'na-help-overlay';
+  overlay.innerHTML =
+    '<div id="na-help-backdrop"></div>' +
+    '<div id="na-help-panel" class="glass-panel" role="dialog" aria-modal="true" aria-label="' + _esc(title) + '">' +
+      '<button type="button" id="na-help-close" aria-label="' + _esc(_t('common.close')) + '">&times;</button>' +
+      '<h2 class="na-help-title">' + _esc(title) + '</h2><hr class="gold-rule">' +
+      '<div class="na-help-body ' + (isTut ? 'na-help-tut' : 'na-help-faq') + '">' + bodyHtml + '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  function close() { na_closeHelp(); }
+  overlay.querySelector('#na-help-backdrop').addEventListener('click', close);
+  overlay.querySelector('#na-help-close').addEventListener('click', close);
+  var tourBtn = overlay.querySelector('#na-help-tour');
+  if (tourBtn) tourBtn.addEventListener('click', function () { close(); if (typeof startTour === 'function') setTimeout(startTour, 250); });
+  overlay._naKey = function (e) { if (e.key === 'Escape') { e.preventDefault(); close(); } };
+  document.addEventListener('keydown', overlay._naKey, true);
+  setTimeout(function () { var c = overlay.querySelector('#na-help-close'); if (c) c.focus(); }, 50);
+}
+function na_closeHelp() {
+  var o = document.getElementById('na-help-overlay');
+  if (!o) return;
+  if (o._naKey) document.removeEventListener('keydown', o._naKey, true);
+  if (o.parentNode) o.parentNode.removeChild(o);
+  document.body.style.overflow = '';
+}
+function na_openTutorial() { na_openHelp('tutorial'); }
+function na_openFaq() { na_openHelp('faq'); }
 
 // ─── Guided Walkthrough Tour ─────────────────────────────────────────────────
 // A lightweight coachmark tour for new (and returning) users. Each step points
@@ -8445,18 +8752,12 @@ function na_toggleLabels(on) {
 // the left sidebar's Preferences item. The old always-expanded basemap/labels
 // switcher was folded into Preferences (Map Style + Place Labels rows).
 function na_initPrefsLauncher() {
-  if (document.getElementById('na-prefs-launcher')) return;
-  var host = document.getElementById('na-main') || document.body;
-  var btn = document.createElement('button');
-  btn.id = 'na-prefs-launcher';
-  btn.type = 'button';
-  btn.setAttribute('aria-label', 'Preferences — map view, labels, and units');
-  btn.title = 'Preferences';
-  btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-compass"/></svg>';
-  btn.addEventListener('click', function () {
-    if (typeof na_openPrefsSheet === 'function') na_openPrefsSheet();
-  });
-  host.appendChild(btn);
+  // The floating gear was a third, redundant route to Preferences. Preferences
+  // is now a single icon in the bottom menu (Settings). We no longer create the
+  // gear; we only keep the attribution refresh that used to run here. If a stale
+  // gear exists in the DOM (e.g. cached markup), remove it.
+  var stale = document.getElementById('na-prefs-launcher');
+  if (stale && stale.parentNode) stale.parentNode.removeChild(stale);
   na_updateAttribution();
 }
 
@@ -8557,6 +8858,25 @@ function na_initPrefsSheet() {
     na_closePrefsSheet();
     if (typeof startTour === 'function') setTimeout(startTour, 280);
   });
+
+  var tutBtn = document.getElementById('na-prefs-tutorial');
+  if (tutBtn) tutBtn.addEventListener('click', function () {
+    na_closePrefsSheet();
+    if (typeof na_openTutorial === 'function') setTimeout(na_openTutorial, 200);
+  });
+  var faqBtn = document.getElementById('na-prefs-faq');
+  if (faqBtn) faqBtn.addEventListener('click', function () {
+    na_closePrefsSheet();
+    if (typeof na_openFaq === 'function') setTimeout(na_openFaq, 200);
+  });
+
+  // Build the language + currency pickers and the FX "as of" note.
+  var langWrap = document.getElementById('pref-lang-picker');
+  if (langWrap) { langWrap.innerHTML = na_buildLangPicker(); na_wireLangPicker(langWrap); }
+  var currWrap = document.getElementById('pref-curr-picker');
+  if (currWrap) { currWrap.innerHTML = na_buildCurrencyPicker(); na_wireCurrencyPicker(currWrap); }
+  var currNote = document.getElementById('pref-curr-note');
+  if (currNote) currNote.textContent = 'Rates as of ' + (typeof _RATES_AS_OF !== 'undefined' ? _RATES_AS_OF : '');
 
   na_syncPrefsUI();
 }
@@ -8993,6 +9313,20 @@ function na_initSidebarCollapse() {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply(!sidebar.classList.contains('collapsed'), true); }
   });
 
+  // The persistent top-header brand also collapses/expands the left sidebar, so
+  // the logo behaves consistently with the mobile-style top + bottom chrome.
+  var headerLogo = document.getElementById('na-header-logo');
+  if (headerLogo) {
+    headerLogo.setAttribute('role', 'button');
+    headerLogo.setAttribute('tabindex', '0');
+    headerLogo.setAttribute('aria-label', 'Collapse or expand the navigation sidebar');
+    headerLogo.style.cursor = 'pointer';
+    headerLogo.addEventListener('click', function () { apply(!sidebar.classList.contains('collapsed'), true); });
+    headerLogo.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply(!sidebar.classList.contains('collapsed'), true); }
+    });
+  }
+
   var saved = null;
   try { saved = localStorage.getItem('na_sidebar_collapsed'); } catch (e) {}
   apply(saved === '1', false);
@@ -9020,6 +9354,9 @@ function navInit() {
   na_initSidebarCollapse();
   na_initPrefsLauncher();
 
+  // Apply the active language to all static chrome (and set <html lang/dir>).
+  try { na_setLang(_lang); } catch (_e) {}
+
   // Layer-state UI is synced event-driven from refresh() (which runs on every
   // layer / month / passport change) — no idle polling timer. Initial sync now.
   na_updateLayerActiveStates();
@@ -9036,3 +9373,817 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(navInit, 200);
 }
+
+// ─── Curated translations (es,fr,de,pt,ar,zh,hi,ja,ru) — generated, entity-decoded ───
+Object.assign(_I18N, {
+ "es": {
+  "nav.worldMap": "Mapamundi",
+  "nav.bestMonth": "Mejor este mes",
+  "nav.passport": "Pasaporte y visado",
+  "nav.planner": "Planificador de viaje",
+  "nav.compare": "Comparar países",
+  "nav.preferences": "Preferencias",
+  "nav.explore": "Explorar",
+  "nav.journey": "Viaje",
+  "nav.layers": "Capas",
+  "nav.settings": "Ajustes",
+  "group.explore": "Explorar",
+  "group.journey": "Tu viaje",
+  "group.intelligence": "Información",
+  "group.settings": "Ajustes",
+  "hdr.search": "Buscar",
+  "hdr.theme": "Cambiar tema día/noche",
+  "hdr.share": "Compartir",
+  "welcome.title": "Bienvenido a Nomadic Almanac",
+  "welcome.body": "Un atlas vivo de adónde ir y cuándo. Pulsa cualquier país para abrir su dosier de viaje, desliza por los meses para ver cambiar las estaciones y activa capas para leer el mundo a tu manera.",
+  "welcome.sub": "Consejo: amplía para ver el detalle de provincias y comarcas, y elige tu pasaporte para colorear el mapa según el acceso de visado.",
+  "welcome.tour": "Hacer el recorrido guiado",
+  "welcome.explore": "Explorar por mi cuenta",
+  "welcome.language": "Idioma",
+  "welcome.tutorial": "Cómo funciona",
+  "welcome.faq": "Preguntas frecuentes",
+  "prefs.title": "Preferencias",
+  "prefs.mapView": "Vista del mapa",
+  "prefs.labels": "Etiquetas de lugar",
+  "prefs.units": "Unidades",
+  "prefs.temp": "Temperatura",
+  "prefs.dist": "Distancia",
+  "prefs.elev": "Altitud",
+  "prefs.dateFormat": "Formato de fecha",
+  "prefs.clock": "Reloj",
+  "prefs.language": "Idioma",
+  "prefs.currency": "Moneda",
+  "prefs.theme": "Tema",
+  "prefs.tour": "Repetir recorrido guiado",
+  "prefs.tutorial": "Tutorial escrito",
+  "prefs.faq": "Preguntas frecuentes",
+  "prefs.on": "Activado",
+  "prefs.off": "Desactivado",
+  "prefs.dark": "Oscuro",
+  "prefs.light": "Claro",
+  "bm.satellite": "Satélite",
+  "bm.streets": "Calles",
+  "bm.dark": "Oscuro",
+  "bm.terrain": "Relieve",
+  "bm.night": "Luces nocturnas",
+  "doss.glance": "De un vistazo",
+  "doss.emergency": "Emergencias",
+  "doss.cost": "Coste de vida",
+  "doss.health": "Salud",
+  "doss.climate": "Clima",
+  "doss.safety": "Seguridad",
+  "doss.tipping": "Propinas",
+  "doss.visa": "Acceso de visado",
+  "doss.timezone": "Zona horaria",
+  "doss.holidays": "Festivos y eventos",
+  "doss.history": "Historia",
+  "doss.phrasebook": "Guía de frases",
+  "doss.intel": "Información del país",
+  "doss.language": "Idioma",
+  "doss.capital": "Capital",
+  "doss.population": "Población",
+  "doss.currency": "Moneda",
+  "doss.languages": "Idiomas",
+  "doss.power": "Enchufes",
+  "doss.calling": "Prefijo telefónico",
+  "doss.driving": "Conducción",
+  "doss.region": "Región",
+  "doss.tapwater": "Agua del grifo",
+  "doss.etiquette": "Etiqueta y costumbres",
+  "doss.transport": "Cómo moverse",
+  "doss.connectivity": "Conectividad",
+  "doss.payments": "Dinero y pagos",
+  "common.close": "Cerrar",
+  "common.loading": "Cargando…",
+  "common.noData": "Sin datos",
+  "common.more": "Ver más",
+  "common.less": "Ver menos",
+  "common.search": "Buscar países, ciudades o capas",
+  "intel.title": "Información del país",
+  "intel.origin": "Origen",
+  "intel.character": "Carácter",
+  "intel.complexity": "Complejidad real",
+  "intel.bestFor": "Ideal para",
+  "intel.notKnown": "Lo que saben los locales"
+ },
+ "fr": {
+  "nav.worldMap": "Carte du monde",
+  "nav.bestMonth": "Idéal ce mois-ci",
+  "nav.passport": "Passeport et visa",
+  "nav.planner": "Planificateur de voyage",
+  "nav.compare": "Comparer les pays",
+  "nav.preferences": "Préférences",
+  "nav.explore": "Explorer",
+  "nav.journey": "Voyage",
+  "nav.layers": "Calques",
+  "nav.settings": "Paramètres",
+  "group.explore": "Explorer",
+  "group.journey": "Votre voyage",
+  "group.intelligence": "Renseignements",
+  "group.settings": "Paramètres",
+  "hdr.search": "Rechercher",
+  "hdr.theme": "Basculer thème jour/nuit",
+  "hdr.share": "Partager",
+  "welcome.title": "Bienvenue dans le Nomadic Almanac",
+  "welcome.body": "Un atlas vivant qui révèle où partir et quand. Cliquez sur un pays pour ouvrir son dossier de voyage, faites défiler les mois pour observer le passage des saisons, et activez des calques pour lire le monde à votre façon.",
+  "welcome.sub": "Astuce : zoomez pour voir le détail des provinces et des départements, et choisissez votre passeport pour colorer la carte selon l'accès au visa.",
+  "welcome.tour": "Suivre la visite guidée",
+  "welcome.explore": "Explorer par moi-même",
+  "welcome.language": "Langue",
+  "welcome.tutorial": "Comment ça marche",
+  "welcome.faq": "FAQ",
+  "prefs.title": "Préférences",
+  "prefs.mapView": "Affichage de la carte",
+  "prefs.labels": "Étiquettes de lieux",
+  "prefs.units": "Unités",
+  "prefs.temp": "Température",
+  "prefs.dist": "Distance",
+  "prefs.elev": "Altitude",
+  "prefs.dateFormat": "Format de date",
+  "prefs.clock": "Horloge",
+  "prefs.language": "Langue",
+  "prefs.currency": "Devise",
+  "prefs.theme": "Thème",
+  "prefs.tour": "Revoir la visite guidée",
+  "prefs.tutorial": "Tutoriel écrit",
+  "prefs.faq": "FAQ",
+  "prefs.on": "Activé",
+  "prefs.off": "Désactivé",
+  "prefs.dark": "Sombre",
+  "prefs.light": "Clair",
+  "bm.satellite": "Satellite",
+  "bm.streets": "Rues",
+  "bm.dark": "Sombre",
+  "bm.terrain": "Relief",
+  "bm.night": "Lumières nocturnes",
+  "doss.glance": "En bref",
+  "doss.emergency": "Urgences",
+  "doss.cost": "Coût de la vie",
+  "doss.health": "Santé",
+  "doss.climate": "Climat",
+  "doss.safety": "Sécurité",
+  "doss.tipping": "Pourboires",
+  "doss.visa": "Accès au visa",
+  "doss.timezone": "Fuseau horaire",
+  "doss.holidays": "Fêtes et événements",
+  "doss.history": "Histoire",
+  "doss.phrasebook": "Guide de conversation",
+  "doss.intel": "Renseignements pays",
+  "doss.language": "Langue",
+  "doss.capital": "Capitale",
+  "doss.population": "Population",
+  "doss.currency": "Devise",
+  "doss.languages": "Langues",
+  "doss.power": "Prises électriques",
+  "doss.calling": "Indicatif téléphonique",
+  "doss.driving": "Conduite",
+  "doss.region": "Région",
+  "doss.tapwater": "Eau du robinet",
+  "doss.etiquette": "Us et coutumes",
+  "doss.transport": "Se déplacer",
+  "doss.connectivity": "Connectivité",
+  "doss.payments": "Argent et paiements",
+  "common.close": "Fermer",
+  "common.loading": "Chargement…",
+  "common.noData": "Aucune donnée",
+  "common.more": "Voir plus",
+  "common.less": "Voir moins",
+  "common.search": "Rechercher pays, villes ou calques",
+  "intel.title": "Renseignements pays",
+  "intel.origin": "Origine",
+  "intel.character": "Caractère",
+  "intel.complexity": "Complexité réelle",
+  "intel.bestFor": "Idéal pour",
+  "intel.notKnown": "Ce que savent les habitants"
+ },
+ "de": {
+  "nav.worldMap": "Weltkarte",
+  "nav.bestMonth": "Beste Zeit im Monat",
+  "nav.passport": "Pass & Visum",
+  "nav.planner": "Reiseplaner",
+  "nav.compare": "Länder vergleichen",
+  "nav.preferences": "Einstellungen",
+  "nav.explore": "Entdecken",
+  "nav.journey": "Reise",
+  "nav.layers": "Ebenen",
+  "nav.settings": "Einstellungen",
+  "group.explore": "Entdecken",
+  "group.journey": "Deine Reise",
+  "group.intelligence": "Wissenswertes",
+  "group.settings": "Einstellungen",
+  "hdr.search": "Suchen",
+  "hdr.theme": "Tag-/Nachtmodus wechseln",
+  "hdr.share": "Teilen",
+  "welcome.title": "Willkommen beim Nomadic Almanac",
+  "welcome.body": "Ein lebendiger Atlas: wohin und wann. Klicke auf ein Land, um sein Reisedossier zu öffnen, ziehe durch die Monate, um die Jahreszeiten zu erleben, und schalte Ebenen ein, um die Welt nach deinen Wünschen zu lesen.",
+  "welcome.sub": "Tipp: Zoome hinein für Provinz- und Kreisdetails und wähle deinen Pass, um die Karte nach Visumzugang einzufärben.",
+  "welcome.tour": "Geführte Tour starten",
+  "welcome.explore": "Selbst erkunden",
+  "welcome.language": "Sprache",
+  "welcome.tutorial": "So funktioniert es",
+  "welcome.faq": "FAQ",
+  "prefs.title": "Einstellungen",
+  "prefs.mapView": "Kartenansicht",
+  "prefs.labels": "Ortsbeschriftungen",
+  "prefs.units": "Einheiten",
+  "prefs.temp": "Temperatur",
+  "prefs.dist": "Entfernung",
+  "prefs.elev": "Höhe",
+  "prefs.dateFormat": "Datumsformat",
+  "prefs.clock": "Uhrzeit",
+  "prefs.language": "Sprache",
+  "prefs.currency": "Währung",
+  "prefs.theme": "Design",
+  "prefs.tour": "Geführte Tour wiederholen",
+  "prefs.tutorial": "Schriftliche Anleitung",
+  "prefs.faq": "FAQ",
+  "prefs.on": "Ein",
+  "prefs.off": "Aus",
+  "prefs.dark": "Dunkel",
+  "prefs.light": "Hell",
+  "bm.satellite": "Satellit",
+  "bm.streets": "Straßen",
+  "bm.dark": "Dunkel",
+  "bm.terrain": "Gelände",
+  "bm.night": "Nachtlichter",
+  "doss.glance": "Überblick",
+  "doss.emergency": "Notfall",
+  "doss.cost": "Lebenshaltungskosten",
+  "doss.health": "Gesundheit",
+  "doss.climate": "Klima",
+  "doss.safety": "Sicherheit",
+  "doss.tipping": "Trinkgeld",
+  "doss.visa": "Visumzugang",
+  "doss.timezone": "Zeitzone",
+  "doss.holidays": "Feiertage & Events",
+  "doss.history": "Geschichte",
+  "doss.phrasebook": "Sprachführer",
+  "doss.intel": "Länderwissen",
+  "doss.language": "Sprache",
+  "doss.capital": "Hauptstadt",
+  "doss.population": "Bevölkerung",
+  "doss.currency": "Währung",
+  "doss.languages": "Sprachen",
+  "doss.power": "Strom",
+  "doss.calling": "Vorwahl",
+  "doss.driving": "Verkehr",
+  "doss.region": "Region",
+  "doss.tapwater": "Leitungswasser",
+  "doss.etiquette": "Sitten & Gebräuche",
+  "doss.transport": "Fortbewegung",
+  "doss.connectivity": "Konnektivität",
+  "doss.payments": "Geld & Zahlung",
+  "common.close": "Schließen",
+  "common.loading": "Wird geladen…",
+  "common.noData": "Keine Daten",
+  "common.more": "Mehr anzeigen",
+  "common.less": "Weniger anzeigen",
+  "common.search": "Länder, Städte oder Ebenen suchen",
+  "intel.title": "Länderwissen",
+  "intel.origin": "Herkunft",
+  "intel.character": "Charakter",
+  "intel.complexity": "Ehrliche Komplexität",
+  "intel.bestFor": "Ideal für",
+  "intel.notKnown": "Was Einheimische wissen"
+ },
+ "pt": {
+  "nav.worldMap": "Mapa-múndi",
+  "nav.bestMonth": "Melhor no Mês",
+  "nav.passport": "Passaporte e Visto",
+  "nav.planner": "Planejar Viagem",
+  "nav.compare": "Comparar Países",
+  "nav.preferences": "Preferências",
+  "nav.explore": "Explorar",
+  "nav.journey": "Jornada",
+  "nav.layers": "Camadas",
+  "nav.settings": "Configurações",
+  "group.explore": "Explorar",
+  "group.journey": "Sua Jornada",
+  "group.intelligence": "Informações",
+  "group.settings": "Configurações",
+  "hdr.search": "Buscar",
+  "hdr.theme": "Alternar tema dia/noite",
+  "hdr.share": "Compartilhar",
+  "welcome.title": "Bem-vindo ao Nomadic Almanac",
+  "welcome.body": "Um atlas vivo de onde ir e quando. Clique em qualquer país para abrir seu dossiê de viagem, percorra os meses para ver as estações mudarem e ative camadas para ler o mundo do seu jeito.",
+  "welcome.sub": "Dica: amplie para ver detalhes de províncias e municípios e escolha seu passaporte para colorir o mapa por acesso de visto.",
+  "welcome.tour": "Fazer o tour guiado",
+  "welcome.explore": "Explorar por conta própria",
+  "welcome.language": "Idioma",
+  "welcome.tutorial": "Como funciona",
+  "welcome.faq": "Perguntas Frequentes",
+  "prefs.title": "Preferências",
+  "prefs.mapView": "Visualização do Mapa",
+  "prefs.labels": "Nomes de Locais",
+  "prefs.units": "Unidades",
+  "prefs.temp": "Temperatura",
+  "prefs.dist": "Distância",
+  "prefs.elev": "Altitude",
+  "prefs.dateFormat": "Formato de Data",
+  "prefs.clock": "Relógio",
+  "prefs.language": "Idioma",
+  "prefs.currency": "Moeda",
+  "prefs.theme": "Tema",
+  "prefs.tour": "Repetir tour guiado",
+  "prefs.tutorial": "Tutorial escrito",
+  "prefs.faq": "Perguntas Frequentes",
+  "prefs.on": "Ativado",
+  "prefs.off": "Desativado",
+  "prefs.dark": "Escuro",
+  "prefs.light": "Claro",
+  "bm.satellite": "Satélite",
+  "bm.streets": "Ruas",
+  "bm.dark": "Escuro",
+  "bm.terrain": "Relevo",
+  "bm.night": "Luzes Noturnas",
+  "doss.glance": "Resumo",
+  "doss.emergency": "Emergência",
+  "doss.cost": "Custo de Vida",
+  "doss.health": "Saúde",
+  "doss.climate": "Clima",
+  "doss.safety": "Segurança",
+  "doss.tipping": "Gorjetas",
+  "doss.visa": "Acesso de Visto",
+  "doss.timezone": "Fuso Horário",
+  "doss.holidays": "Feriados e Eventos",
+  "doss.history": "História",
+  "doss.phrasebook": "Guia de Frases",
+  "doss.intel": "Informações do País",
+  "doss.language": "Idioma",
+  "doss.capital": "Capital",
+  "doss.population": "População",
+  "doss.currency": "Moeda",
+  "doss.languages": "Idiomas",
+  "doss.power": "Tomadas",
+  "doss.calling": "Código Telefônico",
+  "doss.driving": "Direção",
+  "doss.region": "Região",
+  "doss.tapwater": "Água da Torneira",
+  "doss.etiquette": "Etiqueta e Costumes",
+  "doss.transport": "Como Circular",
+  "doss.connectivity": "Conectividade",
+  "doss.payments": "Dinheiro e Pagamentos",
+  "common.close": "Fechar",
+  "common.loading": "Carregando…",
+  "common.noData": "Sem dados",
+  "common.more": "Ver mais",
+  "common.less": "Ver menos",
+  "common.search": "Buscar países, cidades ou camadas",
+  "intel.title": "Informações do País",
+  "intel.origin": "Origem",
+  "intel.character": "Caráter",
+  "intel.complexity": "Complexidade Real",
+  "intel.bestFor": "Ideal Para",
+  "intel.notKnown": "O Que os Locais Sabem"
+ },
+ "ar": {
+  "nav.worldMap": "خريطة العالم",
+  "nav.bestMonth": "الأفضل هذا الشهر",
+  "nav.passport": "الجواز والتأشيرة",
+  "nav.planner": "مخطِّط الرحلة",
+  "nav.compare": "مقارنة الدول",
+  "nav.preferences": "التفضيلات",
+  "nav.explore": "استكشاف",
+  "nav.journey": "الرحلة",
+  "nav.layers": "الطبقات",
+  "nav.settings": "الإعدادات",
+  "group.explore": "استكشاف",
+  "group.journey": "رحلتك",
+  "group.intelligence": "المعلومات",
+  "group.settings": "الإعدادات",
+  "hdr.search": "بحث",
+  "hdr.theme": "تبديل المظهر النهاري/الليلي",
+  "hdr.share": "مشاركة",
+  "welcome.title": "مرحبًا بك في التقويم الرُّحَّل",
+  "welcome.body": "أطلس حي يدلّك إلى الوجهة والوقت المناسبين. انقر أي دولة لفتح ملفها السياحي، وحرّك الأشهر لتشاهد تعاقب الفصول، وفعِّل الطبقات لترى العالم بطريقتك.",
+  "welcome.sub": "نصيحة: قرّب لعرض تفاصيل المحافظات والأقاليم، واختر جوازك لتلوين الخريطة حسب صلاحية التأشيرة.",
+  "welcome.tour": "ابدأ الجولة الإرشادية",
+  "welcome.explore": "الاستكشاف بنفسي",
+  "welcome.language": "اللغة",
+  "welcome.tutorial": "كيف يعمل",
+  "welcome.faq": "الأسئلة الشائعة",
+  "prefs.title": "التفضيلات",
+  "prefs.mapView": "عرض الخريطة",
+  "prefs.labels": "تسميات الأماكن",
+  "prefs.units": "الوحدات",
+  "prefs.temp": "درجة الحرارة",
+  "prefs.dist": "المسافة",
+  "prefs.elev": "الارتفاع",
+  "prefs.dateFormat": "تنسيق التاريخ",
+  "prefs.clock": "الساعة",
+  "prefs.language": "اللغة",
+  "prefs.currency": "العملة",
+  "prefs.theme": "المظهر",
+  "prefs.tour": "إعادة الجولة الإرشادية",
+  "prefs.tutorial": "شرح مكتوب",
+  "prefs.faq": "الأسئلة الشائعة",
+  "prefs.on": "تشغيل",
+  "prefs.off": "إيقاف",
+  "prefs.dark": "داكن",
+  "prefs.light": "فاتح",
+  "bm.satellite": "قمر صناعي",
+  "bm.streets": "شوارع",
+  "bm.dark": "داكن",
+  "bm.terrain": "تضاريس",
+  "bm.night": "أضواء الليل",
+  "doss.glance": "لمحة سريعة",
+  "doss.emergency": "الطوارئ",
+  "doss.cost": "تكلفة المعيشة",
+  "doss.health": "الصحة",
+  "doss.climate": "المناخ",
+  "doss.safety": "الأمان",
+  "doss.tipping": "البقشيش",
+  "doss.visa": "صلاحية التأشيرة",
+  "doss.timezone": "المنطقة الزمنية",
+  "doss.holidays": "العطلات والفعاليات",
+  "doss.history": "التاريخ",
+  "doss.phrasebook": "دليل العبارات",
+  "doss.intel": "معلومات الدولة",
+  "doss.language": "اللغة",
+  "doss.capital": "العاصمة",
+  "doss.population": "عدد السكان",
+  "doss.currency": "العملة",
+  "doss.languages": "اللغات",
+  "doss.power": "الكهرباء",
+  "doss.calling": "رمز الاتصال",
+  "doss.driving": "اتجاه القيادة",
+  "doss.region": "المنطقة",
+  "doss.tapwater": "ماء الصنبور",
+  "doss.etiquette": "الآداب والعادات",
+  "doss.transport": "التنقّل",
+  "doss.connectivity": "الاتصال",
+  "doss.payments": "المال والمدفوعات",
+  "common.close": "إغلاق",
+  "common.loading": "جارٍ التحميل…",
+  "common.noData": "لا توجد بيانات",
+  "common.more": "عرض المزيد",
+  "common.less": "عرض أقل",
+  "common.search": "ابحث عن دول أو مدن أو طبقات",
+  "intel.title": "معلومات الدولة",
+  "intel.origin": "النشأة",
+  "intel.character": "الطابع",
+  "intel.complexity": "التعقيد الحقيقي",
+  "intel.bestFor": "الأنسب لـ",
+  "intel.notKnown": "ما يعرفه السكان المحليون"
+ },
+ "zh": {
+  "nav.worldMap": "世界地图",
+  "nav.bestMonth": "本月最佳",
+  "nav.passport": "护照与签证",
+  "nav.planner": "行程规划",
+  "nav.compare": "国家对比",
+  "nav.preferences": "偏好设置",
+  "nav.explore": "探索",
+  "nav.journey": "旅程",
+  "nav.layers": "图层",
+  "nav.settings": "设置",
+  "group.explore": "探索",
+  "group.journey": "你的旅程",
+  "group.intelligence": "情报",
+  "group.settings": "设置",
+  "hdr.search": "搜索",
+  "hdr.theme": "切换昼夜主题",
+  "hdr.share": "分享",
+  "welcome.title": "欢迎使用 Nomadic Almanac",
+  "welcome.body": "一份记录何处可去、何时启程的活地图集。点击任意国家即可查阅其旅行档案，拖动月份观看季节流转，开启图层以你的方式解读世界。",
+  "welcome.sub": "提示：放大可查看省、县级详情，选择你的护照即可按签证准入情况为地图着色。",
+  "welcome.tour": "开始引导游览",
+  "welcome.explore": "自行探索",
+  "welcome.language": "语言",
+  "welcome.tutorial": "使用说明",
+  "welcome.faq": "常见问题",
+  "prefs.title": "偏好设置",
+  "prefs.mapView": "地图视图",
+  "prefs.labels": "地名标注",
+  "prefs.units": "单位",
+  "prefs.temp": "温度",
+  "prefs.dist": "距离",
+  "prefs.elev": "海拔",
+  "prefs.dateFormat": "日期格式",
+  "prefs.clock": "时间制",
+  "prefs.language": "语言",
+  "prefs.currency": "货币",
+  "prefs.theme": "主题",
+  "prefs.tour": "重播引导游览",
+  "prefs.tutorial": "图文教程",
+  "prefs.faq": "常见问题",
+  "prefs.on": "开",
+  "prefs.off": "关",
+  "prefs.dark": "深色",
+  "prefs.light": "浅色",
+  "bm.satellite": "卫星",
+  "bm.streets": "街道",
+  "bm.dark": "深色",
+  "bm.terrain": "地形",
+  "bm.night": "夜间灯光",
+  "doss.glance": "概览",
+  "doss.emergency": "紧急求助",
+  "doss.cost": "生活成本",
+  "doss.health": "健康",
+  "doss.climate": "气候",
+  "doss.safety": "安全",
+  "doss.tipping": "小费",
+  "doss.visa": "签证准入",
+  "doss.timezone": "时区",
+  "doss.holidays": "节假日与活动",
+  "doss.history": "历史",
+  "doss.phrasebook": "常用短语",
+  "doss.intel": "国家情报",
+  "doss.language": "语言",
+  "doss.capital": "首都",
+  "doss.population": "人口",
+  "doss.currency": "货币",
+  "doss.languages": "语言",
+  "doss.power": "电源插座",
+  "doss.calling": "国际区号",
+  "doss.driving": "驾驶方向",
+  "doss.region": "地区",
+  "doss.tapwater": "自来水",
+  "doss.etiquette": "礼仪与习俗",
+  "doss.transport": "交通出行",
+  "doss.connectivity": "网络通信",
+  "doss.payments": "货币与支付",
+  "common.close": "关闭",
+  "common.loading": "加载中…",
+  "common.noData": "暂无数据",
+  "common.more": "展开",
+  "common.less": "收起",
+  "common.search": "搜索国家、城市或图层",
+  "intel.title": "国家情报",
+  "intel.origin": "渊源",
+  "intel.character": "特色",
+  "intel.complexity": "真实复杂度",
+  "intel.bestFor": "适合人群",
+  "intel.notKnown": "当地人才懂"
+ },
+ "hi": {
+  "nav.worldMap": "विश्व मानचित्र",
+  "nav.bestMonth": "इस माह की पसंद",
+  "nav.passport": "पासपोर्ट और वीज़ा",
+  "nav.planner": "यात्रा योजनाकार",
+  "nav.compare": "देशों की तुलना",
+  "nav.preferences": "प्राथमिकताएँ",
+  "nav.explore": "खोजें",
+  "nav.journey": "यात्रा",
+  "nav.layers": "परतें",
+  "nav.settings": "सेटिंग्स",
+  "group.explore": "खोजें",
+  "group.journey": "आपकी यात्रा",
+  "group.intelligence": "जानकारी",
+  "group.settings": "सेटिंग्स",
+  "hdr.search": "खोज",
+  "hdr.theme": "दिन/रात थीम बदलें",
+  "hdr.share": "साझा करें",
+  "welcome.title": "Nomadic Almanac में आपका स्वागत है",
+  "welcome.body": "कहाँ और कब जाना है, इसका एक जीवंत एटलस। यात्रा विवरण देखने के लिए किसी भी देश पर क्लिक करें, मौसम बदलते देखने के लिए महीनों को खिसकाएँ, और दुनिया को अपने तरीके से देखने के लिए परतें चालू करें।",
+  "welcome.sub": "सुझाव: प्रांत और ज़िले के विवरण के लिए ज़ूम करें, और वीज़ा पहुँच के अनुसार मानचित्र रंगने के लिए अपना पासपोर्ट चुनें।",
+  "welcome.tour": "निर्देशित दौरा लें",
+  "welcome.explore": "स्वयं खोजें",
+  "welcome.language": "भाषा",
+  "welcome.tutorial": "यह कैसे काम करता है",
+  "welcome.faq": "सामान्य प्रश्न",
+  "prefs.title": "प्राथमिकताएँ",
+  "prefs.mapView": "मानचित्र दृश्य",
+  "prefs.labels": "स्थान लेबल",
+  "prefs.units": "इकाइयाँ",
+  "prefs.temp": "तापमान",
+  "prefs.dist": "दूरी",
+  "prefs.elev": "ऊँचाई",
+  "prefs.dateFormat": "तिथि प्रारूप",
+  "prefs.clock": "घड़ी",
+  "prefs.language": "भाषा",
+  "prefs.currency": "मुद्रा",
+  "prefs.theme": "थीम",
+  "prefs.tour": "निर्देशित दौरा फिर से देखें",
+  "prefs.tutorial": "लिखित ट्यूटोरियल",
+  "prefs.faq": "सामान्य प्रश्न",
+  "prefs.on": "चालू",
+  "prefs.off": "बंद",
+  "prefs.dark": "गहरा",
+  "prefs.light": "हल्का",
+  "bm.satellite": "उपग्रह",
+  "bm.streets": "सड़कें",
+  "bm.dark": "गहरा",
+  "bm.terrain": "भू-भाग",
+  "bm.night": "रात्रि रोशनी",
+  "doss.glance": "एक नज़र में",
+  "doss.emergency": "आपातकाल",
+  "doss.cost": "जीवन-यापन लागत",
+  "doss.health": "स्वास्थ्य",
+  "doss.climate": "जलवायु",
+  "doss.safety": "सुरक्षा",
+  "doss.tipping": "टिप देना",
+  "doss.visa": "वीज़ा पहुँच",
+  "doss.timezone": "समय क्षेत्र",
+  "doss.holidays": "छुट्टियाँ और आयोजन",
+  "doss.history": "इतिहास",
+  "doss.phrasebook": "वाक्यांश पुस्तिका",
+  "doss.intel": "देश जानकारी",
+  "doss.language": "भाषा",
+  "doss.capital": "राजधानी",
+  "doss.population": "जनसंख्या",
+  "doss.currency": "मुद्रा",
+  "doss.languages": "भाषाएँ",
+  "doss.power": "बिजली",
+  "doss.calling": "कॉलिंग कोड",
+  "doss.driving": "वाहन चालन",
+  "doss.region": "क्षेत्र",
+  "doss.tapwater": "नल का पानी",
+  "doss.etiquette": "शिष्टाचार और रीति-रिवाज",
+  "doss.transport": "आवागमन",
+  "doss.connectivity": "कनेक्टिविटी",
+  "doss.payments": "पैसा और भुगतान",
+  "common.close": "बंद करें",
+  "common.loading": "लोड हो रहा है…",
+  "common.noData": "कोई डेटा नहीं",
+  "common.more": "और दिखाएँ",
+  "common.less": "कम दिखाएँ",
+  "common.search": "देश, शहर या परतें खोजें",
+  "intel.title": "देश जानकारी",
+  "intel.origin": "उत्पत्ति",
+  "intel.character": "स्वरूप",
+  "intel.complexity": "वास्तविक जटिलता",
+  "intel.bestFor": "किसके लिए उपयुक्त",
+  "intel.notKnown": "स्थानीय लोग क्या जानते हैं"
+ },
+ "ja": {
+  "nav.worldMap": "世界地図",
+  "nav.bestMonth": "今月のおすすめ",
+  "nav.passport": "パスポートとビザ",
+  "nav.planner": "旅行プランナー",
+  "nav.compare": "国を比較",
+  "nav.preferences": "設定",
+  "nav.explore": "探索",
+  "nav.journey": "旅",
+  "nav.layers": "レイヤー",
+  "nav.settings": "設定",
+  "group.explore": "探索",
+  "group.journey": "あなたの旅",
+  "group.intelligence": "国情報",
+  "group.settings": "設定",
+  "hdr.search": "検索",
+  "hdr.theme": "昼夜テーマ切替",
+  "hdr.share": "共有",
+  "welcome.title": "Nomadic Almanac へようこそ",
+  "welcome.body": "いつ、どこへ行くべきかがわかる生きた地図帳。国をクリックすると旅行ドシエが開きます。月をスライドして季節の移り変わりを眺め、レイヤーを切り替えて自分なりの世界の見方を。",
+  "welcome.sub": "ヒント：ズームすると州や郡の詳細が表示され、パスポートを選ぶとビザの入国条件で地図を色分けできます。",
+  "welcome.tour": "ガイドツアーを始める",
+  "welcome.explore": "自由に探索する",
+  "welcome.language": "言語",
+  "welcome.tutorial": "使い方",
+  "welcome.faq": "よくある質問",
+  "prefs.title": "設定",
+  "prefs.mapView": "地図表示",
+  "prefs.labels": "地名ラベル",
+  "prefs.units": "単位",
+  "prefs.temp": "気温",
+  "prefs.dist": "距離",
+  "prefs.elev": "標高",
+  "prefs.dateFormat": "日付形式",
+  "prefs.clock": "時刻表示",
+  "prefs.language": "言語",
+  "prefs.currency": "通貨",
+  "prefs.theme": "テーマ",
+  "prefs.tour": "ガイドツアーを再生",
+  "prefs.tutorial": "テキスト版チュートリアル",
+  "prefs.faq": "よくある質問",
+  "prefs.on": "オン",
+  "prefs.off": "オフ",
+  "prefs.dark": "ダーク",
+  "prefs.light": "ライト",
+  "bm.satellite": "衛星写真",
+  "bm.streets": "地図",
+  "bm.dark": "ダーク",
+  "bm.terrain": "地形",
+  "bm.night": "夜景",
+  "doss.glance": "概要",
+  "doss.emergency": "緊急連絡先",
+  "doss.cost": "生活費",
+  "doss.health": "健康・医療",
+  "doss.climate": "気候",
+  "doss.safety": "治安",
+  "doss.tipping": "チップ",
+  "doss.visa": "ビザ条件",
+  "doss.timezone": "時差",
+  "doss.holidays": "祝日・イベント",
+  "doss.history": "歴史",
+  "doss.phrasebook": "会話集",
+  "doss.intel": "国情報",
+  "doss.language": "言語",
+  "doss.capital": "首都",
+  "doss.population": "人口",
+  "doss.currency": "通貨",
+  "doss.languages": "言語",
+  "doss.power": "電源プラグ",
+  "doss.calling": "国番号",
+  "doss.driving": "通行区分",
+  "doss.region": "地域",
+  "doss.tapwater": "水道水",
+  "doss.etiquette": "マナー・習慣",
+  "doss.transport": "交通手段",
+  "doss.connectivity": "通信環境",
+  "doss.payments": "お金・支払い",
+  "common.close": "閉じる",
+  "common.loading": "読み込み中…",
+  "common.noData": "データなし",
+  "common.more": "もっと見る",
+  "common.less": "閉じる",
+  "common.search": "国・都市・レイヤーを検索",
+  "intel.title": "国情報",
+  "intel.origin": "成り立ち",
+  "intel.character": "国柄",
+  "intel.complexity": "ありのままの難しさ",
+  "intel.bestFor": "おすすめの目的",
+  "intel.notKnown": "地元ならではの知識"
+ },
+ "ru": {
+  "nav.worldMap": "Карта мира",
+  "nav.bestMonth": "Лучшее в этом месяце",
+  "nav.passport": "Паспорт и виза",
+  "nav.planner": "Планировщик поездок",
+  "nav.compare": "Сравнить страны",
+  "nav.preferences": "Настройки",
+  "nav.explore": "Обзор",
+  "nav.journey": "Путешествие",
+  "nav.layers": "Слои",
+  "nav.settings": "Настройки",
+  "group.explore": "Обзор",
+  "group.journey": "Ваше путешествие",
+  "group.intelligence": "Аналитика",
+  "group.settings": "Настройки",
+  "hdr.search": "Поиск",
+  "hdr.theme": "Дневная/ночная тема",
+  "hdr.share": "Поделиться",
+  "welcome.title": "Добро пожаловать в Nomadic Almanac",
+  "welcome.body": "Живой атлас: куда поехать и когда. Нажмите на любую страну, чтобы открыть её туристическое досье, перематывайте месяцы, наблюдая смену сезонов, и включайте слои, чтобы видеть мир по-своему.",
+  "welcome.sub": "Совет: увеличьте масштаб для детализации регионов и районов и выберите паспорт, чтобы окрасить карту по визовому доступу.",
+  "welcome.tour": "Пройти обзорный тур",
+  "welcome.explore": "Исследовать самому",
+  "welcome.language": "Язык",
+  "welcome.tutorial": "Как это работает",
+  "welcome.faq": "Вопросы и ответы",
+  "prefs.title": "Настройки",
+  "prefs.mapView": "Вид карты",
+  "prefs.labels": "Подписи мест",
+  "prefs.units": "Единицы",
+  "prefs.temp": "Температура",
+  "prefs.dist": "Расстояние",
+  "prefs.elev": "Высота",
+  "prefs.dateFormat": "Формат даты",
+  "prefs.clock": "Время",
+  "prefs.language": "Язык",
+  "prefs.currency": "Валюта",
+  "prefs.theme": "Тема",
+  "prefs.tour": "Повторить обзорный тур",
+  "prefs.tutorial": "Текстовое руководство",
+  "prefs.faq": "Вопросы и ответы",
+  "prefs.on": "Вкл.",
+  "prefs.off": "Выкл.",
+  "prefs.dark": "Тёмная",
+  "prefs.light": "Светлая",
+  "bm.satellite": "Спутник",
+  "bm.streets": "Улицы",
+  "bm.dark": "Тёмная",
+  "bm.terrain": "Рельеф",
+  "bm.night": "Ночные огни",
+  "doss.glance": "Кратко",
+  "doss.emergency": "Экстренные службы",
+  "doss.cost": "Стоимость жизни",
+  "doss.health": "Здоровье",
+  "doss.climate": "Климат",
+  "doss.safety": "Безопасность",
+  "doss.tipping": "Чаевые",
+  "doss.visa": "Визовый доступ",
+  "doss.timezone": "Часовой пояс",
+  "doss.holidays": "Праздники и события",
+  "doss.history": "История",
+  "doss.phrasebook": "Разговорник",
+  "doss.intel": "О стране",
+  "doss.language": "Язык",
+  "doss.capital": "Столица",
+  "doss.population": "Население",
+  "doss.currency": "Валюта",
+  "doss.languages": "Языки",
+  "doss.power": "Розетки",
+  "doss.calling": "Телефонный код",
+  "doss.driving": "Движение",
+  "doss.region": "Регион",
+  "doss.tapwater": "Водопроводная вода",
+  "doss.etiquette": "Этикет и обычаи",
+  "doss.transport": "Транспорт",
+  "doss.connectivity": "Связь",
+  "doss.payments": "Деньги и оплата",
+  "common.close": "Закрыть",
+  "common.loading": "Загрузка…",
+  "common.noData": "Нет данных",
+  "common.more": "Показать больше",
+  "common.less": "Свернуть",
+  "common.search": "Поиск стран, городов или слоёв",
+  "intel.title": "О стране",
+  "intel.origin": "Происхождение",
+  "intel.character": "Характер",
+  "intel.complexity": "Реальная сложность",
+  "intel.bestFor": "Лучше всего для",
+  "intel.notKnown": "Что знают местные"
+ }
+});

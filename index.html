@@ -265,32 +265,32 @@
 
       <!-- GROUP 1: EXPLORE -->
       <div class="na-nav-group">
-        <span class="na-nav-group-label">Explore</span>
+        <span class="na-nav-group-label" data-i18n="group.explore">Explore</span>
         <button class="na-nav-item active" data-nav="worldmap" aria-label="World Map">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-explore"/></svg>
-          <span class="na-nav-item-label">World Map</span>
+          <span class="na-nav-item-label" data-i18n="nav.worldMap">World Map</span>
         </button>
         <button class="na-nav-item" data-nav="bestmonth" aria-label="Best This Month">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-climate"/></svg>
-          <span class="na-nav-item-label">Best This Month</span>
+          <span class="na-nav-item-label" data-i18n="nav.bestMonth">Best This Month</span>
         </button>
       </div>
       <hr class="gold-rule">
 
       <!-- GROUP 2: YOUR JOURNEY -->
       <div class="na-nav-group">
-        <span class="na-nav-group-label">Your Journey</span>
+        <span class="na-nav-group-label" data-i18n="group.journey">Your Journey</span>
         <button class="na-nav-item" data-nav="visa" aria-label="Passport and Visa">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-visa"/></svg>
-          <span class="na-nav-item-label">Passport &amp; Visa</span>
+          <span class="na-nav-item-label" data-i18n="nav.passport">Passport &amp; Visa</span>
         </button>
         <button class="na-nav-item" data-nav="planner" aria-label="Trip Planner">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-planner"/></svg>
-          <span class="na-nav-item-label">Trip Planner</span>
+          <span class="na-nav-item-label" data-i18n="nav.planner">Trip Planner</span>
         </button>
         <button class="na-nav-item" data-nav="compare" aria-label="Compare Countries">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-compare"/></svg>
-          <span class="na-nav-item-label">Compare Countries</span>
+          <span class="na-nav-item-label" data-i18n="nav.compare">Compare Countries</span>
         </button>
       </div>
       <hr class="gold-rule">
@@ -298,7 +298,7 @@
       <!-- GROUP 3: INTELLIGENCE LAYERS -->
       <div class="na-nav-group">
         <button class="na-nav-group-label na-accordion-trigger" data-accordion="layers" aria-expanded="true" aria-controls="na-layers-list">
-          Intelligence
+          <span data-i18n="group.intelligence">Intelligence</span>
           <svg class="na-accordion-arrow" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="6,9 12,15 18,9" fill="none" stroke="currentColor" stroke-width="2"/>
           </svg>
@@ -338,16 +338,7 @@
           </button>
         </div>
       </div>
-      <hr class="gold-rule">
-
-      <!-- GROUP 4: SETTINGS -->
-      <div class="na-nav-group">
-        <span class="na-nav-group-label">Settings</span>
-        <button class="na-nav-item" data-nav="preferences" aria-label="Preferences">
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-settings"/></svg>
-          <span class="na-nav-item-label">Preferences</span>
-        </button>
-      </div>
+      <!-- Settings live as a single icon in the bottom menu (no duplication). -->
 
       <!-- Sidebar footer: passport selector + data age -->
       <div id="na-sidebar-footer">
@@ -825,20 +816,20 @@
 <nav id="na-bottom-nav" aria-label="Main navigation" role="navigation">
   <button class="na-bottom-item active" data-nav="worldmap" aria-label="Explore">
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-explore"/></svg>
-    <span>Explore</span>
+    <span data-i18n="nav.explore">Explore</span>
   </button>
   <button class="na-bottom-item" data-nav="journey" aria-label="Journey">
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-journey"/></svg>
-    <span>Journey</span>
+    <span data-i18n="nav.journey">Journey</span>
   </button>
   <button class="na-bottom-item" id="na-layers-toggle" data-nav="layers" aria-label="Layers" aria-haspopup="true" aria-expanded="false">
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-terrain"/></svg>
-    <span>Layers</span>
+    <span data-i18n="nav.layers">Layers</span>
     <span class="na-active-layer-badge" id="na-active-badge" hidden></span>
   </button>
   <button class="na-bottom-item" data-nav="preferences" aria-label="Settings">
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-settings"/></svg>
-    <span>Settings</span>
+    <span data-i18n="nav.settings">Settings</span>
   </button>
 </nav>
 
@@ -891,12 +882,23 @@
   <div id="na-prefs-overlay"></div>
   <div id="na-prefs-panel" class="glass-panel">
     <div id="na-prefs-handle" aria-hidden="true"></div>
-    <h2 id="na-prefs-title">Preferences</h2>
+    <h2 id="na-prefs-title" data-i18n="prefs.title">Preferences</h2>
     <hr class="gold-rule">
     <div id="na-prefs-body">
 
+      <div class="pref-row pref-row-stack">
+        <span class="pref-label">🌐 <span data-i18n="prefs.language">Language</span></span>
+        <div id="pref-lang-picker" class="pref-picker-wrap"></div>
+      </div>
+
+      <div class="pref-row pref-row-stack">
+        <span class="pref-label">💱 <span data-i18n="prefs.currency">Currency</span></span>
+        <div id="pref-curr-picker" class="pref-picker-wrap"></div>
+        <div class="pref-curr-note" id="pref-curr-note"></div>
+      </div>
+
       <div class="pref-row">
-        <span class="pref-label">🌡 Temperature</span>
+        <span class="pref-label">🌡 <span data-i18n="prefs.temp">Temperature</span></span>
         <div class="pref-toggle-group" id="pref-temp">
           <button class="pref-opt" data-val="C" aria-label="Celsius">°C</button>
           <button class="pref-opt" data-val="F" aria-label="Fahrenheit">°F</button>
@@ -904,7 +906,7 @@
       </div>
 
       <div class="pref-row">
-        <span class="pref-label">📏 Distance</span>
+        <span class="pref-label">📏 <span data-i18n="prefs.dist">Distance</span></span>
         <div class="pref-toggle-group" id="pref-dist">
           <button class="pref-opt" data-val="km" aria-label="Kilometres">km</button>
           <button class="pref-opt" data-val="mi" aria-label="Miles">mi</button>
@@ -912,7 +914,7 @@
       </div>
 
       <div class="pref-row">
-        <span class="pref-label">🗺 Map Style</span>
+        <span class="pref-label">🗺 <span data-i18n="prefs.mapView">Map View</span></span>
         <div class="pref-toggle-group" id="pref-basemap">
           <button class="pref-opt" data-val="satellite" aria-label="Satellite basemap">Satellite</button>
           <button class="pref-opt" data-val="streets"   aria-label="Street map basemap">Street</button>
@@ -922,7 +924,7 @@
       </div>
 
       <div class="pref-row">
-        <span class="pref-label">🏷 Place Labels</span>
+        <span class="pref-label">🏷 <span data-i18n="prefs.labels">Place Labels</span></span>
         <div class="pref-toggle-group" id="pref-labels">
           <button class="pref-opt" data-val="on"  aria-label="Show place labels">On</button>
           <button class="pref-opt" data-val="off" aria-label="Hide place labels">Off</button>
@@ -930,7 +932,7 @@
       </div>
 
       <div class="pref-row">
-        <span class="pref-label">📅 Date Format</span>
+        <span class="pref-label">📅 <span data-i18n="prefs.dateFormat">Date Format</span></span>
         <div class="pref-toggle-group" id="pref-dateformat">
           <button class="pref-opt" data-val="DMY" aria-label="Day Month Year">DD/MM</button>
           <button class="pref-opt" data-val="MDY" aria-label="Month Day Year">MM/DD</button>
@@ -938,7 +940,7 @@
       </div>
 
       <div class="pref-row">
-        <span class="pref-label">🕐 Clock</span>
+        <span class="pref-label">🕐 <span data-i18n="prefs.clock">Clock</span></span>
         <div class="pref-toggle-group" id="pref-clock">
           <button class="pref-opt" data-val="24h" aria-label="24-hour clock">24 h</button>
           <button class="pref-opt" data-val="12h" aria-label="12-hour clock">12 h</button>
@@ -946,8 +948,18 @@
       </div>
 
       <div class="pref-row">
-        <span class="pref-label">🧭 Guided Tour</span>
-        <button class="pref-opt" id="na-prefs-tour" data-val="tour" aria-label="Start the guided walkthrough" style="flex:0 0 auto;padding-left:14px;padding-right:14px">Take the tour</button>
+        <span class="pref-label">🧭 <span data-i18n="prefs.tour">Replay guided tour</span></span>
+        <button class="pref-opt" id="na-prefs-tour" data-val="tour" aria-label="Start the guided walkthrough" style="flex:0 0 auto;padding-left:14px;padding-right:14px" data-i18n="welcome.tour">Take the guided tour</button>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">📖 <span data-i18n="prefs.tutorial">Written tutorial</span></span>
+        <button class="pref-opt" id="na-prefs-tutorial" data-val="tutorial" aria-label="Open the written tutorial" style="flex:0 0 auto;padding-left:14px;padding-right:14px" data-i18n="welcome.tutorial">How it works</button>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">❓ <span data-i18n="prefs.faq">FAQ</span></span>
+        <button class="pref-opt" id="na-prefs-faq" data-val="faq" aria-label="Open frequently asked questions" style="flex:0 0 auto;padding-left:14px;padding-right:14px" data-i18n="welcome.faq">FAQ</button>
       </div>
 
     </div>
