@@ -1739,11 +1739,40 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   }
 }
 
-/* ── Standalone Preferences launcher (bottom-right of the map) ──────────────── */
-/* A single gear button where the basemap options used to sit; opens the full
-   Preferences panel (map view, labels, units). The view options + a Place Labels
-   toggle now live inside Preferences, reachable here and from the left sidebar. */
+/* ── Bottom Navigation on desktop & tablet — centered floating pill ──────────
+   The web version now mirrors the mobile chrome: a persistent top header plus a
+   bottom menu. On wide screens the bar becomes a centered, elevated pill so it
+   reads as an intentional control surface rather than a stretched mobile bar. */
+@media (min-width: 768px) {
+  #na-bottom-nav {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 2px;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 18px;
+    width: auto;
+    max-width: 560px;
+    height: 60px;
+    padding: 0 10px;
+    background: var(--na-glass-navy);
+    backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
+    -webkit-backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
+    border: var(--na-border-glass);
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(200,168,75,0.15);
+    z-index: 1400;
+  }
+  #na-bottom-nav .na-bottom-item { padding: 0 20px; min-width: 84px; }
+}
+
+/* ── Standalone Preferences launcher — RETIRED ──────────────────────────────
+   Preferences is now a single icon in the bottom menu (no duplication). The
+   floating gear is suppressed; the bottom-nav "Settings" item is the sole entry. */
 #na-prefs-launcher {
+  display: none !important;
   position: fixed;
   right: 12px;
   bottom: 30px;
@@ -2520,3 +2549,149 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 .na-ph-num b { color: var(--na-gold-mid); margin-right: 2px; }
 .na-ph-num .na-ph-pron { display: inline; font-size: 7px; margin-left: 2px; }
+
+/* ─── Language flag picker (welcome card + Preferences) ─────────────────────── */
+.na-lang-picker {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin: 6px 0 2px;
+}
+.na-lang-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; cursor: pointer;
+  background: rgba(200,168,75,0.06);
+  border: 1px solid rgba(200,168,75,0.22); border-radius: 9px;
+  color: var(--na-text-primary); font-size: 11px; font-weight: 500;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.na-lang-opt:hover { background: rgba(200,168,75,0.16); border-color: var(--na-gold-mid); }
+.na-lang-opt.active { background: rgba(200,168,75,0.22); border-color: var(--na-gold-bright); color: var(--na-gold-bright); }
+.na-lang-opt:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; }
+.na-lang-flag { font-size: 16px; line-height: 1; }
+.na-lang-name { white-space: nowrap; }
+.na-lang-current-flag { font-size: 16px; line-height: 1; }
+
+/* Compact flag button used in the header / welcome corner. */
+.na-lang-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 8px; cursor: pointer;
+  background: rgba(200,168,75,0.08);
+  border: 1px solid rgba(200,168,75,0.3); border-radius: 8px;
+  color: var(--na-text-primary); font-size: 12px;
+}
+.na-lang-btn:hover { background: rgba(200,168,75,0.18); }
+
+/* ─── Right-to-left support (Arabic) ────────────────────────────────────────
+   Document direction flips for content/text flow; the Leaflet map and its
+   controls are pinned LTR so panning, zoom buttons and attribution stay sane. */
+html[dir="rtl"] #map,
+html[dir="rtl"] .leaflet-container,
+html[dir="rtl"] .leaflet-control-container { direction: ltr; }
+html[dir="rtl"] .na-ph-en { padding-right: 0 !important; padding-left: 10px !important; }
+html[dir="rtl"] .na-ph-loc { text-align: left; }
+html[dir="rtl"] .na-fact-label,
+html[dir="rtl"] .na-sec-h { text-align: right; }
+html[dir="rtl"] .na-lang-name { white-space: nowrap; }
+
+/* ─── Welcome card additions (flag picker + links) ──────────────────────────── */
+.hint-lang { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 10px; }
+.hint-lang .na-lang-opt { padding: 4px 7px; font-size: 10px; }
+.hint-lang .na-lang-name { display: none; }      /* compact: flags only on the card */
+.hint-lang .na-lang-flag { font-size: 17px; }
+.hint-links { display: flex; align-items: center; gap: 8px; margin-top: 10px; justify-content: center; }
+.hint-link {
+  background: none; border: none; cursor: pointer; padding: 2px 4px;
+  color: var(--na-gold-mid); font-size: 11px; font-weight: 600; text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.hint-link:hover { color: var(--na-gold-bright); }
+.hint-link-sep { color: var(--na-text-dim); }
+
+/* ─── Preferences picker rows ───────────────────────────────────────────────── */
+.pref-row-stack { flex-direction: column; align-items: stretch; gap: 6px; }
+.pref-picker-wrap { width: 100%; }
+.pref-curr-note { font-size: 9px; color: var(--na-text-dim); margin-top: 2px; }
+.na-curr-picker { display: flex; flex-wrap: wrap; gap: 5px; max-height: 168px; overflow-y: auto; padding: 2px; }
+.na-curr-opt {
+  display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+  padding: 5px 8px; border-radius: 8px; font-size: 10.5px;
+  background: rgba(200,168,75,0.06); border: 1px solid rgba(200,168,75,0.22);
+  color: var(--na-text-primary); transition: background .15s, border-color .15s, color .15s;
+}
+.na-curr-opt:hover { background: rgba(200,168,75,0.16); border-color: var(--na-gold-mid); }
+.na-curr-opt.active { background: rgba(200,168,75,0.22); border-color: var(--na-gold-bright); color: var(--na-gold-bright); }
+.na-curr-opt:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; }
+.na-curr-code { font-weight: 700; letter-spacing: 0.4px; }
+.na-curr-sym { color: var(--na-text-secondary); }
+.na-curr-opt.active .na-curr-sym { color: var(--na-gold-bright); }
+
+/* ─── Help modal: written tutorial + FAQ ────────────────────────────────────── */
+#na-help-overlay { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; }
+#na-help-backdrop { position: absolute; inset: 0; background: rgba(4,9,18,0.66); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+#na-help-panel {
+  position: relative; z-index: 1; width: min(560px, 92vw); max-height: 86vh; overflow-y: auto;
+  padding: 22px 24px 26px; border-radius: 16px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+}
+#na-help-close {
+  position: absolute; top: 12px; right: 14px; width: 30px; height: 30px;
+  background: none; border: none; cursor: pointer; font-size: 24px; line-height: 1;
+  color: var(--na-text-secondary);
+}
+#na-help-close:hover { color: var(--na-gold-bright); }
+#na-help-close:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; border-radius: 6px; }
+.na-help-title { margin: 0 0 8px; font-size: 17px; color: var(--na-gold-bright); letter-spacing: 0.4px; }
+.na-help-body { margin-top: 12px; }
+.na-help-step { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(200,168,75,0.12); }
+.na-help-step:last-of-type { border-bottom: none; }
+.na-help-step-n {
+  flex: 0 0 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(200,168,75,0.16); color: var(--na-gold-bright);
+  font-size: 12px; font-weight: 700;
+}
+.na-help-step-c h3 { margin: 2px 0 3px; font-size: 13px; color: var(--na-text-primary); }
+.na-help-step-c p { margin: 0; font-size: 12px; line-height: 1.55; color: var(--na-text-secondary); }
+.na-help-cta { margin-top: 16px; text-align: center; }
+.na-faq-item { padding: 8px 0; border-bottom: 1px solid rgba(200,168,75,0.12); }
+.na-faq-item:last-of-type { border-bottom: none; }
+.na-faq-item > summary {
+  cursor: pointer; list-style: none; outline: none;
+  font-size: 13px; font-weight: 600; color: var(--na-text-primary); padding: 3px 0;
+}
+.na-faq-item > summary::-webkit-details-marker { display: none; }
+.na-faq-item > summary::before { content: "+ "; color: var(--na-gold-mid); font-weight: 700; }
+.na-faq-item[open] > summary::before { content: "– "; }
+.na-faq-item > p { margin: 6px 0 4px; font-size: 12px; line-height: 1.6; color: var(--na-text-secondary); }
+.na-faq-item > summary:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; border-radius: 4px; }
+
+/* ─── Dossier: additional traveler content ──────────────────────────────────── */
+.na-extra-wrap { margin: 2px 0 10px; }
+.na-extra-tap {
+  display: flex; gap: 9px; align-items: flex-start;
+  padding: 8px 10px; margin-bottom: 8px; border-radius: 8px;
+  background: rgba(200,168,75,0.06); border: 1px solid rgba(200,168,75,0.16);
+}
+.na-extra-ico { font-size: 16px; line-height: 1.2; }
+.na-extra-tc { flex: 1; }
+.na-extra-h {
+  font-size: 7px; letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--na-text-secondary); font-weight: 700; margin-bottom: 3px;
+}
+.na-extra-p { font-size: 9px; line-height: 1.55; color: var(--na-text-primary); }
+.tw-badge {
+  display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 8px;
+  font-size: 7px; font-weight: 700; letter-spacing: 0.4px; text-transform: capitalize;
+  color: #fff;
+}
+.tw-safe .tw-badge    { background: #2e7d32; }
+.tw-caution .tw-badge { background: #b8860b; }
+.tw-unsafe .tw-badge  { background: #c62828; }
+.na-extra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.na-extra-block {
+  padding: 7px 9px; border-radius: 8px;
+  background: rgba(200,168,75,0.05); border: 1px solid rgba(200,168,75,0.13);
+}
+.na-extra-block:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
+.na-extra-ul { margin: 0; padding-left: 14px; }
+.na-extra-ul li { font-size: 9px; line-height: 1.5; color: var(--na-text-primary); margin-bottom: 2px; }
+@media (max-width: 420px) { .na-extra-grid { grid-template-columns: 1fr; } }
