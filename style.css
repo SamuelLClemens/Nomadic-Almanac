@@ -374,10 +374,11 @@ html, body {
   border-left: 3px solid var(--gold);
   box-shadow: 0 0 8px rgba(201,168,76,0.45), 0 0 2px rgba(201,168,76,0.3);
 }
-.lb.on .lb-name {
-  color: var(--lb-color, var(--sand));
-  font-weight: 700;
-}
+/* When a layer is chosen, collapse the chip to its emoji only (the name is
+   available via the button's title/aria-label for accessibility). */
+.lb.on .lb-name { display: none; }
+.lb.on { padding: 5px 9px; }
+.lb.on .lb-emoji { font-size: 15px; margin-right: 0; }
 
 .lb-emoji { font-size: 11px; line-height: 1; flex-shrink: 0; margin-right: 1px; }
 .lb-name  { font-weight: 700; color: var(--lb-color, var(--dim)); letter-spacing: .4px; }
@@ -1259,15 +1260,16 @@ html, body {
 
 /* ─── Country Intelligence (AI) ─────────────────────────────────────────────── */
 .intel-wrap { margin-top: 10px; border-top: 1px solid rgba(184,150,12,0.3); padding-top: 8px; }
-.intel-hdr { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #B8960C; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
-.intel-badge { font-size: 8px; background: #B8960C; color: #0F1A2E; padding: 1px 4px; border-radius: 2px; }
-.intel-panel { font-size: 12px; line-height: 1.5; }
-.intel-sect { margin-bottom: 7px; }
-.intel-lbl { font-size: 8px; font-weight: 700; letter-spacing: 1.5px; color: #A0522D; margin-bottom: 2px; }
-.intel-sect p, .intel-sect ul { margin: 0; color: #1B2A4A; }
+.intel-hdr { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--na-gold-mid); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.intel-badge { font-size: 8px; background: var(--na-gold-mid); color: #0F1A2E; padding: 1px 4px; border-radius: 2px; }
+.intel-panel { font-size: 12px; line-height: 1.55; }
+.intel-sect { margin-bottom: 8px; }
+.intel-lbl { font-size: 8px; font-weight: 700; letter-spacing: 1.5px; color: var(--na-gold-mid); margin-bottom: 2px; }
+.intel-sect p, .intel-sect ul { margin: 0; color: var(--na-text-primary); }
 .intel-sect ul { padding-left: 14px; }
-.intel-cx p { color: #6B5744; font-style: italic; }
-.intel-loading, .intel-error, .intel-prompt { font-size: 11px; color: #A0522D; font-style: italic; padding: 4px 0; }
+.intel-sect li { color: var(--na-text-primary); margin-bottom: 1px; }
+.intel-cx p { color: var(--na-text-secondary); font-style: italic; }
+.intel-loading, .intel-error, .intel-prompt { font-size: 11px; color: var(--na-text-secondary); font-style: italic; padding: 4px 0; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    UI MASTER BUILD v2 — NAVIGATION & PANEL SYSTEM
@@ -2580,6 +2582,37 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 .na-lang-btn:hover { background: rgba(200,168,75,0.18); }
 
+/* ─── Floating language control (bottom-right) ──────────────────────────────── */
+#na-lang-fab {
+  position: fixed; right: 14px; bottom: 16px; z-index: 1450;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+#na-lang-fab-btn {
+  width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--na-glass-navy, rgba(11,22,40,0.9));
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(200,168,75,0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+#na-lang-fab-btn:hover { transform: translateY(-1px); border-color: var(--na-gold-bright); box-shadow: 0 0 12px rgba(201,168,76,0.45); }
+#na-lang-fab-btn:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; }
+#na-lang-fab-btn .na-lang-current-flag { font-size: 22px; line-height: 1; }
+#na-lang-fab-menu {
+  display: flex; flex-direction: column; gap: 3px;
+  max-height: 60vh; overflow-y: auto; min-width: 150px;
+  padding: 7px; border-radius: 12px;
+  background: var(--na-glass-navy, rgba(11,22,40,0.95));
+  backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid rgba(200,168,75,0.3);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+}
+#na-lang-fab-menu[hidden] { display: none; }
+#na-lang-fab-menu .na-lang-opt { width: 100%; justify-content: flex-start; }
+/* On mobile, lift the control above the full-width bottom nav bar. */
+@media (max-width: 767px) { #na-lang-fab { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); } }
+
 /* ─── Right-to-left support (Arabic) ────────────────────────────────────────
    Document direction flips for content/text flow; the Leaflet map and its
    controls are pinned LTR so panning, zoom buttons and attribution stay sane. */
@@ -2695,3 +2728,82 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 .na-extra-ul { margin: 0; padding-left: 14px; }
 .na-extra-ul li { font-size: 9px; line-height: 1.5; color: var(--na-text-primary); margin-bottom: 2px; }
 @media (max-width: 420px) { .na-extra-grid { grid-template-columns: 1fr; } }
+
+/* ─── Dossier header action cluster (compare · wishlist · add-to-trip) ───────── */
+.tt-head-actions { display: flex; justify-content: flex-end; gap: 5px; margin-top: 7px; }
+.tt-hact {
+  width: 30px; height: 28px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; line-height: 1;
+  background: rgba(200,168,75,0.08); border: 1px solid rgba(200,168,75,0.28);
+  border-radius: 7px; color: var(--na-text-secondary);
+  transition: background .14s, border-color .14s, color .14s, transform .14s;
+}
+.tt-hact:hover { background: rgba(200,168,75,0.18); border-color: var(--na-gold-mid); color: var(--na-gold-bright); transform: translateY(-1px); }
+.tt-hact:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; }
+.tt-hact.tt-pin-btn.pinned { color: var(--na-gold-bright); border-color: var(--na-gold-bright); background: rgba(200,168,75,0.22); }
+.tt-hact.tt-wish.on { color: #ec4899; border-color: rgba(236,72,153,0.6); background: rgba(236,72,153,0.12); }
+
+/* ─── Collapsible country-info sections ─────────────────────────────────────── */
+.na-dsec { border-bottom: 1px solid rgba(200,168,75,0.10); }
+.na-dsec:last-of-type { border-bottom: none; }
+.na-dsec-h {
+  list-style: none; cursor: pointer; outline: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 2px; user-select: none;
+}
+.na-dsec-h::-webkit-details-marker { display: none; }
+.na-dsec-t {
+  font-size: 8px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+  color: var(--na-gold-mid);
+}
+.na-dsec-x { color: var(--na-text-secondary); transition: transform .18s ease; flex-shrink: 0; }
+.na-dsec[open] > .na-dsec-h .na-dsec-x { transform: rotate(180deg); }
+.na-dsec-h:hover .na-dsec-t { color: var(--na-gold-bright); }
+.na-dsec-h:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: -2px; border-radius: 4px; }
+.na-dsec-b { padding: 0 2px 10px; }
+.na-dsec-emg .na-dsec-t { color: #ef5350; }
+.na-ph-lang { font-size: 9px; color: var(--na-text-secondary); margin-bottom: 6px; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .na-dsec-x { transition: none; } }
+
+/* ─── iOS-style window treatment: soft large radius + layered shadow ─────────── */
+:root {
+  --na-win-radius: 20px;
+  --na-win-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 3px 12px rgba(0,0,0,0.34);
+}
+#onboarding-hint,
+#tt,
+#na-help-panel,
+#compare-panel,
+#trip-panel,
+#na-search-panel,
+#na-prefs-panel,
+#na-sheet-panel {
+  border-radius: var(--na-win-radius) !important;
+  box-shadow: var(--na-win-shadow) !important;
+}
+/* Menus and dropdowns: slightly tighter radius, same soft shadow. */
+#na-lang-fab-menu,
+.cat-dd,
+#explore-dd,
+.na-curr-picker {
+  border-radius: 14px !important;
+  box-shadow: var(--na-win-shadow) !important;
+}
+/* Mobile bottom-sheets keep their top-only rounding (flush to the screen edge). */
+@media (max-width: 767px) {
+  #na-prefs-panel, #na-sheet-panel { border-radius: 22px 22px 0 0 !important; }
+}
+
+/* Hide the floating language control while an info window is open. */
+body.na-tt-open #na-lang-fab {
+  opacity: 0; pointer-events: none; transform: translateY(10px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+/* ─── Web top bar mirrors mobile: the cluttered desktop control strip is hidden,
+   leaving the clean persistent header (#na-header). Month, nationality and layer
+   controls remain reachable via the left sidebar and the bottom menu. ───────── */
+@media (min-width: 768px) {
+  #topbar { display: none !important; }
+}
