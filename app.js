@@ -326,7 +326,7 @@ function _toggleWishlist(iso2) {
 
 function _updateWishlistUI(iso2) {
   var btn = document.getElementById('btn-wishlist-' + iso2);
-  if (btn) { btn.textContent = _wishlist.has(iso2) ? '♥' : '♡'; btn.classList.toggle('on', _wishlist.has(iso2)); }
+  if (btn) { btn.textContent = _wishlist.has(iso2) ? '♥' : '♡'; btn.classList.toggle('on', _wishlist.has(iso2)); btn.setAttribute('aria-pressed', _wishlist.has(iso2) ? 'true' : 'false'); }
   var counter = document.getElementById('wishlist-count');
   if (counter) counter.textContent = _wishlist.size > 0 ? _wishlist.size : '';
 }
@@ -482,6 +482,19 @@ function _money(usdAmount) {
   var c = _RATES[_currCode] || _RATES.USD;
   var v = Math.round(usdAmount * c.rate);
   return c.sym + v.toLocaleString();
+}
+
+// Compact money for tight UI (e.g. budget tier cards). Large-denomination
+// currencies (IDR, VND, KRW…) are abbreviated so they fit a narrow column.
+function _moneyCompact(usdAmount) {
+  if (usdAmount == null || isNaN(usdAmount)) return '';
+  var c = _RATES[_currCode] || _RATES.USD;
+  var v = Math.round(usdAmount * c.rate);
+  var s;
+  if (v >= 1000000) s = (v / 1000000).toFixed(v >= 10000000 ? 0 : 1).replace(/\.0$/, '') + 'M';
+  else if (v >= 10000) s = Math.round(v / 1000) + 'k';
+  else s = v.toLocaleString();
+  return c.sym + s;
 }
 
 function _cycleCurrency() {
@@ -1353,6 +1366,13 @@ function initMap() {
   };
   window._BASEMAP_CONFIGS = BASEMAP_CONFIGS;  // expose for na_setBasemap
 
+  // The MAP always opens on satellite, even though the UI/menu defaults to dark.
+  // A dark/night basemap left in storage from a prior session is reset to
+  // satellite at launch (the dark theme must not pull the map into a dark map).
+  if (_mapStyle === 'dark' || _mapStyle === 'nightlights') {
+    _mapStyle = 'satellite';
+    try { localStorage.setItem('na_mapstyle', 'satellite'); } catch (e) {}
+  }
   var style = (_mapStyle && BASEMAP_CONFIGS[_mapStyle]) ? _mapStyle : 'satellite';
   var bc    = BASEMAP_CONFIGS[style];
   _basemapLayer = L.tileLayer(bc.url, {
@@ -4249,6 +4269,9 @@ function showTooltip(html) {
   tt.innerHTML = closeBtn + html;
   tt.style.display = 'block';
   tooltipVisible = true;
+  // Hide the floating language control while an info window is open so it is
+  // never occluded by (or overlapping) the window.
+  document.body.classList.add('na-tt-open');
   positionTooltip(_ttX, _ttY);
   // Attach wishlist toggle listener if a wishlist button was rendered in this tooltip
   var wishlistBtns = tt.querySelectorAll('[id^="btn-wishlist-"]');
@@ -4262,6 +4285,7 @@ function hideTooltip() {
   document.getElementById('tt').style.display = 'none';
   tooltipVisible = false;
   _activeTooltipKey = null;
+  document.body.classList.remove('na-tt-open');
 }
 
 // ─── Holiday Markers ──────────────────────────────────────────────────────────
@@ -5055,7 +5079,7 @@ function buildCountryTooltip(iso2) {
   // Wishlist, and Add-to-trip (drops a trip-planner pin at the country centre).
   const headerActions = `<div class="tt-head-actions">
     <button class="tt-hact tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" title="${_esc(_t('act.compare'))}" aria-label="${_esc(_t('act.compare'))}" aria-pressed="${isPinned ? 'true' : 'false'}" onclick="togglePinCountry('${iso2}')">&#x21C4;</button>
-    <button class="tt-hact tt-wish${_wishlist.has(iso2) ? ' on' : ''}" id="btn-wishlist-${iso2}" title="${_esc(_t('act.wishlist'))}" aria-label="${_esc(_t('act.wishlist'))}">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
+    <button class="tt-hact tt-wish${_wishlist.has(iso2) ? ' on' : ''}" id="btn-wishlist-${iso2}" title="${_esc(_t('act.wishlist'))}" aria-label="${_esc(_t('act.wishlist'))}" aria-pressed="${_wishlist.has(iso2) ? 'true' : 'false'}">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
     <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+' — added to your trip');}})()">📍</button>
   </div>`;
   const pinSection = '';
@@ -6226,7 +6250,7 @@ function buildCostDetailsSection(iso2) {
   const tierCol = (label, val, rgb) =>
     `<div style="flex:1;text-align:center;padding:4px 0;background:rgba(${rgb},0.07);border-radius:5px;border:1px solid rgba(${rgb},0.16)">
         <div style="font-size:6.5px;color:rgba(${rgb},0.7);letter-spacing:0.6px;text-transform:uppercase">${_esc(label)}</div>
-        <div style="font-size:12.5px;font-weight:700;color:rgb(${rgb})">~${_money(val)}</div>
+        <div style="font-size:clamp(10px,3vw,12.5px);font-weight:700;color:rgb(${rgb});white-space:nowrap" title="~${_money(val)}/day">~${_moneyCompact(val)}</div>
         <div style="font-size:6px;color:rgba(${rgb},0.5)">${_esc(_t('cost.perDay'))}</div>
       </div>`;
 
@@ -7215,6 +7239,19 @@ function initShareButton() {
 }
 
 // ─── Best This Month toggle ───────────────────────────────────────────────────
+// When expanded, the panel auto-minimises after 3 seconds. It stays fully
+// toggleable (maximise/minimise) at any time from the legend or the nav item.
+var _bestAutoTimer = null;
+function _clearBestAutoMinimize() { if (_bestAutoTimer) { clearTimeout(_bestAutoTimer); _bestAutoTimer = null; } }
+function _armBestAutoMinimize() {
+  _clearBestAutoMinimize();
+  _bestAutoTimer = setTimeout(function () {
+    var t = document.getElementById('best-toggle'), l = document.getElementById('best-panel-list');
+    if (l) l.classList.remove('open');
+    if (t) t.classList.remove('open');
+    if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
+  }, 3000);
+}
 function initBestPanelToggle() {
   const toggle = document.getElementById('best-toggle');
   const list   = document.getElementById('best-panel-list');
@@ -7223,9 +7260,11 @@ function initBestPanelToggle() {
     const isOpen = list.classList.contains('open');
     list.classList.toggle('open', !isOpen);
     toggle.classList.toggle('open', !isOpen);
+    if (!isOpen) _armBestAutoMinimize(); else _clearBestAutoMinimize();
+    if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
   });
 }
-// Expand Best This Month by default on first data load
+// Expand Best This Month by default on first data load (then auto-minimise).
 let _bestPanelDefaultExpanded = false;
 function autoExpandBestPanel() {
   if (_bestPanelDefaultExpanded) return;
@@ -7235,6 +7274,7 @@ function autoExpandBestPanel() {
   list.classList.add('open');
   toggle.classList.add('open');
   _bestPanelDefaultExpanded = true;
+  _armBestAutoMinimize();
 }
 
 function updateBestPanel() {
@@ -8661,43 +8701,52 @@ function na_updateLayerActiveStates() {
 }
 
 // ── Non-layer nav items ───────────────────────────────────────────────────
+// Is the panel associated with a nav item currently open/visible?
+function _navIsOpen(nav) {
+  if (nav === 'bestmonth') { var l = document.getElementById('best-panel-list'); return !!(l && l.classList.contains('open')); }
+  if (nav === 'planner' || nav === 'journey') { var p = document.getElementById('trip-panel'); return !!(p && p.classList.contains('open')); }
+  if (nav === 'compare') { var c = document.getElementById('compare-panel'); return !!(c && c.classList.contains('open')); }
+  if (nav === 'visa') { var a = document.activeElement; return !!(a && (a.id === 'passport-select' || (a.closest && a.closest('#na-sidebar-passport')))); }
+  return false;
+}
+// Reflect a nav's open/closed state on every matching item (sidebar + bottom nav).
+function _syncNavActive(nav) {
+  var open = _navIsOpen(nav);
+  document.querySelectorAll('[data-nav="' + nav + '"]').forEach(function (b) { b.classList.toggle('active', open); });
+}
+
 function na_initNavItems() {
   var items = document.querySelectorAll('.na-nav-item:not(.na-layer-item), .na-bottom-item');
-  items.forEach(function(item) {
+  var TOGGLE = ['bestmonth', 'visa', 'planner', 'journey', 'compare'];
+  items.forEach(function (item) {
     var nav = item.getAttribute('data-nav');
     if (!nav) return;
-    item.addEventListener('click', function() {
-      switch(nav) {
+    item.addEventListener('click', function () {
+      // For toggle navs, a second click on an already-open panel minimises it.
+      var wasOpen = (TOGGLE.indexOf(nav) >= 0) ? _navIsOpen(nav) : false;
+      switch (nav) {
         case 'worldmap':
-          // Return to the default world-map view
           if (typeof map !== 'undefined' && map) map.setView([20, 0], 2);
           break;
         case 'bestmonth':
-          // Toggle best-panel visibility (existing widget)
           var bestToggle = document.getElementById('best-toggle');
-          if (bestToggle) bestToggle.click();
+          if (bestToggle) bestToggle.click();   // toggles list + arms/clears auto-minimise
           break;
         case 'visa':
-          // Focus the passport selector (existing)
-          var ps = document.getElementById('passport-select');
-          if (ps) { ps.focus(); ps.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+          var ps = document.querySelector('#na-sidebar-passport select') || document.getElementById('passport-select');
+          if (wasOpen) { if (ps) ps.blur(); }
+          else if (ps) { ps.focus(); ps.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
           break;
         case 'planner':
-          // Toggle trip planner (existing)
-          var tp = document.getElementById('btn-trip-planner');
-          if (tp) tp.click();
+        case 'journey':
+          var panel = document.getElementById('trip-panel');
+          if (panel) panel.classList.toggle('open', !wasOpen);
           break;
         case 'compare':
-          openComparePanel();
+          if (wasOpen) closeComparePanel(); else openComparePanel();
           break;
         case 'layers':
-          // Open layers bottom sheet on mobile
           na_openLayersSheet();
-          break;
-        case 'journey':
-          // Open trip planner on mobile
-          var tp2 = document.getElementById('btn-trip-planner');
-          if (tp2) tp2.click();
           break;
         case 'preferences':
           na_openPrefsSheet();
@@ -8705,10 +8754,16 @@ function na_initNavItems() {
         default:
           break;
       }
-      // Update active state on bottom nav
-      var allBottom = document.querySelectorAll('.na-bottom-item');
-      allBottom.forEach(function(b) { b.classList.remove('active'); });
-      item.classList.add('active');
+      // Active state: toggle navs mirror their panel's open state across all
+      // matching items; transient navs (worldmap/layers/preferences) just highlight.
+      if (TOGGLE.indexOf(nav) >= 0) {
+        _syncNavActive(nav);
+      } else {
+        document.querySelectorAll('.na-bottom-item, .na-nav-item:not(.na-layer-item)').forEach(function (b) {
+          if (TOGGLE.indexOf(b.getAttribute('data-nav')) < 0) b.classList.remove('active');
+        });
+        item.classList.add('active');
+      }
     });
   });
 }

@@ -2765,3 +2765,45 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 .na-dsec-emg .na-dsec-t { color: #ef5350; }
 .na-ph-lang { font-size: 9px; color: var(--na-text-secondary); margin-bottom: 6px; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .na-dsec-x { transition: none; } }
+
+/* ─── iOS-style window treatment: soft large radius + layered shadow ─────────── */
+:root {
+  --na-win-radius: 20px;
+  --na-win-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 3px 12px rgba(0,0,0,0.34);
+}
+#onboarding-hint,
+#tt,
+#na-help-panel,
+#compare-panel,
+#trip-panel,
+#na-search-panel,
+#na-prefs-panel,
+#na-sheet-panel {
+  border-radius: var(--na-win-radius) !important;
+  box-shadow: var(--na-win-shadow) !important;
+}
+/* Menus and dropdowns: slightly tighter radius, same soft shadow. */
+#na-lang-fab-menu,
+.cat-dd,
+#explore-dd,
+.na-curr-picker {
+  border-radius: 14px !important;
+  box-shadow: var(--na-win-shadow) !important;
+}
+/* Mobile bottom-sheets keep their top-only rounding (flush to the screen edge). */
+@media (max-width: 767px) {
+  #na-prefs-panel, #na-sheet-panel { border-radius: 22px 22px 0 0 !important; }
+}
+
+/* Hide the floating language control while an info window is open. */
+body.na-tt-open #na-lang-fab {
+  opacity: 0; pointer-events: none; transform: translateY(10px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+/* ─── Web top bar mirrors mobile: the cluttered desktop control strip is hidden,
+   leaving the clean persistent header (#na-header). Month, nationality and layer
+   controls remain reachable via the left sidebar and the bottom menu. ───────── */
+@media (min-width: 768px) {
+  #topbar { display: none !important; }
+}
