@@ -50,7 +50,7 @@ var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
 var _basemapLayer     = null;  // reference to the current basemap tile layer
 var _basemapUserPinned = false; // true once the traveller explicitly picks a basemap; then the Day/Night theme stops auto-swapping satellite <-> night-lights
-var _naBootstrapping  = true;  // true during initial boot — the dark default theme must NOT auto-swap the satellite basemap to night-lights on first load (the site opens on satellite + dark). Cleared once boot completes; later theme toggles then sync normally.
+var _naBootstrapping  = true;  // true during initial boot — the theme must NOT auto-swap the satellite basemap on first load (the site opens on satellite + the day/light default). Cleared once boot completes; later theme toggles then sync normally.
 var _labelLayer       = null;  // reference to the place-labels overlay tile layer
 var _labelsOn         = (localStorage.getItem('na_labels') !== '0'); // place labels visible?
 let climateZoneLayer  = null;
@@ -8446,6 +8446,9 @@ function _naUpdateThemeBtn() {
       : 'Theme: Night chart. Click for Auto.';
   btn.setAttribute('title', label);
   btn.setAttribute('aria-label', label);
+  // Emoji glyph reflects the current mode: ☀️ day, 🌙 night, 🌗 sun-aware auto.
+  var emoji = _naThemeMode === 'light' ? '☀️' : _naThemeMode === 'dark' ? '🌙' : '🌗';
+  btn.innerHTML = '<span aria-hidden="true" style="font-size:18px;line-height:1">' + emoji + '</span>';
 }
 
 // Apply only the effective theme to the document (shared by setMode + auto-tick).
@@ -8500,9 +8503,9 @@ function _naAutoReResolve() {
 function na_initTheme() {
   var stored = null;
   try { stored = localStorage.getItem('na_theme'); } catch(e) {}
-  // New visitors open in DARK (the almanac's default night identity); returning
-  // users keep whatever they last chose (light / dark / sun-aware auto).
-  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'dark');
+  // New visitors open in DAY (light) so the almanac never launches in night
+  // mode; returning users keep whatever they last chose (light / dark / auto).
+  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'light');
   // Re-check when the tab regains focus (e.g., left open past dusk).
   if (!_naThemeFocusBound) {
     _naThemeFocusBound = true;
