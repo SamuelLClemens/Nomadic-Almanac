@@ -326,7 +326,7 @@ function _toggleWishlist(iso2) {
 
 function _updateWishlistUI(iso2) {
   var btn = document.getElementById('btn-wishlist-' + iso2);
-  if (btn) btn.textContent = _wishlist.has(iso2) ? '♥' : '♡';
+  if (btn) { btn.textContent = _wishlist.has(iso2) ? '♥' : '♡'; btn.classList.toggle('on', _wishlist.has(iso2)); }
   var counter = document.getElementById('wishlist-count');
   if (counter) counter.textContent = _wishlist.size > 0 ? _wishlist.size : '';
 }
@@ -531,12 +531,15 @@ var _I18N = {
     'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings',
     'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
     'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
-    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'A living atlas of where to go and when. Click any country to open its travel dossier, scrub the months to watch the seasons turn, and switch on layers to read the world your way.','welcome.sub':'Tip: zoom in for province and county detail, and choose your passport to colour the map by visa access.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
+    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to colour the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
     'prefs.title':'Preferences','prefs.mapView':'Map View','prefs.labels':'Place Labels','prefs.units':'Units','prefs.temp':'Temperature','prefs.dist':'Distance','prefs.elev':'Elevation','prefs.dateFormat':'Date Format','prefs.clock':'Clock','prefs.language':'Language','prefs.currency':'Currency','prefs.theme':'Theme','prefs.tour':'Replay guided tour','prefs.tutorial':'Written tutorial','prefs.faq':'FAQ','prefs.on':'On','prefs.off':'Off','prefs.dark':'Dark','prefs.light':'Light',
     'bm.satellite':'Satellite','bm.streets':'Streets','bm.dark':'Dark','bm.terrain':'Terrain','bm.night':'Night Lights',
     'doss.glance':'At a Glance','doss.emergency':'Emergency','doss.cost':'Cost of Living','doss.health':'Health','doss.climate':'Climate','doss.safety':'Safety','doss.tipping':'Tipping','doss.visa':'Visa Access','doss.timezone':'Time Zone','doss.holidays':'Holidays & Events','doss.history':'History','doss.phrasebook':'Phrasebook','doss.intel':'Country Intelligence','doss.language':'Language','doss.capital':'Capital','doss.population':'Population','doss.currency':'Currency','doss.languages':'Languages','doss.power':'Power','doss.calling':'Calling Code','doss.driving':'Driving','doss.region':'Region','doss.tapwater':'Tap Water','doss.etiquette':'Etiquette & Customs','doss.transport':'Getting Around','doss.connectivity':'Connectivity','doss.payments':'Money & Payments',
     'common.close':'Close','common.loading':'Loading…','common.noData':'No data','common.more':'Show more','common.less':'Show less','common.search':'Search countries, cities, or layers',
     'intel.title':'Country Intelligence','intel.origin':'Origin','intel.character':'Character','intel.complexity':'Honest Complexity','intel.bestFor':'Best For','intel.notKnown':'What Locals Know',
+    'cost.budget':'Budget','cost.mid':'Mid-range','cost.lux':'Luxury','cost.perDay':'per day','cost.dailyBudget':'Daily Budget',
+    'doss.journal':'Journal','doss.goodToKnow':'Good to Know','doss.layers':'Layer Readings','doss.expand':'Expand all','doss.collapse':'Collapse all',
+    'act.compare':'Compare','act.wishlist':'Wishlist','act.addPin':'Add to trip',
   },
   es:{}, fr:{}, de:{}, pt:{}, ar:{}, zh:{}, hi:{}, ja:{}, ru:{},
 };
@@ -607,6 +610,49 @@ function na_wireLangPicker(root) {
 function _cycleLang() {
   var idx = _LANG_KEYS.indexOf(_lang);
   na_setLang(_LANG_KEYS[(idx + 1) % _LANG_KEYS.length]);
+}
+
+// Floating language control — a single flag button at the bottom-right of the
+// window that opens a dropdown of all languages. The shown flag reflects the
+// current language and updates automatically via na_setLang().
+function na_initLangFab() {
+  if (document.getElementById('na-lang-fab')) return;
+  var meta = _LANG_META[_lang] || _LANG_META.en;
+  var wrap = document.createElement('div');
+  wrap.id = 'na-lang-fab';
+  wrap.innerHTML =
+    '<div id="na-lang-fab-menu" role="menu" hidden></div>' +
+    '<button type="button" id="na-lang-fab-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change language" title="Language">' +
+      '<span class="na-lang-current-flag" aria-hidden="true">' + meta.flag + '</span>' +
+    '</button>';
+  document.body.appendChild(wrap);
+  var btn = wrap.querySelector('#na-lang-fab-btn');
+  var menu = wrap.querySelector('#na-lang-fab-menu');
+
+  function onDoc(e) { if (!wrap.contains(e.target)) closeMenu(); }
+  function onKey(e) { if (e.key === 'Escape') { closeMenu(); btn.focus(); } }
+  function closeMenu() {
+    menu.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('pointerdown', onDoc, true);
+    document.removeEventListener('keydown', onKey, true);
+  }
+  function openMenu() {
+    menu.innerHTML = _LANG_KEYS.map(function (c) {
+      var m = _LANG_META[c];
+      return '<button type="button" role="menuitem" class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '">' +
+             '<span class="na-lang-flag" aria-hidden="true">' + m.flag + '</span><span class="na-lang-name">' + m.name + '</span></button>';
+    }).join('');
+    na_wireLangPicker(menu);
+    menu.querySelectorAll('.na-lang-opt').forEach(function (b) { b.addEventListener('click', closeMenu); });
+    menu.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    setTimeout(function () {
+      document.addEventListener('pointerdown', onDoc, true);
+      document.addEventListener('keydown', onKey, true);
+    }, 0);
+  }
+  btn.addEventListener('click', function (e) { e.stopPropagation(); if (menu.hidden) openMenu(); else closeMenu(); });
 }
 
 // Distance helper
@@ -1159,8 +1205,8 @@ function initTripPlanner() {
 
 // Drop a waypoint at the given coordinates and refresh the panel + route line,
 // keeping placing mode active for the next click.
-function _placeTripPinAt(lat, lng) {
-  const name = `Pin ${_tripPins.length + 1}`;
+function _placeTripPinAt(lat, lng, label) {
+  const name = (label && String(label).trim()) ? String(label).slice(0, 120) : `Pin ${_tripPins.length + 1}`;
   const pin = { id: 'tp_' + Date.now() + '_' + _tripPins.length, lat, lng, name };
   _tripPins.push(pin);
   _saveTripPins();
@@ -1447,6 +1493,9 @@ function makeLbButton(key, layer) {
   const btn = document.createElement('button');
   btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
   btn.dataset.key = key;
+  // When active the chip shows only the emoji, so keep the name reachable.
+  btn.title = layer.name;
+  btn.setAttribute('aria-label', layer.name);
   if (layer.color) btn.style.setProperty('--lb-color', layer.color);
   const emoji = document.createElement('span');
   emoji.className = 'lb-emoji';
@@ -4842,16 +4891,16 @@ function buildCountryFactsSection(iso2) {
     : null;
   var driveStr = F.drive ? (F.drive === 'left' ? 'Left-hand' : 'Right-hand') : null;
   var callStr  = F.call ? _esc(F.call) : null;
-  var grid = fact('🏛', 'Capital', cap ? _esc(cap) : null)
-    + fact('👥', 'Population', popStr, popTitle)
-    + fact('💱', 'Currency', curStr)
-    + fact('🗣️', 'Languages', langStr)
-    + fact('🔌', 'Power', plugStr)
-    + fact('📞', 'Calling code', callStr)
-    + fact('🚗', 'Driving', driveStr)
-    + fact('🧭', 'Region', F.region ? _esc(F.region) : null);
+  var grid = fact('🏛', _esc(_t('doss.capital')), cap ? _esc(cap) : null)
+    + fact('👥', _esc(_t('doss.population')), popStr, popTitle)
+    + fact('💱', _esc(_t('doss.currency')), curStr)
+    + fact('🗣️', _esc(_t('doss.languages')), langStr)
+    + fact('🔌', _esc(_t('doss.power')), plugStr)
+    + fact('📞', _esc(_t('doss.calling')), callStr)
+    + fact('🚗', _esc(_t('doss.driving')), driveStr)
+    + fact('🧭', _esc(_t('doss.region')), F.region ? _esc(F.region) : null);
   if (!grid) return '';
-  return '<div class="na-facts"><div class="na-sec-h">' + _esc(_t('doss.glance')) + '</div><div class="na-facts-grid">' + grid + '</div></div>';
+  return '<div class="na-facts"><div class="na-facts-grid">' + grid + '</div></div>';
 }
 
 // Prominent emergency-numbers band (safety-critical, visually distinct).
@@ -4868,14 +4917,14 @@ function buildEmergencySection(iso2) {
     return '<span class="na-emg-chip"><span class="na-emg-k">' + _esc(it[0]) + '</span><span class="na-emg-n">' + _esc(it[1]) + '</span></span>';
   }).join('');
   return '<div class="na-emergency"><span class="na-emg-ico">🆘</span><div class="na-emg-body">' +
-    '<div class="na-emg-h">Emergency</div><div class="na-emg-chips">' + chips + '</div></div></div>';
+    '<div class="na-emg-chips">' + chips + '</div></div></div>';
 }
 
 // Brief, neutral country history.
 function buildHistorySection(iso2) {
   var F = (typeof COUNTRY_FACTS !== 'undefined') ? COUNTRY_FACTS[iso2] : null;
   if (!F || !F.hist) return '';
-  return '<div class="na-history"><div class="na-sec-h">' + _esc(_t('doss.history')) + '</div><p class="na-history-p">' + _esc(F.hist) + '</p></div>';
+  return '<div class="na-history"><p class="na-history-p">' + _esc(F.hist) + '</p></div>';
 }
 
 // Additional traveler dossier content (tap water, etiquette, getting around,
@@ -4948,13 +4997,27 @@ function buildPhrasebookSection(iso2) {
       }).join('') + '</div>'
     : '';
   var nativeName = P.native ? ' <span class="na-ph-native">' + _esc(P.native) + '</span>' : '';
-  return '<div class="na-phrasebook"><div class="na-sec-h">' + _esc(_t('doss.phrasebook')) + ' — ' + _esc(lang) + nativeName + '</div>' +
+  return '<div class="na-phrasebook"><div class="na-ph-lang">' + _esc(lang) + nativeName + '</div>' +
     '<table class="na-ph-table"><tbody>' + preview + '</tbody></table>' +
     ((rest || nums)
       ? '<details class="na-ph-more"><summary>More phrases &amp; numbers</summary>' +
         (rest ? '<table class="na-ph-table"><tbody>' + rest + '</tbody></table>' : '') + nums + '</details>'
       : '') +
     '</div>';
+}
+
+// Wrap a country-info section in a uniform, collapsible <details> shell with a
+// translated header and a chevron. Empty sections render nothing. All sections
+// default to open; the user can minimise/maximise each one independently.
+function _dsec(titleKey, inner, opts) {
+  if (!inner) return '';
+  opts = opts || {};
+  var open = (opts.open === false) ? '' : ' open';
+  var cls = 'na-dsec' + (opts.cls ? ' ' + opts.cls : '');
+  return '<details class="' + cls + '"' + open + '>' +
+    '<summary class="na-dsec-h"><span class="na-dsec-t">' + _esc(_t(titleKey)) + '</span>' +
+    '<svg class="na-dsec-x" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6,9 12,15 18,9" fill="none" stroke="currentColor" stroke-width="2"/></svg>' +
+    '</summary><div class="na-dsec-b">' + inner + '</div></details>';
 }
 
 function buildCountryTooltip(iso2) {
@@ -4987,11 +5050,15 @@ function buildCountryTooltip(iso2) {
   const holSection     = buildHolidaysSection(iso2);
   const journalSection = buildJournalSection(iso2);
   const isPinned    = pinnedCountries.includes(iso2);
-  const pinLabel    = isPinned ? '&#x2665; Pinned' : '&#x2661; Compare';
-  const pinSection  = `<div style="padding:6px 14px 10px;display:flex;align-items:center;gap:6px">
-    <button class="tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" onclick="togglePinCountry('${iso2}')">${pinLabel}</button>
-    <button id="btn-wishlist-${iso2}" title="Add to wishlist" style="background:none;border:none;cursor:pointer;font-size:16px;color:#ec4899;padding:4px 8px">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
+  const _escName    = String(name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  // Action cluster lives at the bottom-right of the dossier header: Compare,
+  // Wishlist, and Add-to-trip (drops a trip-planner pin at the country centre).
+  const headerActions = `<div class="tt-head-actions">
+    <button class="tt-hact tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" title="${_esc(_t('act.compare'))}" aria-label="${_esc(_t('act.compare'))}" aria-pressed="${isPinned ? 'true' : 'false'}" onclick="togglePinCountry('${iso2}')">&#x21C4;</button>
+    <button class="tt-hact tt-wish${_wishlist.has(iso2) ? ' on' : ''}" id="btn-wishlist-${iso2}" title="${_esc(_t('act.wishlist'))}" aria-label="${_esc(_t('act.wishlist'))}">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
+    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+' — added to your trip');}})()">📍</button>
   </div>`;
+  const pinSection = '';
   const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
     ? `<div class="tm" style="color:#43A047;margin-top:2px">&#x2708; Best time: ${BEST_TRAVEL_RANGE[iso2]}</div>`
     : '';
@@ -5041,9 +5108,10 @@ function buildCountryTooltip(iso2) {
     <div class="tm" id="tt-period">${periodLabel()}</div>
     ${scoreChip}
     ${bestTimeLine}
+    ${headerActions}
   </div>${ctxBand}
-  <div class="ttb" id="tt-body">${factsSection}${emergencySection}${rows}${costSection}${healthSection}${languageSection}${climateSection}${safetySection}${tippingSection}${visaSection}${tzSection}${holSection}${historySection}${extraSection}${phrasebookSection}${journalSection}${visitedBtn}
-  <div class="intel-wrap"><div class="intel-hdr">${_esc(_t('intel.title'))}</div><div id="intel-${_esc(iso2)}" class="intel-container"></div></div>
+  <div class="ttb" id="tt-body">${_dsec('doss.glance', factsSection)}${_dsec('doss.emergency', emergencySection, {cls:'na-dsec-emg'})}${rows ? _dsec('doss.layers', rows) : ''}${_dsec('doss.cost', costSection)}${_dsec('doss.health', healthSection)}${_dsec('doss.language', languageSection)}${_dsec('doss.climate', climateSection)}${_dsec('doss.safety', safetySection)}${_dsec('doss.tipping', tippingSection)}${_dsec('doss.visa', visaSection)}${_dsec('doss.timezone', tzSection)}${_dsec('doss.holidays', holSection)}${_dsec('doss.history', historySection)}${_dsec('doss.goodToKnow', extraSection)}${_dsec('doss.phrasebook', phrasebookSection)}${_dsec('doss.journal', journalSection)}${visitedBtn}
+  ${_dsec('intel.title', '<div id="intel-' + _esc(iso2) + '" class="intel-container"></div>', {cls:'na-dsec-intel'})}
   ${_buildPlanBook(name, _cc && _cc[0], _cc && _cc[1])}
   </div>${pinSection}${similarSection}`;
 }
@@ -6147,28 +6215,31 @@ function buildCostDetailsSection(iso2) {
   const d    = COST_DETAILS[iso2];
   const curr = (typeof CURRENCY !== 'undefined' && CURRENCY[iso2]) ? CURRENCY[iso2] : '';
 
-  // Daily budget estimate: hostel + 3 meals + transport (budget traveller)
-  const budgetDay  = (d.hostel || 0) + (d.meal || 0) * 3 + (d.transport || 0);
-  // Comfort daily: add coffee + beer to the budget estimate
-  const comfortDay = budgetDay + (d.coffee || 0) + (d.beer || 0);
+  // Three daily-budget tiers derived from the per-item costs.
+  //  • Budget   — hostel + 3 street meals + local transport (backpacker)
+  //  • Mid-range — 3-star stay, restaurant meals, some taxis, a coffee and a drink
+  //  • Luxury    — 4–5-star stay, fine dining, private transport, drinks
+  const budgetDay = (d.hostel || 0) + (d.meal || 0) * 3 + (d.transport || 0);
+  const midDay    = Math.round((d.hostel || 0) * 2.6 + (d.meal || 0) * 2 * 3 + (d.transport || 0) * 1.6 + (d.coffee || 0) + (d.beer || 0));
+  const luxDay    = Math.round((d.hostel || 0) * 6 + (d.meal || 0) * 4 * 3 + (d.transport || 0) * 3 + (d.coffee || 0) * 2 + (d.beer || 0) * 3);
+
+  const tierCol = (label, val, rgb) =>
+    `<div style="flex:1;text-align:center;padding:4px 0;background:rgba(${rgb},0.07);border-radius:5px;border:1px solid rgba(${rgb},0.16)">
+        <div style="font-size:6.5px;color:rgba(${rgb},0.7);letter-spacing:0.6px;text-transform:uppercase">${_esc(label)}</div>
+        <div style="font-size:12.5px;font-weight:700;color:rgb(${rgb})">~${_money(val)}</div>
+        <div style="font-size:6px;color:rgba(${rgb},0.5)">${_esc(_t('cost.perDay'))}</div>
+      </div>`;
 
   // Compact always-visible summary card
   const compactCard = `<div style="margin-top:8px;padding:8px 10px;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.14);border-radius:7px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-size:6.5px;color:rgba(201,168,76,0.5);letter-spacing:1.6px;text-transform:uppercase">💰 DAILY BUDGET</div>
+      <div style="font-size:6.5px;color:rgba(201,168,76,0.5);letter-spacing:1.6px;text-transform:uppercase">💰 ${_esc(_t('cost.dailyBudget'))}</div>
       ${curr ? `<div style="font-size:7px;font-weight:700;color:var(--gold);background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);border-radius:3px;padding:1px 6px;letter-spacing:0.8px">${_esc(curr)}</div>` : ''}
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:6px">
-      <div style="flex:1;text-align:center;padding:4px 0;background:rgba(34,197,94,0.07);border-radius:5px;border:1px solid rgba(34,197,94,0.15)">
-        <div style="font-size:7px;color:rgba(34,197,94,0.6);letter-spacing:0.8px;text-transform:uppercase">Budget</div>
-        <div style="font-size:13px;font-weight:700;color:#4ade80">~${_money(budgetDay)}</div>
-        <div style="font-size:6.5px;color:rgba(34,197,94,0.45)">per day</div>
-      </div>
-      <div style="flex:1;text-align:center;padding:4px 0;background:rgba(251,191,36,0.06);border-radius:5px;border:1px solid rgba(251,191,36,0.12)">
-        <div style="font-size:7px;color:rgba(251,191,36,0.6);letter-spacing:0.8px;text-transform:uppercase">Comfort</div>
-        <div style="font-size:13px;font-weight:700;color:#fbbf24">~${_money(comfortDay)}</div>
-        <div style="font-size:6.5px;color:rgba(251,191,36,0.45)">per day</div>
-      </div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      ${tierCol(_t('cost.budget'), budgetDay, '74,222,128')}
+      ${tierCol(_t('cost.mid'), midDay, '251,191,36')}
+      ${tierCol(_t('cost.lux'), luxDay, '167,139,250')}
     </div>
     <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--dim)">
       <span title="Hostel/guesthouse per night">🛏 ${_money(d.hostel)}</span>
@@ -6585,9 +6656,8 @@ function buildJournalSection(iso2) {
     ? '<div style="font-size:8.5px;color:var(--sand);line-height:1.5;white-space:pre-wrap;padding:5px 7px;background:rgba(201,168,76,0.04);border-radius:4px;border:1px solid rgba(201,168,76,0.10)">' + _esc(note) + '</div>'
     : '<div style="font-size:7.5px;color:rgba(201,168,76,0.3);font-style:italic">No notes yet.</div>';
   const btnLabel = note ? 'Edit' : '+ Add Note';
-  return '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
-    '<div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase">&#x270F; MY JOURNAL</div>' +
+  return '<div>' +
+    '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:5px">' +
     '<button id="jbtn-' + iso2 + '" onclick="_openJournalEditor(\'' + iso2 + '\')" style="font-size:7px;color:var(--gold);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:3px;padding:2px 7px;cursor:pointer;font-family:var(--fm)">' + btnLabel + '</button>' +
     '</div>' +
     '<div id="jnote-' + iso2 + '">' + noteHtml + '</div>' +
@@ -7232,7 +7302,7 @@ function showOnboardingHint() {
   el.innerHTML = `
     <div class="hint-lang" id="na-hint-lang"></div>
     <p class="hint-title" data-i18n="welcome.title">Welcome to the Nomadic Almanac</p>
-    <p data-i18n="welcome.body">A living atlas of where to go and when. Click any country to open its travel dossier, scrub the months to watch the seasons turn, and switch on layers to read the world your way.</p>
+    <p data-i18n="welcome.body">Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.</p>
     <p class="hint-sub" data-i18n="welcome.sub">Tip: zoom in for province and county detail, and choose your passport to colour the map by visa access.</p>
     <div class="hint-actions">
       <button type="button" class="hint-btn primary" id="na-hint-tour" data-i18n="welcome.tour">Take the guided tour</button>
@@ -7299,8 +7369,8 @@ function showOnboardingHint() {
 // the "video" counterpart; this is the written reference and FAQ.
 var _NA_TUTORIAL = [
   { title: 'The world map', body: 'The almanac opens on a satellite view in dark mode. Drag to pan and scroll or pinch to zoom. Glowing dots mark notable cities; as you zoom in the map reveals more cities, then provinces, then counties.' },
-  { title: 'Open a country dossier', body: 'Click any country to open its travel dossier — emergency numbers, currency, power sockets, a phrasebook, climate, living costs, safety, visa access, a short history, and a country intelligence brief.' },
-  { title: 'Units and currency', body: 'Inside a dossier, one toggle switches every measurement at once (°C or °F, km or mi, m or ft). Choose your currency in Preferences and every cost figure converts automatically using a dated exchange-rate snapshot.' },
+  { title: 'Open a country guide', body: 'Click any country to open its travel guide — emergency numbers, currency, power sockets, a phrasebook, climate, living costs, safety, visa access, a short history, and a country intelligence brief. Every section can be collapsed or expanded.' },
+  { title: 'Units and currency', body: 'Inside a country guide, one toggle switches every measurement at once (°C or °F, km or mi, m or ft). Choose your currency in Preferences and every cost figure converts automatically using a dated exchange-rate snapshot.' },
   { title: 'Intelligence layers', body: 'Open Layers from the bottom menu and switch on weather, safety, cost, visas, events and more. A single layer paints the map by score; stack several and each country shows one coloured chip per layer so you can compare them in place.' },
   { title: 'Travel through the year', body: 'Scrub the months to watch climate, crowds and prices shift. Every colour on the map reflects the month you have selected.' },
   { title: 'Your passport', body: 'Choose your nationality and the map recolours every country by how easy it is for you to enter — from visa-free to visa-required.' },
@@ -7310,7 +7380,7 @@ var _NA_TUTORIAL = [
 
 var _NA_FAQ = [
   { q: 'Is the Nomadic Almanac free to use?', a: 'Yes. It runs entirely in your browser and no account is required.' },
-  { q: 'Does it work offline?', a: 'Largely, yes. Core data is bundled and cached, so the map and dossiers keep working without a connection after the first visit. Live overlays such as real-time transit or incident data require a connection.' },
+  { q: 'Does it work offline?', a: 'Largely, yes. Core data is bundled and cached, so the map and country guides keep working without a connection after the first visit. Live overlays such as real-time transit or incident data require a connection.' },
   { q: 'How current is the information?', a: 'Chart data is dated in the sidebar (currently June 2026), and exchange rates are a dated snapshot. Safety-critical facts such as emergency numbers, plug types and voltages are verified against authoritative sources.' },
   { q: 'How accurate is the travel guidance?', a: 'It is carefully compiled and reviewed, but it remains general guidance. Always confirm visas, vaccinations, tap-water safety and emergency numbers with official sources before you travel.' },
   { q: 'Can I change the language?', a: 'Yes. Use the flag picker on the welcome screen or in Preferences. The interface defaults to your browser language and falls back to English where a translation is unavailable.' },
@@ -7377,7 +7447,7 @@ function _naTourSteps() {
     { target: null, center: true, title: 'Welcome to the Almanac',
       body: 'A living atlas of where to go and when. Here is a quick tour of the essentials — it takes about a minute.' },
     { target: ['#map'], center: true, title: 'The world map',
-      body: 'Click any country for a full travel dossier. The glowing dots are notable cities — zoom in and the map reveals more cities, then provinces, then counties.' },
+      body: 'Click any country for a full travel guide. The glowing dots are notable cities — zoom in and the map reveals more cities, then provinces, then counties.' },
     { target: ['#na-sidebar-months', '#na-month-strip', '.na-month-row'], title: 'Travel through the year',
       body: 'Scrub the months to watch climate, crowds, and prices shift. Every colour on the map reflects the month you have chosen.' },
     { target: ['.na-accordion-trigger[data-accordion="layers"]', '#na-layers-toggle', '#na-layers-list'], title: 'Intelligence layers',
@@ -7546,7 +7616,9 @@ function togglePinCountry(iso2) {
     if (btn && btn.dataset.iso2 === iso2) {
       const pinned = pinnedCountries.includes(iso2);
       btn.classList.toggle('pinned', pinned);
-      btn.textContent = pinned ? '♡ Pinned' : '♡ Compare';
+      btn.setAttribute('aria-pressed', pinned ? 'true' : 'false');
+      // Icon buttons (header cluster) keep their glyph; only toggle state.
+      if (!btn.classList.contains('tt-hact')) btn.textContent = pinned ? '♡ Pinned' : '♡ Compare';
     }
   }
 }
@@ -9353,6 +9425,7 @@ function navInit() {
   na_initMapResize();
   na_initSidebarCollapse();
   na_initPrefsLauncher();
+  na_initLangFab();
 
   // Apply the active language to all static chrome (and set <html lang/dir>).
   try { na_setLang(_lang); } catch (_e) {}
@@ -10185,5 +10258,162 @@ Object.assign(_I18N, {
   "intel.complexity": "Реальная сложность",
   "intel.bestFor": "Лучше всего для",
   "intel.notKnown": "Что знают местные"
+ }
+});
+
+// ─── New-key translations (welcome reword, budget tiers, section headers, actions) ───
+(function(p){Object.keys(p).forEach(function(l){_I18N[l]=Object.assign(_I18N[l]||{},p[l]);});})({
+ "es": {
+  "welcome.body": "Tu atlas interactivo de adónde ir y cuándo. Toca cualquier país para abrir su guía de viaje completa — costes, seguridad, clima, visados, frases clave y mucho más. Desliza por los meses para ver cambiar las estaciones y activa capas para comparar el mundo a tu manera.",
+  "welcome.sub": "Consejo: amplía para ver el detalle de regiones y provincias, y elige tu pasaporte para colorear el mapa según adónde puedes viajar sin visado.",
+  "cost.budget": "Económico",
+  "cost.mid": "Intermedio",
+  "cost.lux": "Lujo",
+  "cost.perDay": "al día",
+  "cost.dailyBudget": "Presupuesto diario",
+  "doss.journal": "Diario",
+  "doss.goodToKnow": "Conviene saber",
+  "doss.layers": "Lecturas de capas",
+  "doss.expand": "Expandir todo",
+  "doss.collapse": "Contraer todo",
+  "act.compare": "Comparar",
+  "act.wishlist": "Lista de deseos",
+  "act.addPin": "Añadir al viaje"
+ },
+ "fr": {
+  "welcome.body": "Votre atlas interactif des destinations et du moment idéal pour partir. Touchez un pays pour ouvrir son guide de voyage complet — coûts, sécurité, météo, visas, expressions clés et plus encore. Faites défiler les mois pour voir les saisons changer, et activez des calques pour comparer le monde à votre façon.",
+  "welcome.sub": "Astuce : zoomez pour afficher les régions et provinces en détail, et choisissez votre passeport pour colorer la carte selon vos destinations sans visa.",
+  "cost.budget": "Économique",
+  "cost.mid": "Intermédiaire",
+  "cost.lux": "Luxe",
+  "cost.perDay": "par jour",
+  "cost.dailyBudget": "Budget quotidien",
+  "doss.journal": "Journal",
+  "doss.goodToKnow": "Bon à savoir",
+  "doss.layers": "Données des calques",
+  "doss.expand": "Tout déplier",
+  "doss.collapse": "Tout replier",
+  "act.compare": "Comparer",
+  "act.wishlist": "Favoris",
+  "act.addPin": "Ajouter au voyage"
+ },
+ "de": {
+  "welcome.body": "Ihr interaktiver Atlas für das Wohin und Wann. Tippen Sie ein Land an, um den vollständigen Reiseführer zu öffnen — Kosten, Sicherheit, Wetter, Visa, wichtige Redewendungen und mehr. Schieben Sie durch die Monate, um den Wechsel der Jahreszeiten zu verfolgen, und blenden Sie Ebenen ein, um die Welt nach Ihren Wünschen zu vergleichen.",
+  "welcome.sub": "Tipp: Zoomen Sie hinein für Regionen- und Provinzdetails, und wählen Sie Ihren Reisepass, um die Karte nach visafreien Reisezielen einzufärben.",
+  "cost.budget": "Sparsam",
+  "cost.mid": "Mittelklasse",
+  "cost.lux": "Luxus",
+  "cost.perDay": "pro Tag",
+  "cost.dailyBudget": "Tagesbudget",
+  "doss.journal": "Tagebuch",
+  "doss.goodToKnow": "Gut zu wissen",
+  "doss.layers": "Ebenenwerte",
+  "doss.expand": "Alle aufklappen",
+  "doss.collapse": "Alle zuklappen",
+  "act.compare": "Vergleichen",
+  "act.wishlist": "Merkliste",
+  "act.addPin": "Zur Reise hinzufügen"
+ },
+ "pt": {
+  "welcome.body": "Seu atlas interativo de para onde ir e quando. Toque em qualquer país para abrir seu guia de viagem completo — custos, segurança, clima, vistos, frases úteis e muito mais. Deslize pelos meses para ver as estações mudarem e ative camadas para comparar o mundo do seu jeito.",
+  "welcome.sub": "Dica: aproxime para ver detalhes de regiões e províncias e escolha seu passaporte para colorir o mapa pelos destinos sem visto.",
+  "cost.budget": "Econômico",
+  "cost.mid": "Intermediário",
+  "cost.lux": "Luxo",
+  "cost.perDay": "por dia",
+  "cost.dailyBudget": "Orçamento diário",
+  "doss.journal": "Diário",
+  "doss.goodToKnow": "Bom saber",
+  "doss.layers": "Leituras de camadas",
+  "doss.expand": "Expandir tudo",
+  "doss.collapse": "Recolher tudo",
+  "act.compare": "Comparar",
+  "act.wishlist": "Lista de desejos",
+  "act.addPin": "Adicionar à viagem"
+ },
+ "ar": {
+  "welcome.body": "أطلسك التفاعلي لاكتشاف أين تذهب ومتى. انقر على أي دولة لفتح دليلها السياحي الكامل — التكاليف والأمان والطقس والتأشيرات والعبارات الأساسية والمزيد. مرّر عبر الأشهر لتشاهد تغيّر الفصول، وفعّل الطبقات لمقارنة العالم على طريقتك.",
+  "welcome.sub": "نصيحة: كبّر الخريطة لعرض تفاصيل المناطق والأقاليم، واختر جواز سفرك لتلوين الخريطة حسب الوجهات التي يمكنك السفر إليها دون تأشيرة.",
+  "cost.budget": "اقتصادي",
+  "cost.mid": "متوسط",
+  "cost.lux": "فاخر",
+  "cost.perDay": "يومياً",
+  "cost.dailyBudget": "الميزانية اليومية",
+  "doss.journal": "اليوميات",
+  "doss.goodToKnow": "معلومات مفيدة",
+  "doss.layers": "قراءات الطبقات",
+  "doss.expand": "توسيع الكل",
+  "doss.collapse": "طيّ الكل",
+  "act.compare": "مقارنة",
+  "act.wishlist": "قائمة الأمنيات",
+  "act.addPin": "إضافة إلى الرحلة"
+ },
+ "zh": {
+  "welcome.body": "您的互动地图册,帮您决定何时去何地。轻点任意国家即可打开完整旅行指南——花费、安全、天气、签证、常用语等一应俱全。滑动月份查看四季变换,开启图层以您的方式纵览世界。",
+  "welcome.sub": "提示:放大可查看地区与省份详情;选择您的护照,按免签可达地点为地图着色。",
+  "cost.budget": "经济",
+  "cost.mid": "中档",
+  "cost.lux": "豪华",
+  "cost.perDay": "每天",
+  "cost.dailyBudget": "每日预算",
+  "doss.journal": "日志",
+  "doss.goodToKnow": "实用须知",
+  "doss.layers": "图层数据",
+  "doss.expand": "全部展开",
+  "doss.collapse": "全部收起",
+  "act.compare": "比较",
+  "act.wishlist": "心愿单",
+  "act.addPin": "加入行程"
+ },
+ "hi": {
+  "welcome.body": "कहाँ जाएँ और कब जाएँ, इसका आपका इंटरैक्टिव एटलस। किसी भी देश पर टैप करें और उसकी पूरी यात्रा गाइड खोलें — खर्च, सुरक्षा, मौसम, वीज़ा, ज़रूरी वाक्यांश और बहुत कुछ। महीनों को स्लाइड करके मौसमों को बदलते देखें, और लेयर्स चालू करके दुनिया को अपने तरीके से देखें।",
+  "welcome.sub": "सुझाव: क्षेत्र और प्रांत के विवरण के लिए ज़ूम इन करें, और अपना पासपोर्ट चुनें ताकि नक्शा वहाँ के अनुसार रंगे जहाँ आप बिना वीज़ा यात्रा कर सकते हैं।",
+  "cost.budget": "किफ़ायती",
+  "cost.mid": "मध्यम",
+  "cost.lux": "विलासिता",
+  "cost.perDay": "प्रति दिन",
+  "cost.dailyBudget": "दैनिक बजट",
+  "doss.journal": "जर्नल",
+  "doss.goodToKnow": "जानना ज़रूरी",
+  "doss.layers": "लेयर रीडिंग",
+  "doss.expand": "सभी खोलें",
+  "doss.collapse": "सभी बंद करें",
+  "act.compare": "तुलना करें",
+  "act.wishlist": "इच्छा-सूची",
+  "act.addPin": "यात्रा में जोड़ें"
+ },
+ "ja": {
+  "welcome.body": "行き先と旅のタイミングがわかるインタラクティブな世界地図。国をタップすると、費用・治安・天候・ビザ・役立つフレーズなど、その国の旅行ガイドをまるごと表示します — 月をスライドさせて季節の移り変わりを見たり、レイヤーを切り替えて自分なりの視点で世界を比べたりできます。",
+  "welcome.sub": "ヒント：ズームインすると地方や州の詳細が表示されます。パスポートを選ぶと、ビザなしで行ける国ごとに地図を色分けできます。",
+  "cost.budget": "格安",
+  "cost.mid": "標準",
+  "cost.lux": "高級",
+  "cost.perDay": "1日あたり",
+  "cost.dailyBudget": "1日の予算",
+  "doss.journal": "旅日記",
+  "doss.goodToKnow": "知っておきたいこと",
+  "doss.layers": "レイヤー指標",
+  "doss.expand": "すべて展開",
+  "doss.collapse": "すべて折りたたむ",
+  "act.compare": "比較",
+  "act.wishlist": "行きたいリスト",
+  "act.addPin": "旅程に追加"
+ },
+ "ru": {
+  "welcome.body": "Ваш интерактивный атлас: куда поехать и когда. Нажмите на любую страну, чтобы открыть полный путеводитель — цены, безопасность, погода, визы, ключевые фразы и многое другое. Перемещайте ползунок по месяцам, чтобы следить за сменой сезонов, и включайте слои, чтобы сравнивать мир по-своему.",
+  "welcome.sub": "Совет: приближайте карту, чтобы увидеть регионы и провинции, и выберите свой паспорт, чтобы раскрасить карту по странам с безвизовым въездом.",
+  "cost.budget": "Эконом",
+  "cost.mid": "Средний",
+  "cost.lux": "Люкс",
+  "cost.perDay": "в день",
+  "cost.dailyBudget": "Бюджет на день",
+  "doss.journal": "Заметки",
+  "doss.goodToKnow": "Полезно знать",
+  "doss.layers": "Показатели слоёв",
+  "doss.expand": "Развернуть всё",
+  "doss.collapse": "Свернуть всё",
+  "act.compare": "Сравнить",
+  "act.wishlist": "Избранное",
+  "act.addPin": "В маршрут"
  }
 });
