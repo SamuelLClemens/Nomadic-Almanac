@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Content-Security-Policy (defense-in-depth). Inline scripts are kept allowed
+       because the app bootstraps inline; object/base-uri/form-action are locked,
+       and schemes are restricted. The primary XSS defense is per-field _esc() on
+       all OSM/user-derived strings. A tighter connect-src allowlist is a future
+       step (requires testing every tile/API/open-data integration). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="The Nomadic Almanac — an interactive atlas of where to go and when. Costs, safety, weather, visas, and key phrases for 195 countries, by month.">
   <title>The Nomadic Almanac — World Travel Intelligence</title>
   <!-- Resource hints — resolve DNS / open sockets before scripts run -->
   <link rel="preconnect"    href="https://fonts.googleapis.com" crossorigin>
@@ -37,6 +45,19 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Nomadic Almanac">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <!-- Social / link-preview cards -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Nomadic Almanac">
+  <meta property="og:title" content="The Nomadic Almanac — World Travel Intelligence">
+  <meta property="og:description" content="An interactive atlas of where to go and when — costs, safety, weather, visas, and key phrases for 195 countries, by month.">
+  <meta property="og:image" content="https://samuellclemens.github.io/Nomadic-Almanac/icon-512.png">
+  <meta property="og:url" content="https://samuellclemens.github.io/Nomadic-Almanac/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="The Nomadic Almanac">
+  <meta name="twitter:description" content="An interactive atlas of where to go and when — costs, safety, weather, visas, and key phrases for 195 countries, by month.">
+  <meta name="twitter:image" content="https://samuellclemens.github.io/Nomadic-Almanac/icon-512.png">
 </head>
 <body>
 
@@ -939,6 +960,14 @@
         <div class="pref-toggle-group" id="pref-labels">
           <button class="pref-opt" data-val="on"  aria-label="Show place labels">On</button>
           <button class="pref-opt" data-val="off" aria-label="Hide place labels">Off</button>
+        </div>
+      </div>
+
+      <div class="pref-row">
+        <span class="pref-label">♿ <span data-i18n="prefs.palette">Colour-Blind Palette</span></span>
+        <div class="pref-toggle-group" id="pref-palette">
+          <button class="pref-opt" data-val="classic" aria-label="Standard rating colours" data-i18n="prefs.off">Off</button>
+          <button class="pref-opt" data-val="cvd"     aria-label="Colour-blind-safe rating colours" data-i18n="prefs.on">On</button>
         </div>
       </div>
 

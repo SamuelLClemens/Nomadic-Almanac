@@ -1,11 +1,12 @@
 // Increment this version string whenever app.js, data.js, or style.css change.
 // The activate handler deletes all caches whose name does not match CACHE,
 // forcing clients to re-fetch the latest files and clearing any stale state.
-const CACHE = 'nomadic-v35';
+const CACHE = 'nomadic-v36';
 const CORE = [
   './', './index.html', './app.js', './data.js', './style.css',
   './lib/leaflet.js', './lib/leaflet.css',
   './data/countries.geojson',
+  './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png',
 ];
 
 self.addEventListener('install', e => {
@@ -23,6 +24,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Only GET requests are cacheable. cache.put() throws on POST/PUT/etc., so let
+  // non-GET requests (e.g. the optional Anthropic API call, Overpass POSTs) pass
+  // straight through to the network without interception.
+  if (e.request.method !== 'GET') return;
+
   const url = new URL(e.request.url);
 
   // Map tiles: cache-first. Tiles are immutable and large, so serving a cached

@@ -2176,7 +2176,9 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   cursor: pointer;
   transition: background var(--dur-fast);
 }
-.na-search-result:hover { background: rgba(200,168,75,0.08); color: var(--na-gold-bright); }
+.na-search-result:hover,
+.na-search-result.active,
+.na-search-result[aria-selected="true"] { background: rgba(200,168,75,0.12); color: var(--na-gold-bright); }
 /* --na-text-secondary passes WCAG AA; result-type conveys category information */
 .na-search-result-type { font-size: var(--ts-micro); color: var(--na-text-secondary); text-transform: uppercase; letter-spacing: var(--track-wide); }
 
@@ -2646,15 +2648,16 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
    with the How-it-works / FAQ links, opening a dropdown of every language. */
 .na-hint-flagpick { position: relative; display: inline-flex; align-items: center; }
 .na-hint-flag-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 24px; min-height: 24px;         /* WCAG 2.5.8 target size — still a bare glyph */
-  padding: 2px 4px; border-radius: 6px; cursor: pointer;
-  background: none; border: none;            /* no circle — just the flag glyph */
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  min-width: 24px; min-height: 24px;         /* WCAG 2.5.8 target size */
+  padding: 2px 5px; border-radius: 6px; cursor: pointer;
+  background: none; border: none;            /* no circle — flag + native name */
   transition: transform .15s, opacity .15s;
 }
-.na-hint-flag-btn:hover { transform: scale(1.18); opacity: 0.92; }
+.na-hint-flag-btn:hover { transform: scale(1.05); opacity: 0.85; }
 .na-hint-flag-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .na-hint-flag-btn .na-lang-current-flag { font-size: 17px; line-height: 1; }
+.na-hint-flag-btn .na-lang-current-name { font-size: 11px; font-weight: 600; line-height: 1; color: var(--na-gold-mid); }
 .na-hint-flag-menu {
   position: absolute; left: 50%; transform: translateX(-50%);
   bottom: calc(100% + 8px); z-index: 5;
