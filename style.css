@@ -314,12 +314,7 @@ html, body {
 }
 
 /* ─── Month Buttons ──────────────────────────────────────────────────────── */
-#months-row {
-  flex: 1; min-width: 0;
-  overflow-x: auto; scrollbar-width: none;
-  display: flex; align-items: center;
-}
-#months-row::-webkit-scrollbar { display: none; }
+/* (#months-row removed — the month selector now lives in #na-header-months.) */
 #months {
   display: flex; align-items: center; gap: 3px;
   flex-wrap: nowrap; /* always single row */
@@ -878,11 +873,12 @@ html, body {
   top: 50%; left: 50%; transform: translate(-50%, -50%);
   background: rgba(16,12,5,0.97); border: 1px solid var(--b2);
   border-top: 2px solid var(--gold); border-radius: 14px;
-  /* Extra bottom band reserves clear space for the corner flag picker. */
-  padding: 22px 26px 50px; text-align: center;
+  padding: 22px 26px 22px; text-align: center;
   font-family: var(--fm); pointer-events: auto;
   box-shadow: 0 16px 48px rgba(0,0,0,.88);
-  max-width: min(430px, 92vw);
+  /* Explicit width (not just max-width) so the fixed card uses its intended
+     size instead of shrink-to-fitting to a too-narrow box on phones. */
+  width: min(430px, 92vw);
   animation: na-hint-in .45s ease forwards;
 }
 #onboarding-hint.na-hint-out { animation: na-hint-out .3s ease forwards; }
@@ -1057,8 +1053,7 @@ html, body {
   order: 10;   /* push to right of logo */
 }
 #topbar-hamburger:hover { background: rgba(201,168,76,0.16); }
-/* Collapsed state: hide months-row, search-wrap, and tb-row2 */
-#topbar.tb-collapsed #months-row,
+/* Collapsed state: hide search-wrap and tb-row2 */
 #topbar.tb-collapsed #search-wrap,
 #topbar.tb-collapsed #tb-row2 {
   display: none !important;
@@ -1068,7 +1063,6 @@ html, body {
 @media (max-width: 720px) {
   /* --tb-h removed: flexbox handles map height automatically on all screens */
   #tb-row1 { flex-wrap: wrap; height: auto; padding: 8px 12px 0; gap: 8px; }
-  #months-row { order: 3; width: 100%; padding-bottom: 6px; }
   #search-wrap { width: 140px; }
   #tb-row2 { padding: 0 12px; }
   /* Thumb-reachable tap targets (was 8px — too small to hit reliably). */
@@ -1093,10 +1087,6 @@ html, body {
     border-bottom: 1px solid rgba(201,168,76,0.10);
   }
   #tb-row1 { flex-wrap: nowrap; height: auto; padding: 6px 10px; gap: 8px; }
-  /* Defeat any .tb-collapsed/.tb-expanded state JS may set — always shown. */
-  #months-row,
-  #topbar.tb-collapsed #months-row,
-  #topbar.tb-expanded #months-row { display: flex !important; flex: 1; width: auto; order: 0; }
   /* Search lives in the header button (and ⌘K) — no inline search on mobile. */
   #search-wrap,
   #topbar.tb-collapsed #search-wrap,
@@ -1343,6 +1333,11 @@ html, body {
   #na-header-wordmark { display: none; }
   #na-header-actions { gap: 4px; }
   #na-header-months .mb { padding: 6px 9px; font-size: 10.5px; }
+  /* Smaller edge fade on phones so fewer pills are visually clipped. */
+  #na-header-months #months {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+  }
 }
 
 #na-header-logo {
@@ -2674,22 +2669,22 @@ html[dir="rtl"] .na-sec-h { text-align: right; }
 html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 
 /* ─── Welcome card additions (flag picker + links) ──────────────────────────── */
-/* Welcome card single-flag language picker — one flag in the bottom-right
-   corner that opens a dropdown of every language. */
-.na-hint-flagpick { position: absolute; right: 12px; bottom: 9px; z-index: 4; }
+/* Welcome card single-flag language picker — a small flag chip sitting inline
+   with the How-it-works / FAQ links, opening a dropdown of every language. */
+.na-hint-flagpick { position: relative; display: inline-flex; align-items: center; }
 .na-hint-flag-btn {
-  width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(201,168,76,0.10);
-  border: 1px solid var(--gold);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.45);
-  transition: transform .15s, box-shadow .15s, border-color .15s;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; padding: 0; cursor: pointer;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid var(--b2);
+  transition: background .15s, border-color .15s, box-shadow .15s;
 }
-.na-hint-flag-btn:hover { transform: translateY(-1px); box-shadow: 0 0 14px rgba(201,168,76,0.5); }
+.na-hint-flag-btn:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); box-shadow: 0 0 10px rgba(201,168,76,0.4); }
 .na-hint-flag-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.na-hint-flag-btn .na-lang-current-flag { font-size: 19px; line-height: 1; }
+.na-hint-flag-btn .na-lang-current-flag { font-size: 15px; line-height: 1; }
 .na-hint-flag-menu {
-  position: absolute; right: 0; bottom: calc(100% + 8px);
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(100% + 8px); z-index: 5;
   display: flex; flex-direction: column; gap: 3px;
   max-height: 46vh; overflow-y: auto; min-width: 156px;
   padding: 7px; border-radius: 12px;
@@ -2704,7 +2699,7 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 .hint-link {
   background: none; border: none; cursor: pointer; padding: 2px 4px;
   color: var(--na-gold-mid); font-size: 11px; font-weight: 600; text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 2px; white-space: nowrap;
 }
 .hint-link:hover { color: var(--na-gold-bright); }
 .hint-link-sep { color: var(--na-text-dim); }

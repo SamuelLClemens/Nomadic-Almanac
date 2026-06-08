@@ -1404,6 +1404,12 @@ function buildMonthSelector() {
     btn.className = 'mb';
     btn.textContent = m;
     btn.dataset.idx = i;
+    btn.setAttribute('aria-label', (typeof MONTHS_F !== 'undefined' && MONTHS_F[i]) ? MONTHS_F[i] : m);
+    // Keyboard activation: the mouse path uses mousedown for drag-select, which
+    // keyboard cannot reach — so Enter/Space explicitly selects the single month.
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMonth(i); }
+    });
 
     btn.addEventListener('mousedown', e => {
       e.preventDefault();
@@ -1430,6 +1436,7 @@ function buildMonthSelector() {
   const yearBtn = document.createElement('button');
   yearBtn.id = 'btn-year';
   yearBtn.textContent = 'ALL YEAR';
+  yearBtn.setAttribute('aria-label', 'Toggle year-round selection');
   yearBtn.addEventListener('click', () => {
     yearMode = !yearMode;
     if (yearMode) {
@@ -7350,8 +7357,18 @@ function _naWireHintFlag(card) {
           : (typeof _LANG_META !== 'undefined' ? _LANG_META.en : null);
     if (flagSpan && m) flagSpan.textContent = m.flag;
   }
+  function items() { return Array.prototype.slice.call(menu.querySelectorAll('.na-lang-opt')); }
   function onDoc(e) { if (!pick.contains(e.target)) closeMenu(); }
-  function onKey(e) { if (e.key === 'Escape') { closeMenu(); btn.focus(); } }
+  function onKey(e) {
+    if (e.key === 'Escape') { closeMenu(); btn.focus(); return; }
+    var its = items();
+    if (!its.length) return;
+    var idx = its.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown')      { e.preventDefault(); its[(idx + 1 + its.length) % its.length].focus(); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); its[(idx - 1 + its.length) % its.length].focus(); }
+    else if (e.key === 'Home')      { e.preventDefault(); its[0].focus(); }
+    else if (e.key === 'End')       { e.preventDefault(); its[its.length - 1].focus(); }
+  }
   function closeMenu() {
     menu.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
@@ -7361,7 +7378,7 @@ function _naWireHintFlag(card) {
   function openMenu() {
     menu.innerHTML = _LANG_KEYS.map(function (c) {
       var m = _LANG_META[c];
-      return '<button type="button" role="menuitem" class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '">' +
+      return '<button type="button" role="menuitem"' + (c === _lang ? ' aria-current="true"' : '') + ' class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '">' +
              '<span class="na-lang-flag" aria-hidden="true">' + m.flag + '</span>' +
              '<span class="na-lang-name">' + m.name + '</span></button>';
     }).join('');
@@ -7372,6 +7389,7 @@ function _naWireHintFlag(card) {
         setFlag();
         if (typeof na_applyI18n === 'function') { try { na_applyI18n(card); } catch (_e) {} }
         closeMenu();
+        btn.focus();
       });
     });
     menu.hidden = false;
@@ -7379,12 +7397,17 @@ function _naWireHintFlag(card) {
     setTimeout(function () {
       document.addEventListener('pointerdown', onDoc, true);
       document.addEventListener('keydown', onKey, true);
+      var first = menu.querySelector('.na-lang-opt.active') || menu.querySelector('.na-lang-opt');
+      if (first) first.focus();   // move focus into the menu for keyboard / screen-reader users
     }, 0);
   }
   btn.addEventListener('click', function (e) {
     e.stopPropagation();
     if (menu.hidden) openMenu(); else closeMenu();
   });
+  // Expose a closer so the card's dismissal can tear down the menu's document
+  // listeners — otherwise they leak if the card is removed while the menu is open.
+  card._naHintFlagClose = closeMenu;
   setFlag();
 }
 
@@ -7407,15 +7430,16 @@ function showOnboardingHint() {
       <button type="button" class="hint-link" id="na-hint-tutorial" data-i18n="welcome.tutorial">How it works</button>
       <span class="hint-link-sep" aria-hidden="true">·</span>
       <button type="button" class="hint-link" id="na-hint-faq" data-i18n="welcome.faq">FAQ</button>
-    </div>
-    <div class="na-hint-flagpick" id="na-hint-flagpick">
-      <div class="na-hint-flag-menu" role="menu" hidden></div>
-      <button type="button" class="na-hint-flag-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change language" title="Language"><span class="na-lang-current-flag" aria-hidden="true"></span></button>
+      <span class="hint-link-sep" aria-hidden="true">·</span>
+      <span class="na-hint-flagpick" id="na-hint-flagpick">
+        <div class="na-hint-flag-menu" role="menu" hidden></div>
+        <button type="button" class="na-hint-flag-btn" aria-haspopup="true" aria-expanded="false" data-i18n-aria="welcome.language" data-i18n-title="welcome.language" aria-label="Language" title="Language"><span class="na-lang-current-flag" aria-hidden="true"></span></button>
+      </span>
     </div>`;
   document.body.appendChild(el);
 
-  // Single-flag language picker (bottom-right): one flag opens a menu of all
-  // languages; choosing one re-translates the card live.
+  // Single-flag language picker, inline with the How-it-works / FAQ links:
+  // one flag opens a menu of all languages; choosing one re-translates live.
   if (typeof _naWireHintFlag === 'function') { try { _naWireHintFlag(el); } catch (_e) {} }
   if (typeof na_applyI18n === 'function') { try { na_applyI18n(el); } catch (_e) {} }
 
@@ -7424,6 +7448,7 @@ function showOnboardingHint() {
     document.removeEventListener('pointerdown', onInteract, true);
     document.removeEventListener('keydown', onInteract, true);
     if (map && map.off) map.off('movestart zoomstart dragstart', dismiss);
+    if (typeof el._naHintFlagClose === 'function') el._naHintFlagClose();  // tear down flag-menu listeners too
   }
   function dismiss() {
     if (dismissed) return;
@@ -8834,6 +8859,8 @@ function na_openLayersSheet() {
   if (!sheet) return;
   sheet.hidden = false;
   if (btn) btn.setAttribute('aria-expanded', 'true');
+  var hbtn = document.getElementById('na-layers-btn');
+  if (hbtn) hbtn.setAttribute('aria-expanded', 'true');
   // Focus trap: first focusable element in sheet
   setTimeout(function() {
     var first = sheet.querySelector('button, [tabindex="0"]');
@@ -8848,6 +8875,8 @@ function na_closeLayersSheet() {
   if (!sheet) return;
   sheet.hidden = true;
   if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+  var hbtn = document.getElementById('na-layers-btn');
+  if (hbtn) hbtn.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
 }
 
