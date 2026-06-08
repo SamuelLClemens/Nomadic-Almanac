@@ -7498,7 +7498,7 @@ function showOnboardingHint() {
   function teardownListeners() {
     document.removeEventListener('pointerdown', onInteract, true);
     document.removeEventListener('keydown', onKeydown, true);
-    if (map && map.off) map.off('movestart zoomstart dragstart', dismiss);
+    if (map && map.off) map.off('movestart zoomstart dragstart', onMapMove);
     if (typeof el._naHintFlagClose === 'function') el._naHintFlagClose();  // tear down flag-menu listeners too
   }
   function dismiss() {
@@ -7509,11 +7509,22 @@ function showOnboardingHint() {
     el.classList.add('na-hint-out');
     setTimeout(() => { if (el.parentNode) el.remove(); }, 320);
   }
+  // Soft hide: visually dismiss but DO NOT latch na_hint_seen, so an incidental
+  // map pan/zoom or stray tap lets the welcome card return next session until the
+  // user makes an explicit choice (UX-audit fix — was destroying onboarding forever).
+  function dismissSoft() {
+    if (dismissed) return;
+    dismissed = true;
+    teardownListeners();
+    el.classList.add('na-hint-out');
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 320);
+  }
+  function onMapMove() { dismissSoft(); }
   function onInteract(ev) {
     // A pointer press outside the card dismisses it; presses inside are handled
     // by the card's own controls.
     if (ev && ev.target && el.contains(ev.target)) return;
-    dismiss();
+    dismissSoft();
   }
   function onKeydown(ev) {
     // If the language menu is open, let it handle keys (Escape closes the menu).
@@ -7551,7 +7562,7 @@ function showOnboardingHint() {
     if (dismissed) return;
     document.addEventListener('pointerdown', onInteract, true);
     document.addEventListener('keydown', onKeydown, true);
-    if (map && map.on) map.on('movestart zoomstart dragstart', dismiss);
+    if (map && map.on) map.on('movestart zoomstart dragstart', onMapMove);
   }, 450);
 }
 
