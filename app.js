@@ -522,9 +522,7 @@ function _t(key) {
 // _t(), _cycleLang() and _lang are (re)defined here; function-declaration
 // hoisting makes these definitions authoritative throughout the file.
 var _LANG_META = {
-  en:      { flag: '🇬🇧', name: 'English',      dir: 'ltr' },  // internal fallback base (not shown in the picker)
-  'en-GB': { flag: '🇬🇧', name: 'English (UK)', dir: 'ltr' },
-  'en-US': { flag: '🇺🇸', name: 'English (US)', dir: 'ltr' },
+  en: { flag: '🇺🇸', name: 'English', dir: 'ltr' },  // single English entry; flag follows the detected UK/US spelling
   es: { flag: '🇪🇸', name: 'Español',    dir: 'ltr' },
   fr: { flag: '🇫🇷', name: 'Français',   dir: 'ltr' },
   de: { flag: '🇩🇪', name: 'Deutsch',    dir: 'ltr' },
@@ -536,7 +534,7 @@ var _LANG_META = {
   ru: { flag: '🇷🇺', name: 'Русский',    dir: 'ltr' },
   he:      { flag: '🇮🇱', name: 'עברית',       dir: 'rtl' },
 };
-_LANG_KEYS = ['en-GB','en-US','es','fr','de','pt','ar','zh','hi','ja','ru','he'];
+_LANG_KEYS = ['en','es','fr','de','pt','ar','zh','hi','ja','ru','he'];
 
 // Master English dictionary. Other languages are curated patches (filled by the
 // translation workflow); any missing key falls back to English.
@@ -558,10 +556,9 @@ var _I18N = {
     'act.compare':'Compare','act.wishlist':'Wishlist','act.addPin':'Add to trip',
   },
   es:{}, fr:{}, de:{}, pt:{}, ar:{}, zh:{}, hi:{}, ja:{}, ru:{},
-  // Two English variants. The 'en' base above is American spelling; 'en-US'
-  // inherits it as-is, while 'en-GB' overrides the interface strings that differ
-  // (colour/centre/etc.). Only translatable strings differ — guide prose is shared.
-  'en-US': {},
+  // Single 'English' entry. The 'en' base above is American spelling; the 'en-GB'
+  // patch overrides only the interface strings that differ (colour/centre/etc.) and
+  // is overlaid by _t() when the detected spelling is British. Guide prose is shared.
   'en-GB': {
     'welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to colour the map by where you can travel visa-free.',
   },
@@ -586,6 +583,10 @@ Object.assign(_I18N.he, {
   'act.compare':'השוואה','act.wishlist':'רשימת משאלות','act.addPin':'הוספה לטיול',
 });
 
+// English spelling sub-preference for the single 'English' entry: 'uk' or 'us'.
+var _enSpelling = 'us';
+try { var _ss = localStorage.getItem('na_en_spelling'); if (_ss === 'uk' || _ss === 'us') _enSpelling = _ss; } catch (_e) {}
+
 function na_detectDefaultLang() {
   try {
     var navs = navigator.languages || [navigator.language || 'en-US'];
@@ -593,23 +594,30 @@ function na_detectDefaultLang() {
       var full = String(navs[i] || '').toLowerCase();
       var two = full.slice(0, 2);
       if (two === 'en') {
-        // British-influenced English locales get UK spelling; everything else US.
-        return /^en-(gb|au|nz|ie|in|za|sg|ng|ke|gh|pk|lk|mt)\b/.test(full) ? 'en-GB' : 'en-US';
+        // Single English entry; British-influenced locales default to UK spelling, else US.
+        _enSpelling = /^en-(gb|au|nz|ie|in|za|sg|ng|ke|gh|pk|lk|mt)\b/.test(full) ? 'uk' : 'us';
+        return 'en';
       }
       if (two === 'he' || two === 'iw') return 'he';   // 'iw' is the legacy ISO code for Hebrew
       if (_LANG_KEYS.indexOf(two) >= 0) return two;
     }
   } catch (_e) {}
-  return 'en-US';
+  return 'en';
 }
 
 // On first visit (no stored choice) default to the browser locale.
 try { if (!localStorage.getItem('na_lang')) _lang = na_detectDefaultLang(); } catch (_e) {}
-if (_lang === 'en') _lang = 'en-GB';                       // migrate the legacy single English code (was British) to the UK variant
-if (_lang === 'iw') _lang = 'he';                          // legacy ISO code for Hebrew → modern 'he'
-if (_LANG_KEYS.indexOf(_lang) < 0) _lang = 'en-US';
+if (_lang === 'en-GB') { _enSpelling = 'uk'; _lang = 'en'; }   // legacy split → single English, British spelling
+else if (_lang === 'en-US') { _enSpelling = 'us'; _lang = 'en'; }
+if (_lang === 'iw') _lang = 'he';                              // legacy ISO code for Hebrew → modern 'he'
+if (_LANG_KEYS.indexOf(_lang) < 0) _lang = 'en';               // unknown code → English
+if (_LANG_META.en) _LANG_META.en.flag = (_enSpelling === 'uk') ? '🇬🇧' : '🇺🇸';
 
 function _t(key) {
+  if (_lang === 'en') {
+    if (_enSpelling === 'uk' && _I18N['en-GB'] && _I18N['en-GB'][key] != null) return _I18N['en-GB'][key];
+    return _I18N.en[key] || key;
+  }
   var s = _I18N[_lang] || _I18N.en;
   return (s && s[key]) || _I18N.en[key] || key;
 }
@@ -624,9 +632,12 @@ function na_applyI18n(root) {
 }
 
 function na_setLang(code) {
-  if (!_I18N[code]) code = 'en-US';   // fall back to a picker-listed variant, never the hidden 'en' base
+  if (code === 'en-GB') { _enSpelling = 'uk'; code = 'en'; }   // accept legacy codes / deep-links
+  else if (code === 'en-US') { _enSpelling = 'us'; code = 'en'; }
+  if (!_I18N[code]) code = 'en';      // unknown code → English
   _lang = code;
-  try { localStorage.setItem('na_lang', code); } catch (_e) {}
+  if (code === 'en' && _LANG_META.en) _LANG_META.en.flag = (_enSpelling === 'uk') ? '🇬🇧' : '🇺🇸';
+  try { localStorage.setItem('na_lang', code); localStorage.setItem('na_en_spelling', _enSpelling); } catch (_e) {}
   var meta = _LANG_META[code] || _LANG_META.en;
   try {
     document.documentElement.setAttribute('lang', code);
@@ -634,6 +645,7 @@ function na_setLang(code) {
   } catch (_e) {}
   na_applyI18n();
   document.querySelectorAll('.na-lang-current-flag').forEach(function (el) { el.textContent = meta.flag; });
+  document.querySelectorAll('.na-lang-current-name').forEach(function (el) { el.textContent = meta.name; });
   document.querySelectorAll('.na-lang-opt').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === code); });
   if (typeof _rerenderActiveDossier === 'function') { try { _rerenderActiveDossier(); } catch (_e) {} }
 }
@@ -1476,9 +1488,10 @@ function syncMonthButtons() {
       if (i === arr[0] || i === arr[arr.length-1]) btn.classList.add('on');
       else btn.classList.add('range');
     }
+    btn.setAttribute('aria-pressed', (yearMode || selectedMonths.has(i)) ? 'true' : 'false');
   });
   const yearBtn = document.getElementById('btn-year');
-  if (yearBtn) yearBtn.classList.toggle('on', yearMode);
+  if (yearBtn) { yearBtn.classList.toggle('on', yearMode); yearBtn.setAttribute('aria-pressed', yearMode ? 'true' : 'false'); }
 }
 
 // ─── Layer Buttons ────────────────────────────────────────────────────────────
@@ -1504,7 +1517,7 @@ function toggleLayer(key) {
   if (activeLayers.has(key)) activeLayers.delete(key);
   else activeLayers.add(key);
   const pill = document.querySelector('.lb[data-key="' + key + '"]');
-  if (pill) pill.classList.toggle('on', activeLayers.has(key));
+  if (pill) { pill.classList.toggle('on', activeLayers.has(key)); pill.setAttribute('aria-pressed', activeLayers.has(key) ? 'true' : 'false'); }
   syncMoreButtonState();
   syncCatButtons();
   refresh();
@@ -1516,6 +1529,7 @@ function toggleLayer(key) {
 function makeLbButton(key, layer) {
   const btn = document.createElement('button');
   btn.className = 'lb' + (activeLayers.has(key) ? ' on' : '');
+  btn.setAttribute('aria-pressed', activeLayers.has(key) ? 'true' : 'false');
   btn.dataset.key = key;
   // When active the chip shows only the emoji, so keep the name reachable.
   btn.title = layer.name;
@@ -7348,11 +7362,13 @@ function _naWireHintFlag(card) {
   var menu = pick.querySelector('.na-hint-flag-menu');
   if (!btn || !menu) return;
   var flagSpan = btn.querySelector('.na-lang-current-flag');
+  var nameSpan = btn.querySelector('.na-lang-current-name');
 
   function setFlag() {
     var m = (typeof _LANG_META !== 'undefined' && _LANG_META[_lang]) ? _LANG_META[_lang]
           : (typeof _LANG_META !== 'undefined' ? _LANG_META.en : null);
     if (flagSpan && m) flagSpan.textContent = m.flag;
+    if (nameSpan && m) nameSpan.textContent = m.name;
   }
   function items() { return Array.prototype.slice.call(menu.querySelectorAll('.na-lang-opt')); }
   function onDoc(e) { if (!pick.contains(e.target)) closeMenu(); }
@@ -7414,6 +7430,8 @@ function showOnboardingHint() {
   const el = document.createElement('div');
   el.id = 'onboarding-hint';
   el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('tabindex', '-1');
   el.setAttribute('aria-label', 'Welcome to the Nomadic Almanac');
   el.innerHTML = `
     <p class="hint-title" data-i18n="welcome.title">Welcome to the Nomadic Almanac</p>
@@ -7430,7 +7448,7 @@ function showOnboardingHint() {
       <span class="hint-link-sep" aria-hidden="true">·</span>
       <span class="na-hint-flagpick" id="na-hint-flagpick">
         <div class="na-hint-flag-menu" role="menu" hidden></div>
-        <button type="button" class="na-hint-flag-btn" aria-haspopup="true" aria-expanded="false" data-i18n-aria="welcome.language" data-i18n-title="welcome.language" aria-label="Language" title="Language"><span class="na-lang-current-flag" aria-hidden="true"></span></button>
+        <button type="button" class="na-hint-flag-btn" aria-haspopup="true" aria-expanded="false" data-i18n-aria="welcome.language" data-i18n-title="welcome.language" aria-label="Language" title="Language"><span class="na-lang-current-flag" aria-hidden="true"></span><span class="na-lang-current-name"></span></button>
       </span>
     </div>`;
   document.body.appendChild(el);
@@ -7441,9 +7459,14 @@ function showOnboardingHint() {
   if (typeof na_applyI18n === 'function') { try { na_applyI18n(el); } catch (_e) {} }
 
   let dismissed = false;
+  function focusable() {
+    return Array.prototype.slice.call(
+      el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter(function (n) { return n.offsetParent !== null || n === document.activeElement; });
+  }
   function teardownListeners() {
     document.removeEventListener('pointerdown', onInteract, true);
-    document.removeEventListener('keydown', onInteract, true);
+    document.removeEventListener('keydown', onKeydown, true);
     if (map && map.off) map.off('movestart zoomstart dragstart', dismiss);
     if (typeof el._naHintFlagClose === 'function') el._naHintFlagClose();  // tear down flag-menu listeners too
   }
@@ -7456,9 +7479,25 @@ function showOnboardingHint() {
     setTimeout(() => { if (el.parentNode) el.remove(); }, 320);
   }
   function onInteract(ev) {
-    // Clicks on the card's own buttons are handled by their own listeners.
+    // A pointer press outside the card dismisses it; presses inside are handled
+    // by the card's own controls.
     if (ev && ev.target && el.contains(ev.target)) return;
     dismiss();
+  }
+  function onKeydown(ev) {
+    // If the language menu is open, let it handle keys (Escape closes the menu).
+    var menuEl = el.querySelector('.na-hint-flag-menu');
+    if (menuEl && !menuEl.hidden) return;
+    // Escape dismisses; Tab is trapped inside the card so keyboard users can reach
+    // every control without the card self-destructing on the first keystroke.
+    if (ev.key === 'Escape') { dismiss(); return; }
+    if (ev.key !== 'Tab') return;
+    var f = focusable();
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (!el.contains(document.activeElement)) { ev.preventDefault(); first.focus(); return; }
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
   }
 
   el.querySelector('#na-hint-dismiss').addEventListener('click', e => { e.stopPropagation(); dismiss(); });
@@ -7474,10 +7513,13 @@ function showOnboardingHint() {
 
   // Any interaction anywhere else on the site dismisses the card. A short delay
   // ensures the page-load settling does not count as an interaction.
+  // Move focus into the card so keyboard and screen-reader users land on it.
+  setTimeout(() => { try { (el.querySelector('#na-hint-tour') || el).focus(); } catch (_e) {} }, 60);
+
   setTimeout(() => {
     if (dismissed) return;
     document.addEventListener('pointerdown', onInteract, true);
-    document.addEventListener('keydown', onInteract, true);
+    document.addEventListener('keydown', onKeydown, true);
     if (map && map.on) map.on('movestart zoomstart dragstart', dismiss);
   }, 450);
 }
@@ -8754,13 +8796,16 @@ function na_updateLayerActiveStates() {
     var on = (typeof activeLayers !== 'undefined') && activeLayers.has(layerKey);
     item.classList.toggle('active', on);
     item.classList.toggle('layer-active', on);
+    item.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 
   // Keep the topbar layer pills + category buttons in sync too, so every layer
   // surface reflects activeLayers no matter how it changed (pill, sidebar, sheet,
   // persona preset, or URL restore) — not just clicks routed through a pill.
   document.querySelectorAll('.lb[data-key]').forEach(function(b) {
-    b.classList.toggle('on', (typeof activeLayers !== 'undefined') && activeLayers.has(b.dataset.key));
+    var on = (typeof activeLayers !== 'undefined') && activeLayers.has(b.dataset.key);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
   if (typeof syncCatButtons === 'function') syncCatButtons();
 
@@ -8793,7 +8838,10 @@ function _navIsOpen(nav) {
 // Reflect a nav's open/closed state on every matching item (sidebar + bottom nav).
 function _syncNavActive(nav) {
   var open = _navIsOpen(nav);
-  document.querySelectorAll('[data-nav="' + nav + '"]').forEach(function (b) { b.classList.toggle('active', open); });
+  document.querySelectorAll('[data-nav="' + nav + '"]').forEach(function (b) {
+    b.classList.toggle('active', open);
+    if (open) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+  });
 }
 
 function na_initNavItems() {
@@ -9007,7 +9055,9 @@ function na_syncPrefsUI() {
     if (!grp) return;
     var val = map_pref[id];
     grp.querySelectorAll('.pref-opt').forEach(function(btn) {
-      btn.classList.toggle('active', btn.dataset.val === val);
+      var on = btn.dataset.val === val;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   });
 }
@@ -9136,11 +9186,44 @@ function na_initSearch() {
 
   if (backdrop) backdrop.addEventListener('click', na_closeSearch);
 
-  if (input) {
+  if (input && results) {
+    // Accessible combobox + listbox: keyboard users can arrow through results and
+    // press Enter to open a country dossier or toggle a layer (WCAG 2.1.1 / 4.1.2).
+    results.setAttribute('role', 'listbox');
+    results.setAttribute('aria-label', 'Search results');
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-expanded', 'false');
+    input.setAttribute('aria-controls', results.id || 'na-search-results');
+
+    var _srActive = -1;
+    function _srOptions() { return Array.prototype.slice.call(results.querySelectorAll('.na-search-result')); }
+    function _srHighlight(idx) {
+      var opts = _srOptions();
+      if (!opts.length) { _srActive = -1; input.removeAttribute('aria-activedescendant'); return; }
+      idx = Math.max(0, Math.min(idx, opts.length - 1));
+      _srActive = idx;
+      opts.forEach(function (o, i) {
+        var on = i === idx;
+        o.classList.toggle('active', on);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) { input.setAttribute('aria-activedescendant', o.id); o.scrollIntoView({ block: 'nearest' }); }
+      });
+    }
+    function _srActivate(m) {
+      na_closeSearch();
+      if (m.type === 'layer') {
+        if (typeof toggleLayer === 'function') toggleLayer(m.key);
+        na_updateLayerActiveStates();
+      } else if (m.type === 'country') {
+        na_openCountryDossier(m.key);   // fly to + open dossier (keyboard-reachable)
+      }
+    }
+
     input.addEventListener('input', function() {
       var q = input.value.trim().toLowerCase();
-      if (!results) return;
-      if (q.length < 2) { results.innerHTML = ''; return; }
+      _srActive = -1; input.removeAttribute('aria-activedescendant');
+      if (q.length < 2) { results.innerHTML = ''; input.setAttribute('aria-expanded', 'false'); return; }
 
       var matches = [];
       // Search country names from existing countryNames object
@@ -9165,9 +9248,13 @@ function na_initSearch() {
       // Render top 8 matches — use DOM creation, never innerHTML, for any
       // string that might derive from data sources (defense in depth).
       results.innerHTML = '';
-      matches.slice(0, 8).forEach(function(m) {
+      matches.slice(0, 8).forEach(function(m, i) {
         var el = document.createElement('div');
         el.className = 'na-search-result';
+        el.id = 'na-sr-opt-' + i;
+        el.setAttribute('role', 'option');
+        el.setAttribute('aria-selected', 'false');
+        el._match = m;
         var typeSpan = document.createElement('span');
         typeSpan.className = 'na-search-result-type';
         typeSpan.textContent = m.type;
@@ -9175,20 +9262,26 @@ function na_initSearch() {
         labelSpan.textContent = m.label;
         el.appendChild(typeSpan);
         el.appendChild(labelSpan);
-        el.addEventListener('click', function() {
-          na_closeSearch();
-          if (m.type === 'layer') {
-            if (typeof toggleLayer === 'function') toggleLayer(m.key);
-            na_updateLayerActiveStates();
-          } else if (m.type === 'country') {
-            // Fly to the country AND open its dossier (keyboard-reachable intelligence).
-            na_openCountryDossier(m.key);
-          }
-        });
+        el.addEventListener('click', function() { _srActivate(m); });
+        el.addEventListener('mousemove', function() { _srHighlight(i); });
         results.appendChild(el);
       });
+      input.setAttribute('aria-expanded', matches.length ? 'true' : 'false');
       if (matches.length === 0) {
         results.innerHTML = '<div class="terra-incognita">Terra Incognita</div>';
+        input.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    input.addEventListener('keydown', function(e) {
+      var opts = _srOptions();
+      if (e.key === 'ArrowDown')      { if (opts.length) { e.preventDefault(); _srHighlight(_srActive < 0 ? 0 : _srActive + 1); } }
+      else if (e.key === 'ArrowUp')   { if (opts.length) { e.preventDefault(); _srHighlight(_srActive < 0 ? 0 : _srActive - 1); } }
+      else if (e.key === 'Home')      { if (opts.length) { e.preventDefault(); _srHighlight(0); } }
+      else if (e.key === 'End')       { if (opts.length) { e.preventDefault(); _srHighlight(opts.length - 1); } }
+      else if (e.key === 'Enter')     {
+        var pick = (_srActive >= 0 && opts[_srActive]) ? opts[_srActive] : opts[0];
+        if (pick && pick._match) { e.preventDefault(); _srActivate(pick._match); }
       }
     });
   }
