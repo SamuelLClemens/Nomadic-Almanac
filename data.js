@@ -6,8 +6,16 @@ const bc  = (name, from, to, lat, lng, status, hours, note) => ({ name, from, to
 const bch = (name, country, lat, lng, status, season, water, facilities, dresscode, note) =>
   ({ name, country, lat, lng, status, season, water, facilities, dresscode, note });
 
-const RC  = ['#43A047','#FDD835','#EF6C00','#C62828'];
-const RC2 = ['#43A047','#FDD835','#EF6C00','#C62828'];
+// Rating colour ramps (0=best … 3=worst). `classic` is the original green→red.
+// `cvd` is a colour-blind-safe, luminance-varied ramp (ColorBrewer RdYlBu, reversed)
+// that stays distinguishable under deuteranopia/protanopia and in greyscale.
+// Consumers read RC/RC2 by reference; na_setRatingPalette() mutates them in place.
+const RC_PALETTES = {
+  classic: ['#43A047', '#FDD835', '#EF6C00', '#C62828'],
+  cvd:     ['#2C7BB6', '#ABD9E9', '#FDAE61', '#D7191C'],
+};
+const RC  = RC_PALETTES.classic.slice();
+const RC2 = RC;                       // legend swatches share the working palette
 const RC_NODATA = '#B0BEC5';
 
 // ─── Static Travel Layer Data ─────────────────────────────────────────────────

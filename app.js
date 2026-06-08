@@ -546,7 +546,7 @@ var _I18N = {
     'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
     'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
     'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to color the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
-    'prefs.title':'Preferences','prefs.mapView':'Map View','prefs.labels':'Place Labels','prefs.units':'Units','prefs.temp':'Temperature','prefs.dist':'Distance','prefs.elev':'Elevation','prefs.dateFormat':'Date Format','prefs.clock':'Clock','prefs.language':'Language','prefs.currency':'Currency','prefs.theme':'Theme','prefs.tour':'Replay guided tour','prefs.tutorial':'Written tutorial','prefs.faq':'FAQ','prefs.on':'On','prefs.off':'Off','prefs.dark':'Dark','prefs.light':'Light',
+    'prefs.title':'Preferences','prefs.mapView':'Map View','prefs.labels':'Place Labels','prefs.units':'Units','prefs.temp':'Temperature','prefs.dist':'Distance','prefs.elev':'Elevation','prefs.dateFormat':'Date Format','prefs.clock':'Clock','prefs.language':'Language','prefs.currency':'Currency','prefs.theme':'Theme','prefs.tour':'Replay guided tour','prefs.tutorial':'Written tutorial','prefs.faq':'FAQ','prefs.on':'On','prefs.off':'Off','prefs.dark':'Dark','prefs.light':'Light','prefs.palette':'Colour-Blind Palette',
     'bm.satellite':'Satellite','bm.streets':'Streets','bm.dark':'Dark','bm.terrain':'Terrain','bm.night':'Night Lights',
     'doss.glance':'At a Glance','doss.emergency':'Emergency','doss.cost':'Cost of Living','doss.health':'Health','doss.climate':'Climate','doss.safety':'Safety','doss.tipping':'Tipping','doss.visa':'Visa Access','doss.timezone':'Time Zone','doss.holidays':'Holidays & Events','doss.history':'History','doss.phrasebook':'Phrasebook','doss.intel':'Country Intelligence','doss.language':'Language','doss.capital':'Capital','doss.population':'Population','doss.currency':'Currency','doss.languages':'Languages','doss.power':'Power','doss.calling':'Calling Code','doss.driving':'Driving','doss.region':'Region','doss.tapwater':'Tap Water','doss.etiquette':'Etiquette & Customs','doss.transport':'Getting Around','doss.connectivity':'Connectivity','doss.payments':'Money & Payments',
     'common.close':'Close','common.loading':'Loading…','common.noData':'No data','common.more':'Show more','common.less':'Show less','common.search':'Search countries, cities, or layers',
@@ -704,6 +704,32 @@ function _esc(s) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+// ─── Rating colour palette (accessibility) ───────────────────────────────────
+// Swap the working RC ramp in place between 'classic' (green→red) and 'cvd'
+// (colour-blind-safe). RC/RC2 keep the same array reference so every consumer
+// (choropleth fills, glyph chips, legend swatches) picks up the change on repaint.
+function na_setRatingPalette(name) {
+  if (typeof RC_PALETTES === 'undefined') return;
+  var pal = RC_PALETTES[name] || RC_PALETTES.classic;
+  for (var i = 0; i < 4 && i < pal.length; i++) { RC[i] = pal[i]; }   // RC2 aliases RC
+  window._naPalette = name;
+  try { localStorage.setItem('na_palette', name); } catch (_e) {}
+  if (typeof _glyphHTMLCache !== 'undefined') _glyphHTMLCache = {};    // chips cache embeds RC colours
+  if (typeof refresh === 'function')            { try { refresh(); } catch (_e) {} }
+  if (typeof renderLayerGlyphs === 'function')  { try { renderLayerGlyphs(); } catch (_e) {} }
+  if (typeof _rerenderActiveDossier === 'function') { try { _rerenderActiveDossier(); } catch (_e) {} }
+}
+// Apply any stored palette preference before first paint (no repaint needed yet).
+(function () {
+  try {
+    var p = localStorage.getItem('na_palette');
+    if (p && typeof RC_PALETTES !== 'undefined' && RC_PALETTES[p]) {
+      for (var i = 0; i < 4 && i < RC_PALETTES[p].length; i++) { RC[i] = RC_PALETTES[p][i]; }
+      window._naPalette = p;
+    }
+  } catch (_e) {}
+})();
 
 // Validate and sanitise a pin object loaded from localStorage.
 // Returns the pin if it looks legitimate; returns null if it is malformed.
@@ -3306,7 +3332,7 @@ function _buildOsmBeachTooltip(t) {
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Beach')}</h3>
-    <div class="ts" id="tt-sub">${t['addr:country'] || ''}</div>
+    <div class="ts" id="tt-sub">${_esc(t['addr:country'] || '')}</div>
     <div class="tm" id="tt-period">PUBLIC BEACH — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this beach.</div>'}</div>`;
 }
@@ -3476,7 +3502,7 @@ function _buildCampingTooltip(t) {
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Camp Site')}</h3>
-    <div class="ts" id="tt-sub">${t.operator || ''}</div>
+    <div class="ts" id="tt-sub">${_esc(t.operator || '')}</div>
     <div class="tm" id="tt-period">CAMPING — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this campsite.</div>'}</div>`;
 }
@@ -3495,15 +3521,15 @@ function _buildParkTooltip(t) {
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Protected Area')}</h3>
-    <div class="ts" id="tt-sub">${t.operator || ''}</div>
-    <div class="tm" id="tt-period">${kind.toUpperCase()} — OSM</div>
+    <div class="ts" id="tt-sub">${_esc(t.operator || '')}</div>
+    <div class="tm" id="tt-period">${_esc(kind.toUpperCase())} — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this area.</div>'}</div>`;
 }
 
 function _buildViewpointTooltip(t) {
   const row = (lbl, val) =>
     val
-      ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>`
+      ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>`
       : '';
   const link = url =>
     url
@@ -3535,7 +3561,7 @@ function _buildViewpointTooltip(t) {
 
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Viewpoint')}</h3>
-    <div class="ts" id="tt-sub">${t['addr:city'] || t.loc_name || ''}</div>
+    <div class="ts" id="tt-sub">${_esc(t['addr:city'] || t.loc_name || '')}</div>
     <div class="tm" id="tt-period">VIEWPOINT — OSM</div>
   </div>
   <div class="ttb" id="tt-body">
@@ -3560,7 +3586,7 @@ function _buildClimbingTooltip(t) {
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Climbing Area')}</h3>
-    <div class="ts" id="tt-sub">${t.operator || t['addr:city'] || ''}</div>
+    <div class="ts" id="tt-sub">${_esc(t.operator || t['addr:city'] || '')}</div>
     <div class="tm" id="tt-period">🧗 ROCK CLIMBING — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this site.</div>'}</div>`;
 }
@@ -3580,7 +3606,7 @@ function _buildHotspringTooltip(t) {
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Hot Spring')}</h3>
-    <div class="ts" id="tt-sub">${t.operator || t['addr:city'] || ''}</div>
+    <div class="ts" id="tt-sub">${_esc(t.operator || t['addr:city'] || '')}</div>
     <div class="tm" id="tt-period">♨ HOT SPRING — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this spring.</div>'}</div>`;
 }
@@ -3601,7 +3627,7 @@ function _buildAirportTooltip(t) {
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Airport')}</h3>
-    <div class="ts" id="tt-sub">${t.iata ? '✈ ' + t.iata : ''} ${t['addr:city'] || ''}</div>
+    <div class="ts" id="tt-sub">${t.iata ? '✈ ' + _esc(t.iata) : ''} ${_esc(t['addr:city'] || '')}</div>
     <div class="tm" id="tt-period">AIRPORT — OSM</div>
   </div><div class="ttb" id="tt-body">${fields || '<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional OSM data for this airport.</div>'}</div>`;
 }
@@ -3829,7 +3855,7 @@ async function _getCountryIntelligence(iso2, countryName) {
       body: JSON.stringify({
         model: "claude-haiku-4-5",
         max_tokens: 600,
-        system: "You are a travel intelligence analyst. Respond ONLY with a JSON object, no markdown fences.",
+        system: "You are a travel intelligence analyst. Be factual, neutral, and apolitical: do not take sides on disputed territories, sovereignty claims, or political conflicts — describe any contested topic in neutral terms. Never invent emergency numbers, visa rules, prices, or safety ratings; if unsure, stay general. Respond ONLY with a JSON object, no markdown fences.",
         messages: [{ role: "user", content: "Travel intelligence brief for " + countryName + " (ISO: " + iso2 + "). Return JSON with keys: origin (2 sentences on how/when the nation formed and what shapes it today), character (2 sentences on national identity and what surprises visitors), complexity (1 honest sentence about a tension a visitor should know), bestFor (array of 3 strings: what this country is uniquely best for), notKnown (1 sentence on what locals are proud of that outsiders rarely know)." }]
       })
     });
@@ -3847,9 +3873,10 @@ async function _getCountryIntelligence(iso2, countryName) {
 // Render a country intelligence brief. Prefers the static, pre-generated
 // dataset (COUNTRY_INTEL) so it works for everyone — offline, instantly, with no
 // API key. If a personal key is configured, a fresh live brief replaces it.
-function _renderIntelHTML(intel, containerEl) {
+function _renderIntelHTML(intel, containerEl, isLive) {
   if (!intel || !containerEl) return;
   var h = '<div class="intel-panel">';
+  if (isLive) h += '<div class="intel-ai-badge" style="display:inline-block;font-size:6.5px;letter-spacing:0.6px;text-transform:uppercase;color:#c9a84c;border:1px solid rgba(201,168,76,0.4);border-radius:3px;padding:1px 5px;margin-bottom:6px">✨ AI-generated · unverified</div>';
   if (intel.origin)     h += '<div class="intel-sect"><div class="intel-lbl">' + _esc(_t('intel.origin')) + '</div><p>' + _esc(intel.origin) + '</p></div>';
   if (intel.character)  h += '<div class="intel-sect"><div class="intel-lbl">' + _esc(_t('intel.character')) + '</div><p>' + _esc(intel.character) + '</p></div>';
   if (intel.bestFor && intel.bestFor.length) {
@@ -3875,7 +3902,7 @@ function _renderCountryIntel(iso2, countryName, containerEl) {
   try { apiKey = sessionStorage.getItem('na_api_key'); } catch (_e) {}
   if (apiKey) {
     _getCountryIntelligence(iso2, countryName).then(function (live) {
-      if (live) _renderIntelHTML(live, containerEl);
+      if (live) _renderIntelHTML(live, containerEl, true);
       else if (!stat) containerEl.innerHTML = '<div class="intel-error">' + _esc(_t('common.noData')) + '</div>';
     });
   } else if (!stat) {
@@ -3942,7 +3969,7 @@ function _renderRailStopDots(elements) {
 }
 
 function _buildRailStopTooltip(t) {
-  const row  = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${val}</div></div></div>` : '';
+  const row  = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
   const type = (t.railway || 'stop').replace(/_/g, ' ');
   const fields = [
     row('Type',       type),
@@ -3955,8 +3982,8 @@ function _buildRailStopTooltip(t) {
     row('Note',       t.note       || ''),
   ].join('');
   return `<div class="tth">
-    <h3>🚉 ${t.name || t['name:en'] || 'Station'}</h3>
-    <div class="ts">${type.toUpperCase()}</div>
+    <h3>🚉 ${_esc(t.name || t['name:en'] || 'Station')}</h3>
+    <div class="ts">${_esc(type.toUpperCase())}</div>
     <div class="tm">RAIL STOP — OSM</div>
   </div><div class="ttb">${fields || '<div style="color:#888;font-size:9px;padding:4px 0">No additional data for this stop.</div>'}</div>`;
 }
@@ -4113,22 +4140,22 @@ function _renderRoadVectors(ways) {
     });
     l.on('click', ev => {
       _featureClicked = true;
-      const name  = t.name || t['name:en'] || t.ref || hw.replace(/_/g, ' ');
-      const ref   = t.ref   ? ` · Ref: ${t.ref}` : '';
-      const spd   = t.maxspeed ? ` · Max ${t.maxspeed}` : '';
-      const surf  = t.surface ? ` · ${t.surface}` : '';
-      const lanes = t.lanes  ? ` · ${t.lanes} lanes` : '';
+      const name  = _esc(t.name || t['name:en'] || t.ref || hw.replace(/_/g, ' '));
+      const ref   = t.ref   ? ` · Ref: ${_esc(t.ref)}` : '';
+      const spd   = t.maxspeed ? ` · Max ${_esc(t.maxspeed)}` : '';
+      const surf  = t.surface ? ` · ${_esc(t.surface)}` : '';
+      const lanes = t.lanes  ? ` · ${_esc(t.lanes)} lanes` : '';
       const from  = t.from || (coords[0] ? `${coords[0][0].toFixed(4)}, ${coords[0][1].toFixed(4)}` : '');
       const to    = t.to   || (coords[coords.length-1] ? `${coords[coords.length-1][0].toFixed(4)}, ${coords[coords.length-1][1].toFixed(4)}` : '');
       const html  = `<div class="tth">
         <h3 id="tt-name">${name}</h3>
-        <div class="ts" id="tt-sub">${hw.replace(/_/g,' ').toUpperCase()}${ref}</div>
+        <div class="ts" id="tt-sub">${_esc(hw.replace(/_/g,' ').toUpperCase())}${ref}</div>
         <div class="tm" id="tt-period">ROAD — OSM</div>
       </div><div class="ttb" id="tt-body">
         <div class="ttr"><div class="ttstrip" style="background:${color}"></div><div class="tti">
           <div class="ttln">ROUTE</div>
           <div class="ttrat" style="color:${color}">${name}</div>
-          <div class="ttdesc">${from ? 'From: ' + from : ''}${to ? ' → To: ' + to : ''}${spd}${surf}${lanes}</div>
+          <div class="ttdesc">${from ? 'From: ' + _esc(from) : ''}${to ? ' → To: ' + _esc(to) : ''}${spd}${surf}${lanes}</div>
         </div></div>
       </div>`;
       toggleTooltip('road:' + el.id, html, ev.originalEvent.clientX, ev.originalEvent.clientY);
@@ -4163,15 +4190,15 @@ async function fetchRoadInfo(lat, lng) {
     const rows = ways.slice(0, 5).map(w => {
       const t    = w.tags || {};
       const hw   = t.highway || '';
-      const name = t.name || t['name:en'] || t.ref || `(${hw.replace(/_/g, ' ')})`;
-      const ref  = t.ref  ? ` · ${t.ref}` : '';
-      const spd  = t.maxspeed ? ` · ${t.maxspeed}` : '';
-      const surf = t.surface ? ` · ${t.surface}` : '';
+      const name = _esc(t.name || t['name:en'] || t.ref || `(${hw.replace(/_/g, ' ')})`);
+      const ref  = t.ref  ? ` · ${_esc(t.ref)}` : '';
+      const spd  = t.maxspeed ? ` · ${_esc(t.maxspeed)}` : '';
+      const surf = t.surface ? ` · ${_esc(t.surface)}` : '';
       const col  = HW_COLOR[hw] || '#9ca3af';
       return `<div class="ttr">
         <div class="ttstrip" style="background:${col}"></div>
         <div class="tti">
-          <div class="ttln">${hw.replace(/_/g, ' ').toUpperCase()}</div>
+          <div class="ttln">${_esc(hw.replace(/_/g, ' ').toUpperCase())}</div>
           <div class="ttrat" style="color:#1a1a1a">${name}</div>
           <div class="ttdesc">${ref}${spd}${surf}</div>
         </div></div>`;
@@ -4959,7 +4986,9 @@ function buildEmergencySection(iso2) {
     return '<span class="na-emg-chip"><span class="na-emg-k">' + _esc(it[0]) + '</span><span class="na-emg-n">' + _esc(it[1]) + '</span></span>';
   }).join('');
   return '<div class="na-emergency"><span class="na-emg-ico">🆘</span><div class="na-emg-body">' +
-    '<div class="na-emg-chips">' + chips + '</div></div></div>';
+    '<div class="na-emg-chips">' + chips + '</div>' +
+    '<div class="na-emg-note" style="font-size:7px;color:rgba(201,168,76,0.55);margin-top:4px;letter-spacing:0.3px">Confirm locally — emergency numbers can change.</div>' +
+    '</div></div>';
 }
 
 // Brief, neutral country history.
@@ -5616,7 +5645,7 @@ async function fetchTrailInfo(lat, lng) {
 
     const routeRows = routes.slice(0, 4).map(r => {
       const t    = r.tags || {};
-      const name = t.name || t.ref || 'Unnamed Route';
+      const name = _esc(t.name || t.ref || 'Unnamed Route');
       // Distance: OSM stores in km; convert + compute walking time at avg 4 km/h
       const rawKm  = parseFloat(t.distance || t.length || 0);
       const distKm = rawKm > 0 ? rawKm : null;
@@ -5624,10 +5653,10 @@ async function fetchTrailInfo(lat, lng) {
       const walkMin = distKm ? Math.round((distKm / 4) * 60) : null;  // 4 km/h average
       const walkHr  = walkMin ? (walkMin >= 60 ? `${Math.floor(walkMin/60)}h ${walkMin%60}m` : `${walkMin} min`) : null;
       const distStr = distKm ? `${distKm.toFixed(1)} km (${distMi} mi) · ~${walkHr} walking` : '';
-      const diff  = t['sac_scale'] ? t['sac_scale'].replace(/_/g, ' ') : '';
-      const net   = t.network ? t.network.toUpperCase() : '';
-      const elev  = t['ascent'] ? `↑${t.ascent}m` : (t.ele ? `${t.ele}m` : '');
-      const grade = t['trail_visibility'] ? t['trail_visibility'].replace(/_/g, ' ') : '';
+      const diff  = t['sac_scale'] ? _esc(t['sac_scale'].replace(/_/g, ' ')) : '';
+      const net   = t.network ? _esc(t.network.toUpperCase()) : '';
+      const elev  = t['ascent'] ? `↑${_esc(t.ascent)}m` : (t.ele ? `${_esc(t.ele)}m` : '');
+      const grade = t['trail_visibility'] ? _esc(t['trail_visibility'].replace(/_/g, ' ')) : '';
       const parts = [distStr, diff, grade, elev, net].filter(Boolean).join(' · ');
       return `<div class="ttr">
         <div class="ttstrip" style="background:#44aa66"></div>
@@ -5640,10 +5669,10 @@ async function fetchTrailInfo(lat, lng) {
 
     const pathRows = paths.slice(0, 3).map(p => {
       const t = p.tags || {};
-      const name = t.name;
+      const name = _esc(t.name);
       if (!name) return '';
-      const hw   = (t.highway || '').replace(/_/g, ' ');
-      const surf = t.surface ? ` · ${t.surface}` : '';
+      const hw   = _esc((t.highway || '').replace(/_/g, ' '));
+      const surf = t.surface ? ` · ${_esc(t.surface)}` : '';
       return `<div class="ttr">
         <div class="ttstrip" style="background:#2d7a4f"></div>
         <div class="tti">
@@ -5682,9 +5711,9 @@ async function fetchRailInfo(lat, lng) {
 
     const stationRows = stations.slice(0, 3).map(s => {
       const t   = s.tags || {};
-      const name = t.name || t['name:en'] || 'Station';
-      const rw   = (t.railway || 'station').replace(/_/g, ' ');
-      const op   = t.operator ? ` · ${t.operator}` : '';
+      const name = _esc(t.name || t['name:en'] || 'Station');
+      const rw   = _esc((t.railway || 'station').replace(/_/g, ' '));
+      const op   = t.operator ? ` · ${_esc(t.operator)}` : '';
       return `<div class="ttr">
         <div class="ttstrip" style="background:#3b82f6"></div>
         <div class="tti">
@@ -5696,12 +5725,12 @@ async function fetchRailInfo(lat, lng) {
 
     const lineRows = lines.slice(0, 3).map(l => {
       const t    = l.tags || {};
-      const name  = t.name || t.ref || 'Rail Line';
-      const route = (t.route || '').toUpperCase();
+      const name  = _esc(t.name || t.ref || 'Rail Line');
+      const route = _esc((t.route || '').toUpperCase());
       const from  = t.from || '';
       const to    = t.to   || '';
-      const via   = (from && to) ? `${from} → ${to}` : '';
-      const op    = t.operator ? ` · ${t.operator}` : '';
+      const via   = (from && to) ? `${_esc(from)} → ${_esc(to)}` : '';
+      const op    = t.operator ? ` · ${_esc(t.operator)}` : '';
       return `<div class="ttr">
         <div class="ttstrip" style="background:#2563eb"></div>
         <div class="tti">
@@ -5740,13 +5769,13 @@ async function fetchMaritimeInfo(lat, lng) {
 
     const portRows = ports.slice(0, 3).map(p => {
       const t    = p.tags || {};
-      const name = t.name || t['seamark:name'] || 'Port';
+      const name = _esc(t.name || t['seamark:name'] || 'Port');
       const type = (t['seamark:type'] || 'harbour').replace(/_/g, ' ');
-      const cat  = t['seamark:harbour:category'] || t.description || '';
+      const cat  = _esc(t['seamark:harbour:category'] || t.description || '');
       return `<div class="ttr">
         <div class="ttstrip" style="background:#0e7490"></div>
         <div class="tti">
-          <div class="ttln">${type.toUpperCase()}</div>
+          <div class="ttln">${_esc(type.toUpperCase())}</div>
           <div class="ttrat">${name}</div>
           <div class="ttdesc">${cat}</div>
         </div></div>`;
@@ -5754,11 +5783,11 @@ async function fetchMaritimeInfo(lat, lng) {
 
     const ferryRows = ferries.slice(0, 3).map(f => {
       const t    = f.tags || {};
-      const name = t.name || 'Ferry Route';
+      const name = _esc(t.name || 'Ferry Route');
       const from = t.from || '';
       const to   = t.to   || '';
-      const via  = (from && to) ? `${from} → ${to}` : '';
-      const op   = t.operator ? ` · ${t.operator}` : '';
+      const via  = (from && to) ? `${_esc(from)} → ${_esc(to)}` : '';
+      const op   = t.operator ? ` · ${_esc(t.operator)}` : '';
       return `<div class="ttr">
         <div class="ttstrip" style="background:#009ab0"></div>
         <div class="tti">
@@ -6049,7 +6078,9 @@ function buildVisaSection(iso2) {
 
   const m = TYPE_META[entry.t] || TYPE_META.req;
   const cost = entry.c > 0 ? `&nbsp;&middot;&nbsp;<span style="color:#c9a84c">~$${entry.c} USD</span>` : `&nbsp;&middot;&nbsp;<span style="color:#43A047">Free</span>`;
-  const days = entry.d > 0 ? `&nbsp;&middot;&nbsp;Up to <strong>${entry.d} days</strong>` : '';
+  const days = entry.t === 'banned' ? '' : (entry.d > 0
+    ? `&nbsp;&middot;&nbsp;Up to <strong>${entry.d} days</strong>`
+    : `&nbsp;&middot;&nbsp;<span style="color:#c9a84c">stay length varies — verify</span>`);
 
   // Passport coverage bar
   const cov = visaCoverage(selectedNationality);
@@ -9049,6 +9080,7 @@ function na_syncPrefsUI() {
     'pref-dateformat': _dateFormat,
     'pref-clock':      _clockFormat,
     'pref-labels':     (_labelsOn ? 'on' : 'off'),
+    'pref-palette':    (window._naPalette === 'cvd' ? 'cvd' : 'classic'),
   };
   Object.keys(map_pref).forEach(function(id) {
     var grp = document.getElementById(id);
@@ -9109,6 +9141,8 @@ function na_initPrefsSheet() {
         localStorage.setItem('na_clockfmt', _clockFormat);
       } else if (id === 'pref-labels') {
         na_toggleLabels(val === 'on');
+      } else if (id === 'pref-palette') {
+        na_setRatingPalette(val);
       }
       na_syncPrefsUI();
     });
