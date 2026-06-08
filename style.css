@@ -2625,36 +2625,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 .na-lang-btn:hover { background: rgba(200,168,75,0.18); }
 
-/* ─── Floating language control (bottom-right) ──────────────────────────────── */
-#na-lang-fab {
-  position: fixed; right: 14px; bottom: 16px; z-index: 1450;
-  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
-}
-#na-lang-fab-btn {
-  width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--na-glass-navy, rgba(11,22,40,0.9));
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(200,168,75,0.4);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
-  transition: transform .15s, box-shadow .15s, border-color .15s;
-}
-#na-lang-fab-btn:hover { transform: translateY(-1px); border-color: var(--na-gold-bright); box-shadow: 0 0 12px rgba(201,168,76,0.45); }
-#na-lang-fab-btn:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; }
-#na-lang-fab-btn .na-lang-current-flag { font-size: 22px; line-height: 1; }
-#na-lang-fab-menu {
-  display: flex; flex-direction: column; gap: 3px;
-  max-height: 60vh; overflow-y: auto; min-width: 150px;
-  padding: 7px; border-radius: 12px;
-  background: var(--na-glass-navy, rgba(11,22,40,0.95));
-  backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  border: 1px solid rgba(200,168,75,0.3);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.5);
-}
-#na-lang-fab-menu[hidden] { display: none; }
-#na-lang-fab-menu .na-lang-opt { width: 100%; justify-content: flex-start; }
-/* On mobile, lift the control above the full-width bottom nav bar. */
-@media (max-width: 767px) { #na-lang-fab { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); } }
+/* (Floating language FAB removed — language lives in Preferences + welcome card.) */
 
 /* ─── Right-to-left support (Arabic) ────────────────────────────────────────
    Document direction flips for content/text flow; the Leaflet map and its
@@ -2674,14 +2645,13 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 .na-hint-flagpick { position: relative; display: inline-flex; align-items: center; }
 .na-hint-flag-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; border-radius: 50%; padding: 0; cursor: pointer;
-  background: rgba(201,168,76,0.08);
-  border: 1px solid var(--b2);
-  transition: background .15s, border-color .15s, box-shadow .15s;
+  padding: 1px 3px; border-radius: 5px; cursor: pointer;
+  background: none; border: none;            /* no circle — just the flag glyph */
+  transition: transform .15s;
 }
-.na-hint-flag-btn:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); box-shadow: 0 0 10px rgba(201,168,76,0.4); }
+.na-hint-flag-btn:hover { transform: translateY(-1px); }
 .na-hint-flag-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.na-hint-flag-btn .na-lang-current-flag { font-size: 15px; line-height: 1; }
+.na-hint-flag-btn .na-lang-current-flag { font-size: 17px; line-height: 1; }
 .na-hint-flag-menu {
   position: absolute; left: 50%; transform: translateX(-50%);
   bottom: calc(100% + 8px); z-index: 5;
@@ -2848,7 +2818,6 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
   box-shadow: var(--na-win-shadow) !important;
 }
 /* Menus and dropdowns: slightly tighter radius, same soft shadow. */
-#na-lang-fab-menu,
 .cat-dd,
 #explore-dd,
 .na-curr-picker {
@@ -2858,12 +2827,6 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 /* Mobile bottom-sheets keep their top-only rounding (flush to the screen edge). */
 @media (max-width: 767px) {
   #na-prefs-panel, #na-sheet-panel { border-radius: 22px 22px 0 0 !important; }
-}
-
-/* Hide the floating language control while an info window is open. */
-body.na-tt-open #na-lang-fab {
-  opacity: 0; pointer-events: none; transform: translateY(10px);
-  transition: opacity .2s ease, transform .2s ease;
 }
 
 /* ─── Web top bar mirrors mobile: the cluttered desktop control strip is hidden,

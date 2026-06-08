@@ -522,7 +522,9 @@ function _t(key) {
 // _t(), _cycleLang() and _lang are (re)defined here; function-declaration
 // hoisting makes these definitions authoritative throughout the file.
 var _LANG_META = {
-  en: { flag: '🇬🇧', name: 'English',    dir: 'ltr' },
+  en:      { flag: '🇬🇧', name: 'English',      dir: 'ltr' },  // internal fallback base (not shown in the picker)
+  'en-GB': { flag: '🇬🇧', name: 'English (UK)', dir: 'ltr' },
+  'en-US': { flag: '🇺🇸', name: 'English (US)', dir: 'ltr' },
   es: { flag: '🇪🇸', name: 'Español',    dir: 'ltr' },
   fr: { flag: '🇫🇷', name: 'Français',   dir: 'ltr' },
   de: { flag: '🇩🇪', name: 'Deutsch',    dir: 'ltr' },
@@ -532,8 +534,9 @@ var _LANG_META = {
   hi: { flag: '🇮🇳', name: 'हिन्दी',      dir: 'ltr' },
   ja: { flag: '🇯🇵', name: '日本語',      dir: 'ltr' },
   ru: { flag: '🇷🇺', name: 'Русский',    dir: 'ltr' },
+  he:      { flag: '🇮🇱', name: 'עברית',       dir: 'rtl' },
 };
-_LANG_KEYS = ['en','es','fr','de','pt','ar','zh','hi','ja','ru'];
+_LANG_KEYS = ['en-GB','en-US','es','fr','de','pt','ar','zh','hi','ja','ru','he'];
 
 // Master English dictionary. Other languages are curated patches (filled by the
 // translation workflow); any missing key falls back to English.
@@ -544,7 +547,7 @@ var _I18N = {
     'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings',
     'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
     'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
-    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to colour the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
+    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to color the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
     'prefs.title':'Preferences','prefs.mapView':'Map View','prefs.labels':'Place Labels','prefs.units':'Units','prefs.temp':'Temperature','prefs.dist':'Distance','prefs.elev':'Elevation','prefs.dateFormat':'Date Format','prefs.clock':'Clock','prefs.language':'Language','prefs.currency':'Currency','prefs.theme':'Theme','prefs.tour':'Replay guided tour','prefs.tutorial':'Written tutorial','prefs.faq':'FAQ','prefs.on':'On','prefs.off':'Off','prefs.dark':'Dark','prefs.light':'Light',
     'bm.satellite':'Satellite','bm.streets':'Streets','bm.dark':'Dark','bm.terrain':'Terrain','bm.night':'Night Lights',
     'doss.glance':'At a Glance','doss.emergency':'Emergency','doss.cost':'Cost of Living','doss.health':'Health','doss.climate':'Climate','doss.safety':'Safety','doss.tipping':'Tipping','doss.visa':'Visa Access','doss.timezone':'Time Zone','doss.holidays':'Holidays & Events','doss.history':'History','doss.phrasebook':'Phrasebook','doss.intel':'Country Intelligence','doss.language':'Language','doss.capital':'Capital','doss.population':'Population','doss.currency':'Currency','doss.languages':'Languages','doss.power':'Power','doss.calling':'Calling Code','doss.driving':'Driving','doss.region':'Region','doss.tapwater':'Tap Water','doss.etiquette':'Etiquette & Customs','doss.transport':'Getting Around','doss.connectivity':'Connectivity','doss.payments':'Money & Payments',
@@ -555,22 +558,55 @@ var _I18N = {
     'act.compare':'Compare','act.wishlist':'Wishlist','act.addPin':'Add to trip',
   },
   es:{}, fr:{}, de:{}, pt:{}, ar:{}, zh:{}, hi:{}, ja:{}, ru:{},
+  // Two English variants. The 'en' base above is American spelling; 'en-US'
+  // inherits it as-is, while 'en-GB' overrides the interface strings that differ
+  // (colour/centre/etc.). Only translatable strings differ — guide prose is shared.
+  'en-US': {},
+  'en-GB': {
+    'welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to colour the map by where you can travel visa-free.',
+  },
+  he: {},
 };
+
+// Hebrew (he) — full curated interface translation. Right-to-left.
+Object.assign(_I18N.he, {
+  'nav.worldMap':'מפת העולם','nav.bestMonth':'הטוב ביותר החודש','nav.passport':'דרכון וויזה',
+  'nav.planner':'מתכנן הטיול','nav.compare':'השוואת מדינות','nav.preferences':'העדפות',
+  'nav.explore':'חקירה','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות',
+  'group.explore':'חקירה','group.journey':'המסע שלך','group.intelligence':'מודיעין','group.settings':'הגדרות',
+  'hdr.search':'חיפוש','hdr.theme':'מצב יום/לילה','hdr.share':'שיתוף',
+  'welcome.title':'ברוכים הבאים אל Nomadic Almanac','welcome.body':'אטלס אינטראקטיבי של לאן לנסוע ומתי. הקישו על כל מדינה כדי לפתוח את מדריך הטיול המלא שלה — עלויות, בטיחות, מזג אוויר, ויזות, ביטויים שימושיים ועוד. החליקו בין החודשים כדי לראות את העונות משתנות, והדליקו שכבות כדי להשוות את העולם בדרך שלכם.','welcome.sub':'טיפ: הגדילו את התצוגה לפרטי אזורים ומחוזות, ובחרו את הדרכון שלכם כדי לצבוע את המפה לפי היעדים שאליהם תוכלו לנסוע ללא ויזה.','welcome.tour':'צאו לסיור מודרך','welcome.explore':'לחקור בעצמי','welcome.language':'שפה','welcome.tutorial':'איך זה עובד','welcome.faq':'שאלות נפוצות',
+  'prefs.title':'העדפות','prefs.mapView':'תצוגת מפה','prefs.labels':'תוויות מקומות','prefs.units':'יחידות','prefs.temp':'טמפרטורה','prefs.dist':'מרחק','prefs.elev':'גובה','prefs.dateFormat':'תבנית תאריך','prefs.clock':'שעון','prefs.language':'שפה','prefs.currency':'מטבע','prefs.theme':'ערכת נושא','prefs.tour':'הפעלת הסיור המודרך מחדש','prefs.tutorial':'מדריך כתוב','prefs.faq':'שאלות נפוצות','prefs.on':'פעיל','prefs.off':'כבוי','prefs.dark':'כהה','prefs.light':'בהיר',
+  'bm.satellite':'לוויין','bm.streets':'רחובות','bm.dark':'כהה','bm.terrain':'שטח','bm.night':'אורות לילה',
+  'doss.glance':'במבט חטוף','doss.emergency':'חירום','doss.cost':'יוקר המחיה','doss.health':'בריאות','doss.climate':'אקלים','doss.safety':'בטיחות','doss.tipping':'טיפים','doss.visa':'גישת ויזה','doss.timezone':'אזור זמן','doss.holidays':'חגים ואירועים','doss.history':'היסטוריה','doss.phrasebook':'שיחון','doss.intel':'מודיעין מדינה','doss.language':'שפה','doss.capital':'בירה','doss.population':'אוכלוסייה','doss.currency':'מטבע','doss.languages':'שפות','doss.power':'חשמל','doss.calling':'קידומת חיוג','doss.driving':'נהיגה','doss.region':'אזור','doss.tapwater':'מי ברז','doss.etiquette':'נימוסים ומנהגים','doss.transport':'תחבורה','doss.connectivity':'קישוריות','doss.payments':'כסף ותשלומים',
+  'common.close':'סגירה','common.loading':'טוען…','common.noData':'אין נתונים','common.more':'הצג עוד','common.less':'הצג פחות','common.search':'חיפוש מדינות, ערים או שכבות',
+  'intel.title':'מודיעין מדינה','intel.origin':'מקור','intel.character':'אופי','intel.complexity':'מורכבות כנה','intel.bestFor':'הכי מתאים ל','intel.notKnown':'מה המקומיים יודעים',
+  'cost.budget':'חסכוני','cost.mid':'טווח ביניים','cost.lux':'יוקרה','cost.perDay':'ליום','cost.dailyBudget':'תקציב יומי',
+  'doss.journal':'יומן','doss.goodToKnow':'טוב לדעת','doss.layers':'נתוני שכבות','doss.expand':'הרחבת הכול','doss.collapse':'כיווץ הכול',
+  'act.compare':'השוואה','act.wishlist':'רשימת משאלות','act.addPin':'הוספה לטיול',
+});
 
 function na_detectDefaultLang() {
   try {
-    var navs = navigator.languages || [navigator.language || 'en'];
+    var navs = navigator.languages || [navigator.language || 'en-US'];
     for (var i = 0; i < navs.length; i++) {
-      var code = String(navs[i] || '').slice(0, 2).toLowerCase();
-      if (_LANG_KEYS.indexOf(code) >= 0) return code;
+      var full = String(navs[i] || '').toLowerCase();
+      var two = full.slice(0, 2);
+      if (two === 'en') {
+        // British-influenced English locales get UK spelling; everything else US.
+        return /^en-(gb|au|nz|ie|in|za|sg|ng|ke|gh|pk|lk|mt)\b/.test(full) ? 'en-GB' : 'en-US';
+      }
+      if (two === 'he' || two === 'iw') return 'he';   // 'iw' is the legacy ISO code for Hebrew
+      if (_LANG_KEYS.indexOf(two) >= 0) return two;
     }
   } catch (_e) {}
-  return 'en';
+  return 'en-US';
 }
 
 // On first visit (no stored choice) default to the browser locale.
 try { if (!localStorage.getItem('na_lang')) _lang = na_detectDefaultLang(); } catch (_e) {}
-if (_LANG_KEYS.indexOf(_lang) < 0) _lang = 'en';
+if (_lang === 'en') _lang = 'en-GB';                       // migrate the legacy single English code (was British) to the UK variant
+if (_LANG_KEYS.indexOf(_lang) < 0) _lang = 'en-US';
 
 function _t(key) {
   var s = _I18N[_lang] || _I18N.en;
@@ -625,48 +661,8 @@ function _cycleLang() {
   na_setLang(_LANG_KEYS[(idx + 1) % _LANG_KEYS.length]);
 }
 
-// Floating language control — a single flag button at the bottom-right of the
-// window that opens a dropdown of all languages. The shown flag reflects the
-// current language and updates automatically via na_setLang().
-function na_initLangFab() {
-  if (document.getElementById('na-lang-fab')) return;
-  var meta = _LANG_META[_lang] || _LANG_META.en;
-  var wrap = document.createElement('div');
-  wrap.id = 'na-lang-fab';
-  wrap.innerHTML =
-    '<div id="na-lang-fab-menu" role="menu" hidden></div>' +
-    '<button type="button" id="na-lang-fab-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change language" title="Language">' +
-      '<span class="na-lang-current-flag" aria-hidden="true">' + meta.flag + '</span>' +
-    '</button>';
-  document.body.appendChild(wrap);
-  var btn = wrap.querySelector('#na-lang-fab-btn');
-  var menu = wrap.querySelector('#na-lang-fab-menu');
-
-  function onDoc(e) { if (!wrap.contains(e.target)) closeMenu(); }
-  function onKey(e) { if (e.key === 'Escape') { closeMenu(); btn.focus(); } }
-  function closeMenu() {
-    menu.hidden = true;
-    btn.setAttribute('aria-expanded', 'false');
-    document.removeEventListener('pointerdown', onDoc, true);
-    document.removeEventListener('keydown', onKey, true);
-  }
-  function openMenu() {
-    menu.innerHTML = _LANG_KEYS.map(function (c) {
-      var m = _LANG_META[c];
-      return '<button type="button" role="menuitem" class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '">' +
-             '<span class="na-lang-flag" aria-hidden="true">' + m.flag + '</span><span class="na-lang-name">' + m.name + '</span></button>';
-    }).join('');
-    na_wireLangPicker(menu);
-    menu.querySelectorAll('.na-lang-opt').forEach(function (b) { b.addEventListener('click', closeMenu); });
-    menu.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
-    setTimeout(function () {
-      document.addEventListener('pointerdown', onDoc, true);
-      document.addEventListener('keydown', onKey, true);
-    }, 0);
-  }
-  btn.addEventListener('click', function (e) { e.stopPropagation(); if (menu.hidden) openMenu(); else closeMenu(); });
-}
+// (Floating language FAB removed — language selection lives in Preferences and
+// on the welcome card. na_buildLangPicker / na_wireLangPicker remain for those.)
 
 // Distance helper
 function _dist(km) {
@@ -1681,7 +1677,7 @@ function buildUnitButtons() {
   langBtn.id = 'btn-lang';
   langBtn.setAttribute('style', btnStyle);
   langBtn.setAttribute('title', 'Cycle interface language');
-  langBtn.textContent = ({en:'🌐 EN', es:'🌐 ES', fr:'🌐 FR', de:'🌐 DE'}[_lang] || '🌐');
+  langBtn.textContent = (_LANG_META[_lang] && _LANG_META[_lang].flag) ? _LANG_META[_lang].flag : '🌐';
   langBtn.addEventListener('click', _cycleLang);
   langBtn.addEventListener('mouseenter', hoverIn);
   langBtn.addEventListener('mouseleave', hoverOut);
@@ -9573,7 +9569,7 @@ function navInit() {
   na_initMapResize();
   na_initSidebarCollapse();
   na_initPrefsLauncher();
-  na_initLangFab();
+  // (Language FAB removed — language lives in Preferences and the welcome card.)
 
   // Apply the active language to all static chrome (and set <html lang/dir>).
   try { na_setLang(_lang); } catch (_e) {}
