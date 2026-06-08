@@ -7332,6 +7332,62 @@ function updateBestPanel() {
 // Shown once to first-time visitors. Unlike the old "flash" hint, it PERSISTS
 // until the traveller interacts with the site — any click, key press, or map
 // gesture dismisses it. It also offers a guided walkthrough of the almanac.
+
+// Wire the welcome card's single-flag language picker: one flag at the bottom-
+// right that opens a dropdown of every language. Mirrors the floating language
+// FAB pattern but is scoped to the card and re-translates it live on selection.
+function _naWireHintFlag(card) {
+  if (!card) return;
+  var pick = card.querySelector('#na-hint-flagpick');
+  if (!pick) return;
+  var btn = pick.querySelector('.na-hint-flag-btn');
+  var menu = pick.querySelector('.na-hint-flag-menu');
+  if (!btn || !menu) return;
+  var flagSpan = btn.querySelector('.na-lang-current-flag');
+
+  function setFlag() {
+    var m = (typeof _LANG_META !== 'undefined' && _LANG_META[_lang]) ? _LANG_META[_lang]
+          : (typeof _LANG_META !== 'undefined' ? _LANG_META.en : null);
+    if (flagSpan && m) flagSpan.textContent = m.flag;
+  }
+  function onDoc(e) { if (!pick.contains(e.target)) closeMenu(); }
+  function onKey(e) { if (e.key === 'Escape') { closeMenu(); btn.focus(); } }
+  function closeMenu() {
+    menu.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('pointerdown', onDoc, true);
+    document.removeEventListener('keydown', onKey, true);
+  }
+  function openMenu() {
+    menu.innerHTML = _LANG_KEYS.map(function (c) {
+      var m = _LANG_META[c];
+      return '<button type="button" role="menuitem" class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '">' +
+             '<span class="na-lang-flag" aria-hidden="true">' + m.flag + '</span>' +
+             '<span class="na-lang-name">' + m.name + '</span></button>';
+    }).join('');
+    menu.querySelectorAll('.na-lang-opt').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        na_setLang(b.dataset.lang);
+        setFlag();
+        if (typeof na_applyI18n === 'function') { try { na_applyI18n(card); } catch (_e) {} }
+        closeMenu();
+      });
+    });
+    menu.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    setTimeout(function () {
+      document.addEventListener('pointerdown', onDoc, true);
+      document.addEventListener('keydown', onKey, true);
+    }, 0);
+  }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (menu.hidden) openMenu(); else closeMenu();
+  });
+  setFlag();
+}
+
 function showOnboardingHint() {
   try { if (localStorage.getItem('na_hint_seen')) return; } catch (_) {}
   if (document.getElementById('onboarding-hint')) return;
@@ -7340,7 +7396,6 @@ function showOnboardingHint() {
   el.setAttribute('role', 'dialog');
   el.setAttribute('aria-label', 'Welcome to the Nomadic Almanac');
   el.innerHTML = `
-    <div class="hint-lang" id="na-hint-lang"></div>
     <p class="hint-title" data-i18n="welcome.title">Welcome to the Nomadic Almanac</p>
     <p data-i18n="welcome.body">Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.</p>
     <p class="hint-sub" data-i18n="welcome.sub">Tip: zoom in for province and county detail, and choose your passport to colour the map by visa access.</p>
@@ -7352,15 +7407,16 @@ function showOnboardingHint() {
       <button type="button" class="hint-link" id="na-hint-tutorial" data-i18n="welcome.tutorial">How it works</button>
       <span class="hint-link-sep" aria-hidden="true">·</span>
       <button type="button" class="hint-link" id="na-hint-faq" data-i18n="welcome.faq">FAQ</button>
+    </div>
+    <div class="na-hint-flagpick" id="na-hint-flagpick">
+      <div class="na-hint-flag-menu" role="menu" hidden></div>
+      <button type="button" class="na-hint-flag-btn" aria-haspopup="true" aria-expanded="false" aria-label="Change language" title="Language"><span class="na-lang-current-flag" aria-hidden="true"></span></button>
     </div>`;
   document.body.appendChild(el);
 
-  // Inline language picker — choosing a flag re-translates the card live.
-  var langHost = el.querySelector('#na-hint-lang');
-  if (langHost && typeof na_buildLangPicker === 'function') {
-    langHost.innerHTML = na_buildLangPicker();
-    na_wireLangPicker(el);
-  }
+  // Single-flag language picker (bottom-right): one flag opens a menu of all
+  // languages; choosing one re-translates the card live.
+  if (typeof _naWireHintFlag === 'function') { try { _naWireHintFlag(el); } catch (_e) {} }
   if (typeof na_applyI18n === 'function') { try { na_applyI18n(el); } catch (_e) {} }
 
   let dismissed = false;
@@ -9240,6 +9296,11 @@ function na_initKeyboard() {
 function na_initHeaderActions() {
   var themeBtn = document.getElementById('na-theme-btn');
   if (themeBtn) themeBtn.addEventListener('click', na_toggleTheme);
+
+  var layersBtn = document.getElementById('na-layers-btn');
+  if (layersBtn) layersBtn.addEventListener('click', function () {
+    if (typeof na_openLayersSheet === 'function') na_openLayersSheet();
+  });
 
   var shareBtn = document.getElementById('na-share-btn');
   if (shareBtn) {

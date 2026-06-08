@@ -118,7 +118,7 @@
   --sidebar-w:     240px;   /* full desktop sidebar */
   --sidebar-w-sm:  64px;    /* collapsed laptop sidebar */
   --rail-w:        72px;    /* tablet rail */
-  --header-h:      48px;    /* top header bar */
+  --header-h:      56px;    /* top header bar (unified glass menu) */
   --bottom-nav-h:  56px;    /* mobile bottom nav */
 }
 
@@ -878,7 +878,8 @@ html, body {
   top: 50%; left: 50%; transform: translate(-50%, -50%);
   background: rgba(16,12,5,0.97); border: 1px solid var(--b2);
   border-top: 2px solid var(--gold); border-radius: 14px;
-  padding: 22px 26px 20px; text-align: center;
+  /* Extra bottom band reserves clear space for the corner flag picker. */
+  padding: 22px 26px 50px; text-align: center;
   font-family: var(--fm); pointer-events: auto;
   box-shadow: 0 16px 48px rgba(0,0,0,.88);
   max-width: min(430px, 92vw);
@@ -1283,18 +1284,65 @@ html, body {
 }
 
 #na-header {
+  position: relative;
   flex-shrink: 0;
   height: var(--header-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--sp-3);
   padding: 0 var(--sp-4);
-  background: var(--na-glass-navy);
-  backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
-  -webkit-backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
-  /* border-bottom intentionally removed — clean edge, no rule line */
-  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+  /* Facelift: a deeper, dimensional glass bar with a layered navy gradient. */
+  background: linear-gradient(180deg, rgba(22,34,58,0.94) 0%, rgba(11,22,40,0.86) 100%);
+  backdrop-filter: blur(var(--na-glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--na-glass-blur)) saturate(1.35);
+  box-shadow: 0 4px 22px rgba(0,0,0,0.5);
   z-index: 1500;
+}
+/* Premium gold hairline along the bottom edge of the top menu. */
+#na-header::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--na-gold-mid) 18%, var(--na-gold-bright) 50%, var(--na-gold-mid) 82%, transparent);
+  opacity: 0.5; pointer-events: none;
+}
+#na-header-logo,
+#na-header-actions { flex-shrink: 0; }
+
+/* Centred month strip — the month selector now lives in the top menu. */
+#na-header-months {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#na-header-months #months {
+  display: flex; align-items: center; gap: 5px;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 5px 2px;
+  /* Soft fade at both ends so scrolled-off pills dissolve rather than clip. */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+}
+#na-header-months #months::-webkit-scrollbar { display: none; }
+/* Slightly more generous, evenly-weighted month pills inside the top menu. */
+#na-header-months .mb {
+  font-size: 11px;
+  padding: 6px 11px;
+  border-radius: 7px;
+}
+#na-header-months #btn-year { margin-left: 5px; }
+/* On compact widths the month strip is the priority on the top menu: drop the
+   wordmark to the compass mark only, and tighten spacing so months keep room. */
+@media (max-width: 600px) {
+  #na-header { gap: var(--sp-2); padding: 0 var(--sp-2); }
+  #na-header-wordmark { display: none; }
+  #na-header-actions { gap: 4px; }
+  #na-header-months .mb { padding: 6px 9px; font-size: 10.5px; }
 }
 
 #na-header-logo {
@@ -2626,10 +2674,32 @@ html[dir="rtl"] .na-sec-h { text-align: right; }
 html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 
 /* ─── Welcome card additions (flag picker + links) ──────────────────────────── */
-.hint-lang { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 10px; }
-.hint-lang .na-lang-opt { padding: 4px 7px; font-size: 10px; }
-.hint-lang .na-lang-name { display: none; }      /* compact: flags only on the card */
-.hint-lang .na-lang-flag { font-size: 17px; }
+/* Welcome card single-flag language picker — one flag in the bottom-right
+   corner that opens a dropdown of every language. */
+.na-hint-flagpick { position: absolute; right: 12px; bottom: 9px; z-index: 4; }
+.na-hint-flag-btn {
+  width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(201,168,76,0.10);
+  border: 1px solid var(--gold);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.na-hint-flag-btn:hover { transform: translateY(-1px); box-shadow: 0 0 14px rgba(201,168,76,0.5); }
+.na-hint-flag-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.na-hint-flag-btn .na-lang-current-flag { font-size: 19px; line-height: 1; }
+.na-hint-flag-menu {
+  position: absolute; right: 0; bottom: calc(100% + 8px);
+  display: flex; flex-direction: column; gap: 3px;
+  max-height: 46vh; overflow-y: auto; min-width: 156px;
+  padding: 7px; border-radius: 12px;
+  background: rgba(16,12,5,0.98);
+  border: 1px solid var(--b2);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  text-align: left;
+}
+.na-hint-flag-menu[hidden] { display: none; }
+.na-hint-flag-menu .na-lang-opt { width: 100%; justify-content: flex-start; }
 .hint-links { display: flex; align-items: center; gap: 8px; margin-top: 10px; justify-content: center; }
 .hint-link {
   background: none; border: none; cursor: pointer; padding: 2px 4px;
