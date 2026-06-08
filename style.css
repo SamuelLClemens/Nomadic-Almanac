@@ -2627,7 +2627,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 
 /* (Floating language FAB removed — language lives in Preferences + welcome card.) */
 
-/* ─── Right-to-left support (Arabic) ────────────────────────────────────────
+/* ─── Right-to-left support (Arabic & Hebrew) ───────────────────────────────
    Document direction flips for content/text flow; the Leaflet map and its
    controls are pinned LTR so panning, zoom buttons and attribution stay sane. */
 html[dir="rtl"] #map,
@@ -2638,6 +2638,8 @@ html[dir="rtl"] .na-ph-loc { text-align: left; }
 html[dir="rtl"] .na-fact-label,
 html[dir="rtl"] .na-sec-h { text-align: right; }
 html[dir="rtl"] .na-lang-name { white-space: nowrap; }
+html[dir="rtl"] .na-hint-flag-menu { left: auto; right: 50%; transform: translateX(50%); text-align: right; }
+html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 
 /* ─── Welcome card additions (flag picker + links) ──────────────────────────── */
 /* Welcome card single-flag language picker — a small flag chip sitting inline
@@ -2645,11 +2647,12 @@ html[dir="rtl"] .na-lang-name { white-space: nowrap; }
 .na-hint-flagpick { position: relative; display: inline-flex; align-items: center; }
 .na-hint-flag-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 1px 3px; border-radius: 5px; cursor: pointer;
+  min-width: 24px; min-height: 24px;         /* WCAG 2.5.8 target size — still a bare glyph */
+  padding: 2px 4px; border-radius: 6px; cursor: pointer;
   background: none; border: none;            /* no circle — just the flag glyph */
-  transition: transform .15s;
+  transition: transform .15s, opacity .15s;
 }
-.na-hint-flag-btn:hover { transform: translateY(-1px); }
+.na-hint-flag-btn:hover { transform: scale(1.18); opacity: 0.92; }
 .na-hint-flag-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .na-hint-flag-btn .na-lang-current-flag { font-size: 17px; line-height: 1; }
 .na-hint-flag-menu {

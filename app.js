@@ -570,10 +570,10 @@ var _I18N = {
 
 // Hebrew (he) — full curated interface translation. Right-to-left.
 Object.assign(_I18N.he, {
-  'nav.worldMap':'מפת העולם','nav.bestMonth':'הטוב ביותר החודש','nav.passport':'דרכון וויזה',
+  'nav.worldMap':'מפת העולם','nav.bestMonth':'החודש הטוב ביותר','nav.passport':'דרכון וויזה',
   'nav.planner':'מתכנן הטיול','nav.compare':'השוואת מדינות','nav.preferences':'העדפות',
-  'nav.explore':'חקירה','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות',
-  'group.explore':'חקירה','group.journey':'המסע שלך','group.intelligence':'מודיעין','group.settings':'הגדרות',
+  'nav.explore':'גילוי','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות',
+  'group.explore':'גילוי','group.journey':'המסע שלך','group.intelligence':'מודיעין','group.settings':'הגדרות',
   'hdr.search':'חיפוש','hdr.theme':'מצב יום/לילה','hdr.share':'שיתוף',
   'welcome.title':'ברוכים הבאים אל Nomadic Almanac','welcome.body':'אטלס אינטראקטיבי של לאן לנסוע ומתי. הקישו על כל מדינה כדי לפתוח את מדריך הטיול המלא שלה — עלויות, בטיחות, מזג אוויר, ויזות, ביטויים שימושיים ועוד. החליקו בין החודשים כדי לראות את העונות משתנות, והדליקו שכבות כדי להשוות את העולם בדרך שלכם.','welcome.sub':'טיפ: הגדילו את התצוגה לפרטי אזורים ומחוזות, ובחרו את הדרכון שלכם כדי לצבוע את המפה לפי היעדים שאליהם תוכלו לנסוע ללא ויזה.','welcome.tour':'צאו לסיור מודרך','welcome.explore':'לחקור בעצמי','welcome.language':'שפה','welcome.tutorial':'איך זה עובד','welcome.faq':'שאלות נפוצות',
   'prefs.title':'העדפות','prefs.mapView':'תצוגת מפה','prefs.labels':'תוויות מקומות','prefs.units':'יחידות','prefs.temp':'טמפרטורה','prefs.dist':'מרחק','prefs.elev':'גובה','prefs.dateFormat':'תבנית תאריך','prefs.clock':'שעון','prefs.language':'שפה','prefs.currency':'מטבע','prefs.theme':'ערכת נושא','prefs.tour':'הפעלת הסיור המודרך מחדש','prefs.tutorial':'מדריך כתוב','prefs.faq':'שאלות נפוצות','prefs.on':'פעיל','prefs.off':'כבוי','prefs.dark':'כהה','prefs.light':'בהיר',
@@ -606,6 +606,7 @@ function na_detectDefaultLang() {
 // On first visit (no stored choice) default to the browser locale.
 try { if (!localStorage.getItem('na_lang')) _lang = na_detectDefaultLang(); } catch (_e) {}
 if (_lang === 'en') _lang = 'en-GB';                       // migrate the legacy single English code (was British) to the UK variant
+if (_lang === 'iw') _lang = 'he';                          // legacy ISO code for Hebrew → modern 'he'
 if (_LANG_KEYS.indexOf(_lang) < 0) _lang = 'en-US';
 
 function _t(key) {
@@ -623,7 +624,7 @@ function na_applyI18n(root) {
 }
 
 function na_setLang(code) {
-  if (!_I18N[code]) code = 'en';
+  if (!_I18N[code]) code = 'en-US';   // fall back to a picker-listed variant, never the hidden 'en' base
   _lang = code;
   try { localStorage.setItem('na_lang', code); } catch (_e) {}
   var meta = _LANG_META[code] || _LANG_META.en;
@@ -642,7 +643,7 @@ function na_buildLangPicker() {
   var html = '<div class="na-lang-picker" role="group" aria-label="' + _t('prefs.language') + '">';
   _LANG_KEYS.forEach(function (c) {
     var m = _LANG_META[c];
-    html += '<button type="button" class="na-lang-opt' + (c === _lang ? ' active' : '') + '" data-lang="' + c + '" lang="' + c + '" title="' + m.name + '">' +
+    html += '<button type="button" class="na-lang-opt' + (c === _lang ? ' active' : '') + '"' + (c === _lang ? ' aria-current="true"' : '') + ' data-lang="' + c + '" lang="' + c + '" title="' + m.name + '">' +
             '<span class="na-lang-flag" aria-hidden="true">' + m.flag + '</span>' +
             '<span class="na-lang-name">' + m.name + '</span></button>';
   });
