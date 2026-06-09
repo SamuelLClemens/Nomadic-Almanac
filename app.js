@@ -62,6 +62,7 @@ let territoryLayerGroup  = null;
 let _geoData       = null;   // cached choropleth GeoJSON for border-lines reuse
 let countryNames   = {};
 let tooltipVisible   = false;
+let _ttReturnFocus   = null;   // element focused before the dossier opened; focus is restored here on close
 let _featureClicked    = false;   // prevents map-click from dismissing tooltip when a feature was just clicked
 let _admin1Visible     = false;   // tracks whether admin-1 layer is currently on the map (zoom ≥ 5)
 let selectedNationality = null;   // ISO-2 passport code chosen in the nationality selector
@@ -4358,11 +4359,25 @@ function positionTooltip(cx, cy) {
 
 function showTooltip(html) {
   const tt = document.getElementById('tt');
+  // Remember what to return focus to when the dialog closes (WCAG 2.4.3), but
+  // only when opening fresh — re-rendering an already-open dossier must not
+  // overwrite the remembered element with the dossier itself.
+  if (!tooltipVisible) {
+    const ae = document.activeElement;
+    _ttReturnFocus = (ae && ae !== document.body && !tt.contains(ae)) ? ae : null;
+  }
   // Close button injected at the top so users can dismiss and copy text freely
   const closeBtn = '<button id="tt-close" title="Close" aria-label="Close tooltip" onclick="hideTooltip()">&#x2715;</button>';
   tt.scrollTop = 0;
   tt.innerHTML = closeBtn + html;
   tt.style.display = 'block';
+  // Dialog semantics: the info window is a modal-style surface. Label it by the
+  // title (#tt-name) so screen readers announce the country/city on open.
+  tt.setAttribute('role', 'dialog');
+  tt.setAttribute('aria-modal', 'true');
+  if (tt.querySelector('#tt-name')) tt.setAttribute('aria-labelledby', 'tt-name');
+  else tt.removeAttribute('aria-labelledby');
+  tt.setAttribute('tabindex', '-1');
   tooltipVisible = true;
   // Hide the floating language control while an info window is open so it is
   // never occluded by (or overlapping) the window.
@@ -4374,13 +4389,52 @@ function showTooltip(html) {
     var iso2 = btn.id.replace('btn-wishlist-', '');
     btn.addEventListener('click', function() { _toggleWishlist(iso2); });
   });
+  // Move focus into the dialog so keyboard users land inside it.
+  setTimeout(function () { try { tt.focus(); } catch (e) {} }, 0);
 }
 
+// Returns the tabbable elements inside the dossier, in DOM order.
+function _ttFocusable() {
+  const tt = document.getElementById('tt');
+  if (!tt) return [];
+  return Array.prototype.slice.call(tt.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(function (el) { return el.offsetParent !== null || el === document.activeElement; });
+}
+
+// Trap Tab within the open dossier so focus cannot escape to the page behind it
+// (WCAG 2.4.3 / 2.1.2). Wraps from last→first and first→last.
+function _ttTrapTab(e) {
+  if (e.key !== 'Tab' || !tooltipVisible) return;
+  const tt = document.getElementById('tt');
+  if (!tt) return;
+  const items = _ttFocusable();
+  if (!items.length) { e.preventDefault(); try { tt.focus(); } catch (_) {} return; }
+  const first = items[0], last = items[items.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey) {
+    if (active === first || active === tt || !tt.contains(active)) { e.preventDefault(); last.focus(); }
+  } else {
+    if (active === last) { e.preventDefault(); first.focus(); }
+  }
+}
+document.addEventListener('keydown', _ttTrapTab, true);
+
 function hideTooltip() {
-  document.getElementById('tt').style.display = 'none';
+  const tt = document.getElementById('tt');
+  tt.style.display = 'none';
+  tt.removeAttribute('role');
+  tt.removeAttribute('aria-modal');
+  tt.removeAttribute('aria-labelledby');
   tooltipVisible = false;
   _activeTooltipKey = null;
   document.body.classList.remove('na-tt-open');
+  // Restore focus to whatever launched the dossier (a map marker is not
+  // focusable, so this is mainly for the search and keyboard entry points).
+  if (_ttReturnFocus && document.body.contains(_ttReturnFocus)) {
+    try { _ttReturnFocus.focus(); } catch (_) {}
+  }
+  _ttReturnFocus = null;
 }
 
 // ─── Holiday Markers ──────────────────────────────────────────────────────────
