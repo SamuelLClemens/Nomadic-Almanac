@@ -783,7 +783,10 @@ function _validatePin(p) {
   if (typeof p.lat !== 'number' || typeof p.lng !== 'number') return null;
   if (typeof p.name !== 'string') return null;
   // Sanitise name length — truncate anything implausibly long
-  return { id: p.id, lat: p.lat, lng: p.lng, name: p.name.slice(0, 120) };
+  const out = { id: p.id, lat: p.lat, lng: p.lng, name: p.name.slice(0, 120) };
+  // Preserve the country code so the planner flag survives a reload.
+  if (typeof p.iso2 === 'string' && /^[A-Za-z]{2}$/.test(p.iso2)) out.iso2 = p.iso2.toUpperCase();
+  return out;
 }
 
 function _loadTripPins() {
@@ -7334,6 +7337,10 @@ function initLegendCollapsible() {
   arrow.title = 'Toggle layers';
   arrow.setAttribute('role', 'button');
   arrow.setAttribute('aria-label', 'Toggle layers');
+  arrow.tabIndex = 0;   // keyboard-focusable since it advertises role=button
+  arrow.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); arrow.click(); }
+  });
   arrow.style.cssText = 'font-size:11px;color:var(--gold);opacity:0.9;cursor:pointer;padding:2px 6px;border-radius:3px;background:rgba(201,168,76,0.08);flex-shrink:0;width:24px;text-align:center';
   arrow.textContent = '▾';
   h4.appendChild(arrow);
@@ -9356,6 +9363,8 @@ function na_openMoreSheet() {
   sheet.hidden = false;
   na_syncPrefsUI();   // also reflects the more-basemap group
   document.body.style.overflow = 'hidden';
+  var nb = document.querySelector('#na-bottom-nav [data-nav="more"]');
+  if (nb) nb.setAttribute('aria-expanded', 'true');
   setTimeout(function () {
     var sel = document.querySelector('#na-more-passport select');
     if (sel) sel.focus();
@@ -9367,6 +9376,8 @@ function na_closeMoreSheet() {
   if (!sheet) return;
   sheet.hidden = true;
   document.body.style.overflow = '';
+  var nb = document.querySelector('#na-bottom-nav [data-nav="more"]');
+  if (nb) nb.setAttribute('aria-expanded', 'false');
 }
 
 function na_initMoreSheet() {
@@ -9654,6 +9665,8 @@ function na_initFocusTraps() {
     if (l && !l.hidden) return document.getElementById('na-sheet-panel') || l;
     var p = document.getElementById('na-prefs-sheet');
     if (p && !p.hidden) return document.getElementById('na-prefs-panel') || p;
+    var m = document.getElementById('na-more-sheet');
+    if (m && !m.hidden) return document.getElementById('na-more-panel') || m;
     return null;
   }
   document.addEventListener('keydown', function (e) {
