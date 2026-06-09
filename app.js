@@ -7337,6 +7337,14 @@ function initLegendCollapsible() {
   nameBtn.textContent = 'FIELD GUIDE';
   nameBtn.onmouseenter = () => { nameBtn.style.background = 'rgba(201,168,76,0.10)'; };
   nameBtn.onmouseleave = () => { nameBtn.style.background = ''; };
+  // Keyboard + screen-reader contract for the collapse control (WCAG 2.1.1 / 4.1.2):
+  // focusable, Enter/Space activate, aria-expanded reflects whether the key is shown.
+  nameBtn.setAttribute('role', 'button');
+  nameBtn.tabIndex = 0;
+  nameBtn.setAttribute('aria-expanded', 'true');
+  nameBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); nameBtn.click(); }
+  });
   h4.appendChild(nameBtn);
 
   // Arrow to the right of the name. Clicking it opens the layer toggle dropdown.
@@ -7358,7 +7366,8 @@ function initLegendCollapsible() {
   nameBtn.addEventListener('click', e => {
     e.stopPropagation();
     const isCollapsed = body.classList.toggle('collapsed');
-    nameBtn.classList.toggle('key-collapsed', isCollapsed);
+    nameBtn.classList.toggle('key-collapsed', isCollapsed);   // drives the ::after caret
+    nameBtn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
     nameBtn.title = isCollapsed ? 'Click to show the colour key' : 'Click to minimize the colour key';
   });
 

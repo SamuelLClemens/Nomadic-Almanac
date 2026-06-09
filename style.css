@@ -657,7 +657,6 @@ html, body {
   transition: max-height 0.3s ease, opacity 0.22s ease;
   opacity: 1;
 }
-#legend-body-wrap.collapsed { max-height: 0; opacity: 0; }
 
 /* Inner legend body — independently scrollable when many layers are active */
 #legend-body {
@@ -688,6 +687,13 @@ html, body {
   justify-content: center;
   text-align: center;
 }
+/* Disclosure caret next to the layer name → shows whether the colour key is open
+   (the ▾ box on the right is the layer picker, a separate control). */
+#legend-layer-btn::after {
+  content: '\25BE'; display: inline-block; margin-left: 6px;
+  font-size: 9px; opacity: 0.6; transition: transform .15s ease;
+}
+#legend-layer-btn.key-collapsed::after { transform: rotate(-90deg); opacity: 0.9; }
 .llp-item {
   font-family: var(--fm); font-size: 9px;
   padding: 6px 8px; cursor: pointer; border-radius: 6px;
