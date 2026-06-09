@@ -606,7 +606,7 @@ Object.assign(_I18N.he, {
   'group.explore':'גילוי','group.journey':'המסע שלך','group.intelligence':'מודיעין','group.settings':'הגדרות',
   'hdr.search':'חיפוש','hdr.theme':'מצב יום/לילה','hdr.share':'שיתוף',
   'welcome.title':'ברוכים הבאים אל Nomadic Almanac','welcome.body':'אטלס אינטראקטיבי של לאן לנסוע ומתי. הקישו על כל מדינה כדי לפתוח את מדריך הטיול המלא שלה — עלויות, בטיחות, מזג אוויר, ויזות, ביטויים שימושיים ועוד. החליקו בין החודשים כדי לראות את העונות משתנות, והדליקו שכבות כדי להשוות את העולם בדרך שלכם.','welcome.sub':'טיפ: הגדילו את התצוגה לפרטי אזורים ומחוזות, ובחרו את הדרכון שלכם כדי לצבוע את המפה לפי היעדים שאליהם תוכלו לנסוע ללא ויזה.','welcome.tour':'צאו לסיור מודרך','welcome.explore':'לחקור בעצמי','welcome.language':'שפה','welcome.tutorial':'איך זה עובד','welcome.faq':'שאלות נפוצות',
-  'prefs.title':'העדפות','prefs.mapView':'תצוגת מפה','prefs.labels':'תוויות מקומות','prefs.units':'יחידות','prefs.temp':'טמפרטורה','prefs.dist':'מרחק','prefs.elev':'גובה','prefs.dateFormat':'תבנית תאריך','prefs.clock':'שעון','prefs.language':'שפה','prefs.currency':'מטבע','prefs.theme':'ערכת נושא','prefs.tour':'הפעלת הסיור המודרך מחדש','prefs.tutorial':'מדריך כתוב','prefs.faq':'שאלות נפוצות','prefs.on':'פעיל','prefs.off':'כבוי','prefs.dark':'כהה','prefs.light':'בהיר',
+  'prefs.title':'העדפות','prefs.mapView':'תצוגת מפה','prefs.labels':'תוויות מקומות','prefs.units':'יחידות','prefs.temp':'טמפרטורה','prefs.dist':'מרחק','prefs.elev':'גובה','prefs.dateFormat':'תבנית תאריך','prefs.clock':'שעון','prefs.language':'שפה','prefs.currency':'מטבע','prefs.theme':'ערכת נושא','prefs.tour':'הפעלת הסיור המודרך מחדש','prefs.tutorial':'מדריך כתוב','prefs.faq':'שאלות נפוצות','prefs.on':'פעיל','prefs.off':'כבוי','prefs.dark':'כהה','prefs.light':'בהיר','prefs.auto':'אוטומטי','prefs.palette':'פלטה לעיוורי צבעים',
   'bm.satellite':'לוויין','bm.streets':'רחובות','bm.dark':'כהה','bm.terrain':'שטח','bm.night':'אורות לילה',
   'doss.glance':'במבט חטוף','doss.emergency':'חירום','doss.cost':'יוקר המחיה','doss.health':'בריאות','doss.climate':'אקלים','doss.safety':'בטיחות','doss.tipping':'טיפים','doss.visa':'גישת ויזה','doss.timezone':'אזור זמן','doss.holidays':'חגים ואירועים','doss.history':'היסטוריה','doss.phrasebook':'שיחון','doss.intel':'מודיעין מדינה','doss.language':'שפה','doss.capital':'בירה','doss.population':'אוכלוסייה','doss.currency':'מטבע','doss.languages':'שפות','doss.power':'חשמל','doss.calling':'קידומת חיוג','doss.driving':'נהיגה','doss.region':'אזור','doss.tapwater':'מי ברז','doss.etiquette':'נימוסים ומנהגים','doss.transport':'תחבורה','doss.connectivity':'קישוריות','doss.payments':'כסף ותשלומים',
   'common.close':'סגירה','common.loading':'טוען…','common.noData':'אין נתונים','common.more':'הצג עוד','common.less':'הצג פחות','common.search':'חיפוש מדינות, ערים או שכבות',
@@ -748,6 +748,15 @@ function _esc(s) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// Returns the URL only if it is a safe http(s) link, otherwise ''. Blocks
+// javascript:/data:/etc. schemes on untrusted OSM `website` tags. Always pair
+// with _esc() when interpolating into an href attribute (defends both the
+// scheme-execution and the attribute-breakout vectors).
+function _safeUrl(u) {
+  const s = String(u == null ? '' : u).trim();
+  return /^https?:\/\//i.test(s) ? s : '';
 }
 
 // ─── Rating colour palette (accessibility) ───────────────────────────────────
@@ -3381,7 +3390,7 @@ function _renderBeachCircles(elements) {
 
 function _buildOsmBeachTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#2EC4B6">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#2EC4B6">Open</a>` : ''; };
   const fields = [
     row('Surface',        t.surface       || ''),
     row('Lifeguard',      t.lifeguard     || ''),
@@ -3550,7 +3559,7 @@ function _renderPOICircles(key, elements) {
 
 function _buildCampingTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#22c55e">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#22c55e">Open</a>` : ''; };
   const fields = [
     row('Fee',           t.fee            || ''),
     row('Charge',        t.charge         || ''),
@@ -3574,7 +3583,7 @@ function _buildCampingTooltip(t) {
 
 function _buildParkTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#15803d">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#15803d">Open</a>` : ''; };
   const kind = t['boundary'] === 'national_park' ? 'National Park'
              : t['leisure']  === 'nature_reserve' ? 'Nature Reserve' : 'Forest / Protected Area';
   const fields = [
@@ -3596,10 +3605,12 @@ function _buildViewpointTooltip(t) {
     val
       ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>`
       : '';
-  const link = url =>
-    url
-      ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#a855f7">Open</a>`
+  const link = url => {
+    const u = _safeUrl(url);
+    return u
+      ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#a855f7">Open</a>`
       : '';
+  };
 
   const elevLabel = t.ele ? `${parseFloat(t.ele).toLocaleString()} m` : '';
 
@@ -3636,7 +3647,7 @@ function _buildViewpointTooltip(t) {
 
 function _buildClimbingTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f97316">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#f97316">Open</a>` : ''; };
   const fields = [
     row('Type',         t['climbing:type']   || t['sport:climbing'] || ''),
     row('Rock Type',    t['climbing:rock']   || ''),
@@ -3658,7 +3669,7 @@ function _buildClimbingTooltip(t) {
 
 function _buildHotspringTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : ''; };
   const fields = [
     row('Temperature',  (t.temperature != null && t.temperature !== '') ? ((typeof _tempUnit !== 'undefined' && _tempUnit === 'F') ? (Math.round(Number(t.temperature) * 9 / 5 + 32) + '°F') : (t.temperature + '°C')) : ''),
     row('pH',           t['hot_spring:ph'] || ''),
@@ -3678,7 +3689,7 @@ function _buildHotspringTooltip(t) {
 
 function _buildAirportTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9">Open</a>` : ''; };
   const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
   const typeLabel = type === 'international' ? 'International' : type === 'regional' ? 'Regional' : type === 'military' ? 'Military' : type.charAt(0).toUpperCase() + type.slice(1);
   const fields = [
@@ -3714,7 +3725,7 @@ function _buildDivingTooltip(t) {
 }
 function _buildAttractionsTooltip(t) {
   const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b">Open</a>` : '';
+  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b">Open</a>` : ''; };
   const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),row('Website',link(t.website||t['contact:website']))].join('');
   return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Attraction')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">⭐ ATTRACTION — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
 }
@@ -5321,11 +5332,11 @@ function buildBorderTooltip(bc) {
   const fromName = countryNames[bc.from] || bc.from;
   const toName   = countryNames[bc.to]   || bc.to;
   const scls = `tt-status-${bc.status}`;
-  const hrs = bc.hours ? `<div class="ttdesc" style="margin-top:4px">Hours: ${bc.hours}</div>` : '';
-  const note = bc.note ? `<div class="ttdesc" style="margin-top:4px">${bc.note}</div>` : '';
+  const hrs = bc.hours ? `<div class="ttdesc" style="margin-top:4px">Hours: ${_esc(bc.hours)}</div>` : '';
+  const note = bc.note ? `<div class="ttdesc" style="margin-top:4px">${_esc(bc.note)}</div>` : '';
   return `<div class="tth">
-    <h3 id="tt-name">${bc.name}</h3>
-    <div class="ts" id="tt-sub">${fromName} / ${toName}</div>
+    <h3 id="tt-name">${_esc(bc.name)}</h3>
+    <div class="ts" id="tt-sub">${_esc(fromName)} / ${_esc(toName)}</div>
     <div class="tm" id="tt-period">BORDER CROSSING</div>
   </div>
   <div class="ttb" id="tt-body">
@@ -10099,6 +10110,8 @@ Object.assign(_I18N, {
   "prefs.off": "Desactivado",
   "prefs.dark": "Oscuro",
   "prefs.light": "Claro",
+  "prefs.auto": "Auto",
+  "prefs.palette": "Paleta para daltónicos",
   "bm.satellite": "Satélite",
   "bm.streets": "Calles",
   "bm.dark": "Oscuro",
@@ -10190,6 +10203,8 @@ Object.assign(_I18N, {
   "prefs.off": "Désactivé",
   "prefs.dark": "Sombre",
   "prefs.light": "Clair",
+  "prefs.auto": "Auto",
+  "prefs.palette": "Palette daltonienne",
   "bm.satellite": "Satellite",
   "bm.streets": "Rues",
   "bm.dark": "Sombre",
@@ -10281,6 +10296,8 @@ Object.assign(_I18N, {
   "prefs.off": "Aus",
   "prefs.dark": "Dunkel",
   "prefs.light": "Hell",
+  "prefs.auto": "Auto",
+  "prefs.palette": "Farbfehlsicht-Palette",
   "bm.satellite": "Satellit",
   "bm.streets": "Straßen",
   "bm.dark": "Dunkel",
@@ -10372,6 +10389,8 @@ Object.assign(_I18N, {
   "prefs.off": "Desativado",
   "prefs.dark": "Escuro",
   "prefs.light": "Claro",
+  "prefs.auto": "Auto",
+  "prefs.palette": "Paleta para daltônicos",
   "bm.satellite": "Satélite",
   "bm.streets": "Ruas",
   "bm.dark": "Escuro",
@@ -10463,6 +10482,8 @@ Object.assign(_I18N, {
   "prefs.off": "إيقاف",
   "prefs.dark": "داكن",
   "prefs.light": "فاتح",
+  "prefs.auto": "تلقائي",
+  "prefs.palette": "لوحة ألوان لعمى الألوان",
   "bm.satellite": "قمر صناعي",
   "bm.streets": "شوارع",
   "bm.dark": "داكن",
@@ -10554,6 +10575,8 @@ Object.assign(_I18N, {
   "prefs.off": "关",
   "prefs.dark": "深色",
   "prefs.light": "浅色",
+  "prefs.auto": "自动",
+  "prefs.palette": "色盲调色板",
   "bm.satellite": "卫星",
   "bm.streets": "街道",
   "bm.dark": "深色",
@@ -10645,6 +10668,8 @@ Object.assign(_I18N, {
   "prefs.off": "बंद",
   "prefs.dark": "गहरा",
   "prefs.light": "हल्का",
+  "prefs.auto": "स्वतः",
+  "prefs.palette": "वर्णांध पैलेट",
   "bm.satellite": "उपग्रह",
   "bm.streets": "सड़कें",
   "bm.dark": "गहरा",
@@ -10736,6 +10761,8 @@ Object.assign(_I18N, {
   "prefs.off": "オフ",
   "prefs.dark": "ダーク",
   "prefs.light": "ライト",
+  "prefs.auto": "自動",
+  "prefs.palette": "色覚サポート配色",
   "bm.satellite": "衛星写真",
   "bm.streets": "地図",
   "bm.dark": "ダーク",
@@ -10827,6 +10854,8 @@ Object.assign(_I18N, {
   "prefs.off": "Выкл.",
   "prefs.dark": "Тёмная",
   "prefs.light": "Светлая",
+  "prefs.auto": "Авто",
+  "prefs.palette": "Палитра для дальтоников",
   "bm.satellite": "Спутник",
   "bm.streets": "Улицы",
   "bm.dark": "Тёмная",
