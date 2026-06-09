@@ -859,11 +859,46 @@
     <span data-i18n="nav.layers">Layers</span>
     <span class="na-active-layer-badge" id="na-active-badge" hidden></span>
   </button>
+  <button class="na-bottom-item" data-nav="more" aria-label="More" aria-haspopup="true" aria-expanded="false">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-visa"/></svg>
+    <span data-i18n="nav.more">More</span>
+  </button>
   <button class="na-bottom-item" data-nav="preferences" aria-label="Settings">
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-settings"/></svg>
     <span data-i18n="nav.settings">Settings</span>
   </button>
 </nav>
+
+<!-- ─── Mobile "More" Sheet — passport, best-of-month, compare, basemap ────── -->
+<div id="na-more-sheet" role="dialog" aria-modal="true" aria-label="More" hidden>
+  <div id="na-more-overlay"></div>
+  <div id="na-more-panel" class="glass-panel">
+    <div id="na-more-handle" aria-hidden="true"></div>
+    <h2 id="na-more-title" data-i18n="nav.more">More</h2>
+    <hr class="gold-rule">
+    <div id="na-more-body">
+
+      <div class="pref-row pref-row-stack">
+        <span class="pref-label">🛂 <span data-i18n="nav.passport">Passport &amp; Visa</span></span>
+        <div id="na-more-passport" class="pref-picker-wrap"></div>
+      </div>
+
+      <button class="na-more-action" id="na-more-best" data-i18n="nav.bestMonth">Best This Month</button>
+      <button class="na-more-action" id="na-more-compare" data-i18n="nav.compare">Compare Countries</button>
+
+      <div class="pref-row">
+        <span class="pref-label">🗺 <span data-i18n="prefs.mapView">Map View</span></span>
+        <div class="pref-toggle-group" id="more-basemap">
+          <button class="pref-opt" data-val="satellite" aria-label="Satellite basemap">Satellite</button>
+          <button class="pref-opt" data-val="streets"   aria-label="Street map basemap">Street</button>
+          <button class="pref-opt" data-val="terrain"   aria-label="Terrain basemap">Terrain</button>
+          <button class="pref-opt" data-val="nightlights" aria-label="Night lights — Earth at night basemap">🌃 Night</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- ─── Mobile Layers Bottom Sheet ───────────────────────────────────────── -->
 <div id="na-layers-sheet" role="dialog" aria-modal="true" aria-label="Intelligence Layers" hidden>

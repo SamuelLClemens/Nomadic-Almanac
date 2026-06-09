@@ -62,6 +62,7 @@ let territoryLayerGroup  = null;
 let _geoData       = null;   // cached choropleth GeoJSON for border-lines reuse
 let countryNames   = {};
 let tooltipVisible   = false;
+let _ttReturnFocus   = null;   // element focused before the dossier opened; focus is restored here on close
 let _featureClicked    = false;   // prevents map-click from dismissing tooltip when a feature was just clicked
 let _admin1Visible     = false;   // tracks whether admin-1 layer is currently on the map (zoom ≥ 5)
 let selectedNationality = null;   // ISO-2 passport code chosen in the nationality selector
@@ -291,13 +292,44 @@ function _deriveCityClimate(features, getCode, isoOf, cities, store) {
 
 let _visitedSet = new Set(JSON.parse((() => { try { return localStorage.getItem('na_visited') || '[]'; } catch (_) { return '[]'; } })()));
 
-function markVisited(iso2) {
-  if (!iso2 || iso2 === '-99') return;
-  _visitedSet.add(iso2);
+function _persistVisited() {
   try {
     localStorage.setItem('na_visited', JSON.stringify([..._visitedSet]));
   } catch (_) { /* quota or private mode — silently ignore */ }
+}
+
+function markVisited(iso2) {
+  if (!iso2 || iso2 === '-99') return;
+  _visitedSet.add(iso2);
+  _persistVisited();
   updateLegend();
+}
+
+function unmarkVisited(iso2) {
+  if (!iso2) return;
+  _visitedSet.delete(iso2);
+  _persistVisited();
+  updateLegend();
+}
+
+// Flip visited state and re-render the dossier button in place so the action is
+// reversible (the previous control was a one-way latch with no way to undo).
+function toggleVisited(iso2, btn) {
+  if (!iso2 || iso2 === '-99') return;
+  if (_visitedSet.has(iso2)) { unmarkVisited(iso2); } else { markVisited(iso2); }
+  if (btn) _renderVisitedControl(iso2, btn);
+}
+
+// Render the visited toggle into the given <button>, reflecting current state.
+function _renderVisitedControl(iso2, btn) {
+  const on = isVisited(iso2);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.style.cssText = on
+    ? 'width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.16);border:1px solid rgba(34,197,94,0.45);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px'
+    : 'width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px';
+  btn.innerHTML = on
+    ? '&#x2713; VISITED — TAP TO UNMARK'
+    : '+ MARK AS VISITED';
 }
 
 function isVisited(iso2) {
@@ -542,7 +574,7 @@ var _I18N = {
   en: {
     'nav.worldMap':'World Map','nav.bestMonth':'Best This Month','nav.passport':'Passport & Visa',
     'nav.planner':'Trip Planner','nav.compare':'Compare Countries','nav.preferences':'Preferences',
-    'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings',
+    'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings','nav.more':'More',
     'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
     'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
     'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to color the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
@@ -569,7 +601,7 @@ var _I18N = {
 Object.assign(_I18N.he, {
   'nav.worldMap':'מפת העולם','nav.bestMonth':'החודש הטוב ביותר','nav.passport':'דרכון וויזה',
   'nav.planner':'מתכנן הטיול','nav.compare':'השוואת מדינות','nav.preferences':'העדפות',
-  'nav.explore':'גילוי','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות',
+  'nav.explore':'גילוי','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות','nav.more':'עוד',
   'group.explore':'גילוי','group.journey':'המסע שלך','group.intelligence':'מודיעין','group.settings':'הגדרות',
   'hdr.search':'חיפוש','hdr.theme':'מצב יום/לילה','hdr.share':'שיתוף',
   'welcome.title':'ברוכים הבאים אל Nomadic Almanac','welcome.body':'אטלס אינטראקטיבי של לאן לנסוע ומתי. הקישו על כל מדינה כדי לפתוח את מדריך הטיול המלא שלה — עלויות, בטיחות, מזג אוויר, ויזות, ביטויים שימושיים ועוד. החליקו בין החודשים כדי לראות את העונות משתנות, והדליקו שכבות כדי להשוות את העולם בדרך שלכם.','welcome.sub':'טיפ: הגדילו את התצוגה לפרטי אזורים ומחוזות, ובחרו את הדרכון שלכם כדי לצבוע את המפה לפי היעדים שאליהם תוכלו לנסוע ללא ויזה.','welcome.tour':'צאו לסיור מודרך','welcome.explore':'לחקור בעצמי','welcome.language':'שפה','welcome.tutorial':'איך זה עובד','welcome.faq':'שאלות נפוצות',
@@ -1117,7 +1149,9 @@ function _updateTripPlannerPanel() {
 
     const nameSpan = document.createElement('span');
     nameSpan.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-    nameSpan.textContent = pin.name;   // textContent — safe, no HTML parsing
+    // Prefix the country flag when the pin remembers which country it belongs to.
+    const _pinFlag = (pin.iso2 && typeof getFlag === 'function') ? getFlag(pin.iso2) : '';
+    nameSpan.textContent = (_pinFlag ? _pinFlag + ' ' : '') + pin.name;   // textContent — safe, no HTML parsing
     nameSpan.addEventListener('click', () => {
       if (map) map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 8), { duration: 0.8 });
     });
@@ -1265,9 +1299,10 @@ function initTripPlanner() {
 
 // Drop a waypoint at the given coordinates and refresh the panel + route line,
 // keeping placing mode active for the next click.
-function _placeTripPinAt(lat, lng, label) {
+function _placeTripPinAt(lat, lng, label, iso2) {
   const name = (label && String(label).trim()) ? String(label).slice(0, 120) : `Pin ${_tripPins.length + 1}`;
   const pin = { id: 'tp_' + Date.now() + '_' + _tripPins.length, lat, lng, name };
+  if (iso2 && iso2 !== '-99') pin.iso2 = iso2;   // remember which country this waypoint belongs to
   _tripPins.push(pin);
   _saveTripPins();
   _renderTripPinMarker(pin, _tripPins.length - 1);
@@ -1556,6 +1591,7 @@ function toggleLayer(key) {
   else activeLayers.add(key);
   const pill = document.querySelector('.lb[data-key="' + key + '"]');
   if (pill) { pill.classList.toggle('on', activeLayers.has(key)); pill.setAttribute('aria-pressed', activeLayers.has(key) ? 'true' : 'false'); }
+  _announceLayerToggle(key);
   syncMoreButtonState();
   syncCatButtons();
   refresh();
@@ -2902,7 +2938,7 @@ function _placeCities(list) {
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
 
     marker.on('click', e => {
-      if (_placingPin) { _placeTripPinAt(city.lat, city.lng); return; }   // drop a pin on the city
+      if (_placingPin) { _placeTripPinAt(city.lat, city.lng, city.name, city.country); return; }   // drop a pin on the city
       _featureClicked = true;
       toggleTooltip('city:' + city.name + ':' + city.lat, buildCityTooltip(city), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -2938,13 +2974,22 @@ function _glyphRatedLayers() {
 // One chip: opaque RC fill + the layer symbol. Grey (RC_NODATA) when this country
 // has no datum for the layer. Cached by layerKey:rating since the markup is identical.
 function _glyphChipHTML(lk, rating) {
-  const key = lk + ':' + (rating == null ? 'x' : rating);
+  // Cache key includes the palette so the colour-blind tier badge is rebuilt when
+  // the palette flips (na_setRatingPalette also clears _glyphHTMLCache).
+  const cvd = (typeof window !== 'undefined' && window._naPalette === 'cvd');
+  const key = lk + ':' + (rating == null ? 'x' : rating) + (cvd ? ':c' : '');
   if (_glyphHTMLCache[key]) return _glyphHTMLCache[key];
   const def = LAYERS[lk] || {};
   const sym = def.emoji || def.icon || '•';
-  const col = rating != null ? RC[Math.min(3, Math.max(0, rating))] : RC_NODATA;
+  const tier = rating != null ? Math.min(3, Math.max(0, rating)) : null;
+  const col = tier != null ? RC[tier] : RC_NODATA;
+  // Non-colour encoding: in colour-blind mode each chip carries a numeric tier
+  // badge (1 best → 4 worst) so score is readable without relying on hue.
+  const badge = (cvd && tier != null)
+    ? '<span class="na-glyph-tier" aria-hidden="true">' + (tier + 1) + '</span>'
+    : '';
   const html = '<span class="na-glyph-chip" style="background:' + col + '">' +
-               '<span class="na-glyph-sym">' + sym + '</span></span>';
+               '<span class="na-glyph-sym">' + sym + '</span>' + badge + '</span>';
   _glyphHTMLCache[key] = html;
   return html;
 }
@@ -4324,11 +4369,25 @@ function positionTooltip(cx, cy) {
 
 function showTooltip(html) {
   const tt = document.getElementById('tt');
+  // Remember what to return focus to when the dialog closes (WCAG 2.4.3), but
+  // only when opening fresh — re-rendering an already-open dossier must not
+  // overwrite the remembered element with the dossier itself.
+  if (!tooltipVisible) {
+    const ae = document.activeElement;
+    _ttReturnFocus = (ae && ae !== document.body && !tt.contains(ae)) ? ae : null;
+  }
   // Close button injected at the top so users can dismiss and copy text freely
   const closeBtn = '<button id="tt-close" title="Close" aria-label="Close tooltip" onclick="hideTooltip()">&#x2715;</button>';
   tt.scrollTop = 0;
   tt.innerHTML = closeBtn + html;
   tt.style.display = 'block';
+  // Dialog semantics: the info window is a modal-style surface. Label it by the
+  // title (#tt-name) so screen readers announce the country/city on open.
+  tt.setAttribute('role', 'dialog');
+  tt.setAttribute('aria-modal', 'true');
+  if (tt.querySelector('#tt-name')) tt.setAttribute('aria-labelledby', 'tt-name');
+  else tt.removeAttribute('aria-labelledby');
+  tt.setAttribute('tabindex', '-1');
   tooltipVisible = true;
   // Hide the floating language control while an info window is open so it is
   // never occluded by (or overlapping) the window.
@@ -4340,13 +4399,52 @@ function showTooltip(html) {
     var iso2 = btn.id.replace('btn-wishlist-', '');
     btn.addEventListener('click', function() { _toggleWishlist(iso2); });
   });
+  // Move focus into the dialog so keyboard users land inside it.
+  setTimeout(function () { try { tt.focus(); } catch (e) {} }, 0);
 }
 
+// Returns the tabbable elements inside the dossier, in DOM order.
+function _ttFocusable() {
+  const tt = document.getElementById('tt');
+  if (!tt) return [];
+  return Array.prototype.slice.call(tt.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(function (el) { return el.offsetParent !== null || el === document.activeElement; });
+}
+
+// Trap Tab within the open dossier so focus cannot escape to the page behind it
+// (WCAG 2.4.3 / 2.1.2). Wraps from last→first and first→last.
+function _ttTrapTab(e) {
+  if (e.key !== 'Tab' || !tooltipVisible) return;
+  const tt = document.getElementById('tt');
+  if (!tt) return;
+  const items = _ttFocusable();
+  if (!items.length) { e.preventDefault(); try { tt.focus(); } catch (_) {} return; }
+  const first = items[0], last = items[items.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey) {
+    if (active === first || active === tt || !tt.contains(active)) { e.preventDefault(); last.focus(); }
+  } else {
+    if (active === last) { e.preventDefault(); first.focus(); }
+  }
+}
+document.addEventListener('keydown', _ttTrapTab, true);
+
 function hideTooltip() {
-  document.getElementById('tt').style.display = 'none';
+  const tt = document.getElementById('tt');
+  tt.style.display = 'none';
+  tt.removeAttribute('role');
+  tt.removeAttribute('aria-modal');
+  tt.removeAttribute('aria-labelledby');
   tooltipVisible = false;
   _activeTooltipKey = null;
   document.body.classList.remove('na-tt-open');
+  // Restore focus to whatever launched the dossier (a map marker is not
+  // focusable, so this is mainly for the search and keyboard entry points).
+  if (_ttReturnFocus && document.body.contains(_ttReturnFocus)) {
+    try { _ttReturnFocus.focus(); } catch (_) {}
+  }
+  _ttReturnFocus = null;
 }
 
 // ─── Holiday Markers ──────────────────────────────────────────────────────────
@@ -5143,7 +5241,7 @@ function buildCountryTooltip(iso2) {
   const headerActions = `<div class="tt-head-actions">
     <button class="tt-hact tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" title="${_esc(_t('act.compare'))}" aria-label="${_esc(_t('act.compare'))}" aria-pressed="${isPinned ? 'true' : 'false'}" onclick="togglePinCountry('${iso2}')">&#x21C4;</button>
     <button class="tt-hact tt-wish${_wishlist.has(iso2) ? ' on' : ''}" id="btn-wishlist-${iso2}" title="${_esc(_t('act.wishlist'))}" aria-label="${_esc(_t('act.wishlist'))}" aria-pressed="${_wishlist.has(iso2) ? 'true' : 'false'}">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
-    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+' — added to your trip');}})()">📍</button>
+    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}','${iso2}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+' — added to your trip');}})()">📍</button>
   </div>`;
   const pinSection = '';
   const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
@@ -5170,9 +5268,10 @@ function buildCountryTooltip(iso2) {
   const ctxBand = ctxLabels[ctx]
     ? `<div style="background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.12);padding:4px 14px;font-size:7.5px;color:rgba(201,168,76,0.7);letter-spacing:1px">${ctxLabels[ctx]}</div>`
     : '';
-  const visitedBtn = isVisited(iso2)
-    ? `<div style="font-size:8px;color:#22c55e;padding:6px 0;text-align:center;opacity:0.8">&#x2713; VISITED</div>`
-    : `<button onclick="markVisited('${iso2}');this.outerHTML='<div style=\\'font-size:8px;color:#22c55e;padding:6px 0;text-align:center\\'>&#x2713; MARKED AS VISITED</div>';" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">+ MARK AS VISITED</button>`;
+  // Reversible visited toggle: tapping marks the country visited; tapping again
+  // unmarks it. State and styling are rendered by _renderVisitedControl.
+  const _vOn = isVisited(iso2);
+  const visitedBtn = `<button onclick="toggleVisited('${iso2}', this)" aria-pressed="${_vOn ? 'true' : 'false'}" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,${_vOn ? '0.16' : '0.08'});border:1px solid rgba(34,197,94,${_vOn ? '0.45' : '0.25'});border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">${_vOn ? '&#x2713; VISITED — TAP TO UNMARK' : '+ MARK AS VISITED'}</button>`;
   const flag = getFlag(iso2);
   const scoreChip = buildCompositeScore(CD[iso2] || {}, iso2);
   // Similar countries row
@@ -5309,9 +5408,18 @@ function updateLegend() {
   syncCatButtons();
 
   let html = '';
-  // Combined View: explain the on-map enamel chips so the multi-layer glyphs are discoverable.
+  // Combined View: explain the on-map enamel chips so the multi-layer glyphs are
+  // discoverable, then a decode key mapping each chip's emoji to its layer.
   if (geoLayers.length > 1) {
-    html += `<div class="legend-glyph-hint" style="font-size:8.5px;line-height:1.35;color:var(--na-text-secondary,#a89060);padding:2px 0 6px;letter-spacing:.2px">Each country shows one chip per layer — the chip colour is that layer's score (green → red). Zoom in to reveal them.</div>`;
+    const cvdOn = (typeof window !== 'undefined' && window._naPalette === 'cvd');
+    html += `<div class="legend-glyph-hint" style="font-size:8.5px;line-height:1.35;color:var(--na-text-secondary,#a89060);padding:2px 0 6px;letter-spacing:.2px">Each country shows one chip per layer — the chip colour is that layer's score (green → red)${cvdOn ? `, and the corner number is the tier (1 best → 4 worst)` : ``}. Zoom in to reveal them.</div>`;
+    html += `<div class="legend-decode-key" style="display:flex;flex-wrap:wrap;gap:4px 8px;padding:0 0 8px;margin-bottom:6px;border-bottom:1px solid rgba(201,168,76,0.10)">`;
+    geoLayers.forEach(k => {
+      const lyr = LAYERS[k] || {};
+      const sym = lyr.emoji || lyr.icon || '•';
+      html += `<span style="display:inline-flex;align-items:center;gap:3px;font-size:8.5px;color:var(--na-text-secondary,#a89060)"><span style="font-size:11px">${sym}</span><span>${_layerName(k)}</span></span>`;
+    });
+    html += `</div>`;
   }
   active.forEach(key => {
     const layer = LAYERS[key];
@@ -6924,6 +7032,10 @@ function showToast(msg) {
   if (!t) {
     t = document.createElement('div');
     t.id = '_toast';
+    // role=status + aria-live so the toast is announced to screen readers; this
+    // is the spoken half of the layer-toggle feedback.
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
     t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(14,11,6,0.95);color:var(--sand);border:1px solid rgba(201,168,76,0.4);padding:8px 16px;border-radius:20px;font-size:11px;z-index:9999;pointer-events:none;transition:opacity 0.4s';
     document.body.appendChild(t);
   }
@@ -6931,6 +7043,19 @@ function showToast(msg) {
   t.style.opacity = '1';
   clearTimeout(t._timer);
   t._timer = setTimeout(function(){t.style.opacity='0';}, 3200);
+}
+
+// Visible + spoken feedback when a layer is switched on or off, so the change is
+// never silent (a UX-audit gap). Safe to call before showToast is defined at
+// boot — it guards on the function's existence.
+function _announceLayerToggle(key) {
+  if (!key || typeof LAYERS === 'undefined' || !LAYERS[key]) return;
+  var on = (typeof activeLayers !== 'undefined') && activeLayers.has(key);
+  var emoji = LAYERS[key].emoji || '';
+  var name = (typeof _layerName === 'function') ? _layerName(key) : key;
+  if (typeof showToast === 'function') {
+    showToast((emoji ? emoji + ' ' : '') + name + ' — ' + (on ? 'layer on' : 'layer off'));
+  }
 }
 
 function _surpriseMe() {
@@ -7203,10 +7328,12 @@ function initLegendCollapsible() {
   nameBtn.onmouseleave = () => { nameBtn.style.background = ''; };
   h4.appendChild(nameBtn);
 
-  // Arrow to the right of the name. Clicking it opens the layer-change dropdown.
+  // Arrow to the right of the name. Clicking it opens the layer toggle dropdown.
   const arrow = document.createElement('span');
   arrow.id    = 'legend-collapse-arrow';
-  arrow.title = 'Change layer';
+  arrow.title = 'Toggle layers';
+  arrow.setAttribute('role', 'button');
+  arrow.setAttribute('aria-label', 'Toggle layers');
   arrow.style.cssText = 'font-size:11px;color:var(--gold);opacity:0.9;cursor:pointer;padding:2px 6px;border-radius:3px;background:rgba(201,168,76,0.08);flex-shrink:0;width:24px;text-align:center';
   arrow.textContent = '▾';
   h4.appendChild(arrow);
@@ -7228,13 +7355,22 @@ function initLegendCollapsible() {
     const item = document.createElement('div');
     item.className = 'llp-item';
     item.dataset.key = key;
+    item.setAttribute('role', 'menuitemcheckbox');
     item.innerHTML = `<span style="font-size:13px">${layer.emoji}</span><span>${_layerName(key)}</span>`;
     item.addEventListener('click', e => {
       e.stopPropagation();
-      allEntries.forEach(([k]) => activeLayers.delete(k));
-      activeLayers.add(key);
+      // Toggle this layer rather than replacing the whole active set, so opening
+      // the picker on a multi-layer Combined View no longer silently wipes it.
+      if (activeLayers.has(key)) {
+        activeLayers.delete(key);
+      } else {
+        activeLayers.add(key);
+      }
+      item.setAttribute('aria-checked', activeLayers.has(key) ? 'true' : 'false');
+      item.classList.toggle('active', activeLayers.has(key));
       document.querySelectorAll('.lb[data-key]').forEach(b => b.classList.toggle('on', activeLayers.has(b.dataset.key)));
-      picker.classList.remove('open');
+      _announceLayerToggle(key);
+      // Keep the picker open so several layers can be toggled in one pass.
       refresh(); updateURLState(); saveState();
     });
     picker.appendChild(item);
@@ -7247,7 +7383,9 @@ function initLegendCollapsible() {
     picker.classList.toggle('open', !isOpen);
     if (!isOpen) {
       picker.querySelectorAll('.llp-item').forEach(item => {
-        item.classList.toggle('active', activeLayers.has(item.dataset.key));
+        const on = activeLayers.has(item.dataset.key);
+        item.classList.toggle('active', on);
+        item.setAttribute('aria-checked', on ? 'true' : 'false');
       });
       const r = arrow.getBoundingClientRect();
       picker.style.top  = (r.bottom + 6) + 'px';
@@ -8932,6 +9070,9 @@ function na_initNavItems() {
         case 'layers':
           na_openLayersSheet();
           break;
+        case 'more':
+          na_openMoreSheet();
+          break;
         case 'preferences':
           na_openPrefsSheet();
           break;
@@ -9101,6 +9242,7 @@ function na_syncPrefsUI() {
     'pref-temp':       _tempUnit,
     'pref-dist':       _distUnit,
     'pref-basemap':    _mapStyle,
+    'more-basemap':    _mapStyle,
     'pref-dateformat': _dateFormat,
     'pref-clock':      _clockFormat,
     'pref-labels':     (_labelsOn ? 'on' : 'off'),
@@ -9204,6 +9346,106 @@ function na_initPrefsSheet() {
   na_syncPrefsUI();
 }
 
+// ── Mobile "More" sheet ────────────────────────────────────────────────────
+// The bottom nav can only hold a few items, so passport, Best-This-Month,
+// Compare and the basemap switch — which on desktop live in the sidebar/topbar —
+// get a discoverable mobile home here.
+function na_openMoreSheet() {
+  var sheet = document.getElementById('na-more-sheet');
+  if (!sheet) return;
+  sheet.hidden = false;
+  na_syncPrefsUI();   // also reflects the more-basemap group
+  document.body.style.overflow = 'hidden';
+  setTimeout(function () {
+    var sel = document.querySelector('#na-more-passport select');
+    if (sel) sel.focus();
+  }, 50);
+}
+
+function na_closeMoreSheet() {
+  var sheet = document.getElementById('na-more-sheet');
+  if (!sheet) return;
+  sheet.hidden = true;
+  document.body.style.overflow = '';
+}
+
+function na_initMoreSheet() {
+  var sheet = document.getElementById('na-more-sheet');
+  if (!sheet) return;
+
+  var overlay = document.getElementById('na-more-overlay');
+  if (overlay) overlay.addEventListener('click', na_closeMoreSheet);
+
+  // Swipe-down to close (mirror of the prefs sheet behaviour).
+  var panel = document.getElementById('na-more-panel');
+  if (panel) {
+    var startY = 0;
+    panel.addEventListener('touchstart', function (e) { startY = e.touches[0].clientY; }, { passive: true });
+    panel.addEventListener('touchend', function (e) {
+      if (e.changedTouches[0].clientY - startY > 60) na_closeMoreSheet();
+    }, { passive: true });
+  }
+
+  // Escape closes the sheet.
+  sheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') na_closeMoreSheet(); });
+
+  // Passport selector — built from the data (not cloneNode) so it works even if
+  // the original selector has not populated yet. Drives the canonical
+  // #passport-select so all the existing visa logic runs unchanged.
+  var holder = document.getElementById('na-more-passport');
+  var origSelect = document.getElementById('passport-select');
+  if (holder && !document.getElementById('na-more-passport-select')) {
+    var sel = document.createElement('select');
+    sel.id = 'na-more-passport-select';
+    sel.setAttribute('aria-label', 'Select your nationality for visa requirements');
+    var ph = document.createElement('option');
+    ph.value = ''; ph.textContent = '🌍 Nationality…';
+    sel.appendChild(ph);
+    if (typeof PASSPORT_NATIONALITIES !== 'undefined') {
+      Object.keys(PASSPORT_NATIONALITIES).forEach(function (code) {
+        var opt = document.createElement('option');
+        opt.value = code; opt.textContent = PASSPORT_NATIONALITIES[code];
+        sel.appendChild(opt);
+      });
+    }
+    sel.value = (origSelect && origSelect.value) || (typeof selectedNationality !== 'undefined' && selectedNationality) || '';
+    sel.addEventListener('change', function () {
+      if (origSelect) { origSelect.value = sel.value; origSelect.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    holder.appendChild(sel);
+    // Keep in sync when nationality changes elsewhere.
+    if (origSelect) origSelect.addEventListener('change', function () { sel.value = origSelect.value; });
+  }
+
+  // Best This Month → reveal the ranked list (open-only), then close the sheet.
+  var bestBtn = document.getElementById('na-more-best');
+  if (bestBtn) bestBtn.addEventListener('click', function () {
+    na_closeMoreSheet();
+    var t = document.getElementById('best-toggle');
+    var l = document.getElementById('best-panel-list');
+    if (t && l && !l.classList.contains('open')) t.click();   // click only when closed, so it opens
+    if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
+  });
+
+  // Compare Countries → open the compare panel.
+  var cmpBtn = document.getElementById('na-more-compare');
+  if (cmpBtn) cmpBtn.addEventListener('click', function () {
+    na_closeMoreSheet();
+    if (typeof openComparePanel === 'function') openComparePanel();
+    if (typeof _syncNavActive === 'function') _syncNavActive('compare');
+  });
+
+  // Basemap switch — shares na_setBasemap with the Preferences sheet.
+  var bmGroup = document.getElementById('more-basemap');
+  if (bmGroup) bmGroup.querySelectorAll('.pref-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _basemapUserPinned = true;
+      na_setBasemap(btn.dataset.val);
+      na_syncPrefsUI();
+    });
+  });
+}
+
 // ── Global search overlay ─────────────────────────────────────────────────
 // Fly to a country and open its dossier, mirroring a map click but reachable from
 // the keyboard (search results). Moves focus into the dossier for accessibility.
@@ -9220,6 +9462,19 @@ function na_openCountryDossier(iso2) {
   if (ic && typeof _renderCountryIntel === 'function') {
     _renderCountryIntel(iso2, (typeof countryNames !== 'undefined' && countryNames[iso2]) || iso2, ic);
   }
+  var tt = document.getElementById('tt');
+  if (tt) { tt.setAttribute('tabindex', '-1'); setTimeout(function () { try { tt.focus(); } catch (e) {} }, 80); }
+}
+
+// Fly to a city and open its tooltip. Used by the global search so the tour's
+// promise of "jump to any country, city, or layer" is actually fulfilled.
+function na_openCity(city) {
+  if (!city || typeof buildCityTooltip !== 'function' || typeof toggleTooltip !== 'function') return;
+  if (map) map.flyTo([city.lat, city.lng], Math.max(map.getZoom(), 6), { duration: 1.0 });
+  var html = buildCityTooltip(city);
+  if (!html) return;
+  // No click coordinates from search — anchor the tooltip over the map.
+  toggleTooltip('city:' + city.name + ':' + city.lat, html, Math.round(window.innerWidth * 0.5), Math.round(window.innerHeight * 0.4));
   var tt = document.getElementById('tt');
   if (tt) { tt.setAttribute('tabindex', '-1'); setTimeout(function () { try { tt.focus(); } catch (e) {} }, 80); }
 }
@@ -9278,6 +9533,8 @@ function na_initSearch() {
         na_updateLayerActiveStates();
       } else if (m.type === 'country') {
         na_openCountryDossier(m.key);   // fly to + open dossier (keyboard-reachable)
+      } else if (m.type === 'city') {
+        na_openCity(m.city);            // fly to + open the city tooltip
       }
     }
 
@@ -9304,6 +9561,20 @@ function na_initSearch() {
             matches.push({ type: 'layer', label: LAYERS[k].label || k, key: k });
           }
         });
+      }
+      // Search cities (notable places) — fulfils the tour's "jump to any city".
+      // Cap before render to keep the list responsive on the full CITIES array.
+      if (typeof CITIES !== 'undefined' && Array.isArray(CITIES)) {
+        var _cityHits = 0;
+        for (var ci = 0; ci < CITIES.length && _cityHits < 12; ci++) {
+          var cc = CITIES[ci];
+          if (!cc || !cc.name) continue;
+          if (cc.name.toLowerCase().indexOf(q) !== -1) {
+            var _cn = (typeof countryNames === 'object' && cc.country && countryNames[cc.country]) || cc.country || '';
+            matches.push({ type: 'city', label: cc.name + (_cn ? ', ' + _cn : ''), city: cc });
+            _cityHits++;
+          }
+        }
       }
 
       // Render top 8 matches — use DOM creation, never innerHTML, for any
@@ -9712,6 +9983,7 @@ function navInit() {
   na_initNavItems();
   na_initLayersSheet();
   na_initPrefsSheet();
+  na_initMoreSheet();
   na_initSearch();
   na_initKeyboard();
   na_initFocusTraps();
@@ -9759,6 +10031,7 @@ Object.assign(_I18N, {
   "nav.journey": "Viaje",
   "nav.layers": "Capas",
   "nav.settings": "Ajustes",
+  "nav.more": "Más",
   "group.explore": "Explorar",
   "group.journey": "Tu viaje",
   "group.intelligence": "Información",
@@ -9849,6 +10122,7 @@ Object.assign(_I18N, {
   "nav.journey": "Voyage",
   "nav.layers": "Calques",
   "nav.settings": "Paramètres",
+  "nav.more": "Plus",
   "group.explore": "Explorer",
   "group.journey": "Votre voyage",
   "group.intelligence": "Renseignements",
@@ -9939,6 +10213,7 @@ Object.assign(_I18N, {
   "nav.journey": "Reise",
   "nav.layers": "Ebenen",
   "nav.settings": "Einstellungen",
+  "nav.more": "Mehr",
   "group.explore": "Entdecken",
   "group.journey": "Deine Reise",
   "group.intelligence": "Wissenswertes",
@@ -10029,6 +10304,7 @@ Object.assign(_I18N, {
   "nav.journey": "Jornada",
   "nav.layers": "Camadas",
   "nav.settings": "Configurações",
+  "nav.more": "Mais",
   "group.explore": "Explorar",
   "group.journey": "Sua Jornada",
   "group.intelligence": "Informações",
@@ -10119,6 +10395,7 @@ Object.assign(_I18N, {
   "nav.journey": "الرحلة",
   "nav.layers": "الطبقات",
   "nav.settings": "الإعدادات",
+  "nav.more": "المزيد",
   "group.explore": "استكشاف",
   "group.journey": "رحلتك",
   "group.intelligence": "المعلومات",
@@ -10209,6 +10486,7 @@ Object.assign(_I18N, {
   "nav.journey": "旅程",
   "nav.layers": "图层",
   "nav.settings": "设置",
+  "nav.more": "更多",
   "group.explore": "探索",
   "group.journey": "你的旅程",
   "group.intelligence": "情报",
@@ -10299,6 +10577,7 @@ Object.assign(_I18N, {
   "nav.journey": "यात्रा",
   "nav.layers": "परतें",
   "nav.settings": "सेटिंग्स",
+  "nav.more": "और",
   "group.explore": "खोजें",
   "group.journey": "आपकी यात्रा",
   "group.intelligence": "जानकारी",
@@ -10389,6 +10668,7 @@ Object.assign(_I18N, {
   "nav.journey": "旅",
   "nav.layers": "レイヤー",
   "nav.settings": "設定",
+  "nav.more": "その他",
   "group.explore": "探索",
   "group.journey": "あなたの旅",
   "group.intelligence": "国情報",
@@ -10479,6 +10759,7 @@ Object.assign(_I18N, {
   "nav.journey": "Путешествие",
   "nav.layers": "Слои",
   "nav.settings": "Настройки",
+  "nav.more": "Ещё",
   "group.explore": "Обзор",
   "group.journey": "Ваше путешествие",
   "group.intelligence": "Аналитика",

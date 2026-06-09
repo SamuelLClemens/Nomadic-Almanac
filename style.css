@@ -2399,6 +2399,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   pointer-events: auto;
 }
 .na-glyph-chip {
+  position: relative;
   width: 19px;
   height: 19px;
   border-radius: 5px;
@@ -2424,6 +2425,21 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: -0.3px;
+}
+/* Colour-blind tier badge: a numeric score (1 best → 4 worst) in the chip corner,
+   so the chip's score is decodable without relying on its background hue. */
+.na-glyph-tier {
+  position: absolute;
+  right: -3px; bottom: -3px;
+  min-width: 10px; height: 10px;
+  padding: 0 1px;
+  border-radius: 5px;
+  background: rgba(14,11,6,0.95);
+  color: #fff;
+  font-family: var(--fm, monospace);
+  font-size: 7px; font-weight: 700; line-height: 10px;
+  text-align: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.6);
 }
 .na-glyph-icon:hover .na-glyph-chip { transform: translateY(-1px); }
 @media (prefers-reduced-motion: reduce) {
@@ -2819,6 +2835,7 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 #trip-panel,
 #na-search-panel,
 #na-prefs-panel,
+#na-more-panel,
 #na-sheet-panel {
   border-radius: var(--na-win-radius) !important;
   box-shadow: var(--na-win-shadow) !important;
@@ -2832,8 +2849,63 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 }
 /* Mobile bottom-sheets keep their top-only rounding (flush to the screen edge). */
 @media (max-width: 767px) {
-  #na-prefs-panel, #na-sheet-panel { border-radius: 22px 22px 0 0 !important; }
+  #na-prefs-panel, #na-more-panel, #na-sheet-panel { border-radius: 22px 22px 0 0 !important; }
 }
+
+/* ─── Mobile "More" sheet — reuses the Preferences sheet layout ──────────── */
+#na-more-sheet {
+  position: fixed; inset: 0; z-index: 2200;
+  display: flex; align-items: flex-end;
+}
+#na-more-sheet[hidden] { display: none; }
+#na-more-overlay {
+  position: absolute; inset: 0;
+  background: rgba(5,8,20,0.72); backdrop-filter: blur(2px);
+}
+#na-more-panel {
+  position: relative; z-index: 1;
+  width: 100%; max-height: 85vh; overflow-y: auto;
+  background: var(--na-glass-navy, rgba(8,15,40,0.97));
+  border: 1px solid rgba(201,168,76,0.18);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  padding: var(--sp-3) var(--sp-5) var(--sp-6);
+}
+#na-more-handle {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: rgba(201,168,76,0.35);
+  margin: 0 auto var(--sp-3);
+}
+#na-more-title {
+  font-family: var(--font-label); font-size: 11px;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--na-gold-mid, #c9a84c);
+  text-align: center; margin-bottom: var(--sp-2);
+}
+#na-more-body { padding-top: var(--sp-3); }
+#na-more-passport select {
+  width: 100%; min-height: 44px;
+  font-family: var(--font-label); font-size: 12px;
+  color: var(--na-text-primary, #e8d5a3);
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.22);
+  border-radius: 8px; padding: 6px 10px;
+}
+.na-more-action {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; min-height: 48px;
+  margin-top: 10px; padding: 12px 14px;
+  font-family: var(--font-label); font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--na-text-primary, #e8d5a3);
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.20);
+  border-radius: 10px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.na-more-action::after { content: '›'; color: var(--na-gold-mid, #c9a84c); font-size: 16px; }
+.na-more-action:hover { background: rgba(201,168,76,0.14); border-color: rgba(201,168,76,0.4); }
+.na-more-action:focus-visible { outline: 2px solid var(--na-gold-mid); outline-offset: 2px; }
 
 /* ─── Web top bar mirrors mobile: the cluttered desktop control strip is hidden,
    leaving the clean persistent header (#na-header). Month, nationality and layer
