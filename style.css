@@ -2399,6 +2399,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   pointer-events: auto;
 }
 .na-glyph-chip {
+  position: relative;
   width: 19px;
   height: 19px;
   border-radius: 5px;
@@ -2424,6 +2425,21 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: -0.3px;
+}
+/* Colour-blind tier badge: a numeric score (1 best → 4 worst) in the chip corner,
+   so the chip's score is decodable without relying on its background hue. */
+.na-glyph-tier {
+  position: absolute;
+  right: -3px; bottom: -3px;
+  min-width: 10px; height: 10px;
+  padding: 0 1px;
+  border-radius: 5px;
+  background: rgba(14,11,6,0.95);
+  color: #fff;
+  font-family: var(--fm, monospace);
+  font-size: 7px; font-weight: 700; line-height: 10px;
+  text-align: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.6);
 }
 .na-glyph-icon:hover .na-glyph-chip { transform: translateY(-1px); }
 @media (prefers-reduced-motion: reduce) {

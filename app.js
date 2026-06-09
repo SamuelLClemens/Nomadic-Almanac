@@ -1591,6 +1591,7 @@ function toggleLayer(key) {
   else activeLayers.add(key);
   const pill = document.querySelector('.lb[data-key="' + key + '"]');
   if (pill) { pill.classList.toggle('on', activeLayers.has(key)); pill.setAttribute('aria-pressed', activeLayers.has(key) ? 'true' : 'false'); }
+  _announceLayerToggle(key);
   syncMoreButtonState();
   syncCatButtons();
   refresh();
@@ -2973,13 +2974,22 @@ function _glyphRatedLayers() {
 // One chip: opaque RC fill + the layer symbol. Grey (RC_NODATA) when this country
 // has no datum for the layer. Cached by layerKey:rating since the markup is identical.
 function _glyphChipHTML(lk, rating) {
-  const key = lk + ':' + (rating == null ? 'x' : rating);
+  // Cache key includes the palette so the colour-blind tier badge is rebuilt when
+  // the palette flips (na_setRatingPalette also clears _glyphHTMLCache).
+  const cvd = (typeof window !== 'undefined' && window._naPalette === 'cvd');
+  const key = lk + ':' + (rating == null ? 'x' : rating) + (cvd ? ':c' : '');
   if (_glyphHTMLCache[key]) return _glyphHTMLCache[key];
   const def = LAYERS[lk] || {};
   const sym = def.emoji || def.icon || '•';
-  const col = rating != null ? RC[Math.min(3, Math.max(0, rating))] : RC_NODATA;
+  const tier = rating != null ? Math.min(3, Math.max(0, rating)) : null;
+  const col = tier != null ? RC[tier] : RC_NODATA;
+  // Non-colour encoding: in colour-blind mode each chip carries a numeric tier
+  // badge (1 best → 4 worst) so score is readable without relying on hue.
+  const badge = (cvd && tier != null)
+    ? '<span class="na-glyph-tier" aria-hidden="true">' + (tier + 1) + '</span>'
+    : '';
   const html = '<span class="na-glyph-chip" style="background:' + col + '">' +
-               '<span class="na-glyph-sym">' + sym + '</span></span>';
+               '<span class="na-glyph-sym">' + sym + '</span>' + badge + '</span>';
   _glyphHTMLCache[key] = html;
   return html;
 }
@@ -5398,9 +5408,18 @@ function updateLegend() {
   syncCatButtons();
 
   let html = '';
-  // Combined View: explain the on-map enamel chips so the multi-layer glyphs are discoverable.
+  // Combined View: explain the on-map enamel chips so the multi-layer glyphs are
+  // discoverable, then a decode key mapping each chip's emoji to its layer.
   if (geoLayers.length > 1) {
-    html += `<div class="legend-glyph-hint" style="font-size:8.5px;line-height:1.35;color:var(--na-text-secondary,#a89060);padding:2px 0 6px;letter-spacing:.2px">Each country shows one chip per layer — the chip colour is that layer's score (green → red). Zoom in to reveal them.</div>`;
+    const cvdOn = (typeof window !== 'undefined' && window._naPalette === 'cvd');
+    html += `<div class="legend-glyph-hint" style="font-size:8.5px;line-height:1.35;color:var(--na-text-secondary,#a89060);padding:2px 0 6px;letter-spacing:.2px">Each country shows one chip per layer — the chip colour is that layer's score (green → red)${cvdOn ? `, and the corner number is the tier (1 best → 4 worst)` : ``}. Zoom in to reveal them.</div>`;
+    html += `<div class="legend-decode-key" style="display:flex;flex-wrap:wrap;gap:4px 8px;padding:0 0 8px;margin-bottom:6px;border-bottom:1px solid rgba(201,168,76,0.10)">`;
+    geoLayers.forEach(k => {
+      const lyr = LAYERS[k] || {};
+      const sym = lyr.emoji || lyr.icon || '•';
+      html += `<span style="display:inline-flex;align-items:center;gap:3px;font-size:8.5px;color:var(--na-text-secondary,#a89060)"><span style="font-size:11px">${sym}</span><span>${_layerName(k)}</span></span>`;
+    });
+    html += `</div>`;
   }
   active.forEach(key => {
     const layer = LAYERS[key];
@@ -7013,6 +7032,10 @@ function showToast(msg) {
   if (!t) {
     t = document.createElement('div');
     t.id = '_toast';
+    // role=status + aria-live so the toast is announced to screen readers; this
+    // is the spoken half of the layer-toggle feedback.
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
     t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(14,11,6,0.95);color:var(--sand);border:1px solid rgba(201,168,76,0.4);padding:8px 16px;border-radius:20px;font-size:11px;z-index:9999;pointer-events:none;transition:opacity 0.4s';
     document.body.appendChild(t);
   }
@@ -7020,6 +7043,19 @@ function showToast(msg) {
   t.style.opacity = '1';
   clearTimeout(t._timer);
   t._timer = setTimeout(function(){t.style.opacity='0';}, 3200);
+}
+
+// Visible + spoken feedback when a layer is switched on or off, so the change is
+// never silent (a UX-audit gap). Safe to call before showToast is defined at
+// boot — it guards on the function's existence.
+function _announceLayerToggle(key) {
+  if (!key || typeof LAYERS === 'undefined' || !LAYERS[key]) return;
+  var on = (typeof activeLayers !== 'undefined') && activeLayers.has(key);
+  var emoji = LAYERS[key].emoji || '';
+  var name = (typeof _layerName === 'function') ? _layerName(key) : key;
+  if (typeof showToast === 'function') {
+    showToast((emoji ? emoji + ' ' : '') + name + ' — ' + (on ? 'layer on' : 'layer off'));
+  }
 }
 
 function _surpriseMe() {
@@ -7333,6 +7369,7 @@ function initLegendCollapsible() {
       item.setAttribute('aria-checked', activeLayers.has(key) ? 'true' : 'false');
       item.classList.toggle('active', activeLayers.has(key));
       document.querySelectorAll('.lb[data-key]').forEach(b => b.classList.toggle('on', activeLayers.has(b.dataset.key)));
+      _announceLayerToggle(key);
       // Keep the picker open so several layers can be toggled in one pass.
       refresh(); updateURLState(); saveState();
     });
