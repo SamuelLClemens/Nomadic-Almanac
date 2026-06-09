@@ -759,6 +759,17 @@ function _safeUrl(u) {
   return /^https?:\/\//i.test(s) ? s : '';
 }
 
+// Renders a "Website → Open" tooltip row as a real clickable link, or '' when the
+// URL is missing/unsafe. The href is scheme-validated (_safeUrl) and attribute-
+// escaped (_esc), so — unlike values passed through the escaping row() helper —
+// this anchor is intentionally emitted as live HTML and stays clickable.
+function _websiteRow(url) {
+  const u = _safeUrl(url);
+  if (!u) return '';
+  return `<div class="ttr"><div class="tti"><div class="ttln">Website</div>` +
+         `<div class="ttrat"><a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#3b9ad9">Open &#x2197;</a></div></div></div>`;
+}
+
 // ─── Rating colour palette (accessibility) ───────────────────────────────────
 // Swap the working RC ramp in place between 'classic' (green→red) and 'cvd'
 // (colour-blind-safe). RC/RC2 keep the same array reference so every consumer
@@ -3389,9 +3400,7 @@ function _renderBeachCircles(elements) {
 }
 
 function _buildOsmBeachTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#2EC4B6">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Surface',        t.surface       || ''),
     row('Lifeguard',      t.lifeguard     || ''),
     row('Lifeguard Hours',t['lifeguard:hours'] || ''),
@@ -3402,7 +3411,7 @@ function _buildOsmBeachTooltip(t) {
     row('Charge',         t.charge        || ''),
     row('Access',         t.access        || ''),
     row('Swimming',       t.swimming      || ''),
-    row('Website',        link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Beach')}</h3>
@@ -3558,9 +3567,7 @@ function _renderPOICircles(key, elements) {
 }
 
 function _buildCampingTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#22c55e">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Fee',           t.fee            || ''),
     row('Charge',        t.charge         || ''),
     row('Opening Hours', t.opening_hours  || ''),
@@ -3572,7 +3579,7 @@ function _buildCampingTooltip(t) {
     row('Shower',        t.shower         || ''),
     row('Toilets',       t.toilets        || ''),
     row('Dogs',          t.dog || t.dogs  || ''),
-    row('Website',       link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Camp Site')}</h3>
@@ -3582,16 +3589,14 @@ function _buildCampingTooltip(t) {
 }
 
 function _buildParkTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#15803d">Open</a>` : ''; };
-  const kind = t['boundary'] === 'national_park' ? 'National Park'
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const kind = t['boundary'] === 'national_park' ? 'National Park'
              : t['leisure']  === 'nature_reserve' ? 'Nature Reserve' : 'Forest / Protected Area';
   const fields = [
     row('Type',             t.protection_title || kind),
     row('Protect Class',    t.protect_class     || ''),
     row('Operator',         t.operator          || ''),
     row('IUCN Category',    t['iucn_level']     || ''),
-    row('Website',          link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Protected Area')}</h3>
@@ -3605,13 +3610,6 @@ function _buildViewpointTooltip(t) {
     val
       ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>`
       : '';
-  const link = url => {
-    const u = _safeUrl(url);
-    return u
-      ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#a855f7">Open</a>`
-      : '';
-  };
-
   const elevLabel = t.ele ? `${parseFloat(t.ele).toLocaleString()} m` : '';
 
   let dirLabel = '';
@@ -3632,7 +3630,7 @@ function _buildViewpointTooltip(t) {
     row('Surface',     t.surface            || ''),
     row('Access',      t.access             || ''),
     row('Operator',    t.operator           || ''),
-    row('Website',     link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
 
   return `<div class="tth">
@@ -3646,9 +3644,7 @@ function _buildViewpointTooltip(t) {
 }
 
 function _buildClimbingTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#f97316">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Type',         t['climbing:type']   || t['sport:climbing'] || ''),
     row('Rock Type',    t['climbing:rock']   || ''),
     row('Grade',        t['climbing:grade:french'] || t['climbing:difficulty'] || ''),
@@ -3658,7 +3654,7 @@ function _buildClimbingTooltip(t) {
     row('Rappel',       t['climbing:rappel'] || ''),
     row('Access',       t.access             || ''),
     row('Fee',          t.fee                || ''),
-    row('Website',      link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Climbing Area')}</h3>
@@ -3668,9 +3664,7 @@ function _buildClimbingTooltip(t) {
 }
 
 function _buildHotspringTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Temperature',  (t.temperature != null && t.temperature !== '') ? ((typeof _tempUnit !== 'undefined' && _tempUnit === 'F') ? (Math.round(Number(t.temperature) * 9 / 5 + 32) + '°F') : (t.temperature + '°C')) : ''),
     row('pH',           t['hot_spring:ph'] || ''),
     row('Opening Hours',t.opening_hours    || ''),
@@ -3678,7 +3672,7 @@ function _buildHotspringTooltip(t) {
     row('Facilities',   t['leisure']       || ''),
     row('Swimming',     t['bathing']       || ''),
     row('Access',       t.access          || ''),
-    row('Website',      link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Hot Spring')}</h3>
@@ -3688,9 +3682,7 @@ function _buildHotspringTooltip(t) {
 }
 
 function _buildAirportTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9">Open</a>` : ''; };
-  const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
   const typeLabel = type === 'international' ? 'International' : type === 'regional' ? 'Regional' : type === 'military' ? 'Military' : type.charAt(0).toUpperCase() + type.slice(1);
   const fields = [
     row('IATA Code',    t.iata             || ''),
@@ -3699,7 +3691,7 @@ function _buildAirportTooltip(t) {
     row('Operator',     t.operator         || ''),
     row('Runways',      t['aeroway:runways']|| ''),
     row('Elevation',    t.ele ? t.ele + ' m' : ''),
-    row('Website',      link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Airport')}</h3>
@@ -3724,9 +3716,7 @@ function _buildDivingTooltip(t) {
   return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Dive Site')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">🤿 DIVE / SNORKEL — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
 }
 function _buildAttractionsTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b">Open</a>` : ''; };
-  const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),row('Website',link(t.website||t['contact:website']))].join('');
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),_websiteRow(t.website||t['contact:website'])].join('');
   return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Attraction')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">⭐ ATTRACTION — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
 }
 
