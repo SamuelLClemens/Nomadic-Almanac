@@ -360,8 +360,6 @@ function _toggleWishlist(iso2) {
 function _updateWishlistUI(iso2) {
   var btn = document.getElementById('btn-wishlist-' + iso2);
   if (btn) { btn.textContent = _wishlist.has(iso2) ? '♥' : '♡'; btn.classList.toggle('on', _wishlist.has(iso2)); btn.setAttribute('aria-pressed', _wishlist.has(iso2) ? 'true' : 'false'); }
-  var counter = document.getElementById('wishlist-count');
-  if (counter) counter.textContent = _wishlist.size > 0 ? _wishlist.size : '';
 }
 
 // ─── Trip Share Card ──────────────────────────────────────────────────────────
@@ -7432,44 +7430,13 @@ function initLegendCollapsible() {
 }
 
 // ─── Share URL button ─────────────────────────────────────────────────────────
-function initShareButton() {
-  const btn = document.getElementById('share-url-btn');
-  if (!btn) return;
-  btn.setAttribute('aria-label', 'Copy shareable link');
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    const url = window.location.origin + window.location.pathname + window.location.search;
-    navigator.clipboard.writeText(url).then(() => {
-      const orig = btn.textContent;
-      btn.textContent = '✓';
-      btn.classList.add('copied');
-      btn.title = 'Link copied!';
-      btn.setAttribute('aria-label', 'Link copied!');
-      setTimeout(() => {
-        btn.textContent = orig;
-        btn.classList.remove('copied');
-        btn.title = 'Copy shareable link';
-        btn.setAttribute('aria-label', 'Copy shareable link');
-      }, 2000);
-    }).catch(() => {
-      // Fallback for browsers without clipboard API
-      const ta = document.createElement('textarea');
-      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      btn.textContent = '✓'; btn.classList.add('copied');
-      btn.setAttribute('aria-label', 'Link copied!');
-      setTimeout(() => {
-        btn.textContent = '🔗'; btn.classList.remove('copied');
-        btn.setAttribute('aria-label', 'Copy shareable link');
-      }, 2000);
-    });
-  });
-}
+// (Removed dead initShareButton(): it targeted #share-url-btn, which never exists.
+//  The live share control is #na-share-btn, wired in na_initHeaderButtons.)
 
 // ─── Best This Month toggle ───────────────────────────────────────────────────
-// When expanded, the panel auto-minimises after 3 seconds. It stays fully
-// toggleable (maximise/minimise) at any time from the legend or the nav item.
+// When expanded, the panel auto-minimises after 5 seconds IF it opened
+// automatically; an explicit open stays open. Toggleable any time from the
+// legend or the nav item.
 var _bestAutoTimer = null;
 function _clearBestAutoMinimize() { if (_bestAutoTimer) { clearTimeout(_bestAutoTimer); _bestAutoTimer = null; } }
 function _armBestAutoMinimize() {
@@ -8707,7 +8674,6 @@ function showBootError(msg) {
   initNationalitySelector();
   initVisaPassportGroup();
   initLegendCollapsible();
-  initShareButton();
   initBestPanelToggle();
   updateBestPanel();
   showOnboardingHint();
@@ -9922,27 +9888,6 @@ function na_initHeaderActions() {
 
 // ── Sidebar sidebar-passport mirror (desktop) ─────────────────────────────
 function na_initSidebarMirrors() {
-  // Mirror month buttons into the sidebar
-  var sidebarMonths = document.getElementById('na-sidebar-months');
-  if (sidebarMonths) {
-    var MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    MONTH_LABELS.forEach(function(label, idx) {
-      var btn = document.createElement('button');
-      btn.className = 'smb';
-      btn.textContent = label;
-      btn.setAttribute('aria-label', label);
-      btn.addEventListener('click', function() {
-        // Delegate to existing month click handler
-        var existing = document.querySelectorAll('.mb');
-        if (existing[idx]) existing[idx].click();
-        // Update sidebar month active states
-        na_syncSidebarMonths();
-      });
-      sidebarMonths.appendChild(btn);
-    });
-    na_syncSidebarMonths();
-  }
-
   // Mirror passport selector into sidebar. Build the options straight from the data
   // (NOT cloneNode of #passport-select) so it never depends on whether
   // initNationalitySelector() has already populated the original — that timing gap
@@ -9976,16 +9921,6 @@ function na_initSidebarMirrors() {
       cloneSelect.value = origSelect.value;
     });
   }
-}
-
-function na_syncSidebarMonths() {
-  var sidebarMonths = document.getElementById('na-sidebar-months');
-  if (!sidebarMonths) return;
-  var origBtns = document.querySelectorAll('.mb');
-  var sideBtns = sidebarMonths.querySelectorAll('.smb');
-  sideBtns.forEach(function(btn, i) {
-    if (origBtns[i]) btn.classList.toggle('on', origBtns[i].classList.contains('on'));
-  });
 }
 
 // ── Page Visibility API: pause/resume logo animations ─────────────────────
