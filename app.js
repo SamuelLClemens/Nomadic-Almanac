@@ -574,7 +574,7 @@ var _I18N = {
   en: {
     'nav.worldMap':'World Map','nav.bestMonth':'Best This Month','nav.passport':'Passport & Visa',
     'nav.planner':'Trip Planner','nav.compare':'Compare Countries','nav.preferences':'Preferences',
-    'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings',
+    'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings','nav.more':'More',
     'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
     'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
     'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to color the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
@@ -601,7 +601,7 @@ var _I18N = {
 Object.assign(_I18N.he, {
   'nav.worldMap':'מפת העולם','nav.bestMonth':'החודש הטוב ביותר','nav.passport':'דרכון וויזה',
   'nav.planner':'מתכנן הטיול','nav.compare':'השוואת מדינות','nav.preferences':'העדפות',
-  'nav.explore':'גילוי','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות',
+  'nav.explore':'גילוי','nav.journey':'מסע','nav.layers':'שכבות','nav.settings':'הגדרות','nav.more':'עוד',
   'group.explore':'גילוי','group.journey':'המסע שלך','group.intelligence':'מודיעין','group.settings':'הגדרות',
   'hdr.search':'חיפוש','hdr.theme':'מצב יום/לילה','hdr.share':'שיתוף',
   'welcome.title':'ברוכים הבאים אל Nomadic Almanac','welcome.body':'אטלס אינטראקטיבי של לאן לנסוע ומתי. הקישו על כל מדינה כדי לפתוח את מדריך הטיול המלא שלה — עלויות, בטיחות, מזג אוויר, ויזות, ביטויים שימושיים ועוד. החליקו בין החודשים כדי לראות את העונות משתנות, והדליקו שכבות כדי להשוות את העולם בדרך שלכם.','welcome.sub':'טיפ: הגדילו את התצוגה לפרטי אזורים ומחוזות, ובחרו את הדרכון שלכם כדי לצבוע את המפה לפי היעדים שאליהם תוכלו לנסוע ללא ויזה.','welcome.tour':'צאו לסיור מודרך','welcome.explore':'לחקור בעצמי','welcome.language':'שפה','welcome.tutorial':'איך זה עובד','welcome.faq':'שאלות נפוצות',
@@ -9033,6 +9033,9 @@ function na_initNavItems() {
         case 'layers':
           na_openLayersSheet();
           break;
+        case 'more':
+          na_openMoreSheet();
+          break;
         case 'preferences':
           na_openPrefsSheet();
           break;
@@ -9202,6 +9205,7 @@ function na_syncPrefsUI() {
     'pref-temp':       _tempUnit,
     'pref-dist':       _distUnit,
     'pref-basemap':    _mapStyle,
+    'more-basemap':    _mapStyle,
     'pref-dateformat': _dateFormat,
     'pref-clock':      _clockFormat,
     'pref-labels':     (_labelsOn ? 'on' : 'off'),
@@ -9303,6 +9307,106 @@ function na_initPrefsSheet() {
   if (currNote) currNote.textContent = 'Rates as of ' + (typeof _RATES_AS_OF !== 'undefined' ? _RATES_AS_OF : '');
 
   na_syncPrefsUI();
+}
+
+// ── Mobile "More" sheet ────────────────────────────────────────────────────
+// The bottom nav can only hold a few items, so passport, Best-This-Month,
+// Compare and the basemap switch — which on desktop live in the sidebar/topbar —
+// get a discoverable mobile home here.
+function na_openMoreSheet() {
+  var sheet = document.getElementById('na-more-sheet');
+  if (!sheet) return;
+  sheet.hidden = false;
+  na_syncPrefsUI();   // also reflects the more-basemap group
+  document.body.style.overflow = 'hidden';
+  setTimeout(function () {
+    var sel = document.querySelector('#na-more-passport select');
+    if (sel) sel.focus();
+  }, 50);
+}
+
+function na_closeMoreSheet() {
+  var sheet = document.getElementById('na-more-sheet');
+  if (!sheet) return;
+  sheet.hidden = true;
+  document.body.style.overflow = '';
+}
+
+function na_initMoreSheet() {
+  var sheet = document.getElementById('na-more-sheet');
+  if (!sheet) return;
+
+  var overlay = document.getElementById('na-more-overlay');
+  if (overlay) overlay.addEventListener('click', na_closeMoreSheet);
+
+  // Swipe-down to close (mirror of the prefs sheet behaviour).
+  var panel = document.getElementById('na-more-panel');
+  if (panel) {
+    var startY = 0;
+    panel.addEventListener('touchstart', function (e) { startY = e.touches[0].clientY; }, { passive: true });
+    panel.addEventListener('touchend', function (e) {
+      if (e.changedTouches[0].clientY - startY > 60) na_closeMoreSheet();
+    }, { passive: true });
+  }
+
+  // Escape closes the sheet.
+  sheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') na_closeMoreSheet(); });
+
+  // Passport selector — built from the data (not cloneNode) so it works even if
+  // the original selector has not populated yet. Drives the canonical
+  // #passport-select so all the existing visa logic runs unchanged.
+  var holder = document.getElementById('na-more-passport');
+  var origSelect = document.getElementById('passport-select');
+  if (holder && !document.getElementById('na-more-passport-select')) {
+    var sel = document.createElement('select');
+    sel.id = 'na-more-passport-select';
+    sel.setAttribute('aria-label', 'Select your nationality for visa requirements');
+    var ph = document.createElement('option');
+    ph.value = ''; ph.textContent = '🌍 Nationality…';
+    sel.appendChild(ph);
+    if (typeof PASSPORT_NATIONALITIES !== 'undefined') {
+      Object.keys(PASSPORT_NATIONALITIES).forEach(function (code) {
+        var opt = document.createElement('option');
+        opt.value = code; opt.textContent = PASSPORT_NATIONALITIES[code];
+        sel.appendChild(opt);
+      });
+    }
+    sel.value = (origSelect && origSelect.value) || (typeof selectedNationality !== 'undefined' && selectedNationality) || '';
+    sel.addEventListener('change', function () {
+      if (origSelect) { origSelect.value = sel.value; origSelect.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    holder.appendChild(sel);
+    // Keep in sync when nationality changes elsewhere.
+    if (origSelect) origSelect.addEventListener('change', function () { sel.value = origSelect.value; });
+  }
+
+  // Best This Month → reveal the ranked list (open-only), then close the sheet.
+  var bestBtn = document.getElementById('na-more-best');
+  if (bestBtn) bestBtn.addEventListener('click', function () {
+    na_closeMoreSheet();
+    var t = document.getElementById('best-toggle');
+    var l = document.getElementById('best-panel-list');
+    if (t && l && !l.classList.contains('open')) t.click();   // click only when closed, so it opens
+    if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
+  });
+
+  // Compare Countries → open the compare panel.
+  var cmpBtn = document.getElementById('na-more-compare');
+  if (cmpBtn) cmpBtn.addEventListener('click', function () {
+    na_closeMoreSheet();
+    if (typeof openComparePanel === 'function') openComparePanel();
+    if (typeof _syncNavActive === 'function') _syncNavActive('compare');
+  });
+
+  // Basemap switch — shares na_setBasemap with the Preferences sheet.
+  var bmGroup = document.getElementById('more-basemap');
+  if (bmGroup) bmGroup.querySelectorAll('.pref-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _basemapUserPinned = true;
+      na_setBasemap(btn.dataset.val);
+      na_syncPrefsUI();
+    });
+  });
 }
 
 // ── Global search overlay ─────────────────────────────────────────────────
@@ -9842,6 +9946,7 @@ function navInit() {
   na_initNavItems();
   na_initLayersSheet();
   na_initPrefsSheet();
+  na_initMoreSheet();
   na_initSearch();
   na_initKeyboard();
   na_initFocusTraps();
@@ -9889,6 +9994,7 @@ Object.assign(_I18N, {
   "nav.journey": "Viaje",
   "nav.layers": "Capas",
   "nav.settings": "Ajustes",
+  "nav.more": "Más",
   "group.explore": "Explorar",
   "group.journey": "Tu viaje",
   "group.intelligence": "Información",
@@ -9979,6 +10085,7 @@ Object.assign(_I18N, {
   "nav.journey": "Voyage",
   "nav.layers": "Calques",
   "nav.settings": "Paramètres",
+  "nav.more": "Plus",
   "group.explore": "Explorer",
   "group.journey": "Votre voyage",
   "group.intelligence": "Renseignements",
@@ -10069,6 +10176,7 @@ Object.assign(_I18N, {
   "nav.journey": "Reise",
   "nav.layers": "Ebenen",
   "nav.settings": "Einstellungen",
+  "nav.more": "Mehr",
   "group.explore": "Entdecken",
   "group.journey": "Deine Reise",
   "group.intelligence": "Wissenswertes",
@@ -10159,6 +10267,7 @@ Object.assign(_I18N, {
   "nav.journey": "Jornada",
   "nav.layers": "Camadas",
   "nav.settings": "Configurações",
+  "nav.more": "Mais",
   "group.explore": "Explorar",
   "group.journey": "Sua Jornada",
   "group.intelligence": "Informações",
@@ -10249,6 +10358,7 @@ Object.assign(_I18N, {
   "nav.journey": "الرحلة",
   "nav.layers": "الطبقات",
   "nav.settings": "الإعدادات",
+  "nav.more": "المزيد",
   "group.explore": "استكشاف",
   "group.journey": "رحلتك",
   "group.intelligence": "المعلومات",
@@ -10339,6 +10449,7 @@ Object.assign(_I18N, {
   "nav.journey": "旅程",
   "nav.layers": "图层",
   "nav.settings": "设置",
+  "nav.more": "更多",
   "group.explore": "探索",
   "group.journey": "你的旅程",
   "group.intelligence": "情报",
@@ -10429,6 +10540,7 @@ Object.assign(_I18N, {
   "nav.journey": "यात्रा",
   "nav.layers": "परतें",
   "nav.settings": "सेटिंग्स",
+  "nav.more": "और",
   "group.explore": "खोजें",
   "group.journey": "आपकी यात्रा",
   "group.intelligence": "जानकारी",
@@ -10519,6 +10631,7 @@ Object.assign(_I18N, {
   "nav.journey": "旅",
   "nav.layers": "レイヤー",
   "nav.settings": "設定",
+  "nav.more": "その他",
   "group.explore": "探索",
   "group.journey": "あなたの旅",
   "group.intelligence": "国情報",
@@ -10609,6 +10722,7 @@ Object.assign(_I18N, {
   "nav.journey": "Путешествие",
   "nav.layers": "Слои",
   "nav.settings": "Настройки",
+  "nav.more": "Ещё",
   "group.explore": "Обзор",
   "group.journey": "Ваше путешествие",
   "group.intelligence": "Аналитика",
