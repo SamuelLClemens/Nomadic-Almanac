@@ -19,9 +19,8 @@
   <link rel="dns-prefetch"  href="https://server.arcgisonline.com">
   <link rel="dns-prefetch"  href="https://basemaps.cartocdn.com">
   <link rel="dns-prefetch"  href="https://raw.githubusercontent.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <!-- All six interface font families in ONE request (was 3 links + a duplicate @import). -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
       --na-prussian: #1B2A4A;
@@ -401,7 +400,7 @@
       <div id="logo-wrap"><svg id="na-logo" xmlns="http://www.w3.org/2000/svg" width="320" height="110" viewBox="0 0 480 165" role="img" aria-label="Nomadic Almanac — World Travel Intelligence">
 <defs>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap');
+    /* Cinzel / Cinzel Decorative are loaded once in <head>; no per-SVG @import needed. */
     /* Only the compass needle animates — all other elements are static */
     .naml-cring  { transform-box:view-box; transform-origin:82px 82px; }
     .naml-needle { transform-box:view-box; transform-origin:82px 82px; animation:namlSettle 2.4s cubic-bezier(0.34,1.2,0.64,1) forwards, namlSeek 8s ease-in-out 2.4s infinite; will-change:transform; }

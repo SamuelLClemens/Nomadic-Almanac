@@ -70,6 +70,7 @@ let selectedNationality = null;   // ISO-2 passport code chosen in the nationali
 // Admin-1 sub-national choropleth
 let _admin1GeoData    = null;
 let admin1ChoroLayer  = null;
+let _admin1Loading    = false;       // guards the lazy (first-province-zoom) fetch of the large admin-1 geojson
 let _coveredByAdmin1  = new Set();   // ISO-2 codes present in admin-1 data
 let _admin1NameCache  = {};          // admin-1 code → display name (for admin-2 tooltips)
 
@@ -6028,9 +6029,18 @@ function unhighlightCountry(iso2) {
 // country-level choropleth provides all the context needed and province
 // boundaries add visual clutter.
 function onZoomAdmin1() {
-  if (!admin1ChoroLayer) return;
   const zoom       = map.getZoom();
   const shouldShow = zoom >= 5;
+  // Lazy-load the large admin-1 geojson the first time the user reaches
+  // province-level zoom. This keeps ~39 MB off the initial page load — most
+  // sessions never zoom in this far. initAdmin1Choropleth() builds the layer
+  // and calls back into onZoomAdmin1() to display it once the fetch resolves.
+  if (shouldShow && !admin1ChoroLayer && !_admin1Loading) {
+    _admin1Loading = true;
+    initAdmin1Choropleth().finally(() => { _admin1Loading = false; });
+    return;
+  }
+  if (!admin1ChoroLayer) return;
   if (shouldShow === _admin1Visible) return;   // no change needed
   _admin1Visible = shouldShow;
   if (shouldShow) {
@@ -8678,7 +8688,10 @@ function showBootError(msg) {
   map.on('zoom', onZoom);
   initTransportClickHandlers();
   initPOILayers();
-  initAdmin1Choropleth();
+  // Admin-1 (provinces) is lazy-loaded on first zoom >= 5 to keep ~39 MB off the
+  // initial load. This call only triggers the fetch if a restored/deep-linked
+  // view already starts at province zoom; otherwise it is a no-op until zoom-in.
+  onZoomAdmin1();
   initSearch();
   initNationalitySelector();
   initVisaPassportGroup();
