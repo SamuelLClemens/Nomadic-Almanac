@@ -9377,7 +9377,12 @@ function na_closeMoreSheet() {
   sheet.hidden = true;
   document.body.style.overflow = '';
   var nb = document.querySelector('#na-bottom-nav [data-nav="more"]');
-  if (nb) nb.setAttribute('aria-expanded', 'false');
+  if (nb) {
+    nb.setAttribute('aria-expanded', 'false');
+    // Return focus to the trigger so keyboard focus is not orphaned on the
+    // now-hidden sheet (WCAG 2.4.3), matching the layers sheet.
+    try { nb.focus(); } catch (_) {}
+  }
 }
 
 function na_initMoreSheet() {
@@ -9717,6 +9722,8 @@ function na_initKeyboard() {
       if (sheet && !sheet.hidden) { na_closeLayersSheet(); return; }
       var prefsSheet = document.getElementById('na-prefs-sheet');
       if (prefsSheet && !prefsSheet.hidden) { na_closePrefsSheet(); return; }
+      var moreSheet = document.getElementById('na-more-sheet');
+      if (moreSheet && !moreSheet.hidden) { na_closeMoreSheet(); return; }
       var compare = document.getElementById('compare-panel');
       if (compare && compare.classList.contains('open')) {
         compare.classList.remove('open');
