@@ -2841,3 +2841,9 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 @media (min-width: 768px) {
   #topbar { display: none !important; }
 }
+
+/* ── UX-audit fix: meet the 44px minimum touch target on dense mobile chrome ── */
+@media (max-width: 767px) {
+  .mb, #btn-year, .cat-btn, .lb { min-height: 44px; }
+  #na-tour-pop .tour-btn, #onboarding-hint .hint-btn { min-height: 44px; }
+}
