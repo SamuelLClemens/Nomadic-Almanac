@@ -291,13 +291,44 @@ function _deriveCityClimate(features, getCode, isoOf, cities, store) {
 
 let _visitedSet = new Set(JSON.parse((() => { try { return localStorage.getItem('na_visited') || '[]'; } catch (_) { return '[]'; } })()));
 
-function markVisited(iso2) {
-  if (!iso2 || iso2 === '-99') return;
-  _visitedSet.add(iso2);
+function _persistVisited() {
   try {
     localStorage.setItem('na_visited', JSON.stringify([..._visitedSet]));
   } catch (_) { /* quota or private mode — silently ignore */ }
+}
+
+function markVisited(iso2) {
+  if (!iso2 || iso2 === '-99') return;
+  _visitedSet.add(iso2);
+  _persistVisited();
   updateLegend();
+}
+
+function unmarkVisited(iso2) {
+  if (!iso2) return;
+  _visitedSet.delete(iso2);
+  _persistVisited();
+  updateLegend();
+}
+
+// Flip visited state and re-render the dossier button in place so the action is
+// reversible (the previous control was a one-way latch with no way to undo).
+function toggleVisited(iso2, btn) {
+  if (!iso2 || iso2 === '-99') return;
+  if (_visitedSet.has(iso2)) { unmarkVisited(iso2); } else { markVisited(iso2); }
+  if (btn) _renderVisitedControl(iso2, btn);
+}
+
+// Render the visited toggle into the given <button>, reflecting current state.
+function _renderVisitedControl(iso2, btn) {
+  const on = isVisited(iso2);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.style.cssText = on
+    ? 'width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.16);border:1px solid rgba(34,197,94,0.45);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px'
+    : 'width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px';
+  btn.innerHTML = on
+    ? '&#x2713; VISITED — TAP TO UNMARK'
+    : '+ MARK AS VISITED';
 }
 
 function isVisited(iso2) {
@@ -1117,7 +1148,9 @@ function _updateTripPlannerPanel() {
 
     const nameSpan = document.createElement('span');
     nameSpan.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-    nameSpan.textContent = pin.name;   // textContent — safe, no HTML parsing
+    // Prefix the country flag when the pin remembers which country it belongs to.
+    const _pinFlag = (pin.iso2 && typeof getFlag === 'function') ? getFlag(pin.iso2) : '';
+    nameSpan.textContent = (_pinFlag ? _pinFlag + ' ' : '') + pin.name;   // textContent — safe, no HTML parsing
     nameSpan.addEventListener('click', () => {
       if (map) map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 8), { duration: 0.8 });
     });
@@ -1265,9 +1298,10 @@ function initTripPlanner() {
 
 // Drop a waypoint at the given coordinates and refresh the panel + route line,
 // keeping placing mode active for the next click.
-function _placeTripPinAt(lat, lng, label) {
+function _placeTripPinAt(lat, lng, label, iso2) {
   const name = (label && String(label).trim()) ? String(label).slice(0, 120) : `Pin ${_tripPins.length + 1}`;
   const pin = { id: 'tp_' + Date.now() + '_' + _tripPins.length, lat, lng, name };
+  if (iso2 && iso2 !== '-99') pin.iso2 = iso2;   // remember which country this waypoint belongs to
   _tripPins.push(pin);
   _saveTripPins();
   _renderTripPinMarker(pin, _tripPins.length - 1);
@@ -2902,7 +2936,7 @@ function _placeCities(list) {
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
 
     marker.on('click', e => {
-      if (_placingPin) { _placeTripPinAt(city.lat, city.lng); return; }   // drop a pin on the city
+      if (_placingPin) { _placeTripPinAt(city.lat, city.lng, city.name, city.country); return; }   // drop a pin on the city
       _featureClicked = true;
       toggleTooltip('city:' + city.name + ':' + city.lat, buildCityTooltip(city), e.originalEvent.clientX, e.originalEvent.clientY);
       setTimeout(() => { _featureClicked = false; }, 10);
@@ -5143,7 +5177,7 @@ function buildCountryTooltip(iso2) {
   const headerActions = `<div class="tt-head-actions">
     <button class="tt-hact tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" title="${_esc(_t('act.compare'))}" aria-label="${_esc(_t('act.compare'))}" aria-pressed="${isPinned ? 'true' : 'false'}" onclick="togglePinCountry('${iso2}')">&#x21C4;</button>
     <button class="tt-hact tt-wish${_wishlist.has(iso2) ? ' on' : ''}" id="btn-wishlist-${iso2}" title="${_esc(_t('act.wishlist'))}" aria-label="${_esc(_t('act.wishlist'))}" aria-pressed="${_wishlist.has(iso2) ? 'true' : 'false'}">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
-    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+' — added to your trip');}})()">📍</button>
+    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}','${iso2}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+' — added to your trip');}})()">📍</button>
   </div>`;
   const pinSection = '';
   const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
@@ -5170,9 +5204,10 @@ function buildCountryTooltip(iso2) {
   const ctxBand = ctxLabels[ctx]
     ? `<div style="background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.12);padding:4px 14px;font-size:7.5px;color:rgba(201,168,76,0.7);letter-spacing:1px">${ctxLabels[ctx]}</div>`
     : '';
-  const visitedBtn = isVisited(iso2)
-    ? `<div style="font-size:8px;color:#22c55e;padding:6px 0;text-align:center;opacity:0.8">&#x2713; VISITED</div>`
-    : `<button onclick="markVisited('${iso2}');this.outerHTML='<div style=\\'font-size:8px;color:#22c55e;padding:6px 0;text-align:center\\'>&#x2713; MARKED AS VISITED</div>';" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">+ MARK AS VISITED</button>`;
+  // Reversible visited toggle: tapping marks the country visited; tapping again
+  // unmarks it. State and styling are rendered by _renderVisitedControl.
+  const _vOn = isVisited(iso2);
+  const visitedBtn = `<button onclick="toggleVisited('${iso2}', this)" aria-pressed="${_vOn ? 'true' : 'false'}" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,${_vOn ? '0.16' : '0.08'});border:1px solid rgba(34,197,94,${_vOn ? '0.45' : '0.25'});border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">${_vOn ? '&#x2713; VISITED — TAP TO UNMARK' : '+ MARK AS VISITED'}</button>`;
   const flag = getFlag(iso2);
   const scoreChip = buildCompositeScore(CD[iso2] || {}, iso2);
   // Similar countries row
@@ -7203,10 +7238,12 @@ function initLegendCollapsible() {
   nameBtn.onmouseleave = () => { nameBtn.style.background = ''; };
   h4.appendChild(nameBtn);
 
-  // Arrow to the right of the name. Clicking it opens the layer-change dropdown.
+  // Arrow to the right of the name. Clicking it opens the layer toggle dropdown.
   const arrow = document.createElement('span');
   arrow.id    = 'legend-collapse-arrow';
-  arrow.title = 'Change layer';
+  arrow.title = 'Toggle layers';
+  arrow.setAttribute('role', 'button');
+  arrow.setAttribute('aria-label', 'Toggle layers');
   arrow.style.cssText = 'font-size:11px;color:var(--gold);opacity:0.9;cursor:pointer;padding:2px 6px;border-radius:3px;background:rgba(201,168,76,0.08);flex-shrink:0;width:24px;text-align:center';
   arrow.textContent = '▾';
   h4.appendChild(arrow);
@@ -7228,13 +7265,21 @@ function initLegendCollapsible() {
     const item = document.createElement('div');
     item.className = 'llp-item';
     item.dataset.key = key;
+    item.setAttribute('role', 'menuitemcheckbox');
     item.innerHTML = `<span style="font-size:13px">${layer.emoji}</span><span>${_layerName(key)}</span>`;
     item.addEventListener('click', e => {
       e.stopPropagation();
-      allEntries.forEach(([k]) => activeLayers.delete(k));
-      activeLayers.add(key);
+      // Toggle this layer rather than replacing the whole active set, so opening
+      // the picker on a multi-layer Combined View no longer silently wipes it.
+      if (activeLayers.has(key)) {
+        activeLayers.delete(key);
+      } else {
+        activeLayers.add(key);
+      }
+      item.setAttribute('aria-checked', activeLayers.has(key) ? 'true' : 'false');
+      item.classList.toggle('active', activeLayers.has(key));
       document.querySelectorAll('.lb[data-key]').forEach(b => b.classList.toggle('on', activeLayers.has(b.dataset.key)));
-      picker.classList.remove('open');
+      // Keep the picker open so several layers can be toggled in one pass.
       refresh(); updateURLState(); saveState();
     });
     picker.appendChild(item);
@@ -7247,7 +7292,9 @@ function initLegendCollapsible() {
     picker.classList.toggle('open', !isOpen);
     if (!isOpen) {
       picker.querySelectorAll('.llp-item').forEach(item => {
-        item.classList.toggle('active', activeLayers.has(item.dataset.key));
+        const on = activeLayers.has(item.dataset.key);
+        item.classList.toggle('active', on);
+        item.setAttribute('aria-checked', on ? 'true' : 'false');
       });
       const r = arrow.getBoundingClientRect();
       picker.style.top  = (r.bottom + 6) + 'px';
@@ -9224,6 +9271,19 @@ function na_openCountryDossier(iso2) {
   if (tt) { tt.setAttribute('tabindex', '-1'); setTimeout(function () { try { tt.focus(); } catch (e) {} }, 80); }
 }
 
+// Fly to a city and open its tooltip. Used by the global search so the tour's
+// promise of "jump to any country, city, or layer" is actually fulfilled.
+function na_openCity(city) {
+  if (!city || typeof buildCityTooltip !== 'function' || typeof toggleTooltip !== 'function') return;
+  if (map) map.flyTo([city.lat, city.lng], Math.max(map.getZoom(), 6), { duration: 1.0 });
+  var html = buildCityTooltip(city);
+  if (!html) return;
+  // No click coordinates from search — anchor the tooltip over the map.
+  toggleTooltip('city:' + city.name + ':' + city.lat, html, Math.round(window.innerWidth * 0.5), Math.round(window.innerHeight * 0.4));
+  var tt = document.getElementById('tt');
+  if (tt) { tt.setAttribute('tabindex', '-1'); setTimeout(function () { try { tt.focus(); } catch (e) {} }, 80); }
+}
+
 function na_openSearch() {
   var overlay = document.getElementById('na-search-overlay');
   var input   = document.getElementById('na-search-input');
@@ -9278,6 +9338,8 @@ function na_initSearch() {
         na_updateLayerActiveStates();
       } else if (m.type === 'country') {
         na_openCountryDossier(m.key);   // fly to + open dossier (keyboard-reachable)
+      } else if (m.type === 'city') {
+        na_openCity(m.city);            // fly to + open the city tooltip
       }
     }
 
@@ -9304,6 +9366,20 @@ function na_initSearch() {
             matches.push({ type: 'layer', label: LAYERS[k].label || k, key: k });
           }
         });
+      }
+      // Search cities (notable places) — fulfils the tour's "jump to any city".
+      // Cap before render to keep the list responsive on the full CITIES array.
+      if (typeof CITIES !== 'undefined' && Array.isArray(CITIES)) {
+        var _cityHits = 0;
+        for (var ci = 0; ci < CITIES.length && _cityHits < 12; ci++) {
+          var cc = CITIES[ci];
+          if (!cc || !cc.name) continue;
+          if (cc.name.toLowerCase().indexOf(q) !== -1) {
+            var _cn = (typeof countryNames === 'object' && cc.country && countryNames[cc.country]) || cc.country || '';
+            matches.push({ type: 'city', label: cc.name + (_cn ? ', ' + _cn : ''), city: cc });
+            _cityHits++;
+          }
+        }
       }
 
       // Render top 8 matches — use DOM creation, never innerHTML, for any
