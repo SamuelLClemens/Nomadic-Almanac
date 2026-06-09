@@ -1933,6 +1933,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 
 .na-bottom-item {
   flex: 1;
+  min-width: 0;            /* allow the column to shrink so 5 items fit narrow phones */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1952,6 +1953,17 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   min-width: 44px;
   position: relative;
   transition: color var(--dur-fast) var(--ease-chart);
+}
+/* Keep each label on one line; clip with an ellipsis rather than wrapping or
+   pushing siblings, now that the bottom nav carries 5 items. */
+.na-bottom-item > span:not(.na-active-layer-badge) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 380px) {
+  .na-bottom-item { font-size: 8px; letter-spacing: 0.04em; }
 }
 .na-bottom-item:hover  { color: var(--na-text-secondary); }
 .na-bottom-item.active { color: var(--na-gold-bright); }
