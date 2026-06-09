@@ -7327,16 +7327,13 @@ function initLegendCollapsible() {
   h4.textContent = '';
   h4.style.cssText += ';display:flex;align-items:center;gap:4px;';
 
-  // Left spacer — matches the arrow width so the centered name sits visually balanced.
-  const spacer = document.createElement('span');
-  spacer.style.cssText = 'width:24px;flex-shrink:0';
-  h4.appendChild(spacer);
-
-  // Layer name — centered. Clicking it minimizes / expands the legend window.
+  // Layer name — sits directly above the colour key and labels it. Left-aligned
+  // so it reads as the key's heading. Clicking it collapses / expands just the
+  // key (Best This Month stays visible).
   const nameBtn = document.createElement('span');
   nameBtn.id = 'legend-layer-btn';
-  nameBtn.title = 'Click to minimize';
-  nameBtn.style.cssText = 'cursor:pointer;flex:1;min-width:0;text-align:center;border-radius:4px;padding:3px 5px;transition:background .12s';
+  nameBtn.title = 'Click to minimize the colour key';
+  nameBtn.style.cssText = 'cursor:pointer;flex:1;min-width:0;text-align:left;border-radius:4px;padding:3px 5px;transition:background .12s';
   nameBtn.textContent = 'FIELD GUIDE';
   nameBtn.onmouseenter = () => { nameBtn.style.background = 'rgba(201,168,76,0.10)'; };
   nameBtn.onmouseleave = () => { nameBtn.style.background = ''; };
@@ -7356,11 +7353,13 @@ function initLegendCollapsible() {
   arrow.textContent = '▾';
   h4.appendChild(arrow);
 
-  // Clicking the layer NAME collapses / expands the legend body.
+  // Clicking the layer NAME collapses / expands ONLY the colour key (#legend-body),
+  // so Best This Month (a sibling in the wrap) stays visible.
   nameBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const isCollapsed = wrap.classList.toggle('collapsed');
-    nameBtn.title = isCollapsed ? 'Click to expand' : 'Click to minimize';
+    const isCollapsed = body.classList.toggle('collapsed');
+    nameBtn.classList.toggle('key-collapsed', isCollapsed);
+    nameBtn.title = isCollapsed ? 'Click to show the colour key' : 'Click to minimize the colour key';
   });
 
   // Dropdown picker — shows all geographic layers
@@ -7471,7 +7470,7 @@ function _armBestAutoMinimize() {
     if (l) l.classList.remove('open');
     if (t) t.classList.remove('open');
     if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
-  }, 3000);
+  }, 5000);
 }
 function initBestPanelToggle() {
   const toggle = document.getElementById('best-toggle');
@@ -7481,7 +7480,9 @@ function initBestPanelToggle() {
     const isOpen = list.classList.contains('open');
     list.classList.toggle('open', !isOpen);
     toggle.classList.toggle('open', !isOpen);
-    if (!isOpen) _armBestAutoMinimize(); else _clearBestAutoMinimize();
+    // Explicit user action: never auto-minimize. Only the automatic first-load
+    // expand (autoExpandBestPanel) arms the 5s timer; a deliberate open stays open.
+    _clearBestAutoMinimize();
     if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
   });
 }
@@ -8835,9 +8836,10 @@ function _naAutoReResolve() {
 function na_initTheme() {
   var stored = null;
   try { stored = localStorage.getItem('na_theme'); } catch(e) {}
-  // New visitors open in DAY (light) so the almanac never launches in night
-  // mode; returning users keep whatever they last chose (light / dark / auto).
-  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'light');
+  // New visitors open in DARK menus (the satellite map still loads first via the
+  // _naBootstrapping guard, so only the chrome is dark). Returning users keep
+  // whatever they last chose (light / dark / auto).
+  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'dark');
   // Re-check when the tab regains focus (e.g., left open past dusk).
   if (!_naThemeFocusBound) {
     _naThemeFocusBound = true;

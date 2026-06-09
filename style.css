@@ -707,11 +707,11 @@ html, body {
 }
 .lr {
   display: flex; align-items: center;
-  gap: 7px; margin-bottom: 5px;
+  gap: 8px; margin-bottom: 3px;   /* tighter rows → a more compact colour key */
 }
 .lsw {
-  width: 10px; height: 10px;
-  border-radius: 4px; flex-shrink: 0;
+  width: 8px; height: 8px;        /* smaller key swatch */
+  border-radius: 2px; flex-shrink: 0;
 }
 .lsw-diamond { width: 9px; height: 9px; flex-shrink: 0; transform: rotate(45deg); border-radius: 1px; }
 .lsw-line {
@@ -719,11 +719,46 @@ html, body {
   border-radius: 1px; flex-shrink: 0;
   margin: 3px 0; opacity: 0.8;
 }
-.llabel { font-size: 9px; color: var(--sand); line-height: 1.5; }
+.llabel { font-size: 11px; color: var(--sand); line-height: 1.45; font-weight: 500; letter-spacing: 0.2px; }
 .llabel-note {
   font-size: 8px; color: rgba(201,168,76,0.5);
   letter-spacing: .5px; margin-left: 6px;
 }
+
+/* Clicking the layer name collapses ONLY the colour key (Best This Month stays). */
+#legend-body { transition: max-height 0.28s ease, opacity 0.2s ease; }
+#legend-body.collapsed {
+  max-height: 0 !important; opacity: 0; overflow: hidden;
+  margin: 0; padding-top: 0; padding-bottom: 0;
+}
+
+/* ── Light-mode legend & menus: dark ink so text is readable on parchment ──
+   (in dark mode the sand/gold defaults above already have strong contrast). */
+[data-theme="light"] #legend {
+  background: rgba(244,237,216,0.94);
+  border-color: rgba(120,86,40,0.28);
+  border-left-color: rgba(150,110,50,0.55);
+  box-shadow: 0 8px 32px rgba(60,40,10,0.22);
+}
+[data-theme="light"] #legend h4,
+[data-theme="light"] #legend-title,
+[data-theme="light"] #legend-layer-btn { color: #6B4E1E; border-bottom-color: rgba(120,86,40,0.22); }
+[data-theme="light"] .llabel { color: #2E2008; }
+[data-theme="light"] .ll-name { color: #6B4E1E; border-bottom-color: rgba(120,86,40,0.2); }
+[data-theme="light"] #legend-collapse-arrow { color: #6B4E1E; background: rgba(120,86,40,0.12); }
+[data-theme="light"] .llabel-note { color: rgba(120,86,40,0.7); }
+[data-theme="light"] .legend-glyph-hint,
+[data-theme="light"] .legend-decode-key span { color: #5A4020 !important; }
+/* Layer-picker dropdown */
+[data-theme="light"] #legend-layer-picker { background: rgba(246,239,219,0.98); border-color: rgba(120,86,40,0.28); }
+[data-theme="light"] .llp-item { color: #2E2008; }
+[data-theme="light"] .llp-item:hover { background: rgba(120,86,40,0.12); }
+[data-theme="light"] .llp-item.active { background: rgba(201,168,76,0.22); color: #6B4E1E; }
+/* Best This Month panel (lives inside the legend) */
+[data-theme="light"] #best-toggle-label,
+[data-theme="light"] #best-toggle-arrow { color: #6B4E1E; }
+[data-theme="light"] #best-panel-list,
+[data-theme="light"] #best-panel-list li { color: #2E2008; }
 
 /* ─── Leaflet overrides ───────────────────────────────────────────────────── */
 .leaflet-control-zoom {
