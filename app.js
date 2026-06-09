@@ -759,6 +759,17 @@ function _safeUrl(u) {
   return /^https?:\/\//i.test(s) ? s : '';
 }
 
+// Renders a "Website → Open" tooltip row as a real clickable link, or '' when the
+// URL is missing/unsafe. The href is scheme-validated (_safeUrl) and attribute-
+// escaped (_esc), so — unlike values passed through the escaping row() helper —
+// this anchor is intentionally emitted as live HTML and stays clickable.
+function _websiteRow(url) {
+  const u = _safeUrl(url);
+  if (!u) return '';
+  return `<div class="ttr"><div class="tti"><div class="ttln">Website</div>` +
+         `<div class="ttrat"><a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#3b9ad9">Open &#x2197;</a></div></div></div>`;
+}
+
 // ─── Rating colour palette (accessibility) ───────────────────────────────────
 // Swap the working RC ramp in place between 'classic' (green→red) and 'cvd'
 // (colour-blind-safe). RC/RC2 keep the same array reference so every consumer
@@ -3389,9 +3400,7 @@ function _renderBeachCircles(elements) {
 }
 
 function _buildOsmBeachTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#2EC4B6">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Surface',        t.surface       || ''),
     row('Lifeguard',      t.lifeguard     || ''),
     row('Lifeguard Hours',t['lifeguard:hours'] || ''),
@@ -3402,7 +3411,7 @@ function _buildOsmBeachTooltip(t) {
     row('Charge',         t.charge        || ''),
     row('Access',         t.access        || ''),
     row('Swimming',       t.swimming      || ''),
-    row('Website',        link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Beach')}</h3>
@@ -3558,9 +3567,7 @@ function _renderPOICircles(key, elements) {
 }
 
 function _buildCampingTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#22c55e">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Fee',           t.fee            || ''),
     row('Charge',        t.charge         || ''),
     row('Opening Hours', t.opening_hours  || ''),
@@ -3572,7 +3579,7 @@ function _buildCampingTooltip(t) {
     row('Shower',        t.shower         || ''),
     row('Toilets',       t.toilets        || ''),
     row('Dogs',          t.dog || t.dogs  || ''),
-    row('Website',       link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Camp Site')}</h3>
@@ -3582,16 +3589,14 @@ function _buildCampingTooltip(t) {
 }
 
 function _buildParkTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#15803d">Open</a>` : ''; };
-  const kind = t['boundary'] === 'national_park' ? 'National Park'
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const kind = t['boundary'] === 'national_park' ? 'National Park'
              : t['leisure']  === 'nature_reserve' ? 'Nature Reserve' : 'Forest / Protected Area';
   const fields = [
     row('Type',             t.protection_title || kind),
     row('Protect Class',    t.protect_class     || ''),
     row('Operator',         t.operator          || ''),
     row('IUCN Category',    t['iucn_level']     || ''),
-    row('Website',          link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Protected Area')}</h3>
@@ -3605,13 +3610,6 @@ function _buildViewpointTooltip(t) {
     val
       ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>`
       : '';
-  const link = url => {
-    const u = _safeUrl(url);
-    return u
-      ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#a855f7">Open</a>`
-      : '';
-  };
-
   const elevLabel = t.ele ? `${parseFloat(t.ele).toLocaleString()} m` : '';
 
   let dirLabel = '';
@@ -3632,7 +3630,7 @@ function _buildViewpointTooltip(t) {
     row('Surface',     t.surface            || ''),
     row('Access',      t.access             || ''),
     row('Operator',    t.operator           || ''),
-    row('Website',     link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
 
   return `<div class="tth">
@@ -3646,9 +3644,7 @@ function _buildViewpointTooltip(t) {
 }
 
 function _buildClimbingTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#f97316">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Type',         t['climbing:type']   || t['sport:climbing'] || ''),
     row('Rock Type',    t['climbing:rock']   || ''),
     row('Grade',        t['climbing:grade:french'] || t['climbing:difficulty'] || ''),
@@ -3658,7 +3654,7 @@ function _buildClimbingTooltip(t) {
     row('Rappel',       t['climbing:rappel'] || ''),
     row('Access',       t.access             || ''),
     row('Fee',          t.fee                || ''),
-    row('Website',      link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Climbing Area')}</h3>
@@ -3668,9 +3664,7 @@ function _buildClimbingTooltip(t) {
 }
 
 function _buildHotspringTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#e11d48">Open</a>` : ''; };
-  const fields = [
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [
     row('Temperature',  (t.temperature != null && t.temperature !== '') ? ((typeof _tempUnit !== 'undefined' && _tempUnit === 'F') ? (Math.round(Number(t.temperature) * 9 / 5 + 32) + '°F') : (t.temperature + '°C')) : ''),
     row('pH',           t['hot_spring:ph'] || ''),
     row('Opening Hours',t.opening_hours    || ''),
@@ -3678,7 +3672,7 @@ function _buildHotspringTooltip(t) {
     row('Facilities',   t['leisure']       || ''),
     row('Swimming',     t['bathing']       || ''),
     row('Access',       t.access          || ''),
-    row('Website',      link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Hot Spring')}</h3>
@@ -3688,9 +3682,7 @@ function _buildHotspringTooltip(t) {
 }
 
 function _buildAirportTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#0ea5e9">Open</a>` : ''; };
-  const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const type = t['aeroway:type'] || t.aerodrome || 'aerodrome';
   const typeLabel = type === 'international' ? 'International' : type === 'regional' ? 'Regional' : type === 'military' ? 'Military' : type.charAt(0).toUpperCase() + type.slice(1);
   const fields = [
     row('IATA Code',    t.iata             || ''),
@@ -3699,7 +3691,7 @@ function _buildAirportTooltip(t) {
     row('Operator',     t.operator         || ''),
     row('Runways',      t['aeroway:runways']|| ''),
     row('Elevation',    t.ele ? t.ele + ' m' : ''),
-    row('Website',      link(t.website || t['contact:website'])),
+    _websiteRow(t.website || t['contact:website']),
   ].join('');
   return `<div class="tth">
     <h3 id="tt-name">${_esc(t.name || 'Airport')}</h3>
@@ -3724,9 +3716,7 @@ function _buildDivingTooltip(t) {
   return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Dive Site')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">🤿 DIVE / SNORKEL — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
 }
 function _buildAttractionsTooltip(t) {
-  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';
-  const link = url => { const u = _safeUrl(url); return u ? `<a href="${_esc(u)}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b">Open</a>` : ''; };
-  const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),row('Website',link(t.website||t['contact:website']))].join('');
+  const row = (lbl, val) => val ? `<div class="ttr"><div class="tti"><div class="ttln">${lbl}</div><div class="ttrat">${_esc(val)}</div></div></div>` : '';  const fields = [row('Type',t.tourism||t.historic||''),row('Hours',t.opening_hours||''),row('Fee',t.fee||''),_websiteRow(t.website||t['contact:website'])].join('');
   return `<div class="tth"><h3 id="tt-name">${_esc(t.name||'Attraction')}</h3><div class="ts" id="tt-sub">${_esc(t.operator||t['addr:city']||'')}</div><div class="tm" id="tt-period">⭐ ATTRACTION — OSM</div></div><div class="ttb" id="tt-body">${fields||'<div style="color:var(--dim);font-size:8px;padding:4px 0">No additional data.</div>'}</div>`;
 }
 
@@ -7337,19 +7327,24 @@ function initLegendCollapsible() {
   h4.textContent = '';
   h4.style.cssText += ';display:flex;align-items:center;gap:4px;';
 
-  // Left spacer — matches the arrow width so the centered name sits visually balanced.
-  const spacer = document.createElement('span');
-  spacer.style.cssText = 'width:24px;flex-shrink:0';
-  h4.appendChild(spacer);
-
-  // Layer name — centered. Clicking it minimizes / expands the legend window.
+  // Layer name — sits directly above the colour key and labels it. Left-aligned
+  // so it reads as the key's heading. Clicking it collapses / expands just the
+  // key (Best This Month stays visible).
   const nameBtn = document.createElement('span');
   nameBtn.id = 'legend-layer-btn';
-  nameBtn.title = 'Click to minimize';
-  nameBtn.style.cssText = 'cursor:pointer;flex:1;min-width:0;text-align:center;border-radius:4px;padding:3px 5px;transition:background .12s';
+  nameBtn.title = 'Click to minimize the colour key';
+  nameBtn.style.cssText = 'cursor:pointer;flex:1;min-width:0;text-align:left;border-radius:4px;padding:3px 5px;transition:background .12s';
   nameBtn.textContent = 'FIELD GUIDE';
   nameBtn.onmouseenter = () => { nameBtn.style.background = 'rgba(201,168,76,0.10)'; };
   nameBtn.onmouseleave = () => { nameBtn.style.background = ''; };
+  // Keyboard + screen-reader contract for the collapse control (WCAG 2.1.1 / 4.1.2):
+  // focusable, Enter/Space activate, aria-expanded reflects whether the key is shown.
+  nameBtn.setAttribute('role', 'button');
+  nameBtn.tabIndex = 0;
+  nameBtn.setAttribute('aria-expanded', 'true');
+  nameBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); nameBtn.click(); }
+  });
   h4.appendChild(nameBtn);
 
   // Arrow to the right of the name. Clicking it opens the layer toggle dropdown.
@@ -7366,11 +7361,14 @@ function initLegendCollapsible() {
   arrow.textContent = '▾';
   h4.appendChild(arrow);
 
-  // Clicking the layer NAME collapses / expands the legend body.
+  // Clicking the layer NAME collapses / expands ONLY the colour key (#legend-body),
+  // so Best This Month (a sibling in the wrap) stays visible.
   nameBtn.addEventListener('click', e => {
     e.stopPropagation();
-    const isCollapsed = wrap.classList.toggle('collapsed');
-    nameBtn.title = isCollapsed ? 'Click to expand' : 'Click to minimize';
+    const isCollapsed = body.classList.toggle('collapsed');
+    nameBtn.classList.toggle('key-collapsed', isCollapsed);   // drives the ::after caret
+    nameBtn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+    nameBtn.title = isCollapsed ? 'Click to show the colour key' : 'Click to minimize the colour key';
   });
 
   // Dropdown picker — shows all geographic layers
@@ -7481,7 +7479,7 @@ function _armBestAutoMinimize() {
     if (l) l.classList.remove('open');
     if (t) t.classList.remove('open');
     if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
-  }, 3000);
+  }, 5000);
 }
 function initBestPanelToggle() {
   const toggle = document.getElementById('best-toggle');
@@ -7491,7 +7489,9 @@ function initBestPanelToggle() {
     const isOpen = list.classList.contains('open');
     list.classList.toggle('open', !isOpen);
     toggle.classList.toggle('open', !isOpen);
-    if (!isOpen) _armBestAutoMinimize(); else _clearBestAutoMinimize();
+    // Explicit user action: never auto-minimize. Only the automatic first-load
+    // expand (autoExpandBestPanel) arms the 5s timer; a deliberate open stays open.
+    _clearBestAutoMinimize();
     if (typeof _syncNavActive === 'function') _syncNavActive('bestmonth');
   });
 }
@@ -8715,12 +8715,119 @@ function showBootError(msg) {
   updateZoomAnnotation();
   initTopbarToggle();
   initTripPlanner();
+  na_initSeaDecor();   // almanac sea flourishes (removable — see NA_SEA_DECOR block)
 
   } catch (err) {
     console.error('[Nomadic Almanac] Boot error:', err);
     showBootError(err.message || String(err));
   }
 })();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SEA DECORATIONS — almanac flourishes (compass rose, galleon, sea serpent,
+// leviathan, "HIC SVNT DRACONES"). Purely decorative line-art drawn in the open
+// ocean. They never cover information: pointer-events:none, on a low pane beneath
+// all data, and shown only at world/continent zoom (≤ 4).
+//
+// ░░ TO REMOVE EVERYTHING ("get rid of dragons and the like") ░░
+//   1. Set NA_SEA_DECOR = false below for an instant off-switch, OR
+//   2. Delete this entire block (down to "END SEA DECORATIONS"), the matching CSS
+//      block in style.css (search "SEA DECORATIONS"), and the na_initSeaDecor()
+//      call just above. Nothing else references these names.
+// ═══════════════════════════════════════════════════════════════════════════
+var NA_SEA_DECOR = true;
+var _naSeaDecorLayer = null;
+
+// Each SVG uses two classes: .nasd-stroke (gold outline) and .nasd-fill (faint wash).
+var _NA_SEA_ART = {
+  compass:
+    '<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">' +
+      '<circle class="nasd-line" cx="50" cy="50" r="36"/><circle class="nasd-line" cx="50" cy="50" r="27"/>' +
+      '<path class="nasd-fill" d="M50 6 L57 43 L50 50 L43 43 Z"/>' +
+      '<path class="nasd-stroke" d="M50 94 L43 57 L50 50 L57 57 Z"/>' +
+      '<path class="nasd-stroke" d="M6 50 L43 43 L50 50 L43 57 Z"/>' +
+      '<path class="nasd-stroke" d="M94 50 L57 57 L50 50 L57 43 Z"/>' +
+      '<path class="nasd-line" d="M24 24 L44 44 M76 24 L56 44 M76 76 L56 56 M24 76 L44 56"/>' +
+      '<text x="50" y="22" text-anchor="middle" font-size="11">N</text>' +
+    '</svg>',
+  ship:
+    '<svg viewBox="0 0 110 86" width="100%" height="100%" aria-hidden="true">' +
+      '<path class="nasd-stroke" d="M16 56 q39 16 78 0 l-9 13 q-30 8 -60 0 z"/>' +          // hull
+      '<path class="nasd-line" d="M37 56 V18 M55 56 V8 M73 56 V20"/>' +                      // masts
+      '<path class="nasd-fill" d="M37 22 q14 5 0 22 q-14 -5 0 -22z"/>' +                     // fore sail
+      '<path class="nasd-fill" d="M55 12 q16 7 0 30 q-16 -7 0 -30z"/>' +                     // main sail
+      '<path class="nasd-fill" d="M73 24 q12 5 0 18 q-12 -5 0 -18z"/>' +                     // aft sail
+      '<path class="nasd-line" d="M55 8 l7 -5" /><path class="nasd-line" d="M6 74 q9 -7 18 0 t18 0 t18 0 t18 0 t18 0"/>' + // pennant + waves
+    '</svg>',
+  serpent:
+    '<svg viewBox="0 0 170 70" width="100%" height="100%" aria-hidden="true">' +
+      '<path class="nasd-stroke" d="M6 46 q16 -30 32 0 q16 30 32 0 q16 -30 32 0 q12 22 26 6"/>' +   // humped body
+      '<path class="nasd-fill" d="M128 52 q12 -12 26 -8 q9 3 11 12 q-7 5 -14 2 q-3 6 -10 4 q-9 -3 -13 -10z"/>' + // head
+      '<circle class="nasd-dot" cx="145" cy="48" r="1.8"/>' +
+      '<path class="nasd-line" d="M158 44 l7 -4 M156 52 l8 1"/>' +                                    // jaw/fins
+      '<path class="nasd-line" d="M6 60 q10 -6 20 0 t20 0 t20 0 t20 0 t20 0"/>' +                     // waves
+    '</svg>',
+  whale:
+    '<svg viewBox="0 0 120 80" width="100%" height="100%" aria-hidden="true">' +
+      '<path class="nasd-fill" d="M14 48 q24 -24 60 -14 q16 4 24 -2 q-4 16 -22 16 q-30 8 -54 4 q-10 -2 -8 -4z"/>' + // body
+      '<path class="nasd-stroke" d="M94 34 q14 -10 22 -5 q-3 11 -14 13"/>' +                          // tail fluke
+      '<path class="nasd-line" d="M34 24 q-3 -12 4 -18 M34 24 q5 -12 -2 -18"/>' +                     // spout
+      '<circle class="nasd-dot" cx="30" cy="42" r="1.6"/>' +
+      '<path class="nasd-line" d="M8 62 q9 -6 18 0 t18 0 t18 0 t18 0 t18 0"/>' +                      // waves
+    '</svg>',
+  dracones:
+    '<svg viewBox="0 0 220 40" width="100%" height="100%" aria-hidden="true">' +
+      '<path class="nasd-line" d="M8 20 h28 M184 20 h28"/>' +
+      '<text x="110" y="26" text-anchor="middle" font-size="17" font-style="italic" letter-spacing="2">HIC SVNT DRACONES</text>' +
+    '</svg>',
+};
+
+// lat/lng in open ocean (no land, away from busy labels); size in px.
+var _NA_SEA_PLACEMENTS = [
+  { art: 'ship',     lat: 41,  lng: -41,  w: 74, h: 58 },   // North Atlantic
+  { art: 'serpent',  lat: 30,  lng: -158, w: 132, h: 54 },  // North Pacific
+  { art: 'whale',    lat: -40, lng: -118, w: 96, h: 64 },   // South Pacific
+  { art: 'compass',  lat: -34, lng: 82,   w: 70, h: 70 },   // South Indian Ocean
+  { art: 'dracones', lat: -38, lng: -22,  w: 170, h: 30 },  // South Atlantic
+  { art: 'serpent',  lat: 6,   lng: 70,   w: 120, h: 50 },  // equatorial Indian Ocean
+];
+
+function na_initSeaDecor() {
+  if (!NA_SEA_DECOR || typeof L === 'undefined' || !map || _naSeaDecorLayer) return;
+  if (!map.getPane('seaDecorPane')) {
+    map.createPane('seaDecorPane');
+    var pane = map.getPane('seaDecorPane');
+    pane.style.zIndex = '250';            // above basemap tiles, below land fills/markers
+    pane.style.pointerEvents = 'none';     // never intercept map interaction
+  }
+  _naSeaDecorLayer = L.layerGroup([], { pane: 'seaDecorPane' });
+  _NA_SEA_PLACEMENTS.forEach(function (pl) {
+    var svg = _NA_SEA_ART[pl.art];
+    if (!svg) return;
+    var icon = L.divIcon({
+      className: 'na-seadecor',
+      html: '<div class="na-seadecor-art na-seadecor-' + pl.art + '" style="width:' + pl.w + 'px;height:' + pl.h + 'px">' + svg + '</div>',
+      iconSize: [pl.w, pl.h],
+      iconAnchor: [pl.w / 2, pl.h / 2],
+    });
+    L.marker([pl.lat, pl.lng], { icon: icon, pane: 'seaDecorPane', interactive: false, keyboard: false }).addTo(_naSeaDecorLayer);
+  });
+  _naSeaDecorLayer.addTo(map);
+  na_updateSeaDecorVisibility();
+  map.on('zoomend', na_updateSeaDecorVisibility);
+}
+
+// Almanac art belongs to the world/continent view — hide it once the traveller
+// zooms in to do detailed work so it never competes with data.
+function na_updateSeaDecorVisibility() {
+  if (!map) return;
+  var pane = map.getPane('seaDecorPane');
+  if (!pane) return;
+  pane.style.display = (NA_SEA_DECOR && map.getZoom() <= 4) ? '' : 'none';
+}
+// ═══════════════════════════════════════════════════════════════════════════
+// END SEA DECORATIONS
+// ═══════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI MASTER BUILD v2 — NAVIGATION & PANEL MODULE
@@ -8845,9 +8952,10 @@ function _naAutoReResolve() {
 function na_initTheme() {
   var stored = null;
   try { stored = localStorage.getItem('na_theme'); } catch(e) {}
-  // New visitors open in DAY (light) so the almanac never launches in night
-  // mode; returning users keep whatever they last chose (light / dark / auto).
-  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'light');
+  // New visitors open in DARK menus (the satellite map still loads first via the
+  // _naBootstrapping guard, so only the chrome is dark). Returning users keep
+  // whatever they last chose (light / dark / auto).
+  na_applyTheme(stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'dark');
   // Re-check when the tab regains focus (e.g., left open past dusk).
   if (!_naThemeFocusBound) {
     _naThemeFocusBound = true;

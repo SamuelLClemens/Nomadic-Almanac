@@ -657,7 +657,6 @@ html, body {
   transition: max-height 0.3s ease, opacity 0.22s ease;
   opacity: 1;
 }
-#legend-body-wrap.collapsed { max-height: 0; opacity: 0; }
 
 /* Inner legend body — independently scrollable when many layers are active */
 #legend-body {
@@ -688,6 +687,13 @@ html, body {
   justify-content: center;
   text-align: center;
 }
+/* Disclosure caret next to the layer name → shows whether the colour key is open
+   (the ▾ box on the right is the layer picker, a separate control). */
+#legend-layer-btn::after {
+  content: '\25BE'; display: inline-block; margin-left: 6px;
+  font-size: 9px; opacity: 0.6; transition: transform .15s ease;
+}
+#legend-layer-btn.key-collapsed::after { transform: rotate(-90deg); opacity: 0.9; }
 .llp-item {
   font-family: var(--fm); font-size: 9px;
   padding: 6px 8px; cursor: pointer; border-radius: 6px;
@@ -707,11 +713,11 @@ html, body {
 }
 .lr {
   display: flex; align-items: center;
-  gap: 7px; margin-bottom: 5px;
+  gap: 8px; margin-bottom: 3px;   /* tighter rows → a more compact colour key */
 }
 .lsw {
-  width: 10px; height: 10px;
-  border-radius: 4px; flex-shrink: 0;
+  width: 8px; height: 8px;        /* smaller key swatch */
+  border-radius: 2px; flex-shrink: 0;
 }
 .lsw-diamond { width: 9px; height: 9px; flex-shrink: 0; transform: rotate(45deg); border-radius: 1px; }
 .lsw-line {
@@ -719,11 +725,46 @@ html, body {
   border-radius: 1px; flex-shrink: 0;
   margin: 3px 0; opacity: 0.8;
 }
-.llabel { font-size: 9px; color: var(--sand); line-height: 1.5; }
+.llabel { font-size: 11px; color: var(--sand); line-height: 1.45; font-weight: 500; letter-spacing: 0.2px; }
 .llabel-note {
   font-size: 8px; color: rgba(201,168,76,0.5);
   letter-spacing: .5px; margin-left: 6px;
 }
+
+/* Clicking the layer name collapses ONLY the colour key (Best This Month stays). */
+#legend-body { transition: max-height 0.28s ease, opacity 0.2s ease; }
+#legend-body.collapsed {
+  max-height: 0 !important; opacity: 0; overflow: hidden;
+  margin: 0; padding-top: 0; padding-bottom: 0;
+}
+
+/* ── Light-mode legend & menus: dark ink so text is readable on parchment ──
+   (in dark mode the sand/gold defaults above already have strong contrast). */
+[data-theme="light"] #legend {
+  background: rgba(244,237,216,0.94);
+  border-color: rgba(120,86,40,0.28);
+  border-left-color: rgba(150,110,50,0.55);
+  box-shadow: 0 8px 32px rgba(60,40,10,0.22);
+}
+[data-theme="light"] #legend h4,
+[data-theme="light"] #legend-title,
+[data-theme="light"] #legend-layer-btn { color: #6B4E1E; border-bottom-color: rgba(120,86,40,0.22); }
+[data-theme="light"] .llabel { color: #2E2008; }
+[data-theme="light"] .ll-name { color: #6B4E1E; border-bottom-color: rgba(120,86,40,0.2); }
+[data-theme="light"] #legend-collapse-arrow { color: #6B4E1E; background: rgba(120,86,40,0.12); }
+[data-theme="light"] .llabel-note { color: rgba(120,86,40,0.7); }
+[data-theme="light"] .legend-glyph-hint,
+[data-theme="light"] .legend-decode-key span { color: #5A4020 !important; }
+/* Layer-picker dropdown */
+[data-theme="light"] #legend-layer-picker { background: rgba(246,239,219,0.98); border-color: rgba(120,86,40,0.28); }
+[data-theme="light"] .llp-item { color: #2E2008; }
+[data-theme="light"] .llp-item:hover { background: rgba(120,86,40,0.12); }
+[data-theme="light"] .llp-item.active { background: rgba(201,168,76,0.22); color: #6B4E1E; }
+/* Best This Month panel (lives inside the legend) */
+[data-theme="light"] #best-toggle-label,
+[data-theme="light"] #best-toggle-arrow { color: #6B4E1E; }
+[data-theme="light"] #best-panel-list,
+[data-theme="light"] #best-panel-list li { color: #2E2008; }
 
 /* ─── Leaflet overrides ───────────────────────────────────────────────────── */
 .leaflet-control-zoom {
@@ -2931,3 +2972,25 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
   .mb, #btn-year, .cat-btn, .lb { min-height: 44px; }
   #na-tour-pop .tour-btn, #onboarding-hint .hint-btn { min-height: 44px; }
 }
+
+/* ═══════════════ SEA DECORATIONS (almanac flourishes) — REMOVABLE ═══════════════
+   Matching JS is in app.js (search "SEA DECORATIONS"). To remove everything:
+   delete this block + that JS block + the na_initSeaDecor() boot call, or set
+   NA_SEA_DECOR = false in app.js. Nothing else depends on these styles. */
+.na-seadecor { pointer-events: none !important; background: none !important; border: none !important; }
+.na-seadecor-art { opacity: 0.55; transition: opacity .4s ease; }
+.na-seadecor-art svg { display: block; width: 100%; height: 100%; overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55)); }
+.na-seadecor .nasd-stroke { fill: rgba(201,168,76,0.10); stroke: #c9a84c; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.na-seadecor .nasd-fill   { fill: rgba(201,168,76,0.16); stroke: #c9a84c; stroke-width: 1.3; stroke-linejoin: round; }
+.na-seadecor .nasd-line   { fill: none; stroke: rgba(201,168,76,0.72); stroke-width: 1.2; stroke-linecap: round; }
+.na-seadecor .nasd-dot    { fill: #c9a84c; }
+.na-seadecor text { fill: #c9a84c; font-family: var(--font-label, 'Cinzel', Georgia, serif); opacity: 0.8; }
+/* Light (parchment) mode: sepia ink so the art still reads on the lighter sea. */
+[data-theme="light"] .na-seadecor .nasd-stroke { stroke: #6B4E1E; fill: rgba(107,78,30,0.10); }
+[data-theme="light"] .na-seadecor .nasd-fill   { stroke: #6B4E1E; fill: rgba(107,78,30,0.16); }
+[data-theme="light"] .na-seadecor .nasd-line   { stroke: rgba(107,78,30,0.68); }
+[data-theme="light"] .na-seadecor .nasd-dot    { fill: #6B4E1E; }
+[data-theme="light"] .na-seadecor text { fill: #6B4E1E; }
+@media (prefers-reduced-motion: reduce) { .na-seadecor-art { transition: none; } }
+/* ═══════════════ END SEA DECORATIONS ═══════════════ */
