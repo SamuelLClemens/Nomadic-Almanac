@@ -2214,19 +2214,27 @@ function getAdmin1Rating(subCode, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
+    // Explicit CD_A1 overrides outrank the country scalar tables — a province
+    // entry only carries a layer when it meaningfully differs from the parent
+    // (e.g. Sulu safety:3 inside an otherwise-moderate Philippines).
+    const _ov = v => Array.isArray(v) ? getRating(v) : v;
     if (lk === 'cost') {
+      if (d1 && d1.cost != null) return _ov(d1.cost);
       if (typeof CD_COST !== 'undefined' && CD_COST[parentIso2] != null) return CD_COST[parentIso2];
       return d2 && d2.cost != null ? getRating(d2.cost) : null;
     }
     if (lk === 'safety') {
+      if (d1 && d1.safety != null) return _ov(d1.safety);
       if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[parentIso2] != null) return CD_SAFETY[parentIso2];
       return d2 && d2.safety != null ? getRating(d2.safety) : null;
     }
     if (lk === 'internet') {
+      if (d1 && d1.remote != null) return _ov(d1.remote);
       if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) return CD_INTERNET[parentIso2];
       return d2 && d2.remote != null ? getRating(d2.remote) : null;
     }
     if (lk === 'kids') {
+      if (d1 && d1.family != null) return _ov(d1.family);
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
       return d2 && d2.family != null ? getRating(d2.family) : null;
     }
@@ -2370,20 +2378,29 @@ function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
-    // Scalar tables first; fall back to CD arrays for broad coverage
+    // Explicit sub-national overrides (admin-2, then admin-1) outrank the
+    // country scalar tables; CD arrays remain the broad-coverage fallback.
+    const _ov2 = f => {
+      const v = (d2 && d2[f] != null) ? d2[f] : (d1 && d1[f] != null) ? d1[f] : null;
+      return v == null ? null : Array.isArray(v) ? getRating(v) : v;
+    };
     if (lk === 'cost') {
+      const ov = _ov2('cost'); if (ov != null) return ov;
       if (typeof CD_COST !== 'undefined' && CD_COST[parentIso2] != null) return CD_COST[parentIso2];
       return d0 && d0.cost != null ? getRating(d0.cost) : null;
     }
     if (lk === 'safety') {
+      const ov = _ov2('safety'); if (ov != null) return ov;
       if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[parentIso2] != null) return CD_SAFETY[parentIso2];
       return d0 && d0.safety != null ? getRating(d0.safety) : null;
     }
     if (lk === 'internet') {
+      const ov = _ov2('remote'); if (ov != null) return ov;
       if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) return CD_INTERNET[parentIso2];
       return d0 && d0.remote != null ? getRating(d0.remote) : null;
     }
     if (lk === 'kids') {
+      const ov = _ov2('family'); if (ov != null) return ov;
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
       return d0 && d0.family != null ? getRating(d0.family) : null;
     }
