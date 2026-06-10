@@ -1069,11 +1069,14 @@
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
-<!-- Heavy prose tables (facts, phrasebook, intel, …): async keeps them off the
-     boot critical path; app.js typeof-guards every consumer. -->
-<script async src="data-detail.js"></script>
-<!-- Admin-2 county tables: only the zoom>=6 county view reads these. -->
-<script async src="data-admin2.js"></script>
+<!-- Heavy split-out data tables. MUST be defer, not async: defer guarantees
+     document execution order, so these always run AFTER data.js — data-admin2.js
+     calls data.js's rep()/s12() helpers in its object literals and throws if it
+     wins the async race, leaving CD_A2 permanently uninitialized (TDZ).
+     Downloads still happen in parallel; rendering is not blocked, and app.js
+     typeof-guards every consumer so the map boots before these execute. -->
+<script defer src="data-detail.js"></script>
+<script defer src="data-admin2.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
