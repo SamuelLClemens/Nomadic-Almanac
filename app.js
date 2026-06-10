@@ -2847,6 +2847,11 @@ async function initAdmin1Choropleth() {
     // otherwise it stays hidden and onZoomAdmin1() enables it on first zoom.
     onZoomAdmin1();
 
+    // A view restored directly at county zoom (deep link / saved state) never
+    // fires a zoom change, and admin-2 discovery needs admin1ChoroLayer to
+    // exist — so evaluate it once here, now that the layer is on the map.
+    if (map.getZoom() >= 6) onZoomAdmin2();
+
   } catch (e) {
     console.warn('Admin-1 choropleth unavailable — falling back to country level:', e.message);
   }
@@ -8383,9 +8388,18 @@ function initPOILayers() {
     clearTimeout(_cityDebounce);
     _cityDebounce = setTimeout(() => { renderCityMarkers(); }, 200);
   });
+
+  // County (admin-2) layers used to load only on zoom CHANGES, so panning at
+  // constant zoom ≥ 6 into a new country left its counties unloaded.
+  // Re-evaluate on pan; the zoom guard keeps world-view panning free.
+  map.on('moveend', () => {
+    clearTimeout(_admin2MoveDebounce);
+    _admin2MoveDebounce = setTimeout(() => { if (map.getZoom() >= 6) onZoomAdmin2(); }, 300);
+  });
 }
 var _glyphDebounce = null;
 var _cityDebounce = null;
+var _admin2MoveDebounce = null;
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
