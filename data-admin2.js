@@ -6,9 +6,11 @@
 // out keeps ~2.3 MB raw off the boot-critical data.js. All access sites in
 // app.js typeof-guard both tables.
 // LOAD ORDER CONSTRAINT: this file calls data.js's rep()/s12() helpers inside
-// the CD_A2 literals, so its <script> tag must be `defer` (executes in document
-// order, after data.js) — NEVER `async`, which races data.js and, on a loss,
-// throws mid-script and strands CD_A2 in the temporal dead zone.
+// the CD_A2 literals, so it must execute AFTER data.js. It is NOT referenced
+// from index.html — app.js injects it at runtime on first county zoom
+// (_ensureAdmin2Tables), which guarantees the order by causality. If it is
+// ever put back in index.html it must be `defer`, NEVER `async` (an async
+// race loss throws mid-script and strands CD_A2 in the temporal dead zone).
 
 // Maps geoBoundaries shapeID → parent admin-1 ISO 3166-2 code (e.g. 'US-CA').
 // Used at runtime to resolve the three-level fallback: CD_A2 → CD_A1 → CD.

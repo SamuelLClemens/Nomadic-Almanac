@@ -2732,26 +2732,46 @@ function renderChoropleth() {
   });
 }
 
+// Restyle memo: setStyle on an SVG path rewrites DOM attributes, and a full
+// admin-1 + admin-2 pass touches up to ~5 700 paths (~140 ms per month click).
+// Two cuts keep that off the hot path: skip features outside the padded
+// viewport (off-screen paths go stale and are repainted by the debounced
+// moveend handler when panned into view), and skip features whose computed
+// style is unchanged (the per-layer _naStyleKey memo).
+function _pathStyleKey(st) {
+  return st.fillColor + '|' + st.fillOpacity + '|' + st.color + '|' + st.weight + '|' + (st.dashArray || '');
+}
+function _setPathStyle(layer, st) {
+  const key = _pathStyleKey(st);
+  if (layer._naStyleKey === key) return;
+  layer._naStyleKey = key;
+  layer.setStyle(st);
+}
+
 // Re-apply admin-1 styles when active layers or month selection changes
 function renderAdmin1Styles() {
   if (!admin1ChoroLayer) return;
+  const vb = map ? map.getBounds().pad(0.5) : null;
   admin1ChoroLayer.eachLayer(layer => {
     if (!layer.feature) return;
+    if (vb) { try { if (!vb.intersects(layer.getBounds())) return; } catch (_e) {} }
     const p = layer.feature.properties;
     const iso2 = getAdmin1Iso2(p);
     const subCode = getAdmin1Code(p);
-    if (iso2) layer.setStyle(getAdmin1Style(iso2, subCode, false));
+    if (iso2) _setPathStyle(layer, getAdmin1Style(iso2, subCode, false));
   });
 }
 
 function renderAdmin2Styles() {
+  const vb = map ? map.getBounds().pad(0.5) : null;
   Object.entries(_admin2Layers).forEach(([iso2, layer]) => {
     if (!layer) return;
     layer.eachLayer(sublayer => {
       if (!sublayer.feature) return;
+      if (vb) { try { if (!vb.intersects(sublayer.getBounds())) return; } catch (_e) {} }
       const shapeID  = sublayer.feature.properties.shapeID;
       const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
-      sublayer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
+      _setPathStyle(sublayer, getAdmin2Style(shapeID, parentA1, iso2, false));
     });
   });
 }
@@ -2949,10 +2969,33 @@ function getVisibleAdmin1Countries(bounds) {
     const iso2 = getAdmin1Iso2(sublayer.feature.properties);
     if (!iso2 || !ISO2_TO_ISO3[iso2]) return;
     try {
-      if (bounds.intersects(sublayer.getBounds())) visible.add(iso2);
+      const b = sublayer.getBounds();
+      // Antimeridian-spanning features (Alaska 359°, Chukotka 360°) have
+      // degenerate world-wide bounds that intersect EVERY viewport, which
+      // made the multi-MB USA/RUS county files download on any county zoom
+      // anywhere on Earth. Skip them — the US/RU stay discoverable through
+      // every one of their other admin-1 features.
+      if (b.getEast() - b.getWest() > 180) return;
+      if (bounds.intersects(b)) visible.add(iso2);
     } catch (_) { /* feature may not have bounds yet */ }
   });
   return visible;
+}
+
+// Lazily inject data-admin2.js (CD_A2 + CD_A2_PARENT, ~0.42 MB gz) the first
+// time the county view is actually entered. Injection at runtime guarantees
+// data.js's rep()/s12() helpers exist long before this script executes, and
+// every access site typeof-guards the tables, so counties simply paint with
+// admin-1/country fallback values until the tables land (the file's tail hook
+// then repaints). On a load error the guard resets so the next zoom retries.
+var _admin2TablesReq = null;
+function _ensureAdmin2Tables() {
+  if (typeof CD_A2 !== 'undefined' || _admin2TablesReq) return;
+  _admin2TablesReq = true;
+  var s = document.createElement('script');
+  s.src = 'data-admin2.js';
+  s.onerror = function () { _admin2TablesReq = null; };
+  document.head.appendChild(s);
 }
 
 function onZoomAdmin2() {
@@ -2966,6 +3009,7 @@ function onZoomAdmin2() {
     _coveredByAdmin2.clear();
     return;
   }
+  _ensureAdmin2Tables();
 
   const bounds  = map.getBounds();
   const visible = getVisibleAdmin1Countries(bounds);
@@ -8446,9 +8490,14 @@ function initPOILayers() {
   // County (admin-2) layers used to load only on zoom CHANGES, so panning at
   // constant zoom ≥ 6 into a new country left its counties unloaded.
   // Re-evaluate on pan; the zoom guard keeps world-view panning free.
+  // The restyle calls repaint any stale off-viewport paths (refresh() only
+  // styles in-viewport features) — the _naStyleKey memo makes them ~free.
   map.on('moveend', () => {
     clearTimeout(_admin2MoveDebounce);
-    _admin2MoveDebounce = setTimeout(() => { if (map.getZoom() >= 6) onZoomAdmin2(); }, 300);
+    _admin2MoveDebounce = setTimeout(() => {
+      if (map.getZoom() >= 5) renderAdmin1Styles();
+      if (map.getZoom() >= 6) { onZoomAdmin2(); renderAdmin2Styles(); }
+    }, 300);
   });
 }
 var _glyphDebounce = null;
