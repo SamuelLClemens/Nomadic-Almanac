@@ -590,7 +590,7 @@ var _I18N = {
     'nav.explore':'Explore','nav.journey':'Journey','nav.layers':'Layers','nav.settings':'Settings','nav.more':'More',
     'group.explore':'Explore','group.journey':'Your Journey','group.intelligence':'Intelligence','group.settings':'Settings',
     'hdr.search':'Search','hdr.theme':'Toggle day/night theme','hdr.share':'Share',
-    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to color the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
+    'welcome.title':'Welcome to the Nomadic Almanac','welcome.body':'Your interactive atlas of where to go and when. Tap any country to open its full travel guide — costs, safety, weather, visas, key phrases and more. Slide through the months to watch the seasons change, and switch on layers to compare the world your way.','welcome.sub':'Tip: zoom in for region and province detail, and pick your passport to colour the map by where you can travel visa-free.','welcome.tour':'Take the guided tour','welcome.explore':'Explore on my own','welcome.language':'Language','welcome.tutorial':'How it works','welcome.faq':'FAQ',
     'prefs.title':'Preferences','prefs.mapView':'Map View','prefs.labels':'Place Labels','prefs.units':'Units','prefs.temp':'Temperature','prefs.dist':'Distance','prefs.elev':'Elevation','prefs.dateFormat':'Date Format','prefs.clock':'Clock','prefs.language':'Language','prefs.currency':'Currency','prefs.theme':'Theme','prefs.tour':'Replay guided tour','prefs.tutorial':'Written tutorial','prefs.faq':'FAQ','prefs.on':'On','prefs.off':'Off','prefs.dark':'Dark','prefs.light':'Light','prefs.palette':'Colour-Blind Palette','prefs.auto':'Auto',
     'bm.satellite':'Satellite','bm.streets':'Streets','bm.dark':'Dark','bm.terrain':'Terrain','bm.night':'Night Lights',
     'doss.glance':'At a Glance','doss.emergency':'Emergency','doss.cost':'Cost of Living','doss.health':'Health','doss.climate':'Climate','doss.safety':'Safety','doss.tipping':'Tipping','doss.visa':'Visa Access','doss.timezone':'Time Zone','doss.holidays':'Holidays & Events','doss.history':'History','doss.phrasebook':'Phrasebook','doss.intel':'Country Intelligence','doss.language':'Language','doss.capital':'Capital','doss.population':'Population','doss.currency':'Currency','doss.languages':'Languages','doss.power':'Power','doss.calling':'Calling Code','doss.driving':'Driving','doss.region':'Region','doss.tapwater':'Tap Water','doss.etiquette':'Etiquette & Customs','doss.transport':'Getting Around','doss.connectivity':'Connectivity','doss.payments':'Money & Payments',
@@ -2223,11 +2223,25 @@ function getCountryRating(iso2) {
   return Math.max(...ratings);
 }
 
+// CD_A1 lookup honouring CD_A1_ALIAS: Natural Earth's iso_3166_2 codes follow
+// different subdivision conventions than the CD_A1 keys for several countries
+// (Chinese letter codes vs GB/T numeric, Spanish provinces vs communities,
+// French departments vs regions, Italian provinces vs regions, GB districts vs
+// home nations, plus legacy single codes). Without the alias those ~485
+// features silently fell back to city-derived/country values and a quarter of
+// the curated CD_A1 entries never painted.
+function _cdA1(code) {
+  if (!code || typeof CD_A1 === 'undefined') return null;
+  if (CD_A1[code]) return CD_A1[code];
+  const a = (typeof CD_A1_ALIAS !== 'undefined') ? CD_A1_ALIAS[code] : null;
+  return a ? (CD_A1[a] || null) : null;
+}
+
 // Like getCountryRating but checks CD_A1[subCode] first for province-specific
 // data, then falls back to CD[parentIso2] for any layer not overridden.
 // Uses worst-case aggregation (Math.max) — same rationale as getCountryRating.
 function getAdmin1Rating(subCode, parentIso2) {
-  const d1 = subCode ? CD_A1[subCode] : null;
+  const d1 = subCode ? _cdA1(subCode) : null;
   const d2 = CD[parentIso2];
   if (!d1 && !d2) return null;
   const layers = [...activeLayers];
@@ -2391,7 +2405,7 @@ function getAdmin1Style(iso2, subCode, hover) {
 // Uses the same worst-case (Math.max) aggregation as admin-1.
 function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
   const d2 = (typeof CD_A2 !== 'undefined' && shapeID) ? CD_A2[shapeID] : null;   // data-admin2.js may not have arrived yet
-  const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
+  const d1 = parentAdmin1Code ? _cdA1(parentAdmin1Code) : null;
   const d0 = CD[parentIso2];
   if (!d2 && !d1 && !d0) return null;
   const layers = [...activeLayers];
@@ -3043,32 +3057,46 @@ function _capitalCities() {
   return _capitalCitiesCache;
 }
 
-function renderCityMarkers() {
-  cityMarkers.forEach(m => m.remove());
-  cityMarkers = [];
+// City-marker pool: the wanted set is DIFFED against the existing markers
+// instead of destroy-all + rebuild. On a typical pan most markers carry over
+// untouched, and because makeMarkerIcon returns cached icon objects keyed by
+// pixel signature, an identity check makes "icon unchanged" a true no-op.
+let _cityMarkerPool = new Map();   // 'name|lat|lng' → L.Marker
 
+function renderCityMarkers() {
   const zoom = map.getZoom();
   // Three-tier reveal, calm at world view and progressively richer on zoom-in:
   //   • world view (zoom < 4)      → no city dots at all
   //   • first zoom step (zoom 4)   → country capitals only
   //   • zoomed in (zoom ≥ 5)       → every city dot
-  if (zoom < 4) return;
+  if (zoom < 4) {
+    if (_cityMarkerPool.size) {
+      _cityMarkerPool.forEach(m => m.remove());
+      _cityMarkerPool.clear();
+      cityMarkers = [];
+    }
+    return;
+  }
   const list = zoom < 5 ? _capitalCities() : CITIES;
-  // Viewport-gated like the glyph clusters: building DOM markers for all
-  // 3 850 cities costs ~800 ms per rebuild (and refresh() rebuilds on every
-  // month/layer change) while only the on-screen handful is ever visible.
-  // The pad(0.3) margin pre-builds just past the edges; a debounced moveend
-  // handler fills in newly panned-into areas.
+  // Viewport-gated like the glyph clusters: only cities inside the padded
+  // bounds get DOM markers; the debounced moveend handler fills in newly
+  // panned-into areas.
   const bounds = map.getBounds().pad(0.3);
-  _placeCities(list.filter(c => bounds.contains([c.lat, c.lng])));
-}
-
-function _placeCities(list) {
-  const zoom = map.getZoom();
+  const wanted = new Set();
   list.forEach(city => {
+    if (!bounds.contains([city.lat, city.lng])) return;
     const icon = makeMarkerIcon(city, zoom);
     if (!icon) return;
+    const key = city.name + '|' + city.lat + '|' + city.lng;
+    wanted.add(key);
+    const existing = _cityMarkerPool.get(key);
+    if (existing) {
+      // Same cached icon object → nothing changed → no DOM work at all.
+      if (existing._naIcon !== icon) { existing.setIcon(icon); existing._naIcon = icon; }
+      return;
+    }
     const marker = L.marker([city.lat, city.lng], { icon, pane: 'markersPane' });
+    marker._naIcon = icon;
 
     marker.on('click', e => {
       if (_placingPin) { _placeTripPinAt(city.lat, city.lng, city.name, city.country); return; }   // drop a pin on the city
@@ -3078,8 +3106,13 @@ function _placeCities(list) {
     });
 
     marker.addTo(map);
-    cityMarkers.push(marker);
+    _cityMarkerPool.set(key, marker);
   });
+  // Drop markers that left the wanted set (panned away / tier change).
+  _cityMarkerPool.forEach((m, key) => {
+    if (!wanted.has(key)) { m.remove(); _cityMarkerPool.delete(key); }
+  });
+  cityMarkers = [..._cityMarkerPool.values()];
 }
 
 // ─── Multi-Layer Glyph Overlay ────────────────────────────────────────────────
@@ -5495,7 +5528,7 @@ function _countryGuideBtn(iso2, countryName) {
 
 function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
   if (activeLayers.size === 0) return null;
-  const d1 = subCode ? CD_A1[subCode] : null;
+  const d1 = subCode ? _cdA1(subCode) : null;
   const d2 = CD[iso2];
   const merged = d1 ? Object.assign({}, d2, d1) : d2;
   const rows = merged
@@ -5514,7 +5547,7 @@ function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
 function buildAdmin2Tooltip(shapeID, parentAdmin1Code, iso2, districtName, stateName, countryName) {
   if (activeLayers.size === 0) return null;
   const d2 = (typeof CD_A2 !== 'undefined' && shapeID) ? CD_A2[shapeID] : null;   // data-admin2.js may not have arrived yet
-  const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
+  const d1 = parentAdmin1Code ? _cdA1(parentAdmin1Code) : null;
   const d0 = CD[iso2];
   // Merge with lowest-granularity data first so admin-2 overrides admin-1 overrides country
   const merged = Object.assign({}, d0 || {}, d1 || {}, d2 || {});
@@ -8505,6 +8538,23 @@ var _glyphDebounce = null;
 var _cityDebounce = null;
 var _admin2MoveDebounce = null;
 
+// Idle prefetch: warm the HTTP cache for the two big lazy assets so the first
+// zoom past province/county level feels instant instead of waiting on a
+// multi-MB fetch. Runs only after the window load event and during an idle
+// slot, so it never competes with boot work; failures are silently ignored
+// (the real lazy-load paths fetch normally and remain the source of truth).
+function _idlePrefetchHeavyAssets() {
+  var idle = window.requestIdleCallback || function (fn) { setTimeout(fn, 4000); };
+  idle(function () {
+    try {
+      fetch('data/admin1.geojson', { priority: 'low' }).catch(function () {});
+      fetch('data-admin2.js', { priority: 'low' }).catch(function () {});
+    } catch (e) {}
+  });
+}
+if (document.readyState === 'complete') _idlePrefetchHeavyAssets();
+else window.addEventListener('load', _idlePrefetchHeavyAssets, { once: true });
+
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
 // and map center is within NYC bounds. Uses static 2023 NYPD crime index data.
@@ -9654,6 +9704,15 @@ function na_openCountryDossier(iso2, noFly) {
   if (tt) { tt.setAttribute('tabindex', '-1'); setTimeout(function () { try { tt.focus(); } catch (e) {} }, 80); }
 }
 
+// Fly to a rated province/state found via search. Zoom 6 puts the admin-1
+// (and, where available, county) layers on screen — the zoom change triggers
+// their lazy loads — so the traveller lands on the painted province and can
+// click it for details or jump on to the full country guide.
+function na_openProvince(prov) {
+  if (!prov || !map) return;
+  map.flyTo(prov.center, 6, { duration: 1.2 });
+}
+
 // Fly to a city and open its tooltip. Used by the global search so the tour's
 // promise of "jump to any country, city, or layer" is actually fulfilled.
 function na_openCity(city) {
@@ -9723,6 +9782,8 @@ function na_initSearch() {
         na_openCountryDossier(m.key);   // fly to + open dossier (keyboard-reachable)
       } else if (m.type === 'city') {
         na_openCity(m.city);            // fly to + open the city tooltip
+      } else if (m.type === 'province') {
+        na_openProvince(m.prov);        // fly to the rated province/state
       }
     }
 
@@ -9749,6 +9810,22 @@ function na_initSearch() {
             matches.push({ type: 'layer', label: LAYERS[k].label || k, key: k });
           }
         });
+      }
+      // Search rated provinces/states (Bali, Tuscany, Palawan…) via the static
+      // ADMIN1_SEARCH index, so search needs neither the lazy admin-1 geojson
+      // nor a zoomed-in map.
+      if (typeof ADMIN1_SEARCH !== 'undefined') {
+        var _provHits = 0;
+        for (var pk in ADMIN1_SEARCH) {
+          if (_provHits >= 8) break;
+          var pv = ADMIN1_SEARCH[pk];
+          if (pv.n.toLowerCase().indexOf(q) !== -1 ||
+              (pv.a && pv.a.toLowerCase().indexOf(q) !== -1)) {
+            var _pcn = (typeof countryNames === 'object' && countryNames[pk.slice(0, 2)]) || pk.slice(0, 2);
+            matches.push({ type: 'province', label: pv.n + ', ' + _pcn, prov: { code: pk, name: pv.n, center: pv.c } });
+            _provHits++;
+          }
+        }
       }
       // Search cities (notable places) — fulfils the tour's "jump to any city".
       // Cap before render to keep the list responsive on the full CITIES array.

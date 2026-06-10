@@ -632,22 +632,28 @@ html, body {
 
 /* ─── Legend (Field Guide) ───────────────────────────────────────────────── */
 #legend {
-  position: absolute; bottom: 38px; left: 14px; z-index: 1000;
+  position: absolute; bottom: 30px; left: 12px; z-index: 1000;
   /* Frosted-glass legend: 84 % opaque so the map shows subtly through.
      backdrop-filter blur handles the see-through blur effect.
-     Text stays fully legible — sand on dark has strong contrast. */
+     Text stays fully legible — sand on dark has strong contrast.
+     COMPACT + STAY OUT OF THE WAY: chrome (padding, width, gaps) is kept
+     tight and the whole panel rests slightly translucent, returning to
+     full opacity on hover/focus. Text sizes are deliberately UNCHANGED. */
   background: rgba(14,11,6,0.84); border: 1px solid var(--b2);
   border-left: 2px solid rgba(201,168,76,0.35);
-  border-radius: 10px; padding: 13px 15px;
-  backdrop-filter: blur(22px); min-width: 210px; max-width: 260px;
-  display: none; box-shadow: 0 8px 32px rgba(0,0,0,.65);
+  border-radius: 9px; padding: 9px 11px;
+  backdrop-filter: blur(22px); min-width: 178px; max-width: 230px;
+  display: none; box-shadow: 0 6px 24px rgba(0,0,0,.55);
   font-family: var(--fm);
+  opacity: 0.88;
+  transition: opacity 0.18s ease;
 }
+#legend:hover, #legend:focus-within { opacity: 1; }
 /* Legend title — large, clickable, matches Best This Month toggle */
 #legend h4, #legend-title {
   font-size: 12px; font-weight: 700; color: var(--gold);
   text-transform: uppercase; letter-spacing: 1.5px;
-  margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--b1);
+  margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px solid var(--b1);
   cursor: pointer; user-select: none; text-align: center;
 }
 /* Collapsible body wrapper — handles the expand/collapse animation */
