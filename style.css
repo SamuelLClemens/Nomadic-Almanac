@@ -2950,3 +2950,36 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
   #na-tour-pop .tour-btn, #onboarding-hint .hint-btn { min-height: 44px; }
 }
 
+
+/* ── Country-guide button inside province/county tooltips ──────────────────── */
+.tt-open-country {
+  display: block;
+  width: 100%;
+  margin: 7px 0 3px;
+  padding: 6px 9px;
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 8px;
+  color: var(--gold, #c9a84c);
+  font-family: var(--fm, 'IBM Plex Mono', monospace);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.tt-open-country:hover,
+.tt-open-country:focus-visible {
+  background: rgba(201, 168, 76, 0.18);
+  border-color: rgba(201, 168, 76, 0.6);
+}
+[data-theme="light"] .tt-open-country {
+  color: #6b5212;
+  border-color: rgba(107, 82, 18, 0.4);
+  background: rgba(107, 82, 18, 0.06);
+}
+[data-theme="light"] .tt-open-country:hover,
+[data-theme="light"] .tt-open-country:focus-visible {
+  background: rgba(107, 82, 18, 0.14);
+}

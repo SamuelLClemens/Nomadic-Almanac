@@ -42,9 +42,10 @@ let _activeTooltipKey = null;
 let _tempUnit         = localStorage.getItem('na_temp') || 'C';   // 'C' or 'F' — persisted
 var _distUnit         = localStorage.getItem('na_dist') || 'km';  // 'km' or 'mi' — persisted
 var _elevUnit         = localStorage.getItem('na_elev') || 'm';   // 'm' or 'ft' — persisted
+var _rainUnit         = localStorage.getItem('na_rain') || 'mm';  // 'mm' or 'in' — persisted
 // Mirror unit prefs onto window so functions that read window._tempUnit (e.g. the
 // climate wheel) stay in sync with the lexically-scoped globals.
-if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; }
+if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; window._rainUnit = _rainUnit; }
 var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // basemap style
 var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
@@ -191,8 +192,21 @@ const POI_LAYERS = {
 const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria','tipping','parks']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
-// Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
-const getIso2 = p => (p && (p.ISO_A2 || p.iso_a2 || p['ISO3166-1-Alpha-2'])) || '';
+// Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2).
+// Natural Earth codes France/Norway/Kosovo/Taiwan as "-99" (or "CN-TW"); without a name
+// fallback those four real countries never resolve, so they neither colour nor open a
+// dossier even though their data exists. Genuine code-less territories (sovereign bases,
+// glaciers, Bir Tawil, …) stay unresolved on purpose.
+const _NE_ISO2_BY_NAME = { 'France': 'FR', 'Norway': 'NO', 'Kosovo': 'XK', 'Taiwan': 'TW' };
+const getIso2 = p => {
+  if (!p) return '';
+  const c = p.ISO_A2 || p.iso_a2 || p['ISO3166-1-Alpha-2'] || '';
+  if (c === '-99' || c.length !== 2) {
+    const n = p.name || p.NAME || p.ADMIN || p.admin || '';
+    if (_NE_ISO2_BY_NAME[n]) return _NE_ISO2_BY_NAME[n];
+  }
+  return c;
+};
 
 // Rounds map bounds to 2 dp (~1 km precision) and returns a cache key string.
 // Used by POI layers to avoid re-querying Overpass on tiny pans.
@@ -1082,17 +1096,22 @@ function _buildRouteLatLngs() {
   return out;
 }
 
+// The route must stay SVG even under map-wide preferCanvas: its marching-dots
+// effect is a CSS animation on the path element's stroke-dashoffset, and the
+// na-route-* classNames only exist on real DOM nodes.
+var _routeSvgRenderer = null;
 function _renderTripRouteLine() {
   if (!map) return;
   _clearTripRouteLine();
   if (!_tripPins || _tripPins.length < 2) return;
+  if (!_routeSvgRenderer) _routeSvgRenderer = L.svg({ pane: 'routePane' });
   const latlngs = _buildRouteLatLngs();
   _tripRouteCasing = L.polyline(latlngs, {
-    pane: 'routePane', interactive: false, className: 'na-route-casing',
+    pane: 'routePane', interactive: false, className: 'na-route-casing', renderer: _routeSvgRenderer,
     color: '#c9a84c', weight: 6, opacity: 0.16, lineCap: 'round', lineJoin: 'round',
   }).addTo(map);
   _tripRouteLine = L.polyline(latlngs, {
-    pane: 'routePane', interactive: false, className: 'na-route-flow',
+    pane: 'routePane', interactive: false, className: 'na-route-flow', renderer: _routeSvgRenderer,
     color: '#e8d5a3', weight: 2.4, opacity: 0.92, dashArray: '1 11', lineCap: 'round',
   }).addTo(map);
 }
@@ -1366,6 +1385,13 @@ function initMap() {
     maxZoom: 18,
     worldCopyJump: true,        // snap back to primary copy when panning past ±180°
     maxBoundsViscosity: 0.85,   // resist panning into blank polar/edge areas
+    // MUST stay false. preferCanvas was tried (2026-06-10) and reverted: with
+    // this app's stacked custom panes Leaflet creates one full-viewport canvas
+    // PER PANE, and only the topmost canvas under the cursor hit-tests its own
+    // layers — DOM clicks never reach the canvases beneath, which killed every
+    // country/admin-1/admin-2 polygon click (the politicalPane canvas sat over
+    // the choroplethPane). Re-enabling requires solving cross-canvas event
+    // forwarding first.
     preferCanvas: false,
   });
   window.naMap = map;   // expose Leaflet instance (window.map is the #map div) for URL view-state + tests
@@ -1433,7 +1459,13 @@ function initMap() {
 
   // Invalidate Leaflet's tile cache when the window is resized (orientation
   // change, panel resize) so tiles fill the new dimensions cleanly.
-  window.addEventListener('resize', () => { if (map) map.invalidateSize(); }, { passive: true });
+  // Debounced: invalidateSize() forces a full size recompute + pane reflow, and
+  // resize fires continuously during window drags / mobile orientation changes.
+  let _resizeDebounce = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeDebounce);
+    _resizeDebounce = setTimeout(() => { if (map) map.invalidateSize(); }, 150);
+  }, { passive: true });
 
   // Basemap tile configurations — satellite is the default; user can switch in Preferences.
   var BASEMAP_CONFIGS = {
@@ -2201,19 +2233,27 @@ function getAdmin1Rating(subCode, parentIso2) {
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
+    // Explicit CD_A1 overrides outrank the country scalar tables — a province
+    // entry only carries a layer when it meaningfully differs from the parent
+    // (e.g. Sulu safety:3 inside an otherwise-moderate Philippines).
+    const _ov = v => Array.isArray(v) ? getRating(v) : v;
     if (lk === 'cost') {
+      if (d1 && d1.cost != null) return _ov(d1.cost);
       if (typeof CD_COST !== 'undefined' && CD_COST[parentIso2] != null) return CD_COST[parentIso2];
       return d2 && d2.cost != null ? getRating(d2.cost) : null;
     }
     if (lk === 'safety') {
+      if (d1 && d1.safety != null) return _ov(d1.safety);
       if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[parentIso2] != null) return CD_SAFETY[parentIso2];
       return d2 && d2.safety != null ? getRating(d2.safety) : null;
     }
     if (lk === 'internet') {
+      if (d1 && d1.remote != null) return _ov(d1.remote);
       if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) return CD_INTERNET[parentIso2];
       return d2 && d2.remote != null ? getRating(d2.remote) : null;
     }
     if (lk === 'kids') {
+      if (d1 && d1.family != null) return _ov(d1.family);
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
       return d2 && d2.family != null ? getRating(d2.family) : null;
     }
@@ -2350,27 +2390,36 @@ function getAdmin1Style(iso2, subCode, hover) {
 // Three-level fallback: CD_A2[shapeID] → CD_A1[admin1Code] → CD[iso2].
 // Uses the same worst-case (Math.max) aggregation as admin-1.
 function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
-  const d2 = shapeID ? CD_A2[shapeID] : null;
+  const d2 = (typeof CD_A2 !== 'undefined' && shapeID) ? CD_A2[shapeID] : null;   // data-admin2.js may not have arrived yet
   const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
   const d0 = CD[parentIso2];
   if (!d2 && !d1 && !d0) return null;
   const layers = [...activeLayers];
   if (layers.length === 0) return null;
   const ratings = layers.map(lk => {
-    // Scalar tables first; fall back to CD arrays for broad coverage
+    // Explicit sub-national overrides (admin-2, then admin-1) outrank the
+    // country scalar tables; CD arrays remain the broad-coverage fallback.
+    const _ov2 = f => {
+      const v = (d2 && d2[f] != null) ? d2[f] : (d1 && d1[f] != null) ? d1[f] : null;
+      return v == null ? null : Array.isArray(v) ? getRating(v) : v;
+    };
     if (lk === 'cost') {
+      const ov = _ov2('cost'); if (ov != null) return ov;
       if (typeof CD_COST !== 'undefined' && CD_COST[parentIso2] != null) return CD_COST[parentIso2];
       return d0 && d0.cost != null ? getRating(d0.cost) : null;
     }
     if (lk === 'safety') {
+      const ov = _ov2('safety'); if (ov != null) return ov;
       if (typeof CD_SAFETY !== 'undefined' && CD_SAFETY[parentIso2] != null) return CD_SAFETY[parentIso2];
       return d0 && d0.safety != null ? getRating(d0.safety) : null;
     }
     if (lk === 'internet') {
+      const ov = _ov2('remote'); if (ov != null) return ov;
       if (typeof CD_INTERNET !== 'undefined' && CD_INTERNET[parentIso2] != null) return CD_INTERNET[parentIso2];
       return d0 && d0.remote != null ? getRating(d0.remote) : null;
     }
     if (lk === 'kids') {
+      const ov = _ov2('family'); if (ov != null) return ov;
       if (typeof CD_KIDS !== 'undefined' && CD_KIDS[parentIso2] != null) return CD_KIDS[parentIso2];
       return d0 && d0.family != null ? getRating(d0.family) : null;
     }
@@ -2683,26 +2732,46 @@ function renderChoropleth() {
   });
 }
 
+// Restyle memo: setStyle on an SVG path rewrites DOM attributes, and a full
+// admin-1 + admin-2 pass touches up to ~5 700 paths (~140 ms per month click).
+// Two cuts keep that off the hot path: skip features outside the padded
+// viewport (off-screen paths go stale and are repainted by the debounced
+// moveend handler when panned into view), and skip features whose computed
+// style is unchanged (the per-layer _naStyleKey memo).
+function _pathStyleKey(st) {
+  return st.fillColor + '|' + st.fillOpacity + '|' + st.color + '|' + st.weight + '|' + (st.dashArray || '');
+}
+function _setPathStyle(layer, st) {
+  const key = _pathStyleKey(st);
+  if (layer._naStyleKey === key) return;
+  layer._naStyleKey = key;
+  layer.setStyle(st);
+}
+
 // Re-apply admin-1 styles when active layers or month selection changes
 function renderAdmin1Styles() {
   if (!admin1ChoroLayer) return;
+  const vb = map ? map.getBounds().pad(0.5) : null;
   admin1ChoroLayer.eachLayer(layer => {
     if (!layer.feature) return;
+    if (vb) { try { if (!vb.intersects(layer.getBounds())) return; } catch (_e) {} }
     const p = layer.feature.properties;
     const iso2 = getAdmin1Iso2(p);
     const subCode = getAdmin1Code(p);
-    if (iso2) layer.setStyle(getAdmin1Style(iso2, subCode, false));
+    if (iso2) _setPathStyle(layer, getAdmin1Style(iso2, subCode, false));
   });
 }
 
 function renderAdmin2Styles() {
+  const vb = map ? map.getBounds().pad(0.5) : null;
   Object.entries(_admin2Layers).forEach(([iso2, layer]) => {
     if (!layer) return;
     layer.eachLayer(sublayer => {
       if (!sublayer.feature) return;
+      if (vb) { try { if (!vb.intersects(sublayer.getBounds())) return; } catch (_e) {} }
       const shapeID  = sublayer.feature.properties.shapeID;
-      const parentA1 = CD_A2_PARENT[shapeID] || null;
-      sublayer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
+      const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
+      _setPathStyle(sublayer, getAdmin2Style(shapeID, parentA1, iso2, false));
     });
   });
 }
@@ -2791,6 +2860,10 @@ async function initAdmin1Choropleth() {
           _featureClicked = true;
           const html = buildAdmin1Tooltip(iso2, subCode, stateName, countryName);
           if (html) toggleTooltip('admin1:' + subCode, html, e.originalEvent.clientX, e.originalEvent.clientY);
+          // No active layers → no province tooltip; the click still deserves an
+          // answer, so open the country guide (the country polygon underneath
+          // is hidden for CD_A1-covered countries and can never get this click).
+          else na_openCountryDossier(iso2, true);
           setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
@@ -2800,6 +2873,11 @@ async function initAdmin1Choropleth() {
     // If we are already at zoom ≥ 5 the layer will show immediately;
     // otherwise it stays hidden and onZoomAdmin1() enables it on first zoom.
     onZoomAdmin1();
+
+    // A view restored directly at county zoom (deep link / saved state) never
+    // fires a zoom change, and admin-2 discovery needs admin1ChoroLayer to
+    // exist — so evaluate it once here, now that the layer is on the map.
+    if (map.getZoom() >= 6) onZoomAdmin2();
 
   } catch (e) {
     console.warn('Admin-1 choropleth unavailable — falling back to country level:', e.message);
@@ -2840,12 +2918,12 @@ async function loadAdmin2Country(iso2) {
       pane: 'admin2Pane',
       style: feature => {
         const shapeID  = feature.properties.shapeID;
-        const parentA1 = CD_A2_PARENT[shapeID] || null;
+        const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
         return getAdmin2Style(shapeID, parentA1, iso2, false);
       },
       onEachFeature: (feature, layer) => {
         const shapeID  = feature.properties.shapeID;
-        const parentA1 = CD_A2_PARENT[shapeID] || null;
+        const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
         const distName = feature.properties.shapeName || '';
 
         layer.on('mouseover', () => {
@@ -2861,6 +2939,9 @@ async function loadAdmin2Country(iso2) {
           const countryName = countryNames[iso2] || iso2;
           const html = buildAdmin2Tooltip(shapeID, parentA1, iso2, distName, stateName, countryName);
           if (html) toggleTooltip('admin2:' + shapeID, html, e.originalEvent.clientX, e.originalEvent.clientY);
+          // Same fallback as admin-1: with no active layers, a county click
+          // opens the country guide instead of doing nothing.
+          else na_openCountryDossier(iso2, true);
           setTimeout(() => { _featureClicked = false; }, 10);
         });
       },
@@ -2888,10 +2969,33 @@ function getVisibleAdmin1Countries(bounds) {
     const iso2 = getAdmin1Iso2(sublayer.feature.properties);
     if (!iso2 || !ISO2_TO_ISO3[iso2]) return;
     try {
-      if (bounds.intersects(sublayer.getBounds())) visible.add(iso2);
+      const b = sublayer.getBounds();
+      // Antimeridian-spanning features (Alaska 359°, Chukotka 360°) have
+      // degenerate world-wide bounds that intersect EVERY viewport, which
+      // made the multi-MB USA/RUS county files download on any county zoom
+      // anywhere on Earth. Skip them — the US/RU stay discoverable through
+      // every one of their other admin-1 features.
+      if (b.getEast() - b.getWest() > 180) return;
+      if (bounds.intersects(b)) visible.add(iso2);
     } catch (_) { /* feature may not have bounds yet */ }
   });
   return visible;
+}
+
+// Lazily inject data-admin2.js (CD_A2 + CD_A2_PARENT, ~0.42 MB gz) the first
+// time the county view is actually entered. Injection at runtime guarantees
+// data.js's rep()/s12() helpers exist long before this script executes, and
+// every access site typeof-guards the tables, so counties simply paint with
+// admin-1/country fallback values until the tables land (the file's tail hook
+// then repaints). On a load error the guard resets so the next zoom retries.
+var _admin2TablesReq = null;
+function _ensureAdmin2Tables() {
+  if (typeof CD_A2 !== 'undefined' || _admin2TablesReq) return;
+  _admin2TablesReq = true;
+  var s = document.createElement('script');
+  s.src = 'data-admin2.js';
+  s.onerror = function () { _admin2TablesReq = null; };
+  document.head.appendChild(s);
 }
 
 function onZoomAdmin2() {
@@ -2905,6 +3009,7 @@ function onZoomAdmin2() {
     _coveredByAdmin2.clear();
     return;
   }
+  _ensureAdmin2Tables();
 
   const bounds  = map.getBounds();
   const visible = getVisibleAdmin1Countries(bounds);
@@ -2948,8 +3053,14 @@ function renderCityMarkers() {
   //   • first zoom step (zoom 4)   → country capitals only
   //   • zoomed in (zoom ≥ 5)       → every city dot
   if (zoom < 4) return;
-  if (zoom < 5) { _placeCities(_capitalCities()); return; }
-  _placeCities(CITIES);
+  const list = zoom < 5 ? _capitalCities() : CITIES;
+  // Viewport-gated like the glyph clusters: building DOM markers for all
+  // 3 850 cities costs ~800 ms per rebuild (and refresh() rebuilds on every
+  // month/layer change) while only the on-screen handful is ever visible.
+  // The pad(0.3) margin pre-builds just past the edges; a debounced moveend
+  // handler fills in newly panned-into areas.
+  const bounds = map.getBounds().pad(0.3);
+  _placeCities(list.filter(c => bounds.contains([c.lat, c.lng])));
 }
 
 function _placeCities(list) {
@@ -4568,19 +4679,20 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(
 // Silently no-ops if localStorage is unavailable (private browsing, quota full).
 function saveState() {
   try {
-    localStorage.setItem('na_month',       String(activeMonth));
     localStorage.setItem('na_layers',      JSON.stringify([...activeLayers]));
     localStorage.setItem('na_nationality', selectedNationality || '');
   } catch (_) {}
 }
 function loadState() {
   try {
-    const m = localStorage.getItem('na_month');
-    if (m !== null) { const n = parseInt(m); if (!isNaN(n) && n >= 0 && n <= 11) activeMonth = n; }
-    // Clean open: activeLayers is intentionally NOT seeded from localStorage, so a
-    // bare visit always opens on clean satellite. The choropleth colors only when
-    // the user chooses a layer, or when a shared URL hash restores one (see
-    // initURLState). Month, nationality, units and basemap still persist.
+    // The month is intentionally NOT persisted: the almanac always opens on the
+    // REAL current month (activeMonth defaults to new Date().getMonth()), so a
+    // traveller opening the app in October sees October. Only an explicit URL
+    // hash (#month=N — shared links, mid-session reloads) overrides it via
+    // initURLState. Clean open: activeLayers is likewise NOT seeded from
+    // localStorage, so a bare visit always opens on clean satellite.
+    // Nationality, units and basemap still persist.
+    localStorage.removeItem('na_month');   // clear the legacy persisted month
     const nat = localStorage.getItem('na_nationality');
     if (nat) selectedNationality = nat;
   } catch (_) {}
@@ -4668,6 +4780,33 @@ function toggleTempUnit() {
   });
 }
 
+// Format a rainfall amount (mm) in the active rain unit; the unit suffix is a
+// small styled span matching the climate-card typography.
+function _fmtRainHTML(mm) {
+  const suffix = s => `<span style="font-size:10px;font-weight:400;opacity:0.7">${s}</span>`;
+  if (_rainUnit === 'in') {
+    const inches = mm / 25.4;
+    return (inches >= 10 ? Math.round(inches) : inches.toFixed(1)) + suffix('in');
+  }
+  return Math.round(mm) + suffix('mm');
+}
+
+// Toggles the rainfall unit (mm ↔ in) in the currently visible tooltip.
+// Same in-place mechanism as toggleTempUnit: data-mm spans, no re-render.
+function toggleRainUnit() {
+  _rainUnit = _rainUnit === 'mm' ? 'in' : 'mm';
+  try { localStorage.setItem('na_rain', _rainUnit); } catch (e) {}
+  if (typeof window !== 'undefined') window._rainUnit = _rainUnit;
+  document.querySelectorAll('.tt-rain-val').forEach(el => {
+    const mm = parseFloat(el.dataset.mm);
+    if (!isNaN(mm)) el.innerHTML = _fmtRainHTML(mm);
+  });
+  document.querySelectorAll('.tt-rain-btn').forEach(el => {
+    el.textContent = _rainUnit === 'mm' ? '→in' : '→mm';
+    el.title = _rainUnit === 'mm' ? 'Switch to inches' : 'Switch to millimetres';
+  });
+}
+
 // ─── Master unit system (temperature + distance + elevation together) ───────────
 // A single control in the dossier flips every measurement between metric and
 // imperial, persists each unit, syncs the in-page/preferences toggles, and
@@ -4678,12 +4817,14 @@ function na_setUnitSystem(sys) {
   _tempUnit = imp ? 'F'  : 'C';
   _distUnit = imp ? 'mi' : 'km';
   _elevUnit = imp ? 'ft' : 'm';
+  _rainUnit = imp ? 'in' : 'mm';
   try {
     localStorage.setItem('na_temp', _tempUnit);
     localStorage.setItem('na_dist', _distUnit);
     localStorage.setItem('na_elev', _elevUnit);
+    localStorage.setItem('na_rain', _rainUnit);
   } catch (_e) {}
-  if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; }
+  if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; window._rainUnit = _rainUnit; }
   var distBtn = document.getElementById('btn-dist-unit');
   if (distBtn) distBtn.textContent = _distUnit;
   if (typeof na_syncPrefsUI === 'function') { try { na_syncPrefsUI(); } catch (_e) {} }
@@ -4856,8 +4997,10 @@ function buildWeatherDetails(iso2) {
     : (avgTempC + '°C');
   const unitLabel = _tempUnit === 'C' ? '→°F' : '→°C';
   const unitTitle = _tempUnit === 'C' ? 'Switch to Fahrenheit' : 'Switch to Celsius';
+  const rainLabel = _rainUnit === 'mm' ? '→in' : '→mm';
+  const rainTitle = _rainUnit === 'mm' ? 'Switch to inches' : 'Switch to millimetres';
 
-  // Determine rainfall emoji
+  // Determine rainfall emoji (thresholds are mm regardless of display unit)
   const rainEmoji = avgRain < 20 ? '☀️' : avgRain < 80 ? '🌤' : avgRain < 180 ? '🌧' : '⛈';
 
   // Seasonal events for this country + month(s)
@@ -4914,7 +5057,8 @@ function buildWeatherDetails(iso2) {
       </div>
       <div style="flex:1;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:6px;padding:7px 9px;text-align:center">
         <div style="font-size:7.5px;color:rgba(96,165,250,0.65);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">AVG RAINFALL</div>
-        <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} ${avgRain}<span style="font-size:10px;font-weight:400;opacity:0.7">mm</span></div>
+        <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} <span class="tt-rain-val" data-mm="${avgRain}">${_fmtRainHTML(avgRain)}</span></div>
+        <button class="tt-rain-btn" onclick="toggleRainUnit()" title="${rainTitle}" style="margin-top:5px;font-size:7px;color:#93c5fd;background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${rainLabel}</button>
       </div>
     </div>
     ${solarHtml}
@@ -5339,6 +5483,16 @@ function buildBorderTooltip(bc) {
   </div>`;
 }
 
+// Clickable path back to the COUNTRY from a sub-national tooltip: once a
+// covered country's provinces/counties intercept map clicks, this button is
+// how the traveller still reaches the full country guide.
+function _countryGuideBtn(iso2, countryName) {
+  if (!/^[A-Za-z]{2}$/.test(iso2 || '')) return '';
+  const flag = getFlag(iso2);
+  return `<button type="button" class="tt-open-country" onclick="na_openCountryDossier('${iso2}', true)">` +
+    `${flag ? flag + ' ' : ''}${_esc(countryName || iso2)} · ${_esc(_t('tt.countryGuide'))} →</button>`;
+}
+
 function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
   if (activeLayers.size === 0) return null;
   const d1 = subCode ? CD_A1[subCode] : null;
@@ -5353,12 +5507,13 @@ function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
     <div class="ts" id="tt-sub">${stateName ? countryName : iso2}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
+  ${_countryGuideBtn(iso2, countryName)}
   <div class="ttb" id="tt-body">${rows}</div>`;
 }
 
 function buildAdmin2Tooltip(shapeID, parentAdmin1Code, iso2, districtName, stateName, countryName) {
   if (activeLayers.size === 0) return null;
-  const d2 = shapeID ? CD_A2[shapeID] : null;
+  const d2 = (typeof CD_A2 !== 'undefined' && shapeID) ? CD_A2[shapeID] : null;   // data-admin2.js may not have arrived yet
   const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
   const d0 = CD[iso2];
   // Merge with lowest-granularity data first so admin-2 overrides admin-1 overrides country
@@ -5373,6 +5528,7 @@ function buildAdmin2Tooltip(shapeID, parentAdmin1Code, iso2, districtName, state
     <div class="ts" id="tt-sub">${sub}</div>
     <div class="tm" id="tt-period">${periodLabel()}</div>
   </div>
+  ${_countryGuideBtn(iso2, countryName)}
   <div class="ttb" id="tt-body">${rows}</div>`;
 }
 
@@ -6771,7 +6927,7 @@ function buildClimateWheelSection(iso2) {
   const seasonSummary = `<div style="margin-top:4px;font-size:6px;color:rgba(232,213,163,0.45);letter-spacing:0.8px">${seasonLine}</div>`;
 
   return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
-    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL mm / TEMP ${useFahrenheit ? '&deg;F' : '&deg;C'}</div>
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL ${_rainUnit} / TEMP ${useFahrenheit ? '&deg;F' : '&deg;C'}</div>
     <div style="display:flex;gap:1px;align-items:flex-end">${bars}</div>
     ${chipsSection}
     ${seasonSummary}
@@ -8324,8 +8480,30 @@ function initPOILayers() {
     clearTimeout(_glyphDebounce);
     _glyphDebounce = setTimeout(() => { renderLayerGlyphs(); }, 200);
   });
+
+  // City dots are viewport-gated too — rebuild on pan so newly visible areas
+  // get their markers. No-op below zoom 4 (renderCityMarkers early-returns).
+  map.on('moveend', () => {
+    clearTimeout(_cityDebounce);
+    _cityDebounce = setTimeout(() => { renderCityMarkers(); }, 200);
+  });
+
+  // County (admin-2) layers used to load only on zoom CHANGES, so panning at
+  // constant zoom ≥ 6 into a new country left its counties unloaded.
+  // Re-evaluate on pan; the zoom guard keeps world-view panning free.
+  // The restyle calls repaint any stale off-viewport paths (refresh() only
+  // styles in-viewport features) — the _naStyleKey memo makes them ~free.
+  map.on('moveend', () => {
+    clearTimeout(_admin2MoveDebounce);
+    _admin2MoveDebounce = setTimeout(() => {
+      if (map.getZoom() >= 5) renderAdmin1Styles();
+      if (map.getZoom() >= 6) { onZoomAdmin2(); renderAdmin2Styles(); }
+    }, 300);
+  });
 }
 var _glyphDebounce = null;
+var _cityDebounce = null;
+var _admin2MoveDebounce = null;
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
@@ -9457,10 +9635,12 @@ function na_initMoreSheet() {
 // ── Global search overlay ─────────────────────────────────────────────────
 // Fly to a country and open its dossier, mirroring a map click but reachable from
 // the keyboard (search results). Moves focus into the dossier for accessibility.
-function na_openCountryDossier(iso2) {
+// noFly: opened from a province/county tooltip while the traveller is already
+// looking at the country — keep their view instead of yanking out to zoom 5.
+function na_openCountryDossier(iso2, noFly) {
   if (!iso2 || typeof buildCountryTooltip !== 'function' || typeof toggleTooltip !== 'function') return;
   var center = (typeof COUNTRY_CENTERS !== 'undefined' && COUNTRY_CENTERS[iso2]) || null;
-  if (center && map) map.flyTo(center, 5, { duration: 1.0 });
+  if (!noFly && center && map) map.flyTo(center, 5, { duration: 1.0 });
   var html = buildCountryTooltip(iso2);
   if (!html) return;
   // No click coordinates from search — anchor the dossier over the map.
@@ -11034,4 +11214,20 @@ Object.assign(_I18N, {
   "ja": { "layer.weather": "天気", "layer.safety": "治安", "layer.cost": "物価", "layer.family": "家族向け", "layer.solo": "女性ひとり旅", "layer.remote": "リモートワーク", "layer.internet": "インターネット", "layer.corrupt": "汚職", "layer.health": "健康リスク", "layer.crowds": "観光過密", "layer.disaster": "自然災害", "layer.visa": "ビザの取りやすさ", "layer.strength": "パスポートの強さ", "layer.lgbtq": "LGBTQ+", "layer.beaches": "公共ビーチ", "layer.vaccines": "ワクチン", "layer.road": "交通安全", "layer.events": "季節のイベント", "layer.kids": "子連れ向け", "layer.parks": "国立公園", "layer.cannabis": "大麻の法律", "layer.tipping": "チップ文化", "layer.nomad": "ノマドスコア", "layer.english": "英語の通じやすさ", "layer.healthcare": "医療の質", "layer.tapwater": "水道水の安全性", "layer.airquality": "大気の質", "layer.femalesafety": "女性ひとり旅の安全度", "layer.nightlife": "ナイトライフ・社交", "layer.scam": "詐欺リスク", "layer.malaria": "マラリア・蚊のリスク", "layer.elevation": "標高・地形", "cat.health-safety": "健康・安全", "cat.lifestyle": "ライフスタイル", "cat.local-info": "現地情報", "cat.environment": "環境", "tour.0.title": "Almanac へようこそ", "tour.0.body": "「どこへ、いつ行くか」がわかる、生きた世界地図です。まずは基本機能をさっとご案内します。1分ほどで終わります。", "tour.1.title": "世界地図", "tour.1.body": "気になる国をクリックすると、詳しい旅行ガイドが開きます。光る点は注目の都市です。ズームインすると、さらに多くの都市、続いて州や県、市区町村が表示されます。", "tour.2.title": "一年を通して旅する", "tour.2.body": "月を切り替えると、気候・混雑・物価の移り変わりが見えてきます。地図の色は、選んだ月の状況に合わせて変化します。", "tour.3.title": "国情報レイヤー", "tour.3.body": "天気、治安、物価、ビザ、イベントなど、さまざまなレイヤーを切り替えられます。1つだけなら地図全体を塗り分け、複数を重ねると、それぞれが色付きのチップとして表示されます。", "tour.4.title": "あなたのパスポート", "tour.4.body": "国籍を選ぶと、入国のしやすさ（ビザ不要からビザ必須まで）に応じて、各国が塗り分けられます。", "tour.5.title": "旅行プランを立てる", "tour.5.body": "旅行プランナーを開いて「ピンを追加」を押し、地図をクリックして経由地を置きましょう。ルート線が旅程をつなぎ、共有や持ち物の準備もできます。", "tour.6.title": "昼と夜", "tour.6.body": "昼の地図と夜の地図を切り替えられます。夜にすると、宇宙から見た都市の灯りで地図を輝かせることもできます。", "tour.7.title": "何でも検索", "tour.7.body": "どの国・都市・レイヤーにも瞬時に移動できます。いつでも Cmd-K（または / ）を押してください。", "tour.8.title": "さあ、旅に出かけましょう", "tour.8.body": "ツアーは以上です。設定からいつでも見直せます。よい旅を！", "tut.0.title": "世界地図", "tut.0.body": "Almanac は衛星ビューで開きます。ドラッグで移動、スクロールやピンチでズームできます。光る点は注目の都市を示し、ズームインするにつれて、さらに多くの都市、続いて州や県、市区町村が表示されます。", "tut.1.title": "国別ガイドを開く", "tut.1.body": "気になる国をタップすると旅行ガイドが開きます。緊急連絡先、通貨、電源プラグ、フレーズ集、気候、生活費、治安、ビザの取りやすさ、簡単な歴史、そして国情報の概要を確認できます。各セクションは折りたたみ・展開できます。", "tut.2.title": "単位と通貨", "tut.2.body": "国別ガイド内では、1つの切り替えですべての単位を一括変更できます（摂氏／華氏、km／マイル、m／フィート）。設定で通貨を選ぶと、日付入りの為替レートをもとに、すべての金額が自動で換算されます。", "tut.3.title": "国情報レイヤー", "tut.3.body": "下部メニューから「レイヤー」を開き、天気、治安、物価、ビザ、イベントなどを切り替えましょう。1つだけならスコアに応じて地図を塗り分けます。複数を重ねると、各国にレイヤーごとの色付きチップが1つずつ表示され、その場で比べられます。", "tut.4.title": "一年を通して旅する", "tut.4.body": "月を切り替えると、気候・混雑・物価の移り変わりが見えてきます。地図の色は、選んだ月の状況に合わせて変化します。", "tut.5.title": "あなたのパスポート", "tut.5.body": "国籍を選ぶと、入国のしやすさ（ビザ不要からビザ必須まで）に応じて、各国が塗り分けられます。", "tut.6.title": "計画と比較", "tut.6.body": "旅行プランナーを開いて「ピンを追加」を押し、地図をクリックして経由地を置きましょう。ルート線が旅程をつなぎます。国どうしを並べて比べたり、検索アイコンや Cmd-K／Ctrl-K のショートカットで何でも検索できます。", "tut.7.title": "自分好みにカスタマイズ", "tut.7.body": "設定では、言語、通貨、単位、マップ表示、地名ラベル、ガイドツアーを管理できます。言語は、ようこそ画面の国旗から、または設定からいつでも選べます。", "faq.0.q": "Nomadic Almanac は無料で使えますか？", "faq.0.a": "はい。すべてブラウザ内で動作し、アカウント登録も不要です。", "faq.1.q": "オフラインでも使えますか？", "faq.1.a": "おおむね使えます。主要なデータは内蔵・キャッシュされているため、初回アクセス後は接続がなくても地図や国別ガイドを利用できます。リアルタイムの交通情報や事故情報などのライブ表示には接続が必要です。", "faq.2.q": "情報はどのくらい新しいですか？", "faq.2.a": "チャートデータの日付はサイドバーに表示されており（現在は2026年6月）、為替レートも日付入りのスナップショットです。緊急連絡先、プラグの形状、電圧といった安全に関わる情報は、信頼できる情報源と照合して確認しています。", "faq.3.q": "旅行に関する案内はどのくらい正確ですか？", "faq.3.a": "丁寧に編集・確認していますが、あくまで一般的な案内です。出発前には、ビザ、予防接種、水道水の安全性、緊急連絡先を必ず公式の情報源でご確認ください。", "faq.4.q": "言語を変更できますか？", "faq.4.a": "はい。ようこそ画面または設定の国旗ピッカーをご利用ください。インターフェースはお使いのブラウザの言語が初期設定となり、翻訳がない場合は英語が表示されます。", "faq.5.q": "通貨を変更できますか？", "faq.5.a": "はい。設定で指定すると、日付入りの為替レートをもとに、すべての金額がお好みの通貨に換算されます。", "faq.6.q": "複数のレイヤーを同時に見るにはどうすればよいですか？", "faq.6.a": "複数のレイヤーをオンにすると、各国に有効なレイヤーごとの小さな色付きチップが1つずつ表示されます。下の地図を隠すことなく比べられます。", "faq.7.q": "自分のデータは保護されますか？", "faq.7.a": "はい。設定、旅行のピン、日記の記録は、すべてお使いのブラウザ内にのみ保存されます。サーバーへ送信されることはなく、初期表示の言語も IP アドレスではなくブラウザから読み取っています。", "faq.8.q": "このヘルプをもう一度開くにはどうすればよいですか？", "faq.8.a": "設定を開き、「文章チュートリアル」「FAQ」「ガイドツアーを再生」からいつでもお選びいただけます。" },
   "ru": { "layer.weather": "Погода", "layer.safety": "Безопасность", "layer.cost": "Стоимость", "layer.family": "Для семьи", "layer.solo": "Соло (женщины)", "layer.remote": "Удалённая работа", "layer.internet": "Интернет", "layer.corrupt": "Коррупция", "layer.health": "Риск здоровью", "layer.crowds": "Наплыв туристов", "layer.disaster": "Стихийные бедствия", "layer.visa": "Визовый режим", "layer.strength": "Сила паспорта", "layer.lgbtq": "ЛГБТК+", "layer.beaches": "Общественные пляжи", "layer.vaccines": "Вакцины", "layer.road": "Безопасность дорог", "layer.events": "Сезонные события", "layer.kids": "Для детей", "layer.parks": "Национальные парки", "layer.cannabis": "Законы о каннабисе", "layer.tipping": "Чаевые", "layer.nomad": "Рейтинг для номадов", "layer.english": "Знание английского", "layer.healthcare": "Качество медицины", "layer.tapwater": "Вода из-под крана", "layer.airquality": "Качество воздуха", "layer.femalesafety": "Безопасность женщин-соло", "layer.nightlife": "Ночная жизнь", "layer.scam": "Риск мошенничества", "layer.malaria": "Малярия и комары", "layer.elevation": "Высота / рельеф", "cat.health-safety": "Здоровье и безопасность", "cat.lifestyle": "Образ жизни", "cat.local-info": "Местная информация", "cat.environment": "Окружающая среда", "tour.0.title": "Добро пожаловать в Almanac", "tour.0.body": "Живой атлас, который подскажет, куда и когда отправиться. Вот краткий обзор главного — он займёт около минуты.", "tour.1.title": "Карта мира", "tour.1.body": "Нажмите на любую страну, чтобы открыть полный путеводитель. Светящиеся точки — это значимые города; приближайте карту, и она покажет больше городов, затем регионы, а затем округа.", "tour.2.title": "Путешествие сквозь год", "tour.2.body": "Перемещайте ползунок по месяцам и наблюдайте, как меняются климат, наплыв туристов и цены. Каждый цвет на карте отражает выбранный вами месяц.", "tour.3.title": "Слои данных", "tour.3.body": "Включайте слои — погоду, безопасность, стоимость, визы, события и многое другое. Один слой раскрашивает карту целиком; включите несколько, и каждый отобразится своей цветной меткой.", "tour.4.title": "Ваш паспорт", "tour.4.body": "Выберите своё гражданство, и карта перекрасит каждую страну по тому, насколько легко вам туда въехать — от безвизового въезда до обязательной визы.", "tour.5.title": "Спланируйте поездку", "tour.5.body": "Откройте планировщик поездок, нажмите «Добавить точку», затем кликайте по карте, чтобы расставить точки маршрута. Линия маршрута соединит ваше путешествие, а им можно поделиться или собрать вещи в дорогу.", "tour.6.title": "День или ночь", "tour.6.body": "Переключайтесь между дневной и ночной картой. Ночью карта может светиться огнями городов, какими их видно из космоса.", "tour.7.title": "Ищите что угодно", "tour.7.body": "Мгновенно переходите к любой стране, городу или слою. Нажмите Cmd-K (или /) в любой момент.", "tour.8.title": "Вы готовы к путешествиям", "tour.8.body": "На этом обзор завершён. Вы можете открыть его снова в любой момент в настройках. Счастливого пути!", "tut.0.title": "Карта мира", "tut.0.body": "Almanac открывается в режиме спутникового вида. Перетаскивайте, чтобы перемещаться по карте, прокручивайте или сводите пальцы для масштабирования. Светящиеся точки отмечают значимые города; по мере приближения карта показывает больше городов, затем регионы, а затем округа.", "tut.1.title": "Откройте путеводитель по стране", "tut.1.body": "Нажмите на любую страну, чтобы открыть её путеводитель — экстренные номера, валюту, типы розеток, разговорник, климат, стоимость жизни, безопасность, визовый режим, краткую историю и аналитическую справку о стране. Каждый раздел можно свернуть или развернуть.", "tut.2.title": "Единицы измерения и валюта", "tut.2.body": "В путеводителе по стране один переключатель меняет сразу все единицы измерения (Цельсий или Фаренгейт, км или мили, м или футы). Выберите валюту в настройках, и все цены автоматически пересчитываются по датированному снимку обменных курсов.", "tut.3.title": "Слои данных", "tut.3.body": "Откройте «Слои» в нижнем меню и включите погоду, безопасность, стоимость, визы, события и многое другое. Один слой раскрашивает карту по оценке; включите несколько, и каждая страна покажет по одной цветной метке на слой, чтобы их можно было сравнивать прямо на карте.", "tut.4.title": "Путешествие сквозь год", "tut.4.body": "Перемещайте ползунок по месяцам и наблюдайте, как меняются климат, наплыв туристов и цены. Каждый цвет на карте отражает выбранный вами месяц.", "tut.5.title": "Ваш паспорт", "tut.5.body": "Выберите своё гражданство, и карта перекрасит каждую страну по тому, насколько легко вам туда въехать — от безвизового въезда до обязательной визы.", "tut.6.title": "Планируйте и сравнивайте", "tut.6.body": "Откройте планировщик поездок, нажмите «Добавить точку» и кликайте по карте, чтобы расставить точки маршрута; линия маршрута соединит ваше путешествие. Сравнивайте страны рядом друг с другом и ищите что угодно с помощью значка поиска или сочетания клавиш Cmd-K / Ctrl-K.", "tut.7.title": "Настройте под себя", "tut.7.body": "В настройках хранятся ваш язык, валюта, единицы измерения, вид карты, подписи мест и обзорный тур. Выбрать язык можно по флагу на приветственном экране или в настройках в любое время.", "faq.0.q": "Бесплатно ли пользоваться Nomadic Almanac?", "faq.0.a": "Да. Приложение работает полностью в вашем браузере, и учётная запись не требуется.", "faq.1.q": "Работает ли оно офлайн?", "faq.1.a": "В основном да. Основные данные встроены и кэшируются, поэтому карта и путеводители по странам продолжают работать без подключения после первого визита. Динамические слои, такие как данные о транспорте или происшествиях в реальном времени, требуют подключения.", "faq.2.q": "Насколько актуальна информация?", "faq.2.a": "Данные графиков датированы на боковой панели (на данный момент июнь 2026 года), а обменные курсы представляют собой датированный снимок. Критически важные для безопасности сведения, такие как экстренные номера, типы розеток и напряжение, сверяются с авторитетными источниками.", "faq.3.q": "Насколько точны рекомендации для путешествий?", "faq.3.a": "Информация тщательно собрана и проверена, но остаётся общими рекомендациями. Всегда уточняйте визы, прививки, безопасность водопроводной воды и экстренные номера в официальных источниках перед поездкой.", "faq.4.q": "Можно ли изменить язык?", "faq.4.a": "Да. Используйте выбор по флагу на приветственном экране или в настройках. Интерфейс по умолчанию использует язык вашего браузера и переключается на английский там, где перевод недоступен.", "faq.5.q": "Можно ли изменить валюту?", "faq.5.a": "Да. Задайте её в настройках, и все цены пересчитаются в выбранную вами валюту по датированному снимку обменных курсов.", "faq.6.q": "Как читать несколько слоёв одновременно?", "faq.6.a": "Включите несколько слоёв; тогда каждая страна отобразит по одной небольшой цветной метке на каждый активный слой, чтобы их можно было сравнивать, не теряя из виду саму карту.", "faq.7.q": "Защищены ли мои данные?", "faq.7.a": "Да. Ваши настройки, точки маршрутов и записи в дневнике хранятся только в вашем браузере. Ничего не отправляется на сервер, а язык по умолчанию определяется по вашему браузеру, а не по IP-адресу.", "faq.8.q": "Как снова открыть эту справку?", "faq.8.a": "Откройте настройки и выберите письменное руководство, FAQ или повтор обзорного тура в любой удобный момент." },
   "he": { "layer.weather": "מזג אוויר", "layer.safety": "ביטחון", "layer.cost": "עלות", "layer.family": "משפחות", "layer.solo": "מטיילות לבד", "layer.remote": "עבודה מרחוק", "layer.internet": "אינטרנט", "layer.corrupt": "שחיתות", "layer.health": "סיכון בריאותי", "layer.crowds": "תיירות יתר", "layer.disaster": "אסונות טבע", "layer.visa": "דרישות ויזה", "layer.strength": "עוצמת דרכון", "layer.lgbtq": "להט\"ב", "layer.beaches": "חופים ציבוריים", "layer.vaccines": "חיסונים", "layer.road": "בטיחות בכבישים", "layer.events": "אירועים עונתיים", "layer.kids": "ידידותי לילדים", "layer.parks": "פארקים לאומיים", "layer.cannabis": "חוקי קנאביס", "layer.tipping": "תרבות טיפים", "layer.nomad": "ציון נוודים", "layer.english": "שליטה באנגלית", "layer.healthcare": "איכות שירותי בריאות", "layer.tapwater": "בטיחות מי ברז", "layer.airquality": "איכות אוויר", "layer.femalesafety": "ביטחון מטיילות לבד", "layer.nightlife": "חיי לילה וחברתיות", "layer.scam": "סיכון הונאה", "layer.malaria": "מלריה ויתושים", "layer.elevation": "גובה / טופוגרפיה", "cat.health-safety": "בריאות וביטחון", "cat.lifestyle": "סגנון חיים", "cat.local-info": "מידע מקומי", "cat.environment": "סביבה", "tour.0.title": "ברוכים הבאים לאלמנך", "tour.0.body": "אטלס חי של לאן כדאי לנסוע ומתי. הנה סיור קצר במה שחשוב לדעת — הוא נמשך כדקה.", "tour.1.title": "מפת העולם", "tour.1.body": "לחצו על כל מדינה לקבלת מדריך טיולים מלא. הנקודות הזוהרות הן ערים בולטות — התקרבו והמפה תחשוף עוד ערים, אחר כך מחוזות ולבסוף נפות.", "tour.2.title": "מסע לאורך השנה", "tour.2.body": "גררו לאורך החודשים כדי לראות איך משתנים מזג האוויר, הצפיפות והמחירים. כל צבע על המפה משקף את החודש שבחרתם.", "tour.3.title": "שכבות מידע", "tour.3.body": "הפעילו שכבות — מזג אוויר, ביטחון, עלות, ויזות, אירועים ועוד. שכבה אחת צובעת את המפה; הוסיפו עוד וכל אחת תופיע כתווית בצבע משלה.", "tour.4.title": "הדרכון שלכם", "tour.4.body": "בחרו את אזרחותכם והמפה תצבע מחדש כל מדינה לפי הקלות שבה תוכלו להיכנס אליה — מכניסה ללא ויזה ועד כניסה המחייבת ויזה.", "tour.5.title": "תכנון טיול", "tour.5.body": "פתחו את מתכנן הטיולים, לחצו על \"הוספת סיכה\" ואז לחצו על המפה כדי לסמן נקודות עצירה. קו מסלול יחבר את המסע שלכם, ותוכלו לשתף אותו או להתארגן לקראתו.", "tour.6.title": "יום או לילה", "tour.6.body": "עברו בין תצוגת יום לתצוגת לילה. בלילה המפה יכולה להאיר באורות הערים של כדור הארץ כפי שנראים מהחלל.", "tour.7.title": "חיפוש כל דבר", "tour.7.body": "דלגו לכל מדינה, עיר או שכבה באופן מיידי. לחצו על Cmd-K (או /) בכל רגע.", "tour.8.title": "אתם מוכנים לצאת לדרך", "tour.8.body": "בכך מסתיים הסיור. תוכלו לפתוח אותו שוב בכל עת מתוך ההעדפות. נסיעה טובה!", "tut.0.title": "מפת העולם", "tut.0.body": "האלמנך נפתח בתצוגת לוויין. גררו כדי להזיז את המפה, וגללו או צבטו כדי להתקרב ולהתרחק. נקודות זוהרות מסמנות ערים בולטות; ככל שתתקרבו תחשוף המפה עוד ערים, אחר כך מחוזות ולבסוף נפות.", "tut.1.title": "פתיחת מדריך מדינה", "tut.1.body": "הקישו על כל מדינה כדי לפתוח את מדריך הטיולים שלה — מספרי חירום, מטבע, שקעי חשמל, שיחון, אקלים, יוקר המחיה, ביטחון, דרישות ויזה, היסטוריה קצרה ותקציר מידע על המדינה. ניתן לכווץ או להרחיב כל מקטע.", "tut.2.title": "יחידות מידה ומטבע", "tut.2.body": "בתוך מדריך מדינה, מתג אחד מחליף את כל יחידות המידה בבת אחת (צלזיוס או פרנהייט, ק\"מ או מייל, מטרים או רגל). בחרו את המטבע שלכם בהעדפות, וכל נתון עלות יומר אוטומטית לפי תמונת מצב מתוארכת של שערי החליפין.", "tut.3.title": "שכבות מידע", "tut.3.body": "פתחו את השכבות מהתפריט התחתון והפעילו מזג אוויר, ביטחון, עלות, ויזות, אירועים ועוד. שכבה בודדת צובעת את המפה לפי הציון; הוסיפו כמה וכל מדינה תציג תווית צבעונית אחת לכל שכבה, כך שתוכלו להשוות ביניהן במקום.", "tut.4.title": "מסע לאורך השנה", "tut.4.body": "גררו לאורך החודשים כדי לראות איך משתנים מזג האוויר, הצפיפות והמחירים. כל צבע על המפה משקף את החודש שבחרתם.", "tut.5.title": "הדרכון שלכם", "tut.5.body": "בחרו את אזרחותכם והמפה תצבע מחדש כל מדינה לפי הקלות שבה תוכלו להיכנס אליה — מכניסה ללא ויזה ועד כניסה המחייבת ויזה.", "tut.6.title": "תכנון והשוואה", "tut.6.body": "פתחו את מתכנן הטיולים, לחצו על \"הוספת סיכה\" ולחצו על המפה כדי לסמן נקודות עצירה; קו מסלול מחבר את המסע שלכם. השוו בין מדינות זו לצד זו, וחפשו כל דבר באמצעות סמל החיפוש או קיצור המקשים Cmd-K / Ctrl-K.", "tut.7.title": "התאמה אישית", "tut.7.body": "בהעדפות מרוכזים השפה, המטבע, יחידות המידה, תצוגת המפה, תוויות המקומות והסיור המודרך שלכם. בחרו את שפתכם באמצעות הדגל במסך הפתיחה, או בהעדפות בכל עת.", "faq.0.q": "האם השימוש ב-Nomadic Almanac חינמי?", "faq.0.a": "כן. האפליקציה פועלת כולה בדפדפן שלכם ואינה דורשת חשבון.", "faq.1.q": "האם האפליקציה פועלת במצב לא מקוון?", "faq.1.a": "ברובה, כן. הנתונים המרכזיים מצורפים ונשמרים במטמון, כך שהמפה ומדריכי המדינות ממשיכים לפעול ללא חיבור לאחר הביקור הראשון. שכבות חיות, כגון נתוני תחבורה בזמן אמת או דיווחים שוטפים, דורשות חיבור לרשת.", "faq.2.q": "עד כמה המידע מעודכן?", "faq.2.a": "נתוני הגרפים נושאים תאריך בסרגל הצד (כעת יוני 2026), ושערי החליפין הם תמונת מצב מתוארכת. עובדות קריטיות לביטחון, כגון מספרי חירום, סוגי שקעים ומתחי חשמל, מאומתות מול מקורות מוסמכים.", "faq.3.q": "עד כמה הדרכת הטיולים מדויקת?", "faq.3.a": "היא נערכת ונבדקת בקפידה, אך נותרת בגדר הנחיה כללית. תמיד אמתו ויזות, חיסונים, בטיחות מי ברז ומספרי חירום מול מקורות רשמיים לפני הנסיעה.", "faq.4.q": "האם אפשר לשנות את השפה?", "faq.4.a": "כן. השתמשו בבורר הדגלים במסך הפתיחה או בהעדפות. הממשק מוגדר כברירת מחדל לשפת הדפדפן שלכם, ונסוג לאנגלית במקומות שבהם אין תרגום זמין.", "faq.5.q": "האם אפשר לשנות את המטבע?", "faq.5.a": "כן. הגדירו אותו בהעדפות וכל נתוני העלות יומרו למטבע שבחרתם לפי תמונת מצב מתוארכת של שערי החליפין.", "faq.6.q": "כיצד אפשר לקרוא כמה שכבות בו-זמנית?", "faq.6.a": "הפעילו כמה שכבות; כל מדינה תציג אז תווית צבעונית קטנה אחת לכל שכבה פעילה, כך שתוכלו להשוות ביניהן מבלי לאבד את המפה שמתחת.", "faq.7.q": "האם הנתונים שלי פרטיים?", "faq.7.a": "כן. ההעדפות, סיכות הטיול ורשומות היומן שלכם נשמרות בדפדפן שלכם בלבד. שום דבר אינו נשלח לשרת, ושפת ברירת המחדל שלכם נקבעת לפי הדפדפן ולא לפי כתובת ה-IP שלכם.", "faq.8.q": "כיצד פותחים שוב את העזרה הזו?", "faq.8.a": "פתחו את ההעדפות ובחרו במדריך הכתוב, בשאלות הנפוצות או בהפעלה מחדש של הסיור המודרך, בכל עת שתרצו." },
+});
+
+// ── Country-guide entry point from province/county tooltips — i18n (11 langs) ──
+// Same deep-merge pattern as the nav-i18n block above; runs last, additive only.
+(function (p) { Object.keys(p).forEach(function (l) { _I18N[l] = Object.assign(_I18N[l] || {}, p[l]); }); })({
+  en: { 'tt.countryGuide': 'Open country guide' },
+  es: { 'tt.countryGuide': 'Abrir guía del país' },
+  fr: { 'tt.countryGuide': 'Ouvrir le guide du pays' },
+  de: { 'tt.countryGuide': 'Länderführer öffnen' },
+  pt: { 'tt.countryGuide': 'Abrir guia do país' },
+  ar: { 'tt.countryGuide': 'فتح دليل البلد' },
+  zh: { 'tt.countryGuide': '打开国家指南' },
+  hi: { 'tt.countryGuide': 'देश गाइड खोलें' },
+  ja: { 'tt.countryGuide': '国別ガイドを開く' },
+  ru: { 'tt.countryGuide': 'Открыть гид по стране' },
+  he: { 'tt.countryGuide': 'פתח את מדריך המדינה' },
 });

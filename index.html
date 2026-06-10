@@ -15,8 +15,13 @@
   <!-- Resource hints — resolve DNS / open sockets before scripts run -->
   <link rel="preconnect"    href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect"    href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch"  href="https://server.arcgisonline.com">
-  <link rel="dns-prefetch"  href="https://basemaps.cartocdn.com">
+  <!-- Full preconnect (DNS+TCP+TLS) for the hosts the DEFAULT view hits
+       immediately: Esri satellite tiles + the a/b/c Carto label subdomains
+       (Leaflet's {s} placeholder). No crossorigin: tiles are plain <img>. -->
+  <link rel="preconnect"    href="https://server.arcgisonline.com">
+  <link rel="preconnect"    href="https://a.basemaps.cartocdn.com">
+  <link rel="preconnect"    href="https://b.basemaps.cartocdn.com">
+  <link rel="preconnect"    href="https://c.basemaps.cartocdn.com">
   <link rel="dns-prefetch"  href="https://raw.githubusercontent.com">
   <!-- All six interface font families in ONE request (was 3 links + a duplicate @import). -->
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -1069,6 +1074,14 @@
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
+<!-- Heavy split-out data tables. data-detail.js MUST be defer, not async:
+     defer guarantees it executes after data.js in document order, and app.js
+     typeof-guards every consumer so the map boots before it runs.
+     data-admin2.js is NOT loaded here at all — it calls data.js's rep()/s12()
+     helpers in its literals and is only needed by the zoom>=6 county view, so
+     app.js injects it on first county zoom (_ensureAdmin2Tables), keeping
+     ~0.42 MB gz off the first visit entirely. -->
+<script defer src="data-detail.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
