@@ -191,8 +191,21 @@ const POI_LAYERS = {
 const GEOGRAPHIC_LAYERS = new Set(['weather','beaches','health','disaster','crowds','cost','safety','internet','visa','strength','kids','cannabis','nomad','english','healthcare','tapwater','airquality','femalesafety','nightlife','scam','malaria','tipping','parks']);
 const BEACH_STATUS_COL  = { open:'#06b6d4', seasonal:'#f59e0b', restricted:'#8b5cf6', closed:'#ef4444' };
 
-// Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2)
-const getIso2 = p => (p && (p.ISO_A2 || p.iso_a2 || p['ISO3166-1-Alpha-2'])) || '';
+// Works with Natural Earth (ISO_A2), lowercase (iso_a2), or geo-countries (ISO3166-1-Alpha-2).
+// Natural Earth codes France/Norway/Kosovo/Taiwan as "-99" (or "CN-TW"); without a name
+// fallback those four real countries never resolve, so they neither colour nor open a
+// dossier even though their data exists. Genuine code-less territories (sovereign bases,
+// glaciers, Bir Tawil, …) stay unresolved on purpose.
+const _NE_ISO2_BY_NAME = { 'France': 'FR', 'Norway': 'NO', 'Kosovo': 'XK', 'Taiwan': 'TW' };
+const getIso2 = p => {
+  if (!p) return '';
+  const c = p.ISO_A2 || p.iso_a2 || p['ISO3166-1-Alpha-2'] || '';
+  if (c === '-99' || c.length !== 2) {
+    const n = p.name || p.NAME || p.ADMIN || p.admin || '';
+    if (_NE_ISO2_BY_NAME[n]) return _NE_ISO2_BY_NAME[n];
+  }
+  return c;
+};
 
 // Rounds map bounds to 2 dp (~1 km precision) and returns a cache key string.
 // Used by POI layers to avoid re-querying Overpass on tiny pans.
