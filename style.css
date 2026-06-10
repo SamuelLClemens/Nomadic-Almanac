@@ -1632,29 +1632,6 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 #na-sidebar-passport select:focus { border-color: var(--na-gold-mid); }
 
-/* Sidebar month mini-selector */
-#na-sidebar-months { display: flex; flex-wrap: wrap; gap: 3px; }
-#na-sidebar-months .smb {
-  font-family: var(--font-label);
-  font-size: 8px;
-  letter-spacing: 0.05em;
-  padding: 2px 4px;
-  border-radius: 2px;
-  border: 1px solid rgba(200,168,75,0.18);
-  background: transparent;
-  color: var(--na-text-secondary);   /* was --na-text-dim (~2.6:1) — WCAG fail at 8px */
-  cursor: pointer;
-  transition: all var(--dur-fast);
-  text-transform: uppercase;
-}
-#na-sidebar-months .smb:hover { color: var(--na-text-secondary); border-color: rgba(200,168,75,0.4); }
-#na-sidebar-months .smb.on {
-  background: var(--na-gold-mid);
-  color: var(--na-navy);
-  border-color: var(--na-gold-mid);
-  font-weight: 700;
-}
-
 /* ── Click-to-collapse (desktop ≥1280px) ───────────────────────────────────
    Clicking the sidebar logo toggles .collapsed: the sidebar shrinks to a slim
    icon rail and the map column (with its absolutely-positioned legend/"key")
@@ -2973,24 +2950,3 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
   #na-tour-pop .tour-btn, #onboarding-hint .hint-btn { min-height: 44px; }
 }
 
-/* ═══════════════ SEA DECORATIONS (almanac flourishes) — REMOVABLE ═══════════════
-   Matching JS is in app.js (search "SEA DECORATIONS"). To remove everything:
-   delete this block + that JS block + the na_initSeaDecor() boot call, or set
-   NA_SEA_DECOR = false in app.js. Nothing else depends on these styles. */
-.na-seadecor { pointer-events: none !important; background: none !important; border: none !important; }
-.na-seadecor-art { opacity: 0.55; transition: opacity .4s ease; }
-.na-seadecor-art svg { display: block; width: 100%; height: 100%; overflow: visible;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55)); }
-.na-seadecor .nasd-stroke { fill: rgba(201,168,76,0.10); stroke: #c9a84c; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.na-seadecor .nasd-fill   { fill: rgba(201,168,76,0.16); stroke: #c9a84c; stroke-width: 1.3; stroke-linejoin: round; }
-.na-seadecor .nasd-line   { fill: none; stroke: rgba(201,168,76,0.72); stroke-width: 1.2; stroke-linecap: round; }
-.na-seadecor .nasd-dot    { fill: #c9a84c; }
-.na-seadecor text { fill: #c9a84c; font-family: var(--font-label, 'Cinzel', Georgia, serif); opacity: 0.8; }
-/* Light (parchment) mode: sepia ink so the art still reads on the lighter sea. */
-[data-theme="light"] .na-seadecor .nasd-stroke { stroke: #6B4E1E; fill: rgba(107,78,30,0.10); }
-[data-theme="light"] .na-seadecor .nasd-fill   { stroke: #6B4E1E; fill: rgba(107,78,30,0.16); }
-[data-theme="light"] .na-seadecor .nasd-line   { stroke: rgba(107,78,30,0.68); }
-[data-theme="light"] .na-seadecor .nasd-dot    { fill: #6B4E1E; }
-[data-theme="light"] .na-seadecor text { fill: #6B4E1E; }
-@media (prefers-reduced-motion: reduce) { .na-seadecor-art { transition: none; } }
-/* ═══════════════ END SEA DECORATIONS ═══════════════ */

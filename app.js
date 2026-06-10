@@ -360,8 +360,6 @@ function _toggleWishlist(iso2) {
 function _updateWishlistUI(iso2) {
   var btn = document.getElementById('btn-wishlist-' + iso2);
   if (btn) { btn.textContent = _wishlist.has(iso2) ? '♥' : '♡'; btn.classList.toggle('on', _wishlist.has(iso2)); btn.setAttribute('aria-pressed', _wishlist.has(iso2) ? 'true' : 'false'); }
-  var counter = document.getElementById('wishlist-count');
-  if (counter) counter.textContent = _wishlist.size > 0 ? _wishlist.size : '';
 }
 
 // ─── Trip Share Card ──────────────────────────────────────────────────────────
@@ -7432,44 +7430,13 @@ function initLegendCollapsible() {
 }
 
 // ─── Share URL button ─────────────────────────────────────────────────────────
-function initShareButton() {
-  const btn = document.getElementById('share-url-btn');
-  if (!btn) return;
-  btn.setAttribute('aria-label', 'Copy shareable link');
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    const url = window.location.origin + window.location.pathname + window.location.search;
-    navigator.clipboard.writeText(url).then(() => {
-      const orig = btn.textContent;
-      btn.textContent = '✓';
-      btn.classList.add('copied');
-      btn.title = 'Link copied!';
-      btn.setAttribute('aria-label', 'Link copied!');
-      setTimeout(() => {
-        btn.textContent = orig;
-        btn.classList.remove('copied');
-        btn.title = 'Copy shareable link';
-        btn.setAttribute('aria-label', 'Copy shareable link');
-      }, 2000);
-    }).catch(() => {
-      // Fallback for browsers without clipboard API
-      const ta = document.createElement('textarea');
-      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      btn.textContent = '✓'; btn.classList.add('copied');
-      btn.setAttribute('aria-label', 'Link copied!');
-      setTimeout(() => {
-        btn.textContent = '🔗'; btn.classList.remove('copied');
-        btn.setAttribute('aria-label', 'Copy shareable link');
-      }, 2000);
-    });
-  });
-}
+// (Removed dead initShareButton(): it targeted #share-url-btn, which never exists.
+//  The live share control is #na-share-btn, wired in na_initHeaderButtons.)
 
 // ─── Best This Month toggle ───────────────────────────────────────────────────
-// When expanded, the panel auto-minimises after 3 seconds. It stays fully
-// toggleable (maximise/minimise) at any time from the legend or the nav item.
+// When expanded, the panel auto-minimises after 5 seconds IF it opened
+// automatically; an explicit open stays open. Toggleable any time from the
+// legend or the nav item.
 var _bestAutoTimer = null;
 function _clearBestAutoMinimize() { if (_bestAutoTimer) { clearTimeout(_bestAutoTimer); _bestAutoTimer = null; } }
 function _armBestAutoMinimize() {
@@ -8707,7 +8674,6 @@ function showBootError(msg) {
   initNationalitySelector();
   initVisaPassportGroup();
   initLegendCollapsible();
-  initShareButton();
   initBestPanelToggle();
   updateBestPanel();
   showOnboardingHint();
@@ -8715,7 +8681,6 @@ function showBootError(msg) {
   updateZoomAnnotation();
   initTopbarToggle();
   initTripPlanner();
-  na_initSeaDecor();   // almanac sea flourishes (removable — see NA_SEA_DECOR block)
 
   } catch (err) {
     console.error('[Nomadic Almanac] Boot error:', err);
@@ -8723,111 +8688,6 @@ function showBootError(msg) {
   }
 })();
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SEA DECORATIONS — almanac flourishes (compass rose, galleon, sea serpent,
-// leviathan, "HIC SVNT DRACONES"). Purely decorative line-art drawn in the open
-// ocean. They never cover information: pointer-events:none, on a low pane beneath
-// all data, and shown only at world/continent zoom (≤ 4).
-//
-// ░░ TO REMOVE EVERYTHING ("get rid of dragons and the like") ░░
-//   1. Set NA_SEA_DECOR = false below for an instant off-switch, OR
-//   2. Delete this entire block (down to "END SEA DECORATIONS"), the matching CSS
-//      block in style.css (search "SEA DECORATIONS"), and the na_initSeaDecor()
-//      call just above. Nothing else references these names.
-// ═══════════════════════════════════════════════════════════════════════════
-var NA_SEA_DECOR = true;
-var _naSeaDecorLayer = null;
-
-// Each SVG uses two classes: .nasd-stroke (gold outline) and .nasd-fill (faint wash).
-var _NA_SEA_ART = {
-  compass:
-    '<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">' +
-      '<circle class="nasd-line" cx="50" cy="50" r="36"/><circle class="nasd-line" cx="50" cy="50" r="27"/>' +
-      '<path class="nasd-fill" d="M50 6 L57 43 L50 50 L43 43 Z"/>' +
-      '<path class="nasd-stroke" d="M50 94 L43 57 L50 50 L57 57 Z"/>' +
-      '<path class="nasd-stroke" d="M6 50 L43 43 L50 50 L43 57 Z"/>' +
-      '<path class="nasd-stroke" d="M94 50 L57 57 L50 50 L57 43 Z"/>' +
-      '<path class="nasd-line" d="M24 24 L44 44 M76 24 L56 44 M76 76 L56 56 M24 76 L44 56"/>' +
-      '<text x="50" y="22" text-anchor="middle" font-size="11">N</text>' +
-    '</svg>',
-  ship:
-    '<svg viewBox="0 0 110 86" width="100%" height="100%" aria-hidden="true">' +
-      '<path class="nasd-stroke" d="M16 56 q39 16 78 0 l-9 13 q-30 8 -60 0 z"/>' +          // hull
-      '<path class="nasd-line" d="M37 56 V18 M55 56 V8 M73 56 V20"/>' +                      // masts
-      '<path class="nasd-fill" d="M37 22 q14 5 0 22 q-14 -5 0 -22z"/>' +                     // fore sail
-      '<path class="nasd-fill" d="M55 12 q16 7 0 30 q-16 -7 0 -30z"/>' +                     // main sail
-      '<path class="nasd-fill" d="M73 24 q12 5 0 18 q-12 -5 0 -18z"/>' +                     // aft sail
-      '<path class="nasd-line" d="M55 8 l7 -5" /><path class="nasd-line" d="M6 74 q9 -7 18 0 t18 0 t18 0 t18 0 t18 0"/>' + // pennant + waves
-    '</svg>',
-  serpent:
-    '<svg viewBox="0 0 170 70" width="100%" height="100%" aria-hidden="true">' +
-      '<path class="nasd-stroke" d="M6 46 q16 -30 32 0 q16 30 32 0 q16 -30 32 0 q12 22 26 6"/>' +   // humped body
-      '<path class="nasd-fill" d="M128 52 q12 -12 26 -8 q9 3 11 12 q-7 5 -14 2 q-3 6 -10 4 q-9 -3 -13 -10z"/>' + // head
-      '<circle class="nasd-dot" cx="145" cy="48" r="1.8"/>' +
-      '<path class="nasd-line" d="M158 44 l7 -4 M156 52 l8 1"/>' +                                    // jaw/fins
-      '<path class="nasd-line" d="M6 60 q10 -6 20 0 t20 0 t20 0 t20 0 t20 0"/>' +                     // waves
-    '</svg>',
-  whale:
-    '<svg viewBox="0 0 120 80" width="100%" height="100%" aria-hidden="true">' +
-      '<path class="nasd-fill" d="M14 48 q24 -24 60 -14 q16 4 24 -2 q-4 16 -22 16 q-30 8 -54 4 q-10 -2 -8 -4z"/>' + // body
-      '<path class="nasd-stroke" d="M94 34 q14 -10 22 -5 q-3 11 -14 13"/>' +                          // tail fluke
-      '<path class="nasd-line" d="M34 24 q-3 -12 4 -18 M34 24 q5 -12 -2 -18"/>' +                     // spout
-      '<circle class="nasd-dot" cx="30" cy="42" r="1.6"/>' +
-      '<path class="nasd-line" d="M8 62 q9 -6 18 0 t18 0 t18 0 t18 0 t18 0"/>' +                      // waves
-    '</svg>',
-  dracones:
-    '<svg viewBox="0 0 220 40" width="100%" height="100%" aria-hidden="true">' +
-      '<path class="nasd-line" d="M8 20 h28 M184 20 h28"/>' +
-      '<text x="110" y="26" text-anchor="middle" font-size="17" font-style="italic" letter-spacing="2">HIC SVNT DRACONES</text>' +
-    '</svg>',
-};
-
-// lat/lng in open ocean (no land, away from busy labels); size in px.
-var _NA_SEA_PLACEMENTS = [
-  { art: 'ship',     lat: 41,  lng: -41,  w: 74, h: 58 },   // North Atlantic
-  { art: 'serpent',  lat: 30,  lng: -158, w: 132, h: 54 },  // North Pacific
-  { art: 'whale',    lat: -40, lng: -118, w: 96, h: 64 },   // South Pacific
-  { art: 'compass',  lat: -34, lng: 82,   w: 70, h: 70 },   // South Indian Ocean
-  { art: 'dracones', lat: -38, lng: -22,  w: 170, h: 30 },  // South Atlantic
-  { art: 'serpent',  lat: 6,   lng: 70,   w: 120, h: 50 },  // equatorial Indian Ocean
-];
-
-function na_initSeaDecor() {
-  if (!NA_SEA_DECOR || typeof L === 'undefined' || !map || _naSeaDecorLayer) return;
-  if (!map.getPane('seaDecorPane')) {
-    map.createPane('seaDecorPane');
-    var pane = map.getPane('seaDecorPane');
-    pane.style.zIndex = '250';            // above basemap tiles, below land fills/markers
-    pane.style.pointerEvents = 'none';     // never intercept map interaction
-  }
-  _naSeaDecorLayer = L.layerGroup([], { pane: 'seaDecorPane' });
-  _NA_SEA_PLACEMENTS.forEach(function (pl) {
-    var svg = _NA_SEA_ART[pl.art];
-    if (!svg) return;
-    var icon = L.divIcon({
-      className: 'na-seadecor',
-      html: '<div class="na-seadecor-art na-seadecor-' + pl.art + '" style="width:' + pl.w + 'px;height:' + pl.h + 'px">' + svg + '</div>',
-      iconSize: [pl.w, pl.h],
-      iconAnchor: [pl.w / 2, pl.h / 2],
-    });
-    L.marker([pl.lat, pl.lng], { icon: icon, pane: 'seaDecorPane', interactive: false, keyboard: false }).addTo(_naSeaDecorLayer);
-  });
-  _naSeaDecorLayer.addTo(map);
-  na_updateSeaDecorVisibility();
-  map.on('zoomend', na_updateSeaDecorVisibility);
-}
-
-// Almanac art belongs to the world/continent view — hide it once the traveller
-// zooms in to do detailed work so it never competes with data.
-function na_updateSeaDecorVisibility() {
-  if (!map) return;
-  var pane = map.getPane('seaDecorPane');
-  if (!pane) return;
-  pane.style.display = (NA_SEA_DECOR && map.getZoom() <= 4) ? '' : 'none';
-}
-// ═══════════════════════════════════════════════════════════════════════════
-// END SEA DECORATIONS
-// ═══════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UI MASTER BUILD v2 — NAVIGATION & PANEL MODULE
@@ -9922,27 +9782,6 @@ function na_initHeaderActions() {
 
 // ── Sidebar sidebar-passport mirror (desktop) ─────────────────────────────
 function na_initSidebarMirrors() {
-  // Mirror month buttons into the sidebar
-  var sidebarMonths = document.getElementById('na-sidebar-months');
-  if (sidebarMonths) {
-    var MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    MONTH_LABELS.forEach(function(label, idx) {
-      var btn = document.createElement('button');
-      btn.className = 'smb';
-      btn.textContent = label;
-      btn.setAttribute('aria-label', label);
-      btn.addEventListener('click', function() {
-        // Delegate to existing month click handler
-        var existing = document.querySelectorAll('.mb');
-        if (existing[idx]) existing[idx].click();
-        // Update sidebar month active states
-        na_syncSidebarMonths();
-      });
-      sidebarMonths.appendChild(btn);
-    });
-    na_syncSidebarMonths();
-  }
-
   // Mirror passport selector into sidebar. Build the options straight from the data
   // (NOT cloneNode of #passport-select) so it never depends on whether
   // initNationalitySelector() has already populated the original — that timing gap
@@ -9976,16 +9815,6 @@ function na_initSidebarMirrors() {
       cloneSelect.value = origSelect.value;
     });
   }
-}
-
-function na_syncSidebarMonths() {
-  var sidebarMonths = document.getElementById('na-sidebar-months');
-  if (!sidebarMonths) return;
-  var origBtns = document.querySelectorAll('.mb');
-  var sideBtns = sidebarMonths.querySelectorAll('.smb');
-  sideBtns.forEach(function(btn, i) {
-    if (origBtns[i]) btn.classList.toggle('on', origBtns[i].classList.contains('on'));
-  });
 }
 
 // ── Page Visibility API: pause/resume logo animations ─────────────────────
