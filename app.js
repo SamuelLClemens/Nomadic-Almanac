@@ -1095,17 +1095,22 @@ function _buildRouteLatLngs() {
   return out;
 }
 
+// The route must stay SVG even under map-wide preferCanvas: its marching-dots
+// effect is a CSS animation on the path element's stroke-dashoffset, and the
+// na-route-* classNames only exist on real DOM nodes.
+var _routeSvgRenderer = null;
 function _renderTripRouteLine() {
   if (!map) return;
   _clearTripRouteLine();
   if (!_tripPins || _tripPins.length < 2) return;
+  if (!_routeSvgRenderer) _routeSvgRenderer = L.svg({ pane: 'routePane' });
   const latlngs = _buildRouteLatLngs();
   _tripRouteCasing = L.polyline(latlngs, {
-    pane: 'routePane', interactive: false, className: 'na-route-casing',
+    pane: 'routePane', interactive: false, className: 'na-route-casing', renderer: _routeSvgRenderer,
     color: '#c9a84c', weight: 6, opacity: 0.16, lineCap: 'round', lineJoin: 'round',
   }).addTo(map);
   _tripRouteLine = L.polyline(latlngs, {
-    pane: 'routePane', interactive: false, className: 'na-route-flow',
+    pane: 'routePane', interactive: false, className: 'na-route-flow', renderer: _routeSvgRenderer,
     color: '#e8d5a3', weight: 2.4, opacity: 0.92, dashArray: '1 11', lineCap: 'round',
   }).addTo(map);
 }
@@ -1379,7 +1384,12 @@ function initMap() {
     maxZoom: 18,
     worldCopyJump: true,        // snap back to primary copy when panning past ±180°
     maxBoundsViscosity: 0.85,   // resist panning into blank polar/edge areas
-    preferCanvas: false,
+    // Canvas vector rendering: ~2 000 admin-1/country paths pan far smoother on
+    // canvas than as individual SVG nodes (biggest win on mobile). Leaflet
+    // creates one canvas per pane, so the custom pane z-order is preserved.
+    // The animated trip route opts back into SVG (its CSS dash animation needs
+    // a real path element) via an explicit renderer in _renderTripRouteLine.
+    preferCanvas: true,
   });
   window.naMap = map;   // expose Leaflet instance (window.map is the #map div) for URL view-state + tests
 
@@ -1446,7 +1456,13 @@ function initMap() {
 
   // Invalidate Leaflet's tile cache when the window is resized (orientation
   // change, panel resize) so tiles fill the new dimensions cleanly.
-  window.addEventListener('resize', () => { if (map) map.invalidateSize(); }, { passive: true });
+  // Debounced: invalidateSize() forces a full size recompute + pane reflow, and
+  // resize fires continuously during window drags / mobile orientation changes.
+  let _resizeDebounce = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeDebounce);
+    _resizeDebounce = setTimeout(() => { if (map) map.invalidateSize(); }, 150);
+  }, { passive: true });
 
   // Basemap tile configurations — satellite is the default; user can switch in Preferences.
   var BASEMAP_CONFIGS = {
@@ -2371,7 +2387,7 @@ function getAdmin1Style(iso2, subCode, hover) {
 // Three-level fallback: CD_A2[shapeID] → CD_A1[admin1Code] → CD[iso2].
 // Uses the same worst-case (Math.max) aggregation as admin-1.
 function getAdmin2Rating(shapeID, parentAdmin1Code, parentIso2) {
-  const d2 = shapeID ? CD_A2[shapeID] : null;
+  const d2 = (typeof CD_A2 !== 'undefined' && shapeID) ? CD_A2[shapeID] : null;   // data-admin2.js may not have arrived yet
   const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
   const d0 = CD[parentIso2];
   if (!d2 && !d1 && !d0) return null;
@@ -2731,7 +2747,7 @@ function renderAdmin2Styles() {
     layer.eachLayer(sublayer => {
       if (!sublayer.feature) return;
       const shapeID  = sublayer.feature.properties.shapeID;
-      const parentA1 = CD_A2_PARENT[shapeID] || null;
+      const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
       sublayer.setStyle(getAdmin2Style(shapeID, parentA1, iso2, false));
     });
   });
@@ -2870,12 +2886,12 @@ async function loadAdmin2Country(iso2) {
       pane: 'admin2Pane',
       style: feature => {
         const shapeID  = feature.properties.shapeID;
-        const parentA1 = CD_A2_PARENT[shapeID] || null;
+        const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
         return getAdmin2Style(shapeID, parentA1, iso2, false);
       },
       onEachFeature: (feature, layer) => {
         const shapeID  = feature.properties.shapeID;
-        const parentA1 = CD_A2_PARENT[shapeID] || null;
+        const parentA1 = (typeof CD_A2_PARENT !== 'undefined' && CD_A2_PARENT[shapeID]) || null;
         const distName = feature.properties.shapeName || '';
 
         layer.on('mouseover', () => {
@@ -2978,8 +2994,14 @@ function renderCityMarkers() {
   //   • first zoom step (zoom 4)   → country capitals only
   //   • zoomed in (zoom ≥ 5)       → every city dot
   if (zoom < 4) return;
-  if (zoom < 5) { _placeCities(_capitalCities()); return; }
-  _placeCities(CITIES);
+  const list = zoom < 5 ? _capitalCities() : CITIES;
+  // Viewport-gated like the glyph clusters: building DOM markers for all
+  // 3 850 cities costs ~800 ms per rebuild (and refresh() rebuilds on every
+  // month/layer change) while only the on-screen handful is ever visible.
+  // The pad(0.3) margin pre-builds just past the edges; a debounced moveend
+  // handler fills in newly panned-into areas.
+  const bounds = map.getBounds().pad(0.3);
+  _placeCities(list.filter(c => bounds.contains([c.lat, c.lng])));
 }
 
 function _placeCities(list) {
@@ -5388,7 +5410,7 @@ function buildAdmin1Tooltip(iso2, subCode, stateName, countryName) {
 
 function buildAdmin2Tooltip(shapeID, parentAdmin1Code, iso2, districtName, stateName, countryName) {
   if (activeLayers.size === 0) return null;
-  const d2 = shapeID ? CD_A2[shapeID] : null;
+  const d2 = (typeof CD_A2 !== 'undefined' && shapeID) ? CD_A2[shapeID] : null;   // data-admin2.js may not have arrived yet
   const d1 = parentAdmin1Code ? CD_A1[parentAdmin1Code] : null;
   const d0 = CD[iso2];
   // Merge with lowest-granularity data first so admin-2 overrides admin-1 overrides country
@@ -8354,8 +8376,16 @@ function initPOILayers() {
     clearTimeout(_glyphDebounce);
     _glyphDebounce = setTimeout(() => { renderLayerGlyphs(); }, 200);
   });
+
+  // City dots are viewport-gated too — rebuild on pan so newly visible areas
+  // get their markers. No-op below zoom 4 (renderCityMarkers early-returns).
+  map.on('moveend', () => {
+    clearTimeout(_cityDebounce);
+    _cityDebounce = setTimeout(() => { renderCityMarkers(); }, 200);
+  });
 }
 var _glyphDebounce = null;
+var _cityDebounce = null;
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,

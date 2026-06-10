@@ -1072,6 +1072,8 @@
 <!-- Heavy prose tables (facts, phrasebook, intel, …): async keeps them off the
      boot critical path; app.js typeof-guards every consumer. -->
 <script async src="data-detail.js"></script>
+<!-- Admin-2 county tables: only the zoom>=6 county view reads these. -->
+<script async src="data-admin2.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
