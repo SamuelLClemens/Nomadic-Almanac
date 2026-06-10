@@ -4679,19 +4679,20 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(
 // Silently no-ops if localStorage is unavailable (private browsing, quota full).
 function saveState() {
   try {
-    localStorage.setItem('na_month',       String(activeMonth));
     localStorage.setItem('na_layers',      JSON.stringify([...activeLayers]));
     localStorage.setItem('na_nationality', selectedNationality || '');
   } catch (_) {}
 }
 function loadState() {
   try {
-    const m = localStorage.getItem('na_month');
-    if (m !== null) { const n = parseInt(m); if (!isNaN(n) && n >= 0 && n <= 11) activeMonth = n; }
-    // Clean open: activeLayers is intentionally NOT seeded from localStorage, so a
-    // bare visit always opens on clean satellite. The choropleth colors only when
-    // the user chooses a layer, or when a shared URL hash restores one (see
-    // initURLState). Month, nationality, units and basemap still persist.
+    // The month is intentionally NOT persisted: the almanac always opens on the
+    // REAL current month (activeMonth defaults to new Date().getMonth()), so a
+    // traveller opening the app in October sees October. Only an explicit URL
+    // hash (#month=N — shared links, mid-session reloads) overrides it via
+    // initURLState. Clean open: activeLayers is likewise NOT seeded from
+    // localStorage, so a bare visit always opens on clean satellite.
+    // Nationality, units and basemap still persist.
+    localStorage.removeItem('na_month');   // clear the legacy persisted month
     const nat = localStorage.getItem('na_nationality');
     if (nat) selectedNationality = nat;
   } catch (_) {}
