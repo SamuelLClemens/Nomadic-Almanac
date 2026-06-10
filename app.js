@@ -42,9 +42,10 @@ let _activeTooltipKey = null;
 let _tempUnit         = localStorage.getItem('na_temp') || 'C';   // 'C' or 'F' — persisted
 var _distUnit         = localStorage.getItem('na_dist') || 'km';  // 'km' or 'mi' — persisted
 var _elevUnit         = localStorage.getItem('na_elev') || 'm';   // 'm' or 'ft' — persisted
+var _rainUnit         = localStorage.getItem('na_rain') || 'mm';  // 'mm' or 'in' — persisted
 // Mirror unit prefs onto window so functions that read window._tempUnit (e.g. the
 // climate wheel) stay in sync with the lexically-scoped globals.
-if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; }
+if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; window._rainUnit = _rainUnit; }
 var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // basemap style
 var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
 var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
@@ -4734,6 +4735,33 @@ function toggleTempUnit() {
   });
 }
 
+// Format a rainfall amount (mm) in the active rain unit; the unit suffix is a
+// small styled span matching the climate-card typography.
+function _fmtRainHTML(mm) {
+  const suffix = s => `<span style="font-size:10px;font-weight:400;opacity:0.7">${s}</span>`;
+  if (_rainUnit === 'in') {
+    const inches = mm / 25.4;
+    return (inches >= 10 ? Math.round(inches) : inches.toFixed(1)) + suffix('in');
+  }
+  return Math.round(mm) + suffix('mm');
+}
+
+// Toggles the rainfall unit (mm ↔ in) in the currently visible tooltip.
+// Same in-place mechanism as toggleTempUnit: data-mm spans, no re-render.
+function toggleRainUnit() {
+  _rainUnit = _rainUnit === 'mm' ? 'in' : 'mm';
+  try { localStorage.setItem('na_rain', _rainUnit); } catch (e) {}
+  if (typeof window !== 'undefined') window._rainUnit = _rainUnit;
+  document.querySelectorAll('.tt-rain-val').forEach(el => {
+    const mm = parseFloat(el.dataset.mm);
+    if (!isNaN(mm)) el.innerHTML = _fmtRainHTML(mm);
+  });
+  document.querySelectorAll('.tt-rain-btn').forEach(el => {
+    el.textContent = _rainUnit === 'mm' ? '→in' : '→mm';
+    el.title = _rainUnit === 'mm' ? 'Switch to inches' : 'Switch to millimetres';
+  });
+}
+
 // ─── Master unit system (temperature + distance + elevation together) ───────────
 // A single control in the dossier flips every measurement between metric and
 // imperial, persists each unit, syncs the in-page/preferences toggles, and
@@ -4744,12 +4772,14 @@ function na_setUnitSystem(sys) {
   _tempUnit = imp ? 'F'  : 'C';
   _distUnit = imp ? 'mi' : 'km';
   _elevUnit = imp ? 'ft' : 'm';
+  _rainUnit = imp ? 'in' : 'mm';
   try {
     localStorage.setItem('na_temp', _tempUnit);
     localStorage.setItem('na_dist', _distUnit);
     localStorage.setItem('na_elev', _elevUnit);
+    localStorage.setItem('na_rain', _rainUnit);
   } catch (_e) {}
-  if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; }
+  if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; window._rainUnit = _rainUnit; }
   var distBtn = document.getElementById('btn-dist-unit');
   if (distBtn) distBtn.textContent = _distUnit;
   if (typeof na_syncPrefsUI === 'function') { try { na_syncPrefsUI(); } catch (_e) {} }
@@ -4922,8 +4952,10 @@ function buildWeatherDetails(iso2) {
     : (avgTempC + '°C');
   const unitLabel = _tempUnit === 'C' ? '→°F' : '→°C';
   const unitTitle = _tempUnit === 'C' ? 'Switch to Fahrenheit' : 'Switch to Celsius';
+  const rainLabel = _rainUnit === 'mm' ? '→in' : '→mm';
+  const rainTitle = _rainUnit === 'mm' ? 'Switch to inches' : 'Switch to millimetres';
 
-  // Determine rainfall emoji
+  // Determine rainfall emoji (thresholds are mm regardless of display unit)
   const rainEmoji = avgRain < 20 ? '☀️' : avgRain < 80 ? '🌤' : avgRain < 180 ? '🌧' : '⛈';
 
   // Seasonal events for this country + month(s)
@@ -4980,7 +5012,8 @@ function buildWeatherDetails(iso2) {
       </div>
       <div style="flex:1;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:6px;padding:7px 9px;text-align:center">
         <div style="font-size:7.5px;color:rgba(96,165,250,0.65);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">AVG RAINFALL</div>
-        <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} ${avgRain}<span style="font-size:10px;font-weight:400;opacity:0.7">mm</span></div>
+        <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} <span class="tt-rain-val" data-mm="${avgRain}">${_fmtRainHTML(avgRain)}</span></div>
+        <button class="tt-rain-btn" onclick="toggleRainUnit()" title="${rainTitle}" style="margin-top:5px;font-size:7px;color:#93c5fd;background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${rainLabel}</button>
       </div>
     </div>
     ${solarHtml}
@@ -6849,7 +6882,7 @@ function buildClimateWheelSection(iso2) {
   const seasonSummary = `<div style="margin-top:4px;font-size:6px;color:rgba(232,213,163,0.45);letter-spacing:0.8px">${seasonLine}</div>`;
 
   return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,0.10)">
-    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL mm / TEMP ${useFahrenheit ? '&deg;F' : '&deg;C'}</div>
+    <div style="font-size:6.5px;color:rgba(201,168,76,0.45);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px">CLIMATE &middot; RAINFALL ${_rainUnit} / TEMP ${useFahrenheit ? '&deg;F' : '&deg;C'}</div>
     <div style="display:flex;gap:1px;align-items:flex-end">${bars}</div>
     ${chipsSection}
     ${seasonSummary}
