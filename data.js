@@ -1724,7 +1724,7 @@ const CD_A1 = {
   // Andalucia — cheapest region; extreme heat Jul-Aug (45C in Sevilla); Flamenco/Alhambra
   'ES-AN': { weather: s12(1,1,0,0,0,2,3,3,1,0,0,1), cost:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
   // Canary Islands — perpetual spring; excellent beaches; year-round destination; EU territory
-  'ES-CN': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), beaches:rep(0), crowds:s12(2,2,1,1,1,1,2,2,1,1,1,2) },
+  'ES-CN': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), beaches:rep(0), cost:rep(1), crowds:s12(2,2,1,1,1,1,2,2,1,1,1,2) },
   // Balearic Islands — Ibiza/Majorca; very expensive in summer; extreme overtourism Jul-Aug
   'ES-IB': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0), cost:rep(2) },
   // Basque Country — rainy Atlantic; San Sebastian food capital; high cost; cultural autonomy
@@ -1733,7 +1733,6 @@ const CD_A1 = {
   'ES-MD': { weather: s12(1,1,1,1,0,1,2,2,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1) },
   // Valencia — sunniest major city; good beaches; more affordable than Barcelona
   'ES-VC': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1), cost:rep(1), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2) },
-  'ES-IC':  { weather: s12(0,0,0,0,0,1,1,1,0,0,0,0), beaches:rep(0), cost:rep(1), crowds:rep(1) },
   'ES-GA':  { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(0), beaches:rep(1) },
   'ES-CM':  { weather: s12(2,2,1,1,1,2,3,3,1,0,1,2), cost:rep(0) },
   'ES-CL':  { weather: s12(2,2,1,1,1,1,2,3,1,0,1,2), cost:rep(0) },
@@ -1763,13 +1762,10 @@ const CD_A1 = {
   'IT-82': { weather: s12(1,1,0,0,0,0,0,0,0,0,1,1), cost:rep(0), safety:rep(1), corrupt:rep(2), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
   // Sardegna — beautiful beaches; very expensive Jul-Aug; deserted in winter
   'IT-88': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
-  'IT-LOM': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(3) },
-  'IT-LAZ': { weather: s12(1,1,0,0,1,1,2,2,1,0,0,1), cost:rep(2), crowds:rep(3) },
-  'IT-TOS': { weather: s12(1,2,1,1,0,0,0,0,1,0,1,2), cost:rep(2), crowds:rep(2) },
-  'IT-VEN': { weather: s12(2,2,1,1,1,0,1,1,0,1,1,2), cost:rep(2), crowds:rep(3) },
-  'IT-CAM': { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1), beaches:rep(0), cost:rep(1) },
-  'IT-SIC': { weather: s12(1,1,0,0,1,2,3,3,2,0,0,1), beaches:rep(0), cost:rep(0) },
-  'IT-SAR': { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1), beaches:rep(0), cost:rep(1) },
+  // (The older alpha-coded duplicates of the numeric regions above — IT-LOM,
+  //  IT-LAZ, IT-TOS, IT-VEN, IT-CAM, IT-SIC, IT-SAR, and Spain's ES-IC — were
+  //  merged into their canonical twins and removed; CD_A1_ALIAS resolves the
+  //  Natural Earth codes onto the canonical keys.)
   'IT-TAA': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3), cost:rep(2) },
   'IT-LIG': { weather: s12(1,1,0,0,1,1,1,1,1,0,0,1), beaches:rep(0), cost:rep(2) },
 
