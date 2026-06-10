@@ -2055,6 +2055,172 @@ const CD_A1 = {
   // Balochistan — insurgency; kidnapping risk; vast remote desert; travel strongly discouraged
   'PK-BA': { safety:rep(3), remote:rep(3) },
 
+  // ── Philippines ─────────────────────────────────────────────────────────────────
+  // Metro Manila — dense megacity; dry Dec-Apr; typhoon-season rains Jul-Oct; heavy traffic
+  'PH-MNL': { weather: s12(0,0,1,1,2,2,3,3,3,2,1,0), crowds:rep(2) },
+  // Cebu — Visayas hub; beaches + diving; drier than Luzon; less typhoon-exposed
+  'PH-CEB': { weather: s12(0,0,0,1,1,2,2,2,2,2,1,0), beaches:s12(0,0,0,1,1,2,2,2,2,1,1,0) },
+  // Palawan (El Nido, Coron) — the country's best beaches; dry Dec-May, wet Jun-Oct
+  'PH-PLW': { weather: s12(0,0,0,0,1,2,3,3,3,2,1,0), beaches:s12(0,0,0,0,1,2,3,3,3,2,1,0) },
+  // Bohol — Chocolate Hills, Panglao beaches; similar rhythm to Cebu
+  'PH-BOH': { weather: s12(0,0,0,1,1,2,2,2,2,2,1,0), beaches:s12(0,0,0,1,1,2,2,2,2,1,1,0) },
+  // Aklan (Boracay) — premium island resort; peak crowds Dec-Mar + Holy Week; wet Jul-Sep
+  'PH-AKL': { weather: s12(0,0,0,1,1,2,3,3,3,2,1,0), beaches:s12(0,0,0,0,1,2,3,3,2,2,1,0), crowds:s12(3,3,2,2,1,1,1,1,1,1,2,3), cost:rep(2) },
+  // Benguet (Baguio) — cool mountain "summer capital"; landslide-prone monsoon Jul-Sep
+  'PH-BEN': { weather: s12(0,0,0,0,1,2,3,3,3,2,1,0) },
+  // Davao — Mindanao's safest major city; outside the typhoon belt; even climate year-round
+  'PH-DAV': { weather: rep(1), crowds:rep(1) },
+  // Sulu archipelago — active insurgency; kidnapping risk; travel strongly discouraged
+  'PH-SLU': { weather: s12(1,1,1,1,1,2,2,2,2,2,1,1), safety:rep(3), solo:rep(3), crowds:rep(0) },
+
+  // ── Malaysia ────────────────────────────────────────────────────────────────────
+  // Kuala Lumpur — equatorial; inter-monsoon thunderstorms Mar-Apr & Oct-Nov
+  'MY-14': { weather: s12(1,1,2,2,1,1,1,1,1,2,2,1), crowds:rep(1) },
+  // Penang (George Town) — heritage + food capital; wettest Sep-Nov
+  'MY-07': { weather: s12(0,0,1,1,1,1,1,2,2,2,2,1), beaches:s12(1,1,1,1,1,1,1,2,2,2,2,1) },
+  // Sabah (Kota Kinabalu, Sipadan) — diving best Apr-Sep; eastern-island coastal advisories
+  'MY-12': { weather: s12(2,1,1,1,1,1,1,1,1,2,2,2), beaches:s12(1,1,0,0,0,0,0,0,0,1,1,1), safety:rep(2) },
+  // Sarawak (Kuching) — Borneo longhouses + national parks; NE monsoon soaks Nov-Feb
+  'MY-13': { weather: s12(3,2,1,1,1,0,0,0,1,1,2,3) },
+  // Terengganu (Perhentian, Redang) — east-coast islands shut during Nov-Feb monsoon
+  'MY-11': { weather: s12(3,3,1,0,0,0,0,0,1,2,3,3), beaches:s12(3,3,1,0,0,0,0,0,1,2,3,3) },
+  // Pahang (Tioman, Cameron Highlands) — east-coast monsoon Nov-Feb; highlands cool year-round
+  'MY-06': { weather: s12(3,2,1,0,0,0,0,0,1,2,3,3), beaches:s12(3,3,1,0,0,0,0,0,1,2,3,3) },
+
+  // ── South Korea ─────────────────────────────────────────────────────────────────
+  // Seoul — bitter winters; jangma monsoon Jul; superb Apr-May & Sep-Oct
+  'KR-11': { weather: s12(3,2,1,0,0,1,3,2,0,0,1,2), crowds:rep(2) },
+  // Gyeonggi (Suwon, DMZ tours) — same continental rhythm as Seoul
+  'KR-41': { weather: s12(3,2,1,0,0,1,3,2,0,0,1,2) },
+  // Busan — milder coastal; Haeundae beach season Jul-Aug; typhoon fringe Aug-Sep
+  'KR-26': { weather: s12(2,2,1,0,0,1,2,2,1,0,1,2), beaches:s12(3,3,2,1,1,1,0,0,1,1,2,3) },
+  // Jeju — volcanic resort island; mildest region; very crowded in summer holidays
+  'KR-49': { weather: s12(2,2,1,0,0,1,2,2,1,0,1,2), beaches:s12(3,3,2,1,1,0,0,0,1,1,2,3), crowds:s12(1,1,1,2,2,2,3,3,2,2,1,1) },
+  // Gangwon (Seoraksan, Pyeongchang) — ski Dec-Feb; cool summers; blazing autumn foliage
+  'KR-42': { weather: s12(2,2,2,1,0,1,2,2,0,0,1,2) },
+  // North Gyeongsang (Gyeongju, Andong) — Silla heritage; pleasant spring and autumn
+  'KR-47': { weather: s12(2,2,1,0,0,1,2,2,1,0,1,2) },
+
+  // ── Chile ───────────────────────────────────────────────────────────────────────
+  // Santiago Metropolitan — Mediterranean; dry warm Nov-Mar; winter rain + smog Jun-Aug
+  'CL-RM': { weather: s12(0,0,0,1,2,2,2,2,1,0,0,0) },
+  // Antofagasta (San Pedro de Atacama) — driest desert on earth; superb year-round; altiplano showers Jan-Feb
+  'CL-AN': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1) },
+  // Valparaíso / Viña del Mar — coastal Mediterranean; beach season Dec-Mar (cold Humboldt water)
+  'CL-VS': { weather: s12(0,0,0,1,2,2,2,2,1,1,0,0), beaches:s12(0,0,1,2,3,3,3,3,2,2,1,0) },
+  // La Araucanía (Pucón) — lakes + volcanoes; best Dec-Mar; long rainy winter
+  'CL-AR': { weather: s12(0,0,1,2,3,3,3,3,2,1,1,0) },
+  // Los Lagos (Puerto Varas, Chiloé) — lush and rainy; austral summer is the window
+  'CL-LL': { weather: s12(0,1,1,2,3,3,3,3,2,2,1,0) },
+  // Magallanes (Torres del Paine) — Patagonia; Nov-Mar trekking season; park saturated Dec-Feb
+  'CL-MA': { weather: s12(1,1,1,2,3,3,3,3,2,2,1,1), crowds:s12(3,3,2,1,0,0,0,0,0,1,2,3) },
+
+  // ── Poland ──────────────────────────────────────────────────────────────────────
+  // Masovian (Warsaw) — continental; best May-Sep; grey freezing Nov-Feb
+  'PL-MZ': { weather: s12(3,2,2,1,0,0,0,0,0,1,2,3) },
+  // Lesser Poland (Kraków, Zakopane) — Poland's tourism magnet; busy year-round, packed in summer
+  'PL-MA': { weather: s12(3,2,2,1,0,0,0,0,0,1,2,3), crowds:s12(1,1,1,2,2,3,3,3,2,2,1,2) },
+  // Pomeranian (Gdańsk, Sopot) — Baltic coast; short Jun-Aug beach season
+  'PL-PM': { weather: s12(3,3,2,1,1,0,0,0,1,2,2,3), beaches:s12(3,3,3,2,2,1,0,0,2,3,3,3) },
+  // Lower Silesian (Wrocław) — slightly milder southwest; Christmas markets in December
+  'PL-DS': { weather: s12(3,2,2,1,0,0,0,0,0,1,2,3) },
+  // Warmian-Masurian — land of a thousand lakes; sailing Jun-Aug; bleak off-season
+  'PL-WN': { weather: s12(3,3,2,1,1,0,0,0,1,2,3,3) },
+
+  // ── Switzerland ─────────────────────────────────────────────────────────────────
+  // Zürich — lakeside city; best May-Sep; grey inversion fog Nov-Jan
+  'CH-ZH': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2) },
+  // Geneva — Lac Léman; mild for Switzerland; best May-Sep
+  'CH-GE': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2) },
+  // Bern (incl. Bernese Oberland — Interlaken, Grindelwald) — alpine icon; peak-season crowds Jun-Aug
+  'CH-BE': { weather: s12(2,2,2,1,1,0,0,0,0,1,2,2), crowds:s12(2,2,1,1,2,3,3,3,2,1,1,2) },
+  // Valais (Zermatt, Matterhorn) — ski Dec-Apr, hiking Jul-Sep; muddy shoulder May + Nov; premium prices
+  'CH-VS': { weather: s12(1,1,1,2,2,1,0,0,0,1,2,1), cost:rep(3) },
+  // Graubünden (St. Moritz, Davos) — glamour ski resorts; same dual season as Valais
+  'CH-GR': { weather: s12(1,1,1,2,2,1,0,0,0,1,2,1), cost:rep(3) },
+  // Ticino (Lugano) — Italian-speaking south; mildest canton; palm-lined lakes
+  'CH-TI': { weather: s12(2,1,1,0,0,0,0,0,0,1,1,2) },
+
+  // ── Sweden ──────────────────────────────────────────────────────────────────────
+  // Stockholm — archipelago summers May-Sep; dark Nov-Feb
+  'SE-AB': { weather: s12(3,3,2,1,0,0,0,0,1,2,3,3) },
+  // Skåne (Malmö, Lund) — mildest region; long shoulder seasons
+  'SE-M': { weather: s12(3,2,2,1,0,0,0,0,1,1,2,3) },
+  // Västra Götaland (Gothenburg) — rainy west coast; Jun-Aug window
+  'SE-O': { weather: s12(3,3,2,1,0,0,0,0,1,2,3,3) },
+  // Gotland (Visby) — medieval island; all of Sweden descends in July
+  'SE-I': { weather: s12(3,3,2,1,1,0,0,0,1,2,3,3), crowds:s12(0,0,0,0,1,2,3,3,1,0,0,0) },
+  // Norrbotten (Swedish Lapland — Abisko, Kiruna) — aurora Sep-Mar, midnight sun Jun-Jul; brutal winters
+  'SE-BD': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3), crowds:rep(0) },
+  // Jämtland (Åre) — Scandinavia's top ski resort Dec-Apr; hiking Jul-Aug
+  'SE-Z': { weather: s12(2,2,2,2,2,1,0,0,1,2,2,2) },
+
+  // ── Norway ──────────────────────────────────────────────────────────────────────
+  // Oslo — fjord-side capital; best May-Sep
+  'NO-03': { weather: s12(3,3,2,1,0,0,0,0,1,2,3,3) },
+  // Hordaland (Bergen) — gateway to the fjords; rains ~240 days a year
+  'NO-12': { weather: s12(3,3,2,2,1,1,1,1,2,2,3,3) },
+  // Møre og Romsdal (Geirangerfjord, Ålesund) — fjord cruising May-Sep
+  'NO-15': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3) },
+  // Nordland (Lofoten) — midnight-sun peaks Jun-Aug; surf + aurora shoulder seasons
+  'NO-18': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3) },
+  // Troms (Tromsø) — aurora capital Sep-Mar; polar night Nov-Jan
+  'NO-19': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3) },
+  // Svalbard — high-Arctic frontier; expedition season May-Sep; polar bears outnumber people
+  'NO-21': { weather: s12(3,3,3,2,2,1,1,1,2,3,3,3), crowds:rep(0), cost:rep(3) },
+
+  // ── Kenya ───────────────────────────────────────────────────────────────────────
+  // Nairobi — 1 800 m altitude keeps it mild; long rains Apr-May; petty-crime caution
+  'KE-110': { weather: s12(0,0,2,3,2,1,1,1,0,1,2,1), safety:rep(2) },
+  // Coast (Mombasa, Diani, Lamu) — Indian Ocean beaches; soaked Apr-Jun
+  'KE-300': { weather: s12(0,0,1,3,3,2,1,1,1,1,2,1), beaches:s12(0,0,1,3,3,2,1,0,0,0,1,0) },
+  // Rift Valley (Maasai Mara, Nakuru, Naivasha) — migration Jul-Oct; lodges packed Jul-Sep
+  'KE-700': { weather: s12(1,1,2,3,2,1,0,0,0,1,2,1), crowds:s12(1,1,1,1,1,2,3,3,3,2,1,2) },
+  // Eastern (Amboseli, Tsavo East) — classic dry-season safari Jun-Oct + Jan-Feb
+  'KE-400': { weather: s12(1,1,2,3,2,1,0,0,0,1,2,1) },
+  // North-Eastern — Somalia border region; terrorism risk; travel strongly discouraged
+  'KE-500': { weather: s12(2,2,2,2,2,1,1,1,1,2,2,2), safety:rep(3), solo:rep(3), crowds:rep(0) },
+
+  // ── Tanzania ────────────────────────────────────────────────────────────────────
+  // Arusha — safari capital (Serengeti/Ngorongoro gateway); dry Jun-Oct; long rains Mar-May
+  'TZ-01': { weather: s12(1,1,2,3,2,0,0,0,0,1,2,1), crowds:s12(1,1,1,1,1,2,3,3,2,2,1,2) },
+  // Mara (northern Serengeti) — river-crossing season Jul-Sep draws the world's safari crowds
+  'TZ-13': { weather: s12(1,1,2,3,2,1,0,0,0,1,2,1), crowds:s12(1,1,1,1,1,2,3,3,3,2,1,1) },
+  // Kilimanjaro (Moshi) — summit windows Jan-Mar & Jun-Oct; avoid the Apr-May rains
+  'TZ-09': { weather: s12(0,0,1,3,3,1,0,0,0,0,2,1) },
+  // Dar es Salaam — hot humid commercial coast; heaviest rain Apr-May
+  'TZ-02': { weather: s12(1,1,2,3,3,1,1,1,1,1,2,1) },
+  // Zanzibar North (Nungwi, Kendwa) — flagship beaches; monsoon rains Mar-May
+  'TZ-07': { weather: s12(0,0,1,3,3,1,0,0,0,1,2,1), beaches:s12(0,0,1,3,3,1,0,0,0,0,1,0) },
+  // Zanzibar West (Stone Town) — Swahili heritage port; same monsoon rhythm
+  'TZ-15': { weather: s12(1,1,1,3,3,1,0,0,0,1,2,1) },
+
+  // ── Ecuador ─────────────────────────────────────────────────────────────────────
+  // Pichincha (Quito) — 2 850 m "eternal spring"; afternoon rains Feb-Apr; acclimatise on arrival
+  'EC-P': { weather: s12(1,2,2,2,1,0,0,0,1,1,2,1) },
+  // Guayas (Guayaquil) — hot humid port; gang violence has sharply raised risk; transit with care
+  'EC-G': { weather: s12(2,3,3,2,1,1,1,1,1,1,1,2), safety:rep(3), solo:rep(3) },
+  // Galápagos — wildlife unmatched year-round; warm seas Jan-May, cool garúa mist Jun-Dec
+  'EC-W': { weather: s12(0,0,0,0,0,1,1,1,1,1,1,0), beaches:rep(0), crowds:rep(1), cost:rep(3) },
+  // Azuay (Cuenca) — colonial highland gem; mild and spring-like all year
+  'EC-A': { weather: s12(1,1,2,2,1,0,0,0,1,1,1,1) },
+  // Santa Elena (Montañita, Salinas) — surf coast; sunny season Dec-Apr, overcast May-Nov
+  'EC-SE': { weather: s12(1,1,1,1,2,2,2,2,2,2,2,1), beaches:s12(0,0,0,0,1,2,2,2,2,2,1,0) },
+  // Napo (Tena) — Amazon basin; hot, humid and rainy whatever the month
+  'EC-N': { weather: rep(2) },
+
+  // ── Costa Rica ──────────────────────────────────────────────────────────────────
+  // San José (Central Valley) — eternal-spring capital; dry Dec-Apr, wettest Sep-Oct
+  'CR-SJ': { weather: s12(0,0,0,1,2,2,2,2,3,3,2,0) },
+  // Guanacaste (Tamarindo, Papagayo) — driest beach coast; high-season crowds Dec-Feb
+  'CR-G': { weather: s12(0,0,0,0,1,2,1,1,2,2,1,0), beaches:s12(0,0,0,0,1,2,1,1,2,2,1,0), crowds:s12(3,3,2,1,1,1,2,1,1,1,2,3) },
+  // Puntarenas (Manuel Antonio, Monteverde, Osa) — lush Pacific; deluges Sep-Oct
+  'CR-P': { weather: s12(0,0,0,1,2,2,2,2,3,3,2,1) },
+  // Limón (Puerto Viejo, Tortuguero) — Caribbean side; inverted seasons — driest Feb-Mar & Sep-Oct
+  'CR-L': { weather: s12(1,0,0,1,2,2,2,1,0,0,2,2) },
+  // Alajuela (Arenal, La Fortuna) — volcano + hot springs; rain eases Feb-Apr
+  'CR-A': { weather: s12(0,0,0,1,2,2,2,2,2,2,2,1) },
+
 };
 
 // ─── City markers ─────────────────────────────────────────────────────────────
