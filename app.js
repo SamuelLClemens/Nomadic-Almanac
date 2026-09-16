@@ -1379,8 +1379,8 @@ function initMap() {
   // #map is a flex child of <body> — it fills exactly the space below #topbar.
   // No JS height calculation needed; CSS flexbox handles it automatically.
   map = L.map('map', {
-    center: [22, 14],
-    zoom: 3,
+    center: [20, 0],
+    zoom: 2,
     minZoom: 2,
     maxZoom: 18,
     worldCopyJump: true,        // snap back to primary copy when panning past ±180°
@@ -1400,12 +1400,20 @@ function initMap() {
   // Recalculates on every resize so it works correctly across screen sizes.
   // Deferred via map.whenReady() so Leaflet has performed a layout pass and
   // map.getSize() returns real pixel dimensions (not {x:0,y:0}).
+  const WORLD_BOUNDS = L.latLngBounds([-75, -180], [83, 180]);
   function lockWorldMinZoom() {
-    const worldBounds = L.latLngBounds([-75, -180], [83, 180]);
-    const z = map.getBoundsZoom(worldBounds);
+    const z = map.getBoundsZoom(WORLD_BOUNDS);
     if (z > 0) map.setMinZoom(z);   // guard: ignore degenerate zero-size result
   }
-  map.whenReady(lockWorldMinZoom);
+  map.whenReady(function () {
+    lockWorldMinZoom();
+    // Frame the whole world on first load, centered for whatever viewport the
+    // visitor has — a fixed center/zoom left mobile widths (and anything not
+    // near [22,14]) looking at little more than Africa/Europe with the rest
+    // of the world cropped off. Skipped when a URL hash already requested a
+    // specific view (#zoom=&center=), which is applied right after boot.
+    if (!_pendingView) map.fitBounds(WORLD_BOUNDS);
+  });
   map.on('resize', lockWorldMinZoom);
 
   // climatePane sits BELOW all choropleth panes — climate-zone polygons are
