@@ -1384,6 +1384,12 @@ function initMap() {
     minZoom: 2,
     maxZoom: 18,
     worldCopyJump: true,        // snap back to primary copy when panning past ±180°
+    // Latitude-only clamp — matches the -75/83 world bounds used below for
+    // min-zoom/fit-bounds, keeping the view off the blank polar space past real
+    // tile coverage. Longitude is left at ±Infinity (i.e. unclamped) on purpose:
+    // clamping it too would fight worldCopyJump's own ±180 wrap-around correction
+    // right at the date line, since the two features both react to 'moveend'.
+    maxBounds: L.latLngBounds([-75, -Infinity], [83, Infinity]),
     maxBoundsViscosity: 0.85,   // resist panning into blank polar/edge areas
     // MUST stay false. preferCanvas was tried (2026-06-10) and reverted: with
     // this app's stacked custom panes Leaflet creates one full-viewport canvas
