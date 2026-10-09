@@ -29,3 +29,6 @@ scripts/simplify_run.txt
 scripts/weather_run.txt
 scripts/parent_map_run.txt
 /Movin/
+
+# Separate git repository (Mekong travel PWA) nested in this folder
+/Mekong/
