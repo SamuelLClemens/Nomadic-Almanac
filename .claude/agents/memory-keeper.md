@@ -21,7 +21,7 @@ Your job is to keep the project memory file accurate so that future Claude sessi
 
 ---
 
-## Step 1 — Read the current memory file
+## Step 1: Read the current memory file
 
 Read the entire file. Note the existing structure, especially:
 - The **DO NOT CHANGE** warning blocks (pane z-order, GeoJSON URLs, TERRITORIES coordinates).
@@ -32,7 +32,7 @@ These sections must be preserved verbatim in the rewritten file.
 
 ---
 
-## Step 2 — Extract current state from source files
+## Step 2: Extract current state from source files
 
 Read the following files in full:
 - `/Users/zim/Desktop/Claude Code/data.js`
@@ -40,13 +40,13 @@ Read the following files in full:
 
 Extract and record:
 
-### 2a — LAYERS object
+### 2a: LAYERS object
 List every key in the `LAYERS` const: key name, `name`, `emoji`, `color`, and `levels` array. Note the approximate line number.
 
-### 2b — Top-level const declarations in data.js
+### 2b: Top-level const declarations in data.js
 List every `const NAME` at the top level with its approximate line number.
 
-### 2c — Key function signatures in app.js
+### 2c: Key function signatures in app.js
 Extract the exact signatures (name + parameter list) and approximate line numbers for:
 - `buildLayerButtons`
 - `buildTransportButtons`
@@ -68,19 +68,19 @@ Extract the exact signatures (name + parameter list) and approximate line number
 
 Also record the state variables listed near the top of app.js.
 
-### 2d — CITIES count
+### 2d: CITIES count
 Count the number of entries in the `CITIES` array (entries using the `mk(...)` helper).
 
-### 2e — BORDERS count
+### 2e: BORDERS count
 Count the number of entries in the `BORDERS` array (entries using the `bc(...)` helper).
 
-### 2f — CD_A1 coverage summary
+### 2f: CD_A1 coverage summary
 List which country ISO-2 codes have sub-national entries in CD_A1, and how many entries each has.
 
-### 2g — Approximate line counts
+### 2g: Approximate line counts
 Note the current line count of data.js and app.js.
 
-### 2h — Git state
+### 2h: Git state
 Run:
 ```bash
 cd "/Users/zim/Desktop/Claude Code" && git branch --show-current && git log -1 --oneline
@@ -89,7 +89,7 @@ Record the current branch name and the most recent commit message.
 
 ---
 
-## Step 3 — Rewrite the memory file
+## Step 3: Rewrite the memory file
 
 Rewrite `/Users/zim/.claude/projects/-Users-zim-Desktop-Claude-Code/memory/project_nomadic_almanac.md` with:
 
@@ -104,16 +104,16 @@ Rewrite `/Users/zim/.claude/projects/-Users-zim-Desktop-Claude-Code/memory/proje
 9. Updated key function signatures for app.js.
 10. Updated boot sequence if it has changed.
 11. Updated git branch and most recent commit.
-12. **Preserve verbatim** the following sections — do not alter a single character:
+12. **Preserve verbatim** the following sections: do not alter a single character:
     - `## Custom pane z-order (DO NOT change)`
     - `## Choropleth GeoJSON sources (DO NOT change URLs)`
     - The TERRITORIES note: `**DO NOT change coordinates or ids.**`
     - `## Git / deployment` rules (the "never commit" lines)
-    - The `**RULE: Never change working features — only enhance.**` line
+    - The `**RULE: Never change working features, only enhance.**` line
 
 ---
 
-## Step 4 — Confirm
+## Step 4: Confirm
 
 After writing, read back the first 30 lines of the memory file and confirm the front-matter is intact and the DO NOT CHANGE sections are present. Report:
 
@@ -135,4 +135,4 @@ OVERALL: DONE
 ══════════════════════════════════════════════════
 ```
 
-Do not update MEMORY.md (the index file) — the pointer to project_nomadic_almanac.md is already correct.
+Do not update MEMORY.md (the index file): the pointer to project_nomadic_almanac.md is already correct.

@@ -1,5 +1,5 @@
 /**
- * NOMADIC ALMANAC — PROJECT PREFLIGHT WORKFLOW
+ * NOMADIC ALMANAC: PROJECT PREFLIGHT WORKFLOW
  * ─────────────────────────────────────────────
  * Fast smoke-test specific to this project.
  * Call from any NA workflow: await workflow('nomadic-preflight')
@@ -7,7 +7,7 @@
  *
  * Checks: node path, file sizes, JS brace balance, git state, stale /tmp/na_* files.
  * Returns: PASS / WARN (node missing) / FAIL (files broken)
- * Throws on FAIL — stops any calling workflow immediately.
+ * Throws on FAIL: stops any calling workflow immediately.
  */
 
 export const meta = {
@@ -24,7 +24,7 @@ phase('Preflight')
 const result = await agent(`
 TASK: Fast health check for the Nomadic Almanac project. Complete ALL checks, report everything.
 
-CHECK 1 — Find node binary:
+CHECK 1: Find node binary:
 Run this shell block via Bash:
 NODE=$(command -v node 2>/dev/null)
 [ -z "$NODE" ] && NODE=$(find /usr/local/bin /opt/homebrew/bin /opt/homebrew/opt/node/bin /usr/bin -maxdepth 3 -name node -type f 2>/dev/null | head -1)
@@ -38,10 +38,10 @@ else
   echo "$NODE" > /tmp/na_node_bin.txt
 fi
 
-CHECK 2 — Project file line counts (CRITICAL — any zero means broken):
+CHECK 2: Project file line counts (CRITICAL: any zero means broken):
 Run: wc -l "${PROJ}/data.js" "${PROJ}/app.js" "${PROJ}/style.css" "${PROJ}/sw.js" "${PROJ}/index.html" 2>&1
 
-CHECK 3 — JS brace balance (CRITICAL — FAIL = integration will corrupt files):
+CHECK 3: JS brace balance (CRITICAL: FAIL = integration will corrupt files):
 Run: python3 - << 'PYEOF'
 results = []
 for fn in ['${PROJ}/data.js', '${PROJ}/app.js']:
@@ -52,20 +52,20 @@ for fn in ['${PROJ}/data.js', '${PROJ}/app.js']:
         so = txt.count('['); sc = txt.count(']')
         ok = (opens == closes) and (po == pc) and (so == sc)
         lines = txt.count('\n')
-        results.append(fn.split('/')[-1] + ':' + ('PASS(' + str(lines) + 'L)' if ok else 'FAIL—braces:'+str(opens)+'/'+str(closes)+' parens:'+str(po)+'/'+str(pc)))
+        results.append(fn.split('/')[-1] + ':' + ('PASS(' + str(lines) + 'L)' if ok else 'FAIL: braces:'+str(opens)+'/'+str(closes)+' parens:'+str(po)+'/'+str(pc)))
     except Exception as e:
         results.append(fn.split('/')[-1] + ':ERROR(' + str(e) + ')')
 for r in results:
     print(r)
 PYEOF
 
-CHECK 4 — Service worker cache version (informational):
+CHECK 4: Service worker cache version (informational):
 Run: grep -n "CACHE" "${PROJ}/sw.js" 2>/dev/null | head -3
 
-CHECK 5 — Git state:
+CHECK 5: Git state:
 Run: cd "${PROJ}" && git log --oneline -3 2>/dev/null && echo "---" && git status --short 2>/dev/null | head -10
 
-CHECK 6 — Stale /tmp/na_* build artifacts:
+CHECK 6: Stale /tmp/na_* build artifacts:
 Run: python3 - << 'PYEOF2'
 import os, glob
 files = sorted(glob.glob('/tmp/na_*.js') + glob.glob('/tmp/na_*.css'))
@@ -93,7 +93,7 @@ const resultStr = String(result)
 log('NA Preflight: ' + resultStr.slice(0, 300))
 
 if (resultStr.includes('PREFLIGHT FAIL')) {
-  throw new Error('Nomadic Almanac preflight failed — aborting. Fix the reported issue before re-running. Details: ' + resultStr)
+  throw new Error('Nomadic Almanac preflight failed: aborting. Fix the reported issue before re-running. Details: ' + resultStr)
 }
 
 return {

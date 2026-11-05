@@ -26,7 +26,7 @@ Your job is to confirm the page actually loads and renders correctly after any c
 
 ---
 
-## Step 1 — Confirm the source files exist
+## Step 1: Confirm the source files exist
 
 Run from the repository root (non-zero exit = FAIL immediately):
 ```bash
@@ -35,7 +35,7 @@ ls -lh data.js app.js style.css index.html serve.py
 
 ---
 
-## Step 2 — Ensure the preview server is running
+## Step 2: Ensure the preview server is running
 
 Check whether the server is already listening on port 7432:
 ```bash
@@ -52,11 +52,11 @@ Confirm it is now listening:
 ```bash
 curl -s -o /dev/null -w "%{http_code}" http://localhost:7432/
 ```
-A `200` response means the server is up. Any other response is a FAIL — report the error and stop.
+A `200` response means the server is up. Any other response is a FAIL: report the error and stop.
 
 ---
 
-## Step 3 — Open the preview and take a screenshot
+## Step 3: Open the preview and take a screenshot
 
 Use `preview_start` (or `preview_list` to attach to the existing session) to open `http://localhost:7432/` in the preview browser. Wait at least 3 seconds for Leaflet and the choropleth to initialise before taking the screenshot.
 
@@ -64,7 +64,7 @@ Take a screenshot and include it in your report.
 
 ---
 
-## Step 4 — Check the browser console for errors
+## Step 4: Check the browser console for errors
 
 Use `preview_console_logs` to retrieve all console output. Flag any entry with level `error` or any message matching:
 - `ReferenceError`
@@ -78,22 +78,22 @@ If any such entry is found, record the full message for the FAIL report.
 
 ---
 
-## Step 5 — Functional assertions via JavaScript evaluation
+## Step 5: Functional assertions via JavaScript evaluation
 
 Run each assertion via `preview_eval`. Any `false` or exception is a FAIL.
 
 | Assertion | Expected |
 |---|---|
-| `document.getElementById('months').childElementCount > 0` | `true` — month buttons rendered |
-| `document.getElementById('layers').childElementCount > 0` | `true` — layer buttons rendered |
-| `typeof window.map === 'object' && window.map !== null` | `true` — Leaflet map initialised |
-| `document.querySelectorAll('.leaflet-tile-loaded').length > 0` | `true` — at least one tile loaded |
+| `document.getElementById('months').childElementCount > 0` | `true`: month buttons rendered |
+| `document.getElementById('layers').childElementCount > 0` | `true`: layer buttons rendered |
+| `typeof window.map === 'object' && window.map !== null` | `true`: Leaflet map initialised |
+| `document.querySelectorAll('.leaflet-tile-loaded').length > 0` | `true`, at least one tile loaded |
 
 If the Leaflet map is not yet initialised after the initial wait, retry once after an additional 2 seconds before reporting failure.
 
 ---
 
-## Step 6 — Report
+## Step 6: Report
 
 Emit the report in this format:
 
