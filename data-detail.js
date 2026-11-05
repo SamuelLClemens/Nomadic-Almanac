@@ -1,10 +1,11 @@
 // Nomadic Almanac: data-detail.js
 // Heavy prose tables split out of data.js so the first paint does not pay for
 // them (VACCINE_DATA, TIPPING_DETAIL_DATA, COUNTRY_FACTS, PHRASES_BY_LANG,
-// COUNTRY_INTEL, COUNTRY_EXTRA). Loaded with `defer` from index.html (pure
-// literals, no data.js helper calls, but defer keeps the execution order
-// deterministic); every consumer in app.js typeof-guards these tables, so the
-// app boots and the map is fully interactive before this file executes.
+// COUNTRY_INTEL, COUNTRY_EXTRA). Pure literals, no data.js helper calls and no
+// side effects: app.js injects it after boot (_naEnsureDetail) and rebuilds an
+// already-open dossier when it lands (_naDetailArrived). Every consumer in
+// app.js typeof-guards these tables, so the app boots and the map is fully
+// interactive before this file exists.
 
 const VACCINE_DATA = {
   // Countries where Yellow Fever vaccination is required for entry (or endemic)
@@ -24231,7 +24232,3 @@ const COUNTRY_EXTRA = {
  }
 };
 
-
-// Late-arrival hook: if a country guide is already open when this file lands,
-// repaint it so the facts/phrasebook/intel sections appear without a re-open.
-try { if (typeof _rerenderActiveDossier === 'function') _rerenderActiveDossier(); } catch (e) {}

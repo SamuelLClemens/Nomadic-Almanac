@@ -1077,14 +1077,20 @@
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
-<!-- Heavy split-out data tables. data-detail.js MUST be defer, not async:
-     defer guarantees it executes after data.js in document order, and app.js
-     typeof-guards every consumer so the map boots before it runs.
-     data-admin2.js is NOT loaded here at all: it calls data.js's rep()/s12()
-     helpers in its literals and is only needed by the zoom>=6 county view, so
-     app.js injects it on first county zoom (_ensureAdmin2Tables), keeping
-     ~0.42 MB gz off the first visit entirely. -->
-<script defer src="data-detail.js"></script>
+<!-- Heavy split-out data tables are NOT script tags here, so that nothing but the
+     three files above competes with them on a slow first visit:
+     - data-detail.js (country dossier prose, 0.23 MB gz) is injected by app.js
+       (_naEnsureDetail) once the page is quiet, or at once if a dossier is
+       opened sooner; the open dossier is then rebuilt in place. It was a defer
+       tag before, which shared the connection with data.js and app.js and
+       delayed the first map paint by about a second on a 1.6 Mbit/s link. It
+       must not become async: only app.js's typeof guards make it safe to
+       arrive late, and an async tag would race data.js.
+     - data-admin2.js calls data.js's rep()/s12() helpers in its literals and is
+       only needed by the zoom>=6 county view, so app.js injects it on first
+       county zoom (_ensureAdmin2Tables), keeping ~0.42 MB gz off the first
+       visit entirely. -->
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

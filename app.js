@@ -4241,6 +4241,8 @@ function _renderIntelHTML(intel, containerEl, isLive) {
 function _renderCountryIntel(iso2, countryName, containerEl) {
   if (!containerEl) return;
   var stat = (typeof COUNTRY_INTEL !== 'undefined' && COUNTRY_INTEL[iso2]) ? COUNTRY_INTEL[iso2] : null;
+  // Table not loaded yet (data-detail.js arrives after boot): keep "loading"; _naDetailArrived refills.
+  var pending = (typeof COUNTRY_INTEL === 'undefined');
   if (stat) {
     _renderIntelHTML(stat, containerEl);
   } else {
@@ -4252,9 +4254,9 @@ function _renderCountryIntel(iso2, countryName, containerEl) {
   if (apiKey) {
     _getCountryIntelligence(iso2, countryName).then(function (live) {
       if (live) _renderIntelHTML(live, containerEl, true);
-      else if (!stat) containerEl.innerHTML = '<div class="intel-error">' + _esc(_t('common.noData')) + '</div>';
+      else if (!stat && !pending) containerEl.innerHTML = '<div class="intel-error">' + _esc(_t('common.noData')) + '</div>';
     });
-  } else if (!stat) {
+  } else if (!stat && !pending) {
     containerEl.innerHTML = '<div class="intel-error">' + _esc(_t('common.noData')) + '</div>';
   }
 }
@@ -5527,6 +5529,9 @@ function _dsec(titleKey, inner, opts) {
 }
 
 function buildCountryTooltip(iso2) {
+  // The prose tables load after boot (data-detail.js). Built before they exist, this dossier lacks
+  // the prose: start the load now, and _naDetailArrived rebuilds the open dossier when it lands.
+  if (typeof COUNTRY_FACTS === 'undefined') { _naDossierWantsDetail = true; _naEnsureDetail(); }
   // Enriched dossier renders ALWAYS: country facts, history and phrasebook show
   // even with no active layer; only the per-layer rows/sections gate on activeLayers.
   // Robust name: countryNames is missing a few entries (e.g. FR): fall back to
@@ -8700,16 +8705,63 @@ function _idlePrefetchHeavyAssets() {
     } catch (e) {}
   });
 }
-var _naPrefetchGates = 2;   // window load, country polygons settled
+// Post-boot loading order, each step waiting for the one before it so nothing shares the
+// connection with the 1.2 MB country download or the first tiles:
+//   window load AND country polygons settled -> data-detail.js (dossier prose, 0.23 MB gz)
+//   data-detail.js settled                    -> the idle prefetch above (admin-1 and admin-2, 3 MB)
+var _naQuietGates = 2;      // window load, country polygons settled
+var _naPrefetchGates = 3;   // the same two, plus data-detail.js settled
+function _naQuietGateOpen() { if (--_naQuietGates === 0) _naEnsureDetail(); }
 function _naPrefetchGateOpen() { if (--_naPrefetchGates === 0) _idlePrefetchHeavyAssets(); }
+function _naPageGateOpen() { _naQuietGateOpen(); _naPrefetchGateOpen(); }
 var _naCountriesSettledOnce = false;
 function _naCountriesSettled() {
   if (_naCountriesSettledOnce) return;
   _naCountriesSettledOnce = true;
+  _naPageGateOpen();
+}
+if (document.readyState === 'complete') _naPageGateOpen();
+else window.addEventListener('load', _naPageGateOpen, { once: true });
+
+// ─── Dossier prose tables (data-detail.js) ──────────────────────────────────
+// COUNTRY_FACTS, COUNTRY_INTEL, COUNTRY_EXTRA, PHRASES_BY_LANG, VACCINE_DATA and
+// TIPPING_DETAIL_DATA (0.9 MB, 0.23 MB gz) only feed the country dossier, so they are not a
+// <script> tag in index.html: as one, the download shared the connection with data.js and app.js
+// and delayed the first map paint. They load once the page is quiet (see the gates above), or at
+// once when a dossier is built sooner (search, a glyph or a map click). Every reader typeof-guards
+// the tables, so an early dossier simply renders without the prose; _naDetailArrived then rebuilds
+// it in place. The file is pure literals with no data.js helper calls, so injection order is free.
+var _naDetailReq = false;
+var _naDetailSettledOnce = false;
+var _naDossierWantsDetail = false;   // a dossier was built while the tables were missing
+function _naDetailSettled() {
+  if (_naDetailSettledOnce) return;
+  _naDetailSettledOnce = true;
   _naPrefetchGateOpen();
 }
-if (document.readyState === 'complete') _naPrefetchGateOpen();
-else window.addEventListener('load', _naPrefetchGateOpen, { once: true });
+function _naEnsureDetail() {
+  if (typeof COUNTRY_FACTS !== 'undefined') { _naDetailSettled(); return; }
+  if (_naDetailReq) return;
+  _naDetailReq = true;
+  var s = document.createElement('script');
+  s.src = 'data-detail.js';
+  s.onload = _naDetailArrived;
+  // On failure allow a retry the next time a dossier is built; the prefetch must not wait forever.
+  s.onerror = function () { _naDetailReq = false; _naDetailSettled(); };
+  document.head.appendChild(s);
+}
+function _naDetailArrived() {
+  _naDetailSettled();
+  if (!_naDossierWantsDetail) return;
+  _naDossierWantsDetail = false;
+  var key = _activeTooltipKey;
+  if (!tooltipVisible || !key || key.indexOf('country:') !== 0) return;
+  var iso2 = key.slice('country:'.length);
+  try { _rerenderActiveDossier(); } catch (_e) {}
+  // The rebuild leaves the intel container empty: fill it as the opening code paths do.
+  var ic = document.getElementById('intel-' + iso2);
+  if (ic) { try { _renderCountryIntel(iso2, (countryNames && countryNames[iso2]) || iso2, ic); } catch (_e) {} }
+}
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
