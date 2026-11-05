@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="110" viewBox="0 0 480 165" role="img" aria-label="Nomadic Almanac — World Travel Intelligence">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="110" viewBox="0 0 480 165" role="img" aria-label="Nomadic Almanac: World Travel Intelligence">
 <defs>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&amp;display=swap');
@@ -70,7 +70,7 @@
   <g transform="translate(461,146)"><polygon points="0,-7.5 2.2,-2.2 7.5,0 2.2,2.2 0,7.5 -2.2,2.2 -7.5,0 -2.2,-2.2"/><circle r="1.7" fill="#0A1630"/></g>
 </g>
 
-<!-- ══ RIGHT PANEL — antique map ══ -->
+<!-- ══ RIGHT PANEL: antique map ══ -->
 <g clip-path="url(#cRight)">
   <ellipse cx="330" cy="82" rx="165" ry="78" fill="url(#gMapBg)"/>
 
@@ -186,7 +186,7 @@
 
   <!-- ── DRAGON (sea serpent swimming) ── -->
   <g class="naml-drg">
-    <!-- Serpent body — three arching coils read as a swimming undulation -->
+    <!-- Serpent body: three arching coils read as a swimming undulation -->
     <!-- Rear coil / tail -->
     <g class="naml-dtail">
       <path d="M 458,136 Q 464,132 469,135 Q 467,140 462,140 Q 457,139 458,136 Z"
@@ -218,7 +218,7 @@
     <circle cx="404" cy="129" r="0.5" fill="#FF8080"/>
   </g>
 
-  <!-- Fire breath (from open mouth, facing left — origin ~398,133) -->
+  <!-- Fire breath (from open mouth, facing left: origin ~398,133) -->
   <!-- Three overlapping flame tongues + glow, each animated at different phase -->
   <g class="naml-fire">
     <path d="M 399,132 Q 393,129 387,131 Q 382,131.5 379,131 Q 383,133.5 389,132 Q 394,133 399,132 Z"
@@ -241,7 +241,7 @@
 <circle cx="162" cy="23"  r="1.8" fill="#C9A820"/>
 <circle cx="162" cy="142" r="1.8" fill="#C9A820"/>
 
-<!-- ══ COMPASS — left half ══ -->
+<!-- ══ COMPASS: left half ══ -->
 <!-- Ambient glow halo -->
 <circle cx="82" cy="82" r="68" fill="url(#gCompassGlow)"/>
 
@@ -282,7 +282,7 @@
     <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(345 82 82)"/>
   </g>
 
-  <!-- 16-point rose — ALL GOLD (matching reference image) -->
+  <!-- 16-point rose: ALL GOLD (matching reference image) -->
   <!-- 4 long cardinal points -->
   <g fill="#C9A820">
     <polygon points="82,22 87,76 82,82 77,76"/>
@@ -329,7 +329,7 @@
   <text x="9"   y="87"  text-anchor="middle" font-size="10" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" fill="#C9A820">W</text>
 </g>
 
-<!-- NEEDLE renders above compass ring and does NOT participate in boat rock —
+<!-- NEEDLE renders above compass ring and does NOT participate in boat rock,
      it seeks North independently while the bezel tips with the swell -->
 <g class="naml-needle">
   <!-- North (RED) -->

@@ -13,7 +13,7 @@
   --color-accent-deep: #9b1c2e;   /* north-needle crimson */
   --color-water:       #1b2a4a;   /* prussian map water */
 
-  /* Typography — period-accurate stacks (overridden by NA token block below,
+  /* Typography: period-accurate stacks (overridden by NA token block below,
      but kept here so legacy var(--fm) aliases resolve to the correct face) */
   --font-display: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
   --font-body:    'IM Fell English', 'EB Garamond', Georgia, serif;
@@ -24,7 +24,7 @@
   --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
   --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
 
-  /* ── Legacy aliases — preserve all working features ────────────────── */
+  /* ── Legacy aliases: preserve all working features ────────────────── */
   --ink:     var(--color-ink);
   --panel:   var(--color-paper-dark);
   --panel2:  rgba(22,17,9,0.98);
@@ -214,7 +214,7 @@ html, body {
 
 /* ─── Top Bar ────────────────────────────────────────────────────────────── */
 #topbar {
-  /* Relative — stays at the top as a flex item; map fills the rest */
+  /* Relative: stays at the top as a flex item; map fills the rest */
   position: relative; z-index: 1200;
   flex-shrink: 0;   /* never shrink; map gets whatever is left */
   /* Logo area (first ~270 px) stays fully opaque so the compass reads clearly.
@@ -226,7 +226,7 @@ html, body {
     rgba(28,20,8,0.78)  370px
   );
   border-bottom: 1px solid var(--b2);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
 }
 
 #topbar::after {
@@ -282,7 +282,7 @@ html, body {
   text-decoration: none;
 }
 #logo-icon { width: 46px; height: 46px; flex-shrink: 0; }
-/* Antique world map silhouette behind the wordmark — faint gold continents
+/* Antique world map silhouette behind the wordmark: faint gold continents
    on dark ground, with a lat/long graticule grid. Purely decorative: opacity
    is kept low so it never competes with the text readability. */
 #logo-text  {
@@ -314,7 +314,7 @@ html, body {
 }
 
 /* ─── Month Buttons ──────────────────────────────────────────────────────── */
-/* (#months-row removed — the month selector now lives in #na-header-months.) */
+/* (#months-row removed: the month selector now lives in #na-header-months.) */
 #months {
   display: flex; align-items: center; gap: 3px;
   flex-wrap: nowrap; /* always single row */
@@ -432,7 +432,7 @@ html, body {
   box-shadow: 0 0 8px rgba(201,168,76,0.45), 0 0 2px rgba(201,168,76,0.3);
 }
 
-/* Roads tile layer — multiply blend makes white tiles transparent over satellite */
+/* Roads tile layer: multiply blend makes white tiles transparent over satellite */
 .transport-roads-layer { mix-blend-mode: multiply; }
 
 /* ─── Search (inline in topbar row 1) ───────────────────────────────────── */
@@ -472,7 +472,7 @@ html, body {
 
 /* ─── Map ─────────────────────────────────────────────────────────────────── */
 #map {
-  /* Flex item — fills exactly the height remaining below the topbar.
+  /* Flex item: fills exactly the height remaining below the topbar.
      No JS needed; no hardcoded top offset; works on every screen size. */
   position: relative;
   flex: 1;
@@ -480,7 +480,7 @@ html, body {
   background: #060402;
 }
 
-/* Smooth transitions on choropleth only — scoped to avoid 4000+ simultaneous
+/* Smooth transitions on choropleth only: scoped to avoid 4000+ simultaneous
    CSS transitions across all SVG paths at high zoom levels */
 .leaflet-choroplethPane-pane { transition: opacity .2s ease; }
 .leaflet-pane.leaflet-choroplethPane-pane .leaflet-interactive,
@@ -594,7 +594,7 @@ html, body {
 .spark-labels { display: flex; justify-content: space-between; margin-top: 2px; }
 .spark-label { font-size: 5.5px; color: rgba(201,168,76,0.4); letter-spacing: .3px; }
 
-/* Border status chips — dark-theme pill badges */
+/* Border status chips: dark-theme pill badges */
 .tt-status-open {
   display: inline-block; padding: 1px 7px; border-radius: 20px;
   font-size: 8px; font-weight: 700; letter-spacing: 1px;
@@ -621,42 +621,46 @@ html, body {
 }
 
 /* ─── Map Status ─────────────────────────────────────────────────────────── */
+/* left/bottom clear the sidebar (240px, or 64px on laptops) and the phone bottom nav, which used
+   to cover this message. */
 #map-status {
   display: none;
-  position: fixed; bottom: 18px; left: 14px; z-index: 1000;
+  position: fixed; bottom: 18px; left: calc(var(--sidebar-w) + 14px); z-index: 1000;
   background: rgba(16,12,5,0.82); color: var(--sand);
   font-family: var(--fm); font-size: 10px;
   padding: 6px 10px; border-radius: 4px;
   pointer-events: none; letter-spacing: 0.04em;
 }
+@media (max-width: 1279px) { #map-status { left: calc(var(--sidebar-w-sm) + 14px); } }
+@media (max-width: 767px)  { #map-status { left: 10px; bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 10px); } }
 
 /* ─── Legend (Field Guide) ───────────────────────────────────────────────── */
 #legend {
   position: absolute; bottom: 30px; left: 12px; z-index: 1000;
   /* Frosted-glass legend: 84 % opaque so the map shows subtly through.
      backdrop-filter blur handles the see-through blur effect.
-     Text stays fully legible — sand on dark has strong contrast.
+     Text stays fully legible: sand on dark has strong contrast.
      COMPACT + STAY OUT OF THE WAY: chrome (padding, width, gaps) is kept
      tight and the whole panel rests slightly translucent, returning to
      full opacity on hover/focus. Text sizes are deliberately UNCHANGED. */
   background: rgba(14,11,6,0.84); border: 1px solid var(--b2);
   border-left: 2px solid rgba(201,168,76,0.35);
   border-radius: 9px; padding: 9px 11px;
-  backdrop-filter: blur(22px); min-width: 178px; max-width: 230px;
+  -webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px); min-width: 178px; max-width: 230px;
   display: none; box-shadow: 0 6px 24px rgba(0,0,0,.55);
   font-family: var(--fm);
   opacity: 0.88;
   transition: opacity 0.18s ease;
 }
 #legend:hover, #legend:focus-within { opacity: 1; }
-/* Legend title — large, clickable, matches Best This Month toggle */
+/* Legend title: large, clickable, matches Best This Month toggle */
 #legend h4, #legend-title {
   font-size: 12px; font-weight: 700; color: var(--gold);
   text-transform: uppercase; letter-spacing: 1.5px;
   margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px solid var(--b1);
   cursor: pointer; user-select: none; text-align: center;
 }
-/* Collapsible body wrapper — handles the expand/collapse animation */
+/* Collapsible body wrapper: handles the expand/collapse animation */
 #legend-body-wrap {
   max-height: 600px;
   overflow: hidden;
@@ -664,7 +668,7 @@ html, body {
   opacity: 1;
 }
 
-/* Inner legend body — independently scrollable when many layers are active */
+/* Inner legend body: independently scrollable when many layers are active */
 #legend-body {
   max-height: calc(70vh - 160px);
   overflow-y: auto;
@@ -683,7 +687,7 @@ html, body {
   border-radius: 10px; padding: 8px;
   display: none; flex-direction: column; gap: 2px;
   min-width: 175px; box-shadow: 0 8px 28px rgba(0,0,0,.88);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
   max-height: 280px; overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(201,168,76,0.3) transparent;
@@ -787,13 +791,15 @@ html, body {
 }
 .leaflet-control-zoom a:hover { background: rgba(201,168,76,0.1) !important; }
 
+/* Map credits are a licence requirement (Esri, OpenStreetMap, NASA, geoBoundaries), so they must
+   be readable: #b8a070 on this strip is about 8:1 (was #3a2a10, about 1.4:1, at 8px). */
 .leaflet-control-attribution {
   background: rgba(10,8,3,.85) !important;
-  color: #3a2a10 !important;
-  font-size: 8px !important;
+  color: #b8a070 !important;
+  font-size: 10px !important;
   font-family: var(--fm) !important;
 }
-.leaflet-control-attribution a { color: #5a4020 !important; }
+.leaflet-control-attribution a { color: #d4b878 !important; }
 
 /* ── Best This Month widget (inside legend) ───────── */
 #best-toggle {
@@ -913,7 +919,7 @@ html, body {
 }
 
 /* ─── First-visit onboarding hint ───────────────────────────────────────── */
-/* Welcome card — persists until the traveller interacts with the site (any click,
+/* Welcome card: persists until the traveller interacts with the site (any click,
    key, or map gesture dismisses it). No auto-fade: it must not "flash". */
 #onboarding-hint {
   position: fixed; z-index: 3000;
@@ -1069,7 +1075,7 @@ html, body {
   font-size: 9px; color: var(--dim); letter-spacing: 0.05em; line-height: 1.8;
 }
 
-/* Pin button — dark theme */
+/* Pin button: dark theme */
 .tt-pin-btn {
   display: inline-flex; align-items: center; gap: 4px;
   margin-top: 8px; padding: 4px 9px; cursor: pointer;
@@ -1112,10 +1118,10 @@ html, body {
   #tb-row1 { flex-wrap: wrap; height: auto; padding: 8px 12px 0; gap: 8px; }
   #search-wrap { width: 140px; }
   #tb-row2 { padding: 0 12px; }
-  /* Thumb-reachable tap targets (was 8px — too small to hit reliably). */
+  /* Thumb-reachable tap targets (was 8px: too small to hit reliably). */
   .mb { padding: 6px 10px; font-size: 11px; }
   .lb, .tb { padding: 6px 10px; font-size: 10px; }
-  #map-status { bottom: 10px; left: 10px; font-size: 9px; }
+  #map-status { font-size: 9px; }
   /* iOS Safari zooms viewport on focus if input font-size < 16px.
      Override to 16px on mobile so the map stays in frame. */
   #country-search, #passport-select { font-size: 16px !important; }
@@ -1125,7 +1131,7 @@ html, body {
    The month scrubber and layer/passport strip stay visible and scroll
    horizontally, so nothing is buried and the map is never pushed off-screen. */
 @media (max-width: 540px) {
-  /* Hamburger retired — there is nothing left to hide/show behind it. */
+  /* Hamburger retired: there is nothing left to hide/show behind it. */
   #topbar-hamburger { display: none !important; }
   /* Slim, glassy control zone that reads as controls, not a second header. */
   #topbar {
@@ -1134,7 +1140,7 @@ html, body {
     border-bottom: 1px solid rgba(201,168,76,0.10);
   }
   #tb-row1 { flex-wrap: nowrap; height: auto; padding: 6px 10px; gap: 8px; }
-  /* Search lives in the header button (and ⌘K) — no inline search on mobile. */
+  /* Search lives in the header button (and ⌘K): no inline search on mobile. */
   #search-wrap,
   #topbar.tb-collapsed #search-wrap,
   #topbar.tb-expanded #search-wrap { display: none !important; }
@@ -1310,7 +1316,7 @@ html, body {
 .intel-loading, .intel-error, .intel-prompt { font-size: 11px; color: var(--na-text-secondary); font-style: italic; padding: 4px 0; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   UI MASTER BUILD v2 — NAVIGATION & PANEL SYSTEM
+   UI MASTER BUILD v2: NAVIGATION & PANEL SYSTEM
    All breakpoints: mobile (≤767px) / tablet (768-1023px) /
                     laptop (1024-1279px) / desktop (1280px+)
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -1346,7 +1352,7 @@ html, body {
 #na-header-logo,
 #na-header-actions { flex-shrink: 0; }
 
-/* Centred month strip — the month selector now lives in the top menu. */
+/* Centred month strip: the month selector now lives in the top menu. */
 #na-header-months {
   flex: 1 1 auto;
   min-width: 0;
@@ -1505,7 +1511,7 @@ html, body {
   font-size: var(--ts-micro);
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
-  /* --na-text-secondary (#A89060) gives 5.6:1 on --na-navy — passes WCAG AA */
+  /* --na-text-secondary (#A89060) gives 5.6:1 on --na-navy: passes WCAG AA */
   color: var(--na-text-secondary);
   padding: var(--sp-2) var(--sp-2) var(--sp-1);
   display: block;
@@ -1605,7 +1611,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   font-size: var(--ts-micro);
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
-  /* --na-text-secondary (#A89060): 5.6:1 contrast — passes WCAG AA */
+  /* --na-text-secondary (#A89060): 5.6:1 contrast: passes WCAG AA */
   color: var(--na-text-secondary);
   margin-bottom: var(--sp-1);
 }
@@ -1658,10 +1664,10 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   #na-sidebar.collapsed .gold-rule { display: none; }
 }
 
-/* ── Sidebar — LAPTOP (1024–1279px): icon rail, expands smoothly on hover ─── */
+/* ── Sidebar: LAPTOP (1024–1279px): icon rail, expands smoothly on hover ─── */
 @media (min-width: 1024px) and (max-width: 1279px) {
   #na-sidebar {
-    /* max-width drives expansion — width stays at full value so layout shifts
+    /* max-width drives expansion: width stays at full value so layout shifts
        don't jump. Only the clamp animates. */
     width: var(--sidebar-w);
     max-width: var(--sidebar-w-sm);
@@ -1677,7 +1683,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   }
   #na-sidebar-inner { padding: var(--sp-3); }
   .na-sidebar-brand { display: none; }
-  /* Labels animate via max-width — avoids the width:auto jump */
+  /* Labels animate via max-width: avoids the width:auto jump */
   .na-nav-item-label {
     opacity: 0;
     max-width: 0;
@@ -1700,7 +1706,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   #na-sidebar:focus-within .na-accordion-body.open { max-height: 600px !important; }
 }
 
-/* ── Sidebar — TABLET (768–1023px): 72 px icon rail ────────────────────────── */
+/* ── Sidebar: TABLET (768–1023px): 72 px icon rail ────────────────────────── */
 @media (min-width: 768px) and (max-width: 1023px) {
   #na-sidebar {
     width: var(--rail-w);
@@ -1712,7 +1718,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   .na-nav-group-label { display: none; }
   /* Centre icons in the 72 px column; keep 44 px tap target */
   .na-nav-item { justify-content: center; padding: var(--sp-3) 0; }
-  /* Tooltip via title attr rendered by OS — supplement with CSS tooltip */
+  /* Tooltip via title attr rendered by OS: supplement with CSS tooltip */
   .na-nav-item[aria-label]::after {
     content: attr(aria-label);
     position: absolute;
@@ -1741,14 +1747,14 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   .na-accordion-arrow { display: none; }
 }
 
-/* ── Sidebar — MOBILE (≤767px): hidden, bottom nav shows instead ───────────── */
+/* ── Sidebar: MOBILE (≤767px): hidden, bottom nav shows instead ───────────── */
 @media (max-width: 767px) {
   #na-sidebar { display: none; }
   #na-layout { flex-direction: column; }
 }
 
-/* At desktop (1280px+) show only the transport strip — sidebar handles layers.
-   Hide tb-row1 (logo/months/search — duplicated in sidebar) and hide the #layers
+/* At desktop (1280px+) show only the transport strip: sidebar handles layers.
+   Hide tb-row1 (logo/months/search: duplicated in sidebar) and hide the #layers
    div (also in sidebar). Keep transport + visa/passport accessible. */
 @media (min-width: 1280px) {
   #tb-row1 { display: none !important; }
@@ -1758,7 +1764,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(201,168,76,0.08);
   }
-  /* Layers live in the sidebar here — hide from topbar to avoid duplication.
+  /* Layers live in the sidebar here: hide from topbar to avoid duplication.
      div:nth-child(2) is the .tb-div divider between #layers and #transport. */
   #topbar #layers,
   #topbar #tb-row2 > div:nth-child(2) { display: none; }
@@ -1775,7 +1781,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   overflow: hidden;
 }
 #na-logo {
-  /* SVG aspect: 480 / 165 ≈ 2.91 — let height drive width */
+  /* SVG aspect: 480 / 165 ≈ 2.91: let height drive width */
   height: 46px;
   width: auto;
 }
@@ -1808,7 +1814,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   }
 }
 
-/* ── Bottom Navigation on desktop & tablet — centered floating pill ──────────
+/* ── Bottom Navigation on desktop & tablet: centered floating pill ──────────
    The web version now mirrors the mobile chrome: a persistent top header plus a
    bottom menu. On wide screens the bar becomes a centered, elevated pill so it
    reads as an intentional control surface rather than a stretched mobile bar. */
@@ -1837,7 +1843,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   #na-bottom-nav .na-bottom-item { padding: 0 20px; min-width: 84px; }
 }
 
-/* ── Standalone Preferences launcher — RETIRED ──────────────────────────────
+/* ── Standalone Preferences launcher: RETIRED ──────────────────────────────
    Preferences is now a single icon in the bottom menu (no duplication). The
    floating gear is suppressed; the bottom-nav "Settings" item is the sole entry. */
 #na-prefs-launcher {
@@ -1871,7 +1877,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 
 /* The Layer Lens recolour transition is defined with the pane-scoped choropleth
-   rule earlier in this file (not globally — a global .leaflet-interactive
+   rule earlier in this file (not globally: a global .leaflet-interactive
    transition would animate every border/overlay path and cause zoom jank). */
 
 /* a11y: restore a visible keyboard focus ring on controls that suppressed it. */
@@ -1894,7 +1900,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   text-align: center; flex: 0 0 auto;
 }
 .na-sheet-item .na-layer-emoji { font-size: 24px; line-height: 1; }
-/* The sheet grid can now hold all 31 layers — let it scroll within the sheet. */
+/* The sheet grid can now hold all 31 layers: let it scroll within the sheet. */
 #na-sheet-grid { max-height: 52vh; overflow-y: auto; }
 
 /* Live crime overlay status chip (bottom-center, clear of the mobile nav). */
@@ -1971,7 +1977,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   font-size: 9px;
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
-  /* --na-text-secondary (#A89060): 5.6:1 — passes WCAG AA for nav labels */
+  /* --na-text-secondary (#A89060): 5.6:1: passes WCAG AA for nav labels */
   color: var(--na-text-secondary);
   min-height: 44px;
   min-width: 44px;
@@ -2243,7 +2249,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   box-shadow:      inset 0 0 0 1px rgba(200,168,75,0.08), 0 4px 24px rgba(0,0,0,0.4) !important;
 }
 
-/* ── Keyboard focus ring — consistent across all new elements ─────────────── */
+/* ── Keyboard focus ring: consistent across all new elements ─────────────── */
 :focus-visible {
   outline: 2px solid var(--na-gold-mid);
   outline-offset: 2px;
@@ -2336,7 +2342,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 .compare-empty-state strong { font-style: normal; }
 
-/* ─── 320 px breakpoint — smallest Android / fold devices ───────────────── */
+/* ─── 320 px breakpoint: smallest Android / fold devices ───────────────── */
 @media (max-width: 359px) {
   #na-header-wordmark { display: none; }
   .na-nav-item-label  { font-size: 8px; }
@@ -2354,7 +2360,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 
 #na-prefs-overlay {
   position: absolute; inset: 0;
-  background: rgba(5,8,20,0.72); backdrop-filter: blur(2px);
+  background: rgba(5,8,20,0.72); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
 }
 
 #na-prefs-panel {
@@ -2585,7 +2591,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 .na-fact-sub { color: var(--na-text-secondary); font-weight: 400; font-size: 8px; }
 
-/* Emergency band — prominent, distinct red accent (legible on both themes) */
+/* Emergency band: prominent, distinct red accent (legible on both themes) */
 .na-emergency {
   display: flex; align-items: center; gap: 9px;
   margin: 2px 0 11px; padding: 8px 10px;
@@ -2679,7 +2685,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 }
 .na-lang-btn:hover { background: rgba(200,168,75,0.18); }
 
-/* (Floating language FAB removed — language lives in Preferences + welcome card.) */
+/* (Floating language FAB removed: language lives in Preferences + welcome card.) */
 
 /* ─── Right-to-left support (Arabic & Hebrew) ───────────────────────────────
    Document direction flips for content/text flow; the Leaflet map and its
@@ -2696,14 +2702,14 @@ html[dir="rtl"] .na-hint-flag-menu { left: auto; right: 50%; transform: translat
 html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 
 /* ─── Welcome card additions (flag picker + links) ──────────────────────────── */
-/* Welcome card single-flag language picker — a small flag chip sitting inline
+/* Welcome card single-flag language picker: a small flag chip sitting inline
    with the How-it-works / FAQ links, opening a dropdown of every language. */
 .na-hint-flagpick { position: relative; display: inline-flex; align-items: center; }
 .na-hint-flag-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   min-width: 24px; min-height: 24px;         /* WCAG 2.5.8 target size */
   padding: 2px 5px; border-radius: 6px; cursor: pointer;
-  background: none; border: none;            /* no circle — flag + native name */
+  background: none; border: none;            /* no circle: flag + native name */
   transition: transform .15s, opacity .15s;
 }
 .na-hint-flag-btn:hover { transform: scale(1.05); opacity: 0.85; }
@@ -2888,7 +2894,7 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
   #na-prefs-panel, #na-more-panel, #na-sheet-panel { border-radius: 22px 22px 0 0 !important; }
 }
 
-/* ─── Mobile "More" sheet — reuses the Preferences sheet layout ──────────── */
+/* ─── Mobile "More" sheet: reuses the Preferences sheet layout ──────────── */
 #na-more-sheet {
   position: fixed; inset: 0; z-index: 2200;
   display: flex; align-items: flex-end;
@@ -2896,7 +2902,7 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 #na-more-sheet[hidden] { display: none; }
 #na-more-overlay {
   position: absolute; inset: 0;
-  background: rgba(5,8,20,0.72); backdrop-filter: blur(2px);
+  background: rgba(5,8,20,0.72); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
 }
 #na-more-panel {
   position: relative; z-index: 1;

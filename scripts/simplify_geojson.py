@@ -14,7 +14,7 @@ removing sub-metre noise introduced by the original source files.
 
 Usage (from project root)
 ──────────────────────────
-  # Preview only — prints stats, writes nothing:
+  # Preview only: prints stats, writes nothing:
   python3 scripts/simplify_geojson.py --preview
 
   # Apply simplification to all files (OVERWRITES originals):
@@ -47,11 +47,11 @@ PROJECT_DIR = SCRIPT_DIR.parent
 ADMIN2_DIR  = PROJECT_DIR / 'data' / 'admin2'
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-DEFAULT_EPSILON = 0.008   # degrees — ~890 m at equator, ~670 m at 40° latitude
-COORD_PRECISION = 5       # decimal places — ~1 m at equator
+DEFAULT_EPSILON = 0.008   # degrees: ~890 m at equator, ~670 m at 40° latitude
+COORD_PRECISION = 5       # decimal places: ~1 m at equator
 MIN_RING_POINTS = 4       # minimum valid ring: 3 points + 1 closure = 4
 
-# ── RDP simplification (iterative — no recursion limit issues) ─────────────────
+# ── RDP simplification (iterative: no recursion limit issues) ─────────────────
 
 def _perp_distance(px, py, ax, ay, bx, by):
     """Perpendicular distance from point (px,py) to line segment (ax,ay)→(bx,by)."""
@@ -230,7 +230,7 @@ def main():
                 sys.exit(1)
             i += 2
         else:
-            print(f'WARNING: Unknown argument "{args[i]}" — ignoring.')
+            print(f'WARNING: Unknown argument "{args[i]}": ignoring.')
             i += 1
 
     files = sorted(ADMIN2_DIR.glob('*_ADM2_simplified.geojson'))
@@ -242,7 +242,7 @@ def main():
     print(f'Tolerance  : {epsilon}° ({epsilon * 111_000:.0f} m at equator)')
     print(f'Precision  : {COORD_PRECISION} decimal places (~{10 ** (5 - COORD_PRECISION) * 1.11:.0f} m)')
     print(f'Files      : {len(files)}')
-    print(f'Mode       : {"PREVIEW — no files will be changed" if preview else "WRITE — originals will be overwritten"}')
+    print(f'Mode       : {"PREVIEW, no files will be changed" if preview else "WRITE, originals will be overwritten"}')
     print()
 
     total_before  = 0

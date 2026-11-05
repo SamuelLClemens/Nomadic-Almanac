@@ -1,6 +1,6 @@
 # Admin-2 GeoJSON Files
 
-Source: **[geoBoundaries](https://www.geoboundaries.org)** — CC-BY 4.0 / ODbL  
+Source: **[geoBoundaries](https://www.geoboundaries.org)**: CC-BY 4.0 / ODbL  
 Level: ADM2 (county / municipality / district)  
 Variant: `simplified` (smaller file size, sufficient for choropleth rendering)
 
@@ -85,7 +85,7 @@ node precompute_admin2.js > cd_a2_parent_output.js
 | Russia | RUS | 1,851 | ~5 MB |
 | France | FRA | ~5,000 | 3.7 MB |
 | Germany | DEU | 401 | 1.9 MB |
-| Others | — | varies | 0.1–3 MB |
+| Others |: | varies | 0.1–3 MB |
 
 Files are loaded on demand (one per country) when the user zooms to level 6+.
 Only countries within the current map viewport are fetched.

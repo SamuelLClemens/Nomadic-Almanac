@@ -13,7 +13,7 @@ List every external API, rate-limited service, local file, and shell command the
 ## Test Results
 For each dependency:
 - Make the smallest possible real test (one API call, one file read, one command).
-- Report the actual output — never assume success without evidence.
+- Report the actual output, never assume success without evidence.
 - For APIs: include the response status and a sample of the data returned.
 - For rate-limited APIs: calculate (total calls needed) vs (known daily/hourly quota). Flag if within 20% of the limit.
 
@@ -25,5 +25,5 @@ PASS or FAIL for each dependency, then an overall GO / STOP decision.
 
 Rules:
 - Never report PASS without running an actual test.
-- Never start the main task — only report the verdict.
+- Never start the main task, only report the verdict.
 - If a rate limit is unknown, state that explicitly and recommend a conservative estimate.

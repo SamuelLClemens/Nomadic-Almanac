@@ -21,29 +21,29 @@ The file under validation is always:
 
 Run each check as a focused Python one-liner or short script via Bash. Collect all failures, then emit the final report.
 
-### CHECK 1 — Invalid Unicode punctuation outside strings/comments
-Flag any em dash (`—`, U+2014), en dash (`–`, U+2013), curly/smart quotes (`"` `"` `'` `'`), or any other non-ASCII punctuation that appears outside a JavaScript string literal, template literal, or `//` / `/* */` comment. These are parser-crashing tokens in strict-mode JS.
+### CHECK 1: Invalid Unicode punctuation outside strings/comments
+Flag any em dash (`n/a`, U+2014), en dash (`–`, U+2013), curly/smart quotes (`"` `"` `'` `'`), or any other non-ASCII punctuation that appears outside a JavaScript string literal, template literal, or `//` / `/* */` comment. These are parser-crashing tokens in strict-mode JS.
 
 Use this Python approach:
 ```python
 import re, sys
 with open('/Users/zim/Desktop/Claude Code/data.js', encoding='utf-8') as f:
     lines = f.readlines()
-bad_chars = '—–“”‘’'
+bad_chars = ': –“”‘’'
 # Strip string literals and comments before scanning
 for i, raw in enumerate(lines, 1):
     # Remove // comment portion
     stripped = re.sub(r'//.*', '', raw)
-    # Remove single/double quoted string content (simple heuristic — good enough for this file)
+    # Remove single/double quoted string content (simple heuristic: good enough for this file)
     stripped = re.sub(r'"[^"\\]*(?:\\.[^"\\]*)*"', '""', stripped)
     stripped = re.sub(r"'[^'\\]*(?:\\.[^'\\]*)*'", "''", stripped)
     stripped = re.sub(r'`[^`\\]*(?:\\.[^`\\]*)*`', '``', stripped)
     for ch in bad_chars:
         if ch in stripped:
-            print(f'LINE {i}: illegal char U+{ord(ch):04X} ({ch!r}) — {raw.rstrip()}')
+            print(f'LINE {i}: illegal char U+{ord(ch):04X} ({ch!r}): {raw.rstrip()}')
 ```
 
-### CHECK 2 — s12() argument count
+### CHECK 2: s12() argument count
 Every call `s12(...)` must have exactly 12 numeric arguments (commas = 11). Flag any call where the comma count inside the parentheses differs from 11.
 
 ```python
@@ -56,10 +56,10 @@ for m in re.finditer(r's12\(([^)]+)\)', src):
     args = [a.strip() for a in m.group(1).split(',')]
     if len(args) != 12:
         lineno = src[:m.start()].count('\n') + 1
-        print(f'LINE {lineno}: s12() has {len(args)} args (expected 12) — {m.group(0)[:60]}')
+        print(f'LINE {lineno}: s12() has {len(args)} args (expected 12): {m.group(0)[:60]}')
 ```
 
-### CHECK 3 — rep() argument range
+### CHECK 3: rep() argument range
 Every call `rep(v)` must have v in {0, 1, 2, 3}. Flag any call where the argument is outside this set.
 
 ```python
@@ -70,10 +70,10 @@ for m in re.finditer(r'\brep\((\s*\d+\s*)\)', src):
     v = int(m.group(1).strip())
     if v not in {0, 1, 2, 3}:
         lineno = src[:m.start()].count('\n') + 1
-        print(f'LINE {lineno}: rep({v}) — value outside 0–3')
+        print(f'LINE {lineno}: rep({v}): value outside 0–3')
 ```
 
-### CHECK 4 — Duplicate top-level const declarations
+### CHECK 4: Duplicate top-level const declarations
 In strict mode, re-declaring a `const` at the same scope is a SyntaxError. Scan for all `const NAME` at the top level and report any name that appears more than once.
 
 ```python
@@ -92,7 +92,7 @@ for name, lineno in decls:
         print(f'LINE {lineno}: duplicate const "{name}"')
 ```
 
-### CHECK 5 — Duplicate ISO-2 keys in CD
+### CHECK 5: Duplicate ISO-2 keys in CD
 Each two-letter country code must appear at most once as a key in the `CD` object.
 
 ```python
@@ -116,7 +116,7 @@ if m:
                 print(f'LINE {lineno}: duplicate CD key "{k}" (appears {n}x)')
 ```
 
-### CHECK 6 — Duplicate ISO 3166-2 keys in CD_A1
+### CHECK 6: Duplicate ISO 3166-2 keys in CD_A1
 Each sub-national code (e.g. `CN-54`) must appear at most once in `CD_A1`.
 
 ```python
@@ -139,7 +139,7 @@ if m:
                 print(f'LINE {lineno}: duplicate CD_A1 key "{k}" (appears {n}x)')
 ```
 
-### CHECK 7 — bc() status values
+### CHECK 7: bc() status values
 Every `bc(...)` call must have its 6th argument (status, 0-indexed) equal to exactly `'open'`, `'restricted'`, or `'closed'`. Flag any other value.
 
 ```python
@@ -183,7 +183,7 @@ for m in re.finditer(r'\bbc\(', src):
         status = parts[5]
         if status not in valid:
             lineno = src[:m.start()].count('\n') + 1
-            print(f'LINE {lineno}: bc() status={status!r} — must be open|restricted|closed')
+            print(f'LINE {lineno}: bc() status={status!r}: must be open|restricted|closed')
     else:
         lineno = src[:m.start()].count('\n') + 1
         print(f'LINE {lineno}: bc() has only {len(parts)} args (expected 8)')

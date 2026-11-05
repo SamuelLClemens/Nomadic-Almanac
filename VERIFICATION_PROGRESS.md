@@ -1,6 +1,6 @@
-# Nomadic Almanac — Layer Verification Progress
+# Nomadic Almanac: Layer Verification Progress
 
-**Status:** PAUSED — Ready to resume on user command  
+**Status:** PAUSED: Ready to resume on user command  
 **Last Updated:** 2026-06-05  
 **Model:** claude-haiku-4-5-20251001 (token-optimized)
 
@@ -8,7 +8,7 @@
 
 ## ✅ VERIFIED LAYERS (Complete & Audited)
 
-### Layer 1 — Visa & Entry Intelligence ✅
+### Layer 1: Visa & Entry Intelligence ✅
 - **Status:** COMPLETE
 - **Countries processed:** 225 (all UN member states + territories)
 - **Output file:** `/tmp/na_visa_audit_2026.json` (3,605 lines)
@@ -40,7 +40,7 @@
 
 ---
 
-### Layer 2 — Country Profile & History ✅
+### Layer 2: Country Profile & History ✅
 - **Status:** COMPLETE
 - **Countries processed:** 225
 - **Output file:** `/tmp/na_profile_audit_2026.json` (4,985 lines)
@@ -75,7 +75,7 @@
 
 ---
 
-### Layer 3 — Safety & Public Safety Intelligence ✅
+### Layer 3: Safety & Public Safety Intelligence ✅
 - **Status:** COMPLETE
 - **Countries processed:** 219 (spot-checked: Iceland GPI 1.095, Afghanistan DEATH/DEATH, Sudan DEATH/DEATH)
 - **Output file:** `/tmp/na_safety_audit_2026.json` (3,509 lines)
@@ -116,7 +116,7 @@
 
 ## ⏸ PENDING LAYERS (Queued for verification)
 
-### Layer 4 — Cost of Living ⏸
+### Layer 4: Cost of Living ⏸
 - **Status:** NOT STARTED
 - **Expected output:** `/tmp/na_cost_audit_2026.json`
 - **Expected report:** `/tmp/na_cost_audit_layer4_report.txt`
@@ -137,7 +137,7 @@
 
 ---
 
-### Layer 5 — Climate & Best-Time-to-Visit ⏸
+### Layer 5: Climate & Best-Time-to-Visit ⏸
 - **Status:** NOT STARTED
 - **Expected output:** `/tmp/na_climate_audit_2026.json`
 - **Expected report:** `/tmp/na_climate_audit_layer5_report.txt`
@@ -160,7 +160,7 @@
 
 ---
 
-### Layer 6 — Health & Medical Intelligence ⏸
+### Layer 6: Health & Medical Intelligence ⏸
 - **Status:** NOT STARTED
 - **Expected output:** `/tmp/na_health_audit_2026.json`
 - **Expected report:** `/tmp/na_health_audit_layer6_report.txt`
@@ -189,7 +189,7 @@
 
 ---
 
-### Layer 7 — Tipping Norms & Gratuity Intelligence ⏸
+### Layer 7: Tipping Norms & Gratuity Intelligence ⏸
 - **Status:** NOT STARTED
 - **Expected output:** `/tmp/na_tipping_audit_2026.json`
 - **Expected report:** `/tmp/na_tipping_audit_layer7_report.txt`
@@ -206,7 +206,7 @@
 
 ---
 
-### Layer 8 — Language & Connectivity ⏸
+### Layer 8: Language & Connectivity ⏸
 - **Status:** NOT STARTED
 - **Expected output:** `/tmp/na_language_audit_2026.json`
 - **Expected report:** `/tmp/na_language_audit_layer8_report.txt`

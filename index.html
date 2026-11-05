@@ -10,21 +10,22 @@
        step (requires testing every tile/API/open-data integration). -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="The Nomadic Almanac — an interactive atlas of where to go and when. Costs, safety, weather, visas, and key phrases for 195 countries, by month.">
-  <title>The Nomadic Almanac — World Travel Intelligence</title>
-  <!-- Resource hints — resolve DNS / open sockets before scripts run -->
+  <meta name="description" content="The Nomadic Almanac: an interactive atlas of where to go and when. Costs, safety, weather, visas, and key phrases for 195 countries, by month.">
+  <title>The Nomadic Almanac: World Travel Intelligence</title>
+  <!-- Resource hints: resolve DNS / open sockets before scripts run -->
   <link rel="preconnect"    href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect"    href="https://fonts.gstatic.com" crossorigin>
-  <!-- Full preconnect (DNS+TCP+TLS) for the hosts the DEFAULT view hits
-       immediately: Esri satellite tiles + the a/b/c Carto label subdomains
-       (Leaflet's {s} placeholder). No crossorigin: tiles are plain <img>. -->
+  <!-- Full preconnect (DNS+TCP+TLS) for the host the DEFAULT view hits immediately: Esri
+       serves both the satellite tiles and the place-label overlay. No crossorigin: tiles are
+       plain <img>. -->
   <link rel="preconnect"    href="https://server.arcgisonline.com">
-  <link rel="preconnect"    href="https://a.basemaps.cartocdn.com">
-  <link rel="preconnect"    href="https://b.basemaps.cartocdn.com">
-  <link rel="preconnect"    href="https://c.basemaps.cartocdn.com">
   <link rel="dns-prefetch"  href="https://raw.githubusercontent.com">
-  <!-- All six interface font families in ONE request (was 3 links + a duplicate @import). -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <!-- All six interface font families in ONE request (was 3 links + a duplicate @import).
+       Loaded without blocking first paint: media="print" does not block rendering, and onload
+       switches it on once it arrives. If Google Fonts is slow or blocked the page simply keeps
+       its fallback fonts (display=swap), so the CDN is never a single point of failure. -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"></noscript>
   <style>
     :root {
       --na-prussian: #1B2A4A;
@@ -40,11 +41,12 @@
     #logo-wrap { line-height: 0; display: inline-block; }
     #logo-wrap svg { display: block; }
   </style>
-  <!-- Leaflet served locally — eliminates CDN as a failure point -->
+  <!-- Leaflet served locally: eliminates CDN as a failure point -->
   <link rel="stylesheet" href="lib/leaflet.css">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0e0b06">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Nomadic Almanac">
@@ -53,14 +55,14 @@
   <!-- Social / link-preview cards -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="The Nomadic Almanac">
-  <meta property="og:title" content="The Nomadic Almanac — World Travel Intelligence">
-  <meta property="og:description" content="An interactive atlas of where to go and when — costs, safety, weather, visas, and key phrases for 195 countries, by month.">
+  <meta property="og:title" content="The Nomadic Almanac: World Travel Intelligence">
+  <meta property="og:description" content="An interactive atlas of where to go and when: costs, safety, weather, visas, and key phrases for 195 countries, by month.">
   <meta property="og:image" content="https://nomadicalmanac.com/icon-512.png">
   <meta property="og:url" content="https://nomadicalmanac.com/">
   <link rel="canonical" href="https://nomadicalmanac.com/">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="The Nomadic Almanac">
-  <meta name="twitter:description" content="An interactive atlas of where to go and when — costs, safety, weather, visas, and key phrases for 195 countries, by month.">
+  <meta name="twitter:description" content="An interactive atlas of where to go and when: costs, safety, weather, visas, and key phrases for 195 countries, by month.">
   <meta name="twitter:image" content="https://nomadicalmanac.com/icon-512.png">
 </head>
 <body>
@@ -78,7 +80,7 @@
     <line x1="12" y1="3" x2="12" y2="2" stroke="currentColor" stroke-width="1.5"/>
     <text x="12" y="2.5" text-anchor="middle" font-size="2.8" fill="currentColor" font-family="Cinzel,serif" font-weight="700">N</text>
   </symbol>
-  <!-- Compass Rose (almanac-era, retro) — shared by the wordmark logo and the
+  <!-- Compass Rose (almanac-era, retro): shared by the wordmark logo and the
        Preferences launcher so both read as the same instrument. currentColor so
        it inherits gold / ink active states. -->
   <symbol id="icon-compass" viewBox="0 0 24 24">
@@ -190,7 +192,7 @@
     <path d="M4 19 Q8 16 12 17 Q16 18 20 19" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
     <path d="M3 16 Q8 14 13 15 Q17 16 21 16" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.35"/>
   </symbol>
-  <!-- Settings / Brass gear — 8-tooth period instrument gear.
+  <!-- Settings / Brass gear: 8-tooth period instrument gear.
        16 vertices alternating outer radius 9.5 (teeth) and inner 6.5 (valleys),
        spaced every 22.5°. Center hub with axle hole. -->
   <symbol id="icon-settings" viewBox="0 0 24 24">
@@ -230,7 +232,7 @@
   </symbol>
 </svg>
 
-<!-- Loading overlay — dismissed by JS as soon as the map is ready.
+<!-- Loading overlay: dismissed by JS as soon as the map is ready.
      Safety timer guarantees it never blocks the page for more than 6 s. -->
 <div id="loading-overlay">
   <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style="width:64px;height:64px;animation:lo-spin 8s linear infinite">
@@ -402,11 +404,11 @@
   <div id="tb-row1">
 
     <div id="logo">
-      <div id="logo-wrap"><svg id="na-logo" xmlns="http://www.w3.org/2000/svg" width="320" height="110" viewBox="0 0 480 165" role="img" aria-label="Nomadic Almanac — World Travel Intelligence">
+      <div id="logo-wrap"><svg id="na-logo" xmlns="http://www.w3.org/2000/svg" width="320" height="110" viewBox="0 0 480 165" role="img" aria-label="Nomadic Almanac: World Travel Intelligence">
 <defs>
   <style>
     /* Cinzel / Cinzel Decorative are loaded once in <head>; no per-SVG @import needed. */
-    /* Only the compass needle animates — all other elements are static */
+    /* Only the compass needle animates: all other elements are static */
     .naml-cring  { transform-box:view-box; transform-origin:82px 82px; }
     .naml-needle { transform-box:view-box; transform-origin:82px 82px; animation:namlSettle 2.4s cubic-bezier(0.34,1.2,0.64,1) forwards, namlSeek 8s ease-in-out 2.4s infinite; will-change:transform; }
     /* Compass needle: settle from east, overshoot north, damp to micro-oscillation */
@@ -459,7 +461,7 @@
 <rect x="8"  y="8"  width="464" height="149" fill="none" stroke="#C9A820" stroke-width="0.5"/>
 <rect x="11" y="11" width="458" height="143" fill="none" stroke="#C9A820" stroke-width="0.2" opacity="0.5"/>
 
-<!-- Maltese cross corner ornaments — arms flare to 7.2px wide at tip, narrow to 3.6px at stem -->
+<!-- Maltese cross corner ornaments: arms flare to 7.2px wide at tip, narrow to 3.6px at stem -->
 <g fill="#C9A820">
   <g transform="translate(19,19)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
   <g transform="translate(461,19)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
@@ -467,7 +469,7 @@
   <g transform="translate(461,146)"><polygon points="3.6,-8 -3.6,-8 -1.8,-1.8 -8,-3.6 -8,3.6 -1.8,1.8 -3.6,8 3.6,8 1.8,1.8 8,3.6 8,-3.6 1.8,-1.8"/><circle r="2.2" fill="#0A1630"/></g>
 </g>
 
-<!-- ══ RIGHT PANEL — antique map ══ -->
+<!-- ══ RIGHT PANEL: antique map ══ -->
 <g clip-path="url(#cRight)">
   <ellipse cx="330" cy="82" rx="165" ry="78" fill="url(#gMapBg)"/>
 
@@ -496,7 +498,7 @@
   <!-- Equator curve (dashed) -->
   <path d="M 164,85 Q 318,79 474,85" fill="none" stroke="#2A50A0" stroke-width="0.7" stroke-dasharray="3 2" opacity="0.9"/>
 
-  <!-- Continent fills — Old World landmasses with archaic cartographic outlines -->
+  <!-- Continent fills: Old World landmasses with archaic cartographic outlines -->
   <g fill="#1B3565" opacity="0.78">
     <!-- Europe (Iberia to Balkans, including Scandinavia peninsula) -->
     <path d="M 186,38 Q 196,30 210,30 Q 222,30 228,34 Q 236,34 244,36 Q 258,64 250,70 Q 236,68 220,62 Q 204,58 192,50 Z"/>
@@ -508,7 +510,7 @@
     <path d="M 260,62 Q 264,58 272,60 Q 286,62 292,68 Q 294,76 288,82 Q 280,86 272,82 Q 264,80 260,72 Z"/>
     <!-- Indian Subcontinent -->
     <path d="M 286,76 Q 296,72 308,74 Q 316,80 314,90 Q 308,100 300,104 Q 292,100 288,90 Q 285,82 286,76 Z"/>
-    <!-- Africa — full continent, North Africa to Cape of Good Hope -->
+    <!-- Africa: full continent, North Africa to Cape of Good Hope -->
     <path d="M 190,56 Q 228,50 256,56 Q 266,62 266,74 Q 265,88 260,100 Q 253,118 242,132 Q 234,138 224,133 Q 214,118 212,102 Q 214,90 220,88 Q 210,86 202,88 Q 194,85 185,79 Q 180,72 183,63 Z"/>
     <!-- SE Asia peninsula -->
     <path d="M 352,82 Q 360,80 368,84 Q 372,92 366,100 Q 358,104 352,98 Q 348,90 352,82 Z"/>
@@ -527,7 +529,7 @@
     <ellipse cx="304" cy="107" rx="2" ry="2.8"/>
   </g>
 
-  <!-- Archaic cartographic labels — italic, period blue-gold, matching reference image -->
+  <!-- Archaic cartographic labels: italic, period blue-gold, matching reference image -->
   <g fill="#5A8AD0" opacity="0.92" font-family="'IM Fell English',Georgia,serif" font-style="italic" letter-spacing="0.8">
     <text x="172" y="43" font-size="5">OCEANUS OCCIDENTALIS</text>
     <text x="296" y="50" font-size="5.5">CATAY</text>
@@ -603,7 +605,7 @@
 
   <!-- ── DRAGON (sea serpent swimming) ── -->
   <g class="naml-drg">
-    <!-- Serpent body — three arching coils read as a swimming undulation -->
+    <!-- Serpent body: three arching coils read as a swimming undulation -->
     <!-- Rear coil / tail -->
     <g class="naml-dtail">
       <path d="M 458,136 Q 464,132 469,135 Q 467,140 462,140 Q 457,139 458,136 Z"
@@ -635,7 +637,7 @@
     <circle cx="404" cy="129" r="0.5" fill="#FF8080"/>
   </g>
 
-  <!-- Fire breath (from open mouth, facing left — origin ~398,133) -->
+  <!-- Fire breath (from open mouth, facing left: origin ~398,133) -->
   <!-- Three overlapping flame tongues + glow, each animated at different phase -->
   <g class="naml-fire">
     <path d="M 399,132 Q 393,129 387,131 Q 382,131.5 379,131 Q 383,133.5 389,132 Q 394,133 399,132 Z"
@@ -658,7 +660,7 @@
 <circle cx="162" cy="23"  r="1.8" fill="#C9A820"/>
 <circle cx="162" cy="142" r="1.8" fill="#C9A820"/>
 
-<!-- ══ COMPASS — left half ══ -->
+<!-- ══ COMPASS: left half ══ -->
 <!-- Ambient glow halo -->
 <circle cx="82" cy="82" r="68" fill="url(#gCompassGlow)"/>
 
@@ -699,7 +701,7 @@
     <line x1="82" y1="18" x2="82" y2="22" stroke-width="0.4" transform="rotate(345 82 82)"/>
   </g>
 
-  <!-- 16-point rose — ALL GOLD (matching reference image) -->
+  <!-- 16-point rose: ALL GOLD (matching reference image) -->
   <!-- 4 long cardinal points -->
   <g fill="#C9A820">
     <polygon points="82,22 87,76 82,82 77,76"/>
@@ -746,7 +748,7 @@
   <text x="9"   y="87"  text-anchor="middle" font-size="10" font-family="'Cinzel',Georgia,serif" font-weight="700" fill="#C9A820">W</text>
 </g>
 
-<!-- NEEDLE renders above compass ring and does NOT participate in boat rock —
+<!-- NEEDLE renders above compass ring and does NOT participate in boat rock,
      it seeks North independently while the bezel tips with the swell -->
 <g class="naml-needle">
   <!-- North (RED) -->
@@ -783,7 +785,7 @@
 </svg></div>
     </div>
 
-    <!-- Hamburger toggle — visible only on narrow screens (< 600 px) -->
+    <!-- Hamburger toggle: visible only on narrow screens (< 600 px) -->
     <button id="topbar-hamburger" aria-label="Toggle controls" title="Toggle controls">&#9776;</button>
 
     <!-- Month selector relocated to the top menu (#na-header-months). -->
@@ -817,7 +819,7 @@
 <!-- Map -->
 <div id="map"></div>
 
-<!-- Best destinations panel now lives inside the legend — see #best-toggle -->
+<!-- Best destinations panel now lives inside the legend: see #best-toggle -->
 
 <!-- Loading status indicator (shown during async GeoJSON fetches) -->
 <div id="map-status"></div>
@@ -837,7 +839,7 @@
   <h4 id="legend-title">FIELD GUIDE</h4>
   <div id="legend-zoom-note" style="display:none;font-size:7px;color:rgba(201,168,76,0.5);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(201,168,76,0.08)"></div>
   <div id="legend-body"></div>
-  <!-- Best This Month — collapsed by default, expands on click -->
+  <!-- Best This Month: collapsed by default, expands on click -->
   <div id="best-toggle">
     <span id="best-toggle-label">Best This Month</span>
     <span id="best-toggle-arrow">▾</span>
@@ -873,7 +875,7 @@
   </button>
 </nav>
 
-<!-- ─── Mobile "More" Sheet — passport, best-of-month, compare, basemap ────── -->
+<!-- ─── Mobile "More" Sheet: passport, best-of-month, compare, basemap ────── -->
 <div id="na-more-sheet" role="dialog" aria-modal="true" aria-label="More" hidden>
   <div id="na-more-overlay"></div>
   <div id="na-more-panel" class="glass-panel">
@@ -896,7 +898,7 @@
           <button class="pref-opt" data-val="satellite" aria-label="Satellite basemap">Satellite</button>
           <button class="pref-opt" data-val="streets"   aria-label="Street map basemap">Street</button>
           <button class="pref-opt" data-val="terrain"   aria-label="Terrain basemap">Terrain</button>
-          <button class="pref-opt" data-val="nightlights" aria-label="Night lights — Earth at night basemap">🌃 Night</button>
+          <button class="pref-opt" data-val="nightlights" aria-label="Night lights: Earth at night basemap">🌃 Night</button>
         </div>
       </div>
 
@@ -999,7 +1001,7 @@
           <button class="pref-opt" data-val="satellite" aria-label="Satellite basemap">Satellite</button>
           <button class="pref-opt" data-val="streets"   aria-label="Street map basemap">Street</button>
           <button class="pref-opt" data-val="terrain"   aria-label="Terrain basemap">Terrain</button>
-          <button class="pref-opt" data-val="nightlights" aria-label="Night lights — Earth at night basemap">🌃 Night</button>
+          <button class="pref-opt" data-val="nightlights" aria-label="Night lights: Earth at night basemap">🌃 Night</button>
         </div>
       </div>
 
@@ -1078,7 +1080,7 @@
 <!-- Heavy split-out data tables. data-detail.js MUST be defer, not async:
      defer guarantees it executes after data.js in document order, and app.js
      typeof-guards every consumer so the map boots before it runs.
-     data-admin2.js is NOT loaded here at all — it calls data.js's rep()/s12()
+     data-admin2.js is NOT loaded here at all: it calls data.js's rep()/s12()
      helpers in its literals and is only needed by the zoom>=6 county view, so
      app.js injects it on first county zoom (_ensureAdmin2Tables), keeping
      ~0.42 MB gz off the first visit entirely. -->

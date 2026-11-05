@@ -216,12 +216,12 @@ const BEST_TRAVEL_RANGE = {
   NP:'Sep-Nov', KE:'Jun-Sep', TZ:'Jun-Sep', GH:'Oct-Dec', CL:'Nov-Feb',
   EC:'May-Jul', CU:'Feb-Apr', CZ:'Apr-Jun', PL:'Apr-Jun', HU:'Apr-Jun',
 };
-// Primary timezone(s) per country — first entry is the main zone, rest are regional
+// Primary timezone(s) per country: first entry is the main zone, rest are regional
 const COUNTRY_TIMEZONES = {
   AR:['UTC−3 (ART)'],
   AU:['UTC+8–11 (multiple)','AEST UTC+10 · Sydney, Melbourne','AWST UTC+8 · Perth','ACST UTC+9:30 · Adelaide'],
   CA:['UTC−3:30 to −8 (multiple)','EST UTC−5 · Toronto','CST UTC−6 · Winnipeg','MST UTC−7 · Calgary','PST UTC−8 · Vancouver'],
-  CN:['UTC+8 (CST — single national zone)'],
+  CN:['UTC+8 (CST: single national zone)'],
   CO:['UTC−5 (COT)'],
   DE:['UTC+1 / UTC+2 DST (CET/CEST)'],
   EG:['UTC+2 (EET)'],
@@ -230,9 +230,9 @@ const COUNTRY_TIMEZONES = {
   GB:['UTC+0 / UTC+1 BST (GMT/BST)'],
   GR:['UTC+2 / UTC+3 DST (EET/EEST)'],
   ID:['UTC+7–9 (multiple)','WIB UTC+7 · Jakarta, Bali','WITA UTC+8 · Lombok','WIT UTC+9 · Papua'],
-  IN:['UTC+5:30 (IST — single national zone)'],
+  IN:['UTC+5:30 (IST: single national zone)'],
   IT:['UTC+1 / UTC+2 DST (CET/CEST)'],
-  JP:['UTC+9 (JST — single national zone)'],
+  JP:['UTC+9 (JST: single national zone)'],
   MA:['UTC+1 (WET)'],
   MX:['UTC−6 to −8 (multiple)','CST UTC−6 · Mexico City','MST UTC−7 · Chihuahua','PST UTC−8 · Tijuana'],
   NG:['UTC+1 (WAT)'],
@@ -242,10 +242,10 @@ const COUNTRY_TIMEZONES = {
   PT:['UTC+0 / UTC+1 BST (WET/WEST)'],
   RU:['UTC+2–12 (11 zones)','MSK UTC+3 · Moscow','YEKT UTC+5 · Yekaterinburg','IRKT UTC+8 · Irkutsk','VLAT UTC+10 · Vladivostok'],
   TH:['UTC+7 (ICT)'],
-  TR:['UTC+3 (TRT — no DST since 2016)'],
+  TR:['UTC+3 (TRT: no DST since 2016)'],
   US:['UTC−5 to −10 (6 zones)','EST UTC−5 · New York, Miami','CST UTC−6 · Chicago, Dallas','MST UTC−7 · Denver, Phoenix','PST UTC−8 · LA, Seattle','HST UTC−10 · Hawaii'],
-  VN:['UTC+7 (ICT — single national zone)'],
-  ZA:['UTC+2 (SAST — no DST)'],
+  VN:['UTC+7 (ICT: single national zone)'],
+  ZA:['UTC+2 (SAST: no DST)'],
   MY:['UTC+8 (MYT)'],
   KH:['UTC+7 (ICT)'],
   LA:['UTC+7 (ICT)'],
@@ -262,11 +262,11 @@ const COUNTRY_TIMEZONES = {
   PL:['UTC+1/+2 DST (CET)'],
   HU:['UTC+1/+2 DST (CET)'],
   // New countries
-  AE:['UTC+4 (GST — no DST)'],
+  AE:['UTC+4 (GST: no DST)'],
   BR:['UTC−2 to −5 (multiple)','BRT UTC−3 · São Paulo, Rio de Janeiro','AMT UTC−4 · Manaus','ACT UTC−5 · Acre'],
-  KR:['UTC+9 (KST — single national zone, no DST)'],
-  PH:['UTC+8 (PST — single national zone)'],
-  SG:['UTC+8 (SGT — single national zone, no DST)'],
+  KR:['UTC+9 (KST: single national zone, no DST)'],
+  PH:['UTC+8 (PST: single national zone)'],
+  SG:['UTC+8 (SGT: single national zone, no DST)'],
 };
 
 const SEASONAL_EVENTS = [
@@ -275,7 +275,7 @@ const SEASONAL_EVENTS = [
   { id:'carnival-br', country:'BR', month:1, name:'Carnival', emoji:'🎭', desc:'World-famous Rio Carnival. Samba, parades, street parties. Hotels book out a year ahead.' },
   { id:'diwali', country:'IN', month:9, name:'Diwali', emoji:'🪔', desc:'Festival of Lights. October/November. Spectacular fireworks, sweets, family celebrations.' },
   { id:'oktoberfest', country:'DE', month:8, name:'Oktoberfest', emoji:'🍺', desc:'Munich beer festival. Late Sept–early Oct. Book accommodation months ahead.' },
-  { id:'cherry-blossom', country:'JP', month:2, name:'Cherry Blossom', emoji:'🌸', desc:'Sakura season March–April. Peak varies by region. Extremely popular — book early.' },
+  { id:'cherry-blossom', country:'JP', month:2, name:'Cherry Blossom', emoji:'🌸', desc:'Sakura season March–April. Peak varies by region. Extremely popular: book early.' },
   { id:'lunar-new-year-cn', country:'CN', month:0, name:'Chinese New Year', emoji:'🧧', desc:'January/February. Domestic travel peaks. Many businesses close 1-2 weeks.' },
   { id:'ramadan', country:'MA', month:2, name:'Ramadan', emoji:'🌙', desc:'Timing varies by lunar calendar. Daytime restaurant closures; vibrant night markets.' },
   { id:'hajj-sa', country:'AE', month:5, name:'Peak Travel Season', emoji:'☀️', desc:'Nov–Mar ideal in UAE. Summer (Jun-Sep) extremely hot (45°C+). Avoid unless prepared.' },
@@ -284,7 +284,7 @@ const SEASONAL_EVENTS = [
   { id:'wet-season-id', country:'ID', month:10, name:'Dry Season Bali', emoji:'🏝', desc:'May–Sep dry season. Best for beaches and diving. Avoid Dec-Mar for Bali.' },
   { id:'northern-lights', country:'NO', month:11, name:'Northern Lights', emoji:'🌌', desc:'Oct–Mar in Arctic Norway. Best visibility Dec-Feb above the Arctic Circle.' },
   { id:'midnight-sun', country:'NO', month:5, name:'Midnight Sun', emoji:'☀️', desc:'June-July in northern Norway. 24-hour daylight above Arctic Circle.' },
-  { id:'inca-trail', country:'PE', month:5, name:'Inca Trail Season', emoji:'🏔', desc:'May–Sep dry season. Best trekking weather. Permit quota — book 6 months ahead.' },
+  { id:'inca-trail', country:'PE', month:5, name:'Inca Trail Season', emoji:'🏔', desc:'May–Sep dry season. Best trekking weather. Permit quota: book 6 months ahead.' },
   { id:'safari-ke', country:'KE', month:6, name:'Great Migration', emoji:'🦁', desc:'Jul-Oct: wildebeest migration in Masai Mara. Peak game viewing season.' },
   { id:'cherry-kr', country:'KR', month:3, name:'Cherry Blossom', emoji:'🌸', desc:'Late March to mid-April. Jeju Island, Gyeongbokgung Palace. Extremely popular.' },
   { id:'rainy-vn', country:'VN', month:9, name:'North Vietnam Autumn', emoji:'🍂', desc:'Oct–Dec: best weather in Hanoi and Ha Long Bay. South best Nov-Apr.' },
@@ -292,12 +292,12 @@ const SEASONAL_EVENTS = [
   { id:'holi', country:'IN', month:2, name:'Holi', emoji:'🎨', desc:'Festival of Colors. March. Vibrant celebration across North India. Be prepared to get colorful.' },
 
   // East & Southeast Asia
-  { id:'tet-vn',        country:'VN', month:0,  name:'Tết New Year',      emoji:'🧧', desc:'Vietnamese Lunar New Year. Jan/Feb. Cities empty as everyone returns home — domestic travel near impossible. Book early or avoid travel dates.' },
+  { id:'tet-vn',        country:'VN', month:0,  name:'Tết New Year',      emoji:'🧧', desc:'Vietnamese Lunar New Year. Jan/Feb. Cities empty as everyone returns home: domestic travel near impossible. Book early or avoid travel dates.' },
   { id:'lantern-tw',    country:'TW', month:1,  name:'Lantern Festival',  emoji:'🏮', desc:'15th day of Lunar New Year. Massive sky lantern release in Pingxi. Crowds are intense but magical.' },
   { id:'naadam-mn',     country:'MN', month:6,  name:'Naadam Festival',   emoji:'🏹', desc:'July 11-13. National festival of three games: wrestling, horse racing, archery. Best way to experience Mongolian culture. Book Ulaanbaatar hotels months ahead.' },
-  { id:'bun-pi-mai-la', country:'LA', month:3,  name:'Bun Pi Mai',        emoji:'💦', desc:'Lao New Year water festival (April 13-15). Luang Prabang is spectacular — water fights, processions, sand stupas.' },
+  { id:'bun-pi-mai-la', country:'LA', month:3,  name:'Bun Pi Mai',        emoji:'💦', desc:'Lao New Year water festival (April 13-15). Luang Prabang is spectacular: water fights, processions, sand stupas.' },
   { id:'whale-shark-ph',country:'PH', month:2,  name:'Whale Shark Season',emoji:'🦈', desc:'Feb–May best chance to swim with whale sharks in Oslob, Cebu and Donsol. Dry season also best for islands.' },
-  { id:'dry-my',        country:'MY', month:2,  name:'East Coast Dry Season',emoji:'🌴', desc:'Feb–Aug dry on Perhentian, Redang, Tioman islands. West coast (Langkawi) best Dec–Apr. East coast monsoon Nov–Jan — islands close.' },
+  { id:'dry-my',        country:'MY', month:2,  name:'East Coast Dry Season',emoji:'🌴', desc:'Feb–Aug dry on Perhentian, Redang, Tioman islands. West coast (Langkawi) best Dec–Apr. East coast monsoon Nov–Jan: islands close.' },
   { id:'water-festival-mm', country:'MM', month:3, name:'Thingyan Water Festival', emoji:'💦', desc:'Myanmar New Year water festival (Apr 13-16). Nationwide street celebrations. Travel heavily disrupted.' },
   { id:'monsoon-lk',    country:'LK', month:4,  name:'SW Monsoon',        emoji:'🌧', desc:'May–Sep: heavy rain on west and south coasts (Galle, Colombo). East coast (Trincomalee, Arugam Bay) is dry and perfect Jun–Sep.' },
 
@@ -308,11 +308,11 @@ const SEASONAL_EVENTS = [
   // Middle East & Central Asia
   { id:'ramadan-sa',    country:'SA', month:2,  name:'Ramadan',           emoji:'🌙', desc:'Dates shift annually with lunar calendar. Daytime food and drink prohibited in public. Night markets vibrant. Dramatic change to daily rhythms.' },
   { id:'silk-road-uz',  country:'UZ', month:3,  name:'Spring Blossom',    emoji:'🌸', desc:'Apr–May: Silk Road cities (Samarkand, Bukhara) at peak beauty. Fruit trees in bloom, pleasant 20–25°C. Summer exceeds 40°C.' },
-  { id:'tulip-tr',      country:'TR', month:3,  name:'Tulip Festival',    emoji:'🌷', desc:'April in Istanbul: millions of tulips in bloom across parks and squares. Tulips originated in Ottoman Turkey — spectacular and free.' },
+  { id:'tulip-tr',      country:'TR', month:3,  name:'Tulip Festival',    emoji:'🌷', desc:'April in Istanbul: millions of tulips in bloom across parks and squares. Tulips originated in Ottoman Turkey: spectacular and free.' },
   { id:'nevruz-uz',     country:'UZ', month:2,  name:'Navruz / New Year', emoji:'🎊', desc:'March 21. Central Asian New Year. Sumalak (wheat porridge), music, dancing across every city. Best cultural immersion.' },
 
   // Africa
-  { id:'migration-tz',  country:'TZ', month:11, name:'Serengeti Migration',emoji:'🦓', desc:'Dec–Mar: calving season in southern Serengeti. Predators follow — best wildlife drama. Jul–Sep: river crossings at Mara River.' },
+  { id:'migration-tz',  country:'TZ', month:11, name:'Serengeti Migration',emoji:'🦓', desc:'Dec–Mar: calving season in southern Serengeti. Predators follow: best wildlife drama. Jul–Sep: river crossings at Mara River.' },
   { id:'whale-za',      country:'ZA', month:6,  name:'Whale Season',      emoji:'🐳', desc:'Jun–Nov: southern right whales in Hermanus (Walker Bay). World-class land-based whale watching. Peak Aug–Sep.' },
   { id:'gorilla-rw',    country:'RW', month:5,  name:'Gorilla Trekking',  emoji:'🦍', desc:'Jun–Sep and Dec–Feb dry seasons are best for gorilla permits in Volcanoes NP. Permits ($1,500 per person) must be booked months ahead.' },
   { id:'atlas-ma',      country:'MA', month:9,  name:'Atlas Trekking',    emoji:'⛰', desc:'Sep–Nov best for trekking High Atlas. Marrakech and desert tours ideal Oct–Apr. Summer desert exceeds 45°C.' },
@@ -322,25 +322,25 @@ const SEASONAL_EVENTS = [
   { id:'northern-lights-is', country:'IS', month:9, name:'Northern Lights',emoji:'🌌', desc:'Sep–Mar: Aurora Borealis visible. Best away from Reykjavik. App alerts (Vedur) recommended. Clear skies required.' },
   { id:'midnight-sun-is', country:'IS', month:5, name:'Midnight Sun',     emoji:'☀️', desc:'May–Jul: nearly 24-hour daylight. Puffins arrive May–Aug. Ideal for hiking, waterfalls, and road trips.' },
   { id:'northern-lights-fi', country:'FI', month:1, name:'Northern Lights',emoji:'🌌', desc:'Feb–Mar prime Aurora season in Lapland. Santa Claus Village, reindeer safaris, ice fishing. Dec–Jan coldest but festive.' },
-  { id:'midsommar-se',  country:'SE', month:5,  name:'Midsommar',         emoji:'🌻', desc:'Late June: biggest Swedish celebration. Maypoles, herring, schnapps, dancing. Swedes travel en masse — ferries to islands packed.' },
+  { id:'midsommar-se',  country:'SE', month:5,  name:'Midsommar',         emoji:'🌻', desc:'Late June: biggest Swedish celebration. Maypoles, herring, schnapps, dancing. Swedes travel en masse: ferries to islands packed.' },
   { id:'white-nights-ru', country:'RU', month:5, name:'White Nights',     emoji:'🌕', desc:'Jun–Jul: St Petersburg never gets fully dark. Mariinsky Ballet, canal cruises, rooftop parties. Most magical time to visit.' },
   { id:'venice-carnival', country:'IT', month:1, name:'Venice Carnival',  emoji:'🎭', desc:'Feb: elaborate masks, costumes, and balls. Extremely crowded. Prices triple. Book 6 months ahead for best masked balls.' },
   { id:'bull-run-es',   country:'ES', month:6,  name:'San Fermín / Bull Run', emoji:'🐂', desc:'July 6-14 in Pamplona. Running of the Bulls draws global crowds. Rioja wine region also excellent Sep–Oct harvest.' },
   { id:'harvest-pt',    country:'PT', month:8,  name:'Wine Harvest',      emoji:'🍇', desc:'Sep–Oct: Douro Valley grape harvest. Quinta estate visits, treading grapes, port wine tastings. Best season overall.' },
   { id:'xmas-cz',       country:'CZ', month:11, name:'Christmas Markets', emoji:'🎄', desc:'Nov–Dec: Prague\'s Old Town Square and Wenceslas Square transform. Trdelník, mulled wine, hand-crafted gifts. Europe\'s most atmospheric.' },
   { id:'xmas-pl',       country:'PL', month:11, name:'Christmas Markets', emoji:'🎄', desc:'Dec: Kraków and Warsaw markets. Pierogi, gingerbread, hand-painted ornaments. Cold but beautiful under snow.' },
-  { id:'glastonbury-gb',country:'GB', month:5,  name:'Glastonbury',       emoji:'🎸', desc:'Late June: world\'s largest greenfield music festival. Somerset, UK. Tickets sell out in minutes — set an alert.' },
+  { id:'glastonbury-gb',country:'GB', month:5,  name:'Glastonbury',       emoji:'🎸', desc:'Late June: world\'s largest greenfield music festival. Somerset, UK. Tickets sell out in minutes: set an alert.' },
   { id:'oktoberfest-at',country:'AT', month:11, name:'Ski Season Opens',  emoji:'⛷', desc:'Dec–Apr: Austrian Alps (Innsbruck, Kitzbühel, St Anton) world-class skiing. Christmas markets in Vienna Dec.' },
 
   // Americas
   { id:'day-of-dead-mx',country:'MX', month:9,  name:'Día de los Muertos',emoji:'💀', desc:'Nov 1-2: stunning cemetery vigils especially in Oaxaca and Pátzcuaro. UNESCO Intangible Cultural Heritage. Book accommodation months ahead.' },
   { id:'monarch-mx',    country:'MX', month:10, name:'Monarch Butterflies',emoji:'🦋', desc:'Nov–Mar: 100 million monarch butterflies overwinter in Michoacán. Biosphere Reserve, 2 hours from Mexico City. Surreal experience.' },
-  { id:'fall-foliage-us', country:'US', month:8, name:'Fall Foliage',     emoji:'🍂', desc:'Sep–Oct: New England, Appalachians, Rocky Mountains turn gold and red. Peak varies by latitude — check foliage reports.' },
+  { id:'fall-foliage-us', country:'US', month:8, name:'Fall Foliage',     emoji:'🍂', desc:'Sep–Oct: New England, Appalachians, Rocky Mountains turn gold and red. Peak varies by latitude: check foliage reports.' },
   { id:'maple-ca',      country:'CA', month:2,  name:'Maple Syrup Season',emoji:'🍁', desc:'Mar–Apr in Quebec and Ontario. Sugar shacks open for tastings. Cross-country skiing still good. Best shoulder season.' },
   { id:'northern-lights-ca', country:'CA', month:1, name:'Northern Lights', emoji:'🌌', desc:'Feb–Mar in Yukon and Northwest Territories. Whitehorse best base. Clear cold nights essential.' },
   { id:'carnival-co',   country:'CO', month:1,  name:'Carnaval de Barranquilla', emoji:'🎭', desc:'Feb: second largest carnival in the world after Rio. Costumes, cumbia, vallenato. Less crowded and cheaper than Rio.' },
   { id:'flower-co',     country:'CO', month:7,  name:'Flower Festival',   emoji:'🌺', desc:'Early August in Medellín. Silleteros parade with elaborate flower arrangements. City transformed. Spectacular photography.' },
-  { id:'inti-raymi-pe', country:'PE', month:5,  name:'Inti Raymi',        emoji:'🌞', desc:'June 24 in Cusco: Inca festival of the sun. Massive ceremony at Sacsayhuamán. Timed to winter solstice — Inca New Year.' },
+  { id:'inti-raymi-pe', country:'PE', month:5,  name:'Inti Raymi',        emoji:'🌞', desc:'June 24 in Cusco: Inca festival of the sun. Massive ceremony at Sacsayhuamán. Timed to winter solstice: Inca New Year.' },
   { id:'carnival-oruro-bo', country:'BO', month:1, name:'Carnaval de Oruro', emoji:'🎭', desc:'Feb/Mar: UNESCO Intangible Heritage. Elaborate devil dances (diablada), 18,000 dancers, 10,000+ musicians. 3,700m altitude.' },
   { id:'patagonia-cl',  country:'CL', month:11, name:'Patagonia Season',  emoji:'🏔', desc:'Nov–Mar: Torres del Paine open season. Winds strong Nov–Dec; Jan–Feb best balance of weather and daylight.' },
   { id:'galapagos-ec',  country:'EC', month:5,  name:'Dry Season',        emoji:'🐢', desc:'Jun–Nov: cooler, clearer water. Penguin and sea lion breeding. Dec–May warmer water, lush vegetation, baby sea turtles hatching.' },
@@ -430,7 +430,7 @@ const CD_CANNABIS = {
   CY:1,   // Medical cannabis legal; personal possession = administrative offence
   GE:1,   // Constitutional Court 2018 ruled consumption punishment unconstitutional; production/sale still criminal
 
-  // 2 = Minor penalties — technically illegal; small amounts typically result in fine/caution
+  // 2 = Minor penalties: technically illegal; small amounts typically result in fine/caution
   GB:2, FR:2, IE:2, AT:2, SE:2, FI:2, NO:2, DK:2, SI:2, SK:2, RO:2, BG:2,
   HR:2, BA:2, RS:2, MK:2, AL:2, ME:2, IN:2, NP:2, LK:2,
   KE:2, GH:2, MZ:2, RW:2, UG:2, ET:2, MN:2,
@@ -438,7 +438,7 @@ const CD_CANNABIS = {
   PA:2, DO:2, TT:2, CU:2, HT:2, GT:2, BZ:2, SV:2, HN:2, NI:2,
   MA:2, SD:2, UZ:2, KZ:2, AM:2, AZ:2, TZ:2,
 
-  // 3 = Severe penalties — significant prison time, caning, or death penalty for trafficking
+  // 3 = Severe penalties: significant prison time, caning, or death penalty for trafficking
   SG:3,   // Death penalty for >500g; mandatory prison for any possession
   MY:3,   // Death for trafficking; long prison for possession
   ID:3,   // 4-12 years for possession; death for trafficking
@@ -527,28 +527,28 @@ const CD_AIRQUALITY = {IS:0,NO:0,FI:0,SE:0,AU:0,NZ:0,CA:0,IE:0,EE:0,LV:0,LT:0,PT
 
 // ── Female Solo Safety (composite index | 0=Very Safe → 3=High Caution) ────
 const CD_FEMALE_SAFETY = {
-  // 0 = Very safe — minimal extra caution needed
+  // 0 = Very safe: minimal extra caution needed
   IS:0,NO:0,FI:0,SE:0,DK:0,NL:0,NZ:0,AU:0,CH:0,AT:0,IE:0,CA:0,JP:0,SG:0,LU:0,
-  AD:0,LI:0,MC:0,SM:0,   // European micro-states — essentially host-country safe
+  AD:0,LI:0,MC:0,SM:0,   // European micro-states: essentially host-country safe
   RW:0,CV:0,MU:0,SC:0,   // Africa safest: Rwanda (actively policed), island states
   CR:0,CU:0,BB:0,         // Americas: Costa Rica, Cuba, Barbados
-  // 1 = Generally safe — standard awareness recommended
+  // 1 = Generally safe: standard awareness recommended
   DE:1,GB:1,FR:1,ES:1,PT:1,BE:1,US:1,KR:1,TW:1,CZ:1,SK:1,EE:1,LV:1,LT:1,
   SI:1,HR:1,MT:1,CY:1,IL:1,UY:1,AR:1,CL:1,GE:1,
-  AL:1,MK:1,XK:1,MD:1,BY:1, // Balkans/Eastern Europe — caution but not elevated
-  // 2 = Use caution — heightened awareness, avoid solo night travel
+  AL:1,MK:1,XK:1,MD:1,BY:1, // Balkans/Eastern Europe: caution but not elevated
+  // 2 = Use caution: heightened awareness, avoid solo night travel
   IT:2,GR:2,PL:2,HU:2,RO:2,BG:2,TR:2,RU:2,UA:2,MX:2,BR:2,CO:2,TH:2,VN:2,
   MY:2,ID:2,PH:2,MN:2,AM:2,AZ:2,ZA:2,KE:2,GH:2,TZ:2,MA:2,TN:2,JO:2,BO:2,
   PE:2,EC:2,LB:2,AE:2,ME:2,RS:2,BA:2,
-  BT:1,                                   // Bhutan — regulated tourism, generally safe
-  KP:3,                                   // North Korea — authoritarian; extremely limited freedoms
+  BT:1,                                   // Bhutan: regulated tourism, generally safe
+  KP:3,                                   // North Korea: authoritarian; extremely limited freedoms
   BN:2,KZ:2,KG:2,OM:2,TJ:2,TL:2,UZ:2, // Central/Southeast Asia
   BJ:2,BW:2,KM:2,DJ:2,SZ:2,GA:2,GM:2,CI:2,LS:2,MG:2,MW:2,MZ:2,NA:2,
   ST:2,TG:2,ZM:2,ZW:2,                  // Africa moderate
   AG:2,BS:2,DM:2,DO:2,GD:2,GY:2,KN:2,LC:2,PA:2,PY:2,SR:2,TT:2,VC:2, // Caribbean/SA
   FJ:2,PW:2,WS:2,SB:2,TO:2,TV:2,VU:2,FJ:2, // Pacific islands
   KI:2,MH:2,FM:2,NR:2,PG:2,             // Micronesia/PNG
-  // 3 = High risk — serious safety concerns for solo female travelers
+  // 3 = High risk: serious safety concerns for solo female travelers
   IN:3,PK:3,BD:3,NP:3,AF:3,IQ:3,SY:3,YE:3,IR:3,SA:3,KW:3,QA:3,BH:3,
   EG:3,LY:3,SD:3,SO:3,NG:3,ET:3,MM:3,KH:3,LA:3,GT:3,HN:3,SV:3,CD:3,
   PS:3,TM:3,MV:3,                        // Palestine, Turkmenistan, Maldives (strict laws)
@@ -621,7 +621,7 @@ const CD_TIMEZONE = {
   NZ:12, FJ:12, TV:12, TO:12,
   // UTC +13  (WS switched east of IDL in 2011)
   WS:13,
-  // UTC +14  (Kiribati Line Islands — Kiritimati)
+  // UTC +14  (Kiribati Line Islands: Kiritimati)
   KI:14,
 };
 
@@ -630,82 +630,82 @@ const CD_TIMEZONE = {
 // Distinct from COUNTRY_HOLIDAYS (statutory public holidays): these are the events a
 // traveller plans a trip around. Rendered on the map by _renderHolidayMarkers().
 const COUNTRY_EVENTS = {
-  US: { 0:['🎬 Sundance Film Festival — Park City (late Jan)'], 1:['💗 Mardi Gras — New Orleans (Feb/Mar)'], 2:['🎸 SXSW — Austin music & tech (Mar)'], 3:['🎡 Coachella — California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 6:['🎆 Independence Day (Jul 4)'], 8:['🔥 Burning Man — Nevada (late Aug/Sep)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
-  GB: { 5:['🎶 Glastonbury Festival (late Jun)'], 7:['🎭 Edinburgh Festival Fringe (Aug)',"🎉 Notting Hill Carnival — London (late Aug)"], 11:['🎄 Christmas markets (Dec)'] },
-  IE: { 2:["🍀 St Patrick's Day — Dublin (Mar 17)"] },
+  US: { 0:['🎬 Sundance Film Festival: Park City (late Jan)'], 1:['💗 Mardi Gras: New Orleans (Feb/Mar)'], 2:['🎸 SXSW: Austin music & tech (Mar)'], 3:['🎡 Coachella: California (Apr)'], 5:['🏳️‍🌈 NYC Pride (Jun)'], 6:['🎆 Independence Day (Jul 4)'], 8:['🔥 Burning Man: Nevada (late Aug/Sep)'], 9:['🎃 Halloween (Oct 31)'], 10:['🦃 Thanksgiving (4th Thu Nov)'], 11:['🎄 Holiday season (Dec)'] },
+  GB: { 5:['🎶 Glastonbury Festival (late Jun)'], 7:['🎭 Edinburgh Festival Fringe (Aug)',"🎉 Notting Hill Carnival: London (late Aug)"], 11:['🎄 Christmas markets (Dec)'] },
+  IE: { 2:["🍀 St Patrick's Day: Dublin (Mar 17)"] },
   FR: { 4:['🎬 Cannes Film Festival (May)'], 5:['🎵 Fête de la Musique (Jun 21)'], 6:['🇫🇷 Bastille Day (Jul 14)'] },
-  DE: { 8:['🍺 Oktoberfest — Munich (mid-Sep to early Oct)'], 11:['🎄 Christmas Markets — nationwide (Dec)'] },
-  AT: { 0:['🎻 New Year Concert — Vienna (Jan 1)'], 11:['🎄 Christmas Markets — Vienna & Salzburg (Dec)'] },
-  CH: { 1:['🎭 Basel Fasnacht — carnival (Feb/Mar)'] },
+  DE: { 8:['🍺 Oktoberfest, Munich (mid-Sep to early Oct)'], 11:['🎄 Christmas Markets, nationwide (Dec)'] },
+  AT: { 0:['🎻 New Year Concert, Vienna (Jan 1)'], 11:['🎄 Christmas Markets, Vienna & Salzburg (Dec)'] },
+  CH: { 1:['🎭 Basel Fasnacht: carnival (Feb/Mar)'] },
   IT: { 1:['🎭 Venice Carnival (Feb)'], 6:['🐎 Palio di Siena (Jul 2)'], 7:['🐎 Palio di Siena (Aug 16)'] },
-  ES: { 2:['🔥 Las Fallas — Valencia (Mar)'], 3:['💃 Feria de Abril — Seville (Apr)'], 6:['🐂 San Fermín / Running of the Bulls — Pamplona (Jul)'], 7:['🍅 La Tomatina — Buñol (last Wed Aug)'] },
+  ES: { 2:['🔥 Las Fallas: Valencia (Mar)'], 3:['💃 Feria de Abril: Seville (Apr)'], 6:['🐂 San Fermín / Running of the Bulls: Pamplona (Jul)'], 7:['🍅 La Tomatina: Buñol (last Wed Aug)'] },
   PT: { 5:['🎉 Festas de Lisboa / Santo António (Jun)'] },
-  NL: { 3:["👑 King's Day (Apr 27)",'🌷 Tulip season — Keukenhof (Apr)'] },
-  BE: { 6:['🎶 Tomorrowland — Boom (Jul)'] },
-  CZ: { 11:['🎄 Christmas Markets — Prague (Dec)'] },
+  NL: { 3:["👑 King's Day (Apr 27)",'🌷 Tulip season: Keukenhof (Apr)'] },
+  BE: { 6:['🎶 Tomorrowland: Boom (Jul)'] },
+  CZ: { 11:['🎄 Christmas Markets: Prague (Dec)'] },
   GR: { 6:['🎭 Athens & Epidaurus Festival (summer)'] },
   SE: { 5:['🌼 Midsummer (late Jun)'] },
   NO: { 4:['🇳🇴 Constitution Day (May 17)'] },
   IS: { 7:['🎶 Verslunarmannahelgi / summer festivals (Aug)'] },
-  BR: { 1:['🎭 Carnival — Rio & Salvador (Feb/Mar)'], 11:['🎆 Réveillon — Copacabana NYE (Dec 31)'] },
+  BR: { 1:['🎭 Carnival, Rio & Salvador (Feb/Mar)'], 11:['🎆 Réveillon, Copacabana NYE (Dec 31)'] },
   MX: { 8:['🇲🇽 Independence Day (Sep 16)'], 10:['💀 Día de los Muertos (Nov 1–2)'] },
-  PE: { 5:['☀ Inti Raymi — Cusco (Jun 24)'] },
-  CO: { 0:['🎉 Feria de Cali (early Jan)'], 7:['🌸 Feria de las Flores — Medellín (Aug)'] },
-  AR: { 2:['💃 Tango Festival — Buenos Aires (Mar)'] },
-  JP: { 2:['🌸 Cherry Blossom (Hanami) — late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri — Kyoto (Jul)','🏮 Nebuta Matsuri — Aomori (early Aug)'], 7:['💃 Awa Odori — Tokushima (Aug)'], 10:['🍁 Autumn foliage (kōyō) — nationwide (Nov)'] },
-  KR: { 3:['🌸 Cherry Blossom — Jinhae (Apr)'], 10:['🏮 Seoul Lantern Festival (Nov)'] },
+  PE: { 5:['☀ Inti Raymi: Cusco (Jun 24)'] },
+  CO: { 0:['🎉 Feria de Cali (early Jan)'], 7:['🌸 Feria de las Flores: Medellín (Aug)'] },
+  AR: { 2:['💃 Tango Festival: Buenos Aires (Mar)'] },
+  JP: { 2:['🌸 Cherry Blossom (Hanami): late Mar'], 3:['🌸 Hanami & Golden Week (Apr/May)'], 6:['🎆 Gion Matsuri: Kyoto (Jul)','🏮 Nebuta Matsuri: Aomori (early Aug)'], 7:['💃 Awa Odori: Tokushima (Aug)'], 10:['🍁 Autumn foliage (kōyō): nationwide (Nov)'] },
+  KR: { 3:['🌸 Cherry Blossom: Jinhae (Apr)'], 10:['🏮 Seoul Lantern Festival (Nov)'] },
   CN: { 1:['🏮 Spring Festival / Chinese New Year (Jan/Feb)'], 8:['🥮 Mid-Autumn Festival (Sep/Oct)'] },
   TW: { 1:['🏮 Lantern Festival (Feb)'] },
-  TH: { 3:['💦 Songkran — Thai New Year water festival (Apr 13–15)'], 10:['🪔 Loy Krathong / Yi Peng — lights (Nov)'] },
-  VN: { 0:['🧧 Tết — Lunar New Year (Jan/Feb)'] },
-  ID: { 2:['🌑 Nyepi — Balinese Day of Silence (Mar)'] },
-  IN: { 0:['🎉 Pongal & Republic Day (Jan)'], 2:['🎨 Holi — festival of colours (Mar)'], 7:['🐘 Onam — Kerala (Aug/Sep)'], 9:['🪔 Diwali — festival of lights (Oct/Nov)','🎭 Durga Puja — Kolkata (Oct)'], 10:['🐪 Pushkar Camel Fair — Rajasthan (Nov)'] },
+  TH: { 3:['💦 Songkran, Thai New Year water festival (Apr 13–15)'], 10:['🪔 Loy Krathong / Yi Peng, lights (Nov)'] },
+  VN: { 0:['🧧 Tết: Lunar New Year (Jan/Feb)'] },
+  ID: { 2:['🌑 Nyepi: Balinese Day of Silence (Mar)'] },
+  IN: { 0:['🎉 Pongal & Republic Day (Jan)'], 2:['🎨 Holi: festival of colours (Mar)'], 7:['🐘 Onam: Kerala (Aug/Sep)'], 9:['🪔 Diwali: festival of lights (Oct/Nov)','🎭 Durga Puja: Kolkata (Oct)'], 10:['🐪 Pushkar Camel Fair: Rajasthan (Nov)'] },
   NP: { 2:['🎨 Holi (Mar)'] },
   AU: { 0:['🎆 Sydney Festival (Jan)','🇦🇺 Australia Day (Jan 26)'], 2:['🏳️‍🌈 Sydney Gay & Lesbian Mardi Gras (Feb/Mar)'] },
   NZ: { 1:['⛵ Waitangi Day (Feb 6)'] },
   AE: { 0:['🛍 Dubai Shopping Festival (Dec–Jan)'] },
   TR: { 3:['🌷 Istanbul Tulip Festival (Apr)'] },
-  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'], 5:['🌃 White Nights — St Petersburg (Jun)'] },
+  RU: { 1:['🥞 Maslenitsa (Feb/Mar)'], 5:['🌃 White Nights: St Petersburg (Jun)'] },
   ZA: { 2:['🎷 Cape Town Intl Jazz Festival (Mar)'], 8:['🌸 Namaqualand wildflowers (Aug/Sep)'] },
   // ── Americas ──
   CA: { 1:['🧊 Quebec Winter Carnival (Feb)'], 6:['🎆 Canada Day (Jul 1)'], 8:['🎬 Toronto Intl Film Festival (Sep)'] },
-  CU: { 6:['🎺 Fiesta del Fuego — Santiago (Jul)'], 11:['🎬 Havana Film Festival (Dec)'] },
-  JM: { 6:['🎶 Reggae Sumfest — Montego Bay (Jul)'] },
-  CR: { 11:['🎉 Fiestas de Zapote — San José (late Dec)'] },
-  GT: { 2:['✝ Semana Santa — Antigua (Mar/Apr)'], 10:['🪁 Giant Kite Festival — Sumpango (Nov 1)'] },
+  CU: { 6:['🎺 Fiesta del Fuego: Santiago (Jul)'], 11:['🎬 Havana Film Festival (Dec)'] },
+  JM: { 6:['🎶 Reggae Sumfest: Montego Bay (Jul)'] },
+  CR: { 11:['🎉 Fiestas de Zapote: San José (late Dec)'] },
+  GT: { 2:['✝ Semana Santa, Antigua (Mar/Apr)'], 10:['🪁 Giant Kite Festival, Sumpango (Nov 1)'] },
   CL: { 1:['🎶 Festival de Viña del Mar (Feb)'] },
-  EC: { 1:['🎭 Carnival (Feb)'], 5:['☀ Inti Raymi — Andes (Jun)'] },
+  EC: { 1:['🎭 Carnival (Feb)'], 5:['☀ Inti Raymi: Andes (Jun)'] },
   BO: { 1:['🎭 Carnaval de Oruro (Feb)'] },
   // ── Africa ──
   EG: { 1:['🌞 Abu Simbel Sun Festival (Feb 22)'], 9:['🌞 Abu Simbel Sun Festival (Oct 22)'] },
-  MA: { 5:['🎵 Fès Festival of World Sacred Music (Jun)','🎶 Mawazine — Rabat (Jun)'], 11:['🎬 Marrakech Intl Film Festival (Nov/Dec)'] },
-  KE: { 6:['🦓 Great Migration — Maasai Mara (Jul–Oct)'] },
-  TZ: { 1:['🎶 Sauti za Busara — Zanzibar (Feb)'], 6:['🦓 Serengeti river crossings (Jul–Sep)'] },
-  ET: { 0:['✝ Timkat — Epiphany (Jan 19)'], 8:['🌼 Meskel — Finding of the True Cross (Sep 27)'] },
-  MG: { 5:['🐋 Humpback whale watching — Île Sainte-Marie (Jun–Sep)'], 9:['🎶 Madajazzcar — Antananarivo (Oct)'] },
+  MA: { 5:['🎵 Fès Festival of World Sacred Music (Jun)','🎶 Mawazine: Rabat (Jun)'], 11:['🎬 Marrakech Intl Film Festival (Nov/Dec)'] },
+  KE: { 6:['🦓 Great Migration: Maasai Mara (Jul–Oct)'] },
+  TZ: { 1:['🎶 Sauti za Busara: Zanzibar (Feb)'], 6:['🦓 Serengeti river crossings (Jul–Sep)'] },
+  ET: { 0:['✝ Timkat, Epiphany (Jan 19)'], 8:['🌼 Meskel, Finding of the True Cross (Sep 27)'] },
+  MG: { 5:['🐋 Humpback whale watching, Île Sainte-Marie (Jun–Sep)'], 9:['🎶 Madajazzcar, Antananarivo (Oct)'] },
   NG: { 1:['🎭 Lagos Carnival (Feb)'], 11:['🎭 Calabar Carnival (Dec)'] },
-  GH: { 7:['🥁 Homowo Festival (Aug/Sep)'], 11:['🎉 December in GH / Afro festivals — Accra (Dec)'] },
+  GH: { 7:['🥁 Homowo Festival (Aug/Sep)'], 11:['🎉 December in GH / Afro festivals: Accra (Dec)'] },
   SN: { 4:['🎷 Saint-Louis Jazz Festival (May)'] },
   // ── Middle East ──
   IL: { 2:['🎭 Purim (Mar)'], 8:['🍎 Rosh Hashanah (Sep/Oct)'] },
   LB: { 6:['🎶 Baalbeck Intl Festival (Jul–Aug)'] },
   SA: { 9:['🎉 Riyadh Season (Oct–Mar)'] },
   // ── Asia-Pacific ──
-  SG: { 0:['🏮 Chinese New Year (Jan/Feb)'], 8:['🏎 F1 Singapore Grand Prix — night race (Sep)'] },
+  SG: { 0:['🏮 Chinese New Year (Jan/Feb)'], 8:['🏎 F1 Singapore Grand Prix: night race (Sep)'] },
   MY: { 0:['🏮 Thaipusam (Jan/Feb)'] },
-  PH: { 0:['🎭 Sinulog — Cebu & Ati-Atihan — Kalibo (Jan)'], 11:['🎄 Christmas season — world\'s longest (Sep–Dec)'] },
-  LK: { 7:['🐘 Esala Perahera — Kandy (Jul/Aug)'] },
-  MM: { 3:['💦 Thingyan — water festival (Apr)'] },
-  KH: { 10:['🌕 Bon Om Touk — Water Festival (Nov)'] },
-  LA: { 3:['💦 Pi Mai — Lao New Year (Apr)'], 10:['🕯 That Luang Festival (Nov)'] },
+  PH: { 0:['🎭 Sinulog: Cebu & Ati-Atihan: Kalibo (Jan)'], 11:['🎄 Christmas season: world\'s longest (Sep–Dec)'] },
+  LK: { 7:['🐘 Esala Perahera: Kandy (Jul/Aug)'] },
+  MM: { 3:['💦 Thingyan: water festival (Apr)'] },
+  KH: { 10:['🌕 Bon Om Touk: Water Festival (Nov)'] },
+  LA: { 3:['💦 Pi Mai: Lao New Year (Apr)'], 10:['🕯 That Luang Festival (Nov)'] },
   MN: { 6:['🏇 Naadam Festival (Jul)'] },
   // ── More of Europe ──
-  PL: { 11:['🎄 Christmas Markets — Kraków (Dec)'] },
-  HU: { 7:['🎶 Sziget Festival — Budapest (Aug)'] },
+  PL: { 11:['🎄 Christmas Markets: Kraków (Dec)'] },
+  HU: { 7:['🎶 Sziget Festival: Budapest (Aug)'] },
   DK: { 5:['🎶 Roskilde Festival (late Jun/Jul)'] },
-  FI: { 11:['🎅 Santa Claus Village — Rovaniemi (Dec)'] },
-  HR: { 6:['🎶 Ultra Europe — Split (Jul)'] },
-  MT: { 1:['🎭 Carnival — Valletta (Feb)'] },
+  FI: { 11:['🎅 Santa Claus Village: Rovaniemi (Dec)'] },
+  HR: { 6:['🎶 Ultra Europe: Split (Jul)'] },
+  MT: { 1:['🎭 Carnival: Valletta (Feb)'] },
 };
 
 const COUNTRY_HOLIDAYS = {
@@ -939,7 +939,7 @@ const VISA_DATA = {
   KR: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:180,c:0}, JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'evisa',d:30,c:0}, CN:{t:'req',d:0,c:0},   BR:{t:'free',d:90,c:0} },
   PH: { US:{t:'free',d:30,c:0},  GB:{t:'free',d:30,c:0},  DE:{t:'free',d:30,c:0},  AU:{t:'free',d:30,c:0},  CA:{t:'free',d:30,c:0},  JP:{t:'free',d:30,c:0},  NZ:{t:'free',d:30,c:0},  ZA:{t:'free',d:30,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:30,c:0} },
   SG: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:30,c:0},  CN:{t:'free',d:30,c:0},  BR:{t:'free',d:90,c:0} },
-  // Middle East & North Africa — includes IL:banned where entry is denied to Israeli passport holders
+  // Middle East & North Africa: includes IL:banned where entry is denied to Israeli passport holders
   SA: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'evisa',d:90,c:0}, IN:{t:'evisa',d:90,c:0}, CN:{t:'evisa',d:90,c:0}, BR:{t:'evisa',d:90,c:0}, IL:{t:'req',d:0,c:0} },
   JO: { US:{t:'voa',d:30,c:40},  GB:{t:'voa',d:30,c:40},  DE:{t:'voa',d:30,c:40},  AU:{t:'voa',d:30,c:40},  CA:{t:'voa',d:30,c:40},  JP:{t:'voa',d:30,c:40},  NZ:{t:'voa',d:30,c:40},  ZA:{t:'voa',d:30,c:40},  IN:{t:'voa',d:30,c:40},  CN:{t:'voa',d:30,c:40},  BR:{t:'voa',d:30,c:40},  IL:{t:'voa',d:30,c:40} },
   LB: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
@@ -957,13 +957,13 @@ const VISA_DATA = {
   LY: { US:{t:'req',d:0,c:0},    GB:{t:'req',d:0,c:0},    DE:{t:'req',d:0,c:0},    AU:{t:'req',d:0,c:0},    CA:{t:'req',d:0,c:0},    JP:{t:'req',d:0,c:0},    NZ:{t:'req',d:0,c:0},    ZA:{t:'req',d:0,c:0},    IN:{t:'req',d:0,c:0},    CN:{t:'req',d:0,c:0},    BR:{t:'req',d:0,c:0},    IL:{t:'banned',d:0,c:0} },
   BD: { US:{t:'voa',d:30,c:50},  GB:{t:'voa',d:30,c:50},  DE:{t:'voa',d:30,c:50},  AU:{t:'voa',d:30,c:50},  CA:{t:'voa',d:30,c:50},  JP:{t:'voa',d:30,c:50},  NZ:{t:'voa',d:30,c:50},  ZA:{t:'voa',d:30,c:50},  IN:{t:'voa',d:30,c:50},  CN:{t:'voa',d:30,c:50},  BR:{t:'voa',d:30,c:50},  IL:{t:'banned',d:0,c:0} },
   BN: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},  CN:{t:'free',d:90,c:0},  BR:{t:'free',d:90,c:0},  IL:{t:'banned',d:0,c:0} },
-  // IL (Israel) as destination — allows visitors from most countries
+  // IL (Israel) as destination: allows visitors from most countries
   IL: { US:{t:'free',d:90,c:0},  GB:{t:'free',d:90,c:0},  DE:{t:'free',d:90,c:0},  AU:{t:'free',d:90,c:0},  CA:{t:'free',d:90,c:0},  JP:{t:'free',d:90,c:0},  NZ:{t:'free',d:90,c:0},  ZA:{t:'free',d:90,c:0},  IN:{t:'free',d:90,c:0},  CN:{t:'evisa',d:30,c:0}, BR:{t:'free',d:90,c:0} },
   // Taiwan
   TW: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:14,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
   // Hong Kong SAR
   HK: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:180,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'free',d:30,c:0}, IN:{t:'free',d:14,c:0}, CN:{t:'free',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
-  // Schengen / EEA countries — visa-free 90/180 days for US/GB/AU/CA/JP/NZ/BR; ZA/IN/CN typically require visa; IL visa-free
+  // Schengen / EEA countries: visa-free 90/180 days for US/GB/AU/CA/JP/NZ/BR; ZA/IN/CN typically require visa; IL visa-free
   IS: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
   NO: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
   SE: { US:{t:'free',d:90,c:0}, GB:{t:'free',d:90,c:0}, DE:{t:'free',d:90,c:0}, AU:{t:'free',d:90,c:0}, CA:{t:'free',d:90,c:0}, JP:{t:'free',d:90,c:0}, NZ:{t:'free',d:90,c:0}, ZA:{t:'req',d:0,c:0}, IN:{t:'req',d:0,c:0}, CN:{t:'req',d:0,c:0}, BR:{t:'free',d:90,c:0}, IL:{t:'free',d:90,c:0} },
@@ -1099,33 +1099,33 @@ const LAYERS = {
 
 const DESCS = {
   weather: [
-    "Clear skies and comfortable temperatures — ideal for outdoor exploration and long days on the road.",
+    "Clear skies and comfortable temperatures: ideal for outdoor exploration and long days on the road.",
     "Warm and mostly pleasant with occasional showers. Most activities remain fully accessible.",
-    "Variable conditions — heat, humidity, or rain may affect comfort. Check local forecasts.",
+    "Variable conditions: heat, humidity, or rain may affect comfort. Check local forecasts.",
     "Monsoon, extreme heat, polar cold, or active hurricane season. Check advisories and pack accordingly."
   ],
   safety: [
     "Low crime, stable government, reliable emergency services. Standard urban awareness applies.",
     "Generally safe with isolated concerns. Petty theft in tourist areas, political demonstrations possible.",
-    "Elevated risk in some areas — violent crime, civil unrest, or unstable conditions. Research regions carefully.",
+    "Elevated risk in some areas: violent crime, civil unrest, or unstable conditions. Research regions carefully.",
     "Serious safety concerns, armed conflict, or widespread violence. Government travel advisories in effect."
   ],
   cost: [
     "~$40–70/day covers a comfortable bed, good food, and local transport.",
     "~$80–150/day for mid-range travel. Budget options available with some effort.",
-    "~$180–260/day. Budget travel is difficult — most prices are elevated.",
+    "~$180–260/day. Budget travel is difficult: most prices are elevated.",
     "$300+/day. Among the most expensive destinations on the planet."
   ],
   family: [
-    "Excellent infrastructure for families — child-friendly attractions, safe transport, quality accommodation.",
-    "Suitable with planning — most destinations are family-friendly with minor limitations.",
+    "Excellent infrastructure for families: child-friendly attractions, safe transport, quality accommodation.",
+    "Suitable with planning: most destinations are family-friendly with minor limitations.",
     "Limited family facilities. Long journeys, heat, or safety concerns may challenge families.",
-    "Not recommended for families with young children — safety risks, limited healthcare, or poor infrastructure."
+    "Not recommended for families with young children: safety risks, limited healthcare, or poor infrastructure."
   ],
   solo: [
     "Consistently rated safe and welcoming for solo women. Minimal awareness required.",
     "Generally safe with normal precautions. Dress codes or cultural norms vary by region.",
-    "Significant awareness required — harassment reported, especially in crowded or rural areas.",
+    "Significant awareness required: harassment reported, especially in crowded or rural areas.",
     "Significant harassment risk, legal restrictions on dress or movement, or documented danger. Plan carefully."
   ],
   remote: [
@@ -1144,7 +1144,7 @@ const DESCS = {
     "Excellent healthcare infrastructure. No significant disease risks for most travellers.",
     "Standard precautions recommended. Good hospital access in major cities. Travel insurance advised.",
     "Elevated risk from tropical disease, food and water safety issues. Consult a travel clinic before departing.",
-    "Serious health risks — malaria, yellow fever, dengue, cholera, or inadequate medical facilities. Prepare thoroughly."
+    "Serious health risks: malaria, yellow fever, dengue, cholera, or inadequate medical facilities. Prepare thoroughly."
   ],
   crowds: [
     "Genuinely uncrowded. You may have major sites to yourself. Emerging or off-season destination.",
@@ -1155,7 +1155,7 @@ const DESCS = {
   disaster: [
     "Minimal natural disaster risk. Low seismic activity, no hurricane exposure, stable climate.",
     "Some seasonal or geological risk. Flooding, minor earthquakes, or seasonal storms possible.",
-    "Notable natural hazard risk — earthquakes, volcanoes, typhoons, or severe flooding in affected areas.",
+    "Notable natural hazard risk: earthquakes, volcanoes, typhoons, or severe flooding in affected areas.",
     "Frequent severe weather events, active seismic risk, or tsunami-prone coastline. Monitor alerts."
   ],
   visa: [
@@ -1167,19 +1167,19 @@ const DESCS = {
   lgbtq: [
     "Legal, openly celebrated. Pride events, inclusive venues. No special precautions needed.",
     "Legal, socially tolerated in most areas. Urban centres welcoming, rural attitudes more conservative.",
-    "Legal but unwelcoming in practice — discrimination common, limited legal protections. Public affection inadvisable.",
+    "Legal but unwelcoming in practice: discrimination common, limited legal protections. Public affection inadvisable.",
     "Criminalised, actively enforced. Real risk of arrest or harm. Serious advisory applies."
   ],
   beaches: [
     "Free, clean, publicly accessible, open to all travellers. Good facilities maintained.",
     "Good beaches accessible with modest facilities. Some private stretches but public options available.",
-    "Beach access limited — privatisation, restricted areas, or infrastructure gaps.",
+    "Beach access limited: privatisation, restricted areas, or infrastructure gaps.",
     "Beaches largely privatised, unsafe, prohibitively restricted, or destination is landlocked."
   ],
   vaccines: [
     "No specific vaccines required beyond routine immunisations.",
     "Routine vaccines plus Hepatitis A/B and Typhoid recommended for most travellers.",
-    "Several vaccines required or strongly recommended — Yellow Fever, Meningitis, or Rabies. Confirm with a travel clinic.",
+    "Several vaccines required or strongly recommended: Yellow Fever, Meningitis, or Rabies. Confirm with a travel clinic.",
     "Extensive pre-travel vaccination schedule required. Yellow Fever certificate mandatory in some cases. Consult a specialist."
   ],
   road: [
@@ -1190,9 +1190,9 @@ const DESCS = {
   ],
   cannabis: [
     "Recreational adult use fully legal. Licensed dispensaries, social clubs, or home cultivation permitted. Check local age limits and public consumption rules.",
-    "Medical use legal and/or personal possession decriminalized. Small amounts treated as a health matter. Purchase may still be restricted — verify current local rules.",
-    "Technically illegal — possession of small amounts typically results in a fine or administrative sanction rather than criminal prosecution. Enforcement varies widely.",
-    "Severe criminal penalties — arrest, significant prison time, caning, or deportation for any possession. Death penalty applies to trafficking in some jurisdictions. Do not carry."
+    "Medical use legal and/or personal possession decriminalized. Small amounts treated as a health matter. Purchase may still be restricted: verify current local rules.",
+    "Technically illegal: possession of small amounts typically results in a fine or administrative sanction rather than criminal prosecution. Enforcement varies widely.",
+    "Severe criminal penalties: arrest, significant prison time, caning, or deportation for any possession. Death penalty applies to trafficking in some jurisdictions. Do not carry."
   ],
   nomad: [
     "Top-tier digital nomad base. Fast internet, affordable, active remote community, easy long-stay visa.",
@@ -1216,7 +1216,7 @@ const DESCS = {
     "Tap water is safe to drink directly from the tap. No filter or bottled water needed.",
     "Tap water is generally safe; sensitive travellers may prefer bottled or filtered water.",
     "Tap water is not safe to drink. Use bottled or purified water at all times.",
-    "Tap water is severely unsafe. Serious illness risk — bottled water is essential throughout."
+    "Tap water is severely unsafe. Serious illness risk: bottled water is essential throughout."
   ],
   airquality: [
     "Air quality is consistently good. Safe and comfortable for all outdoor activities.",
@@ -1227,19 +1227,19 @@ const DESCS = {
   femalesafety: [
     "Exceptionally safe for solo female travellers. Harassment is very rare nationwide.",
     "Generally safe. Standard urban precautions sufficient. Most areas welcoming.",
-    "Exercise caution — harassment reported in some areas. Research local norms before visiting.",
+    "Exercise caution: harassment reported in some areas. Research local norms before visiting.",
     "High caution strongly advised. Dress conservatively; avoid solo night travel in most areas."
   ],
   nightlife: [
-    "World-class nightlife — clubs, bars, live music and late-night dining for every taste.",
+    "World-class nightlife: clubs, bars, live music and late-night dining for every taste.",
     "Good variety of bars, restaurants and entertainment. Most cities have active scenes.",
     "Moderate nightlife; primarily in major urban centres. Rural areas very quiet at night.",
     "Nightlife is very limited. Alcohol may be restricted, expensive, or socially discouraged."
   ],
   scam: [
-    "Tourist scams are very rare. High-trust environment — standard awareness is plenty.",
+    "Tourist scams are very rare. High-trust environment: standard awareness is plenty.",
     "Occasional petty scams near tourist sites. Standard vigilance is sufficient.",
-    "Tourist scams are common — research typical local schemes (taxi, currency, tours) beforehand.",
+    "Tourist scams are common: research typical local schemes (taxi, currency, tours) beforehand.",
     "High risk of scams targeting tourists. Stay alert; use only vetted operators and transport."
   ],
   malaria: [
@@ -1384,9 +1384,9 @@ const CD = {
   'IT': { weather:s12(1,1,1,0,0,0,1,1,0,0,1,1), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(1,1,2,3,2,2,3,3,2,2,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,3,2,1,0,0,0,0,1,2,3), road:rep(1), vaccines:rep(0) },
   'PT': { weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(0,0,1,2,2,2,3,3,2,1,0,0), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
   'GR': { weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,2,2,2,3,3,2,1,0,0), disaster:rep(1), visa:rep(0), lgbtq:rep(1), beaches:s12(2,2,2,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
-  // Cyprus — Eastern Mediterranean island; EU member; warm sunny 11+ months; beaches Apr–Nov
+  // Cyprus: Eastern Mediterranean island; EU member; warm sunny 11+ months; beaches Apr–Nov
   'CY': { weather:s12(1,1,0,0,0,0,0,0,0,0,0,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0), disaster:rep(0), visa:rep(0), lgbtq:rep(1), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0) },
-  // Israel — Middle East; excellent weather Oct–May; security awareness required
+  // Israel: Middle East; excellent weather Oct–May; security awareness required
   'IL': { weather:s12(0,0,0,0,0,1,2,2,1,0,0,0), safety:rep(2), cost:rep(2), family:rep(1), solo:rep(1), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(1), beaches:s12(1,1,1,0,0,2,3,3,1,0,0,1), road:rep(1), vaccines:rep(0) },
   'DE': { weather:s12(2,2,1,1,1,0,0,0,0,1,2,2), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,2,1,2), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), road:rep(0), vaccines:rep(0) },
   'GB': { weather:s12(2,2,2,1,1,1,1,1,1,1,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,2,2,2,3,3,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,2,3,3), road:rep(0), vaccines:rep(0) },
@@ -1476,9 +1476,9 @@ const CD = {
   'TJ': { weather:s12(2,2,1,1,2,3,3,3,1,0,1,2), safety:rep(1), cost:rep(0), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(2), crowds:rep(0), disaster:rep(2), visa:rep(1), lgbtq:rep(3), beaches:rep(3), road:rep(1), vaccines:rep(2) },
   'TM': { weather:s12(1,1,1,2,3,3,3,3,2,1,1,1), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(1), crowds:rep(0), disaster:rep(1), visa:rep(3), lgbtq:rep(3), beaches:rep(3), road:rep(2), vaccines:rep(1) },
   'AF': { weather:s12(1,1,1,2,2,3,3,3,1,0,1,1), safety:rep(3), cost:rep(0), family:rep(3), solo:rep(3), remote:rep(3), corrupt:rep(3), health:rep(3), crowds:rep(0), disaster:rep(2), visa:rep(3), lgbtq:rep(3), beaches:rep(3), road:rep(3), vaccines:rep(3) },
-  // Special territories (custom keys — not ISO3166)
+  // Special territories (custom keys, not ISO3166)
   'GZ':  { weather:s12(1,1,0,0,0,0,0,0,0,0,1,1), safety:rep(3), cost:rep(0), family:rep(3), solo:rep(3), remote:rep(3), corrupt:rep(3), health:rep(2), crowds:rep(0), disaster:rep(2), visa:rep(3), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) },
-  // West Bank — Palestinian Authority areas; Israeli military checkpoints; no coastline
+  // West Bank: Palestinian Authority areas; Israeli military checkpoints; no coastline
   'XWB': { weather:s12(1,1,0,0,0,1,2,2,1,0,1,1), safety:rep(3), cost:rep(1), family:rep(3), solo:rep(3), remote:rep(2), corrupt:rep(3), health:rep(2), crowds:rep(1), disaster:rep(2), visa:rep(3), lgbtq:rep(3), beaches:rep(3), vaccines:rep(2) },
 };
 
@@ -1489,13 +1489,13 @@ const CD = {
 const CD_A1 = {
 
   // ── China ─────────────────────────────────────────────────────────────────
-  // Northeast — extreme cold winters, pleasant short summer
+  // Northeast: extreme cold winters, pleasant short summer
   'CN-23': { weather: s12(3,3,3,2,1,0,0,0,0,1,2,3) }, // Heilongjiang (Harbin)
   'CN-22': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) }, // Jilin
   'CN-21': { weather: s12(3,2,2,1,0,0,0,0,0,1,1,3) }, // Liaoning (Shenyang)
 
-  // North — cold dry winters, hot humid summers, excellent Sep–Oct
-  // Beijing — capital; most expensive for China; intense tourist and commuter crowds
+  // North: cold dry winters, hot humid summers, excellent Sep–Oct
+  // Beijing: capital; most expensive for China; intense tourist and commuter crowds
   'CN-11': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2), cost:rep(2), crowds:rep(3) },
   'CN-12': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Tianjin
   'CN-13': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Hebei
@@ -1503,11 +1503,11 @@ const CD_A1 = {
   'CN-37': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Shandong (Qingdao)
   'CN-41': { weather: s12(2,2,1,1,1,1,2,2,0,0,1,2) }, // Henan
 
-  // Inner Mongolia — extreme continental steppe
+  // Inner Mongolia: extreme continental steppe
   'CN-15': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) },
 
-  // East / Lower Yangtze — subtropical; plum rain Jun, typhoon Jul–Sep
-  // Shanghai — most international city in China; premium prices; best nightlife
+  // East / Lower Yangtze: subtropical; plum rain Jun, typhoon Jul–Sep
+  // Shanghai: most international city in China; premium prices; best nightlife
   'CN-31': { weather: s12(1,2,1,1,1,2,3,3,2,0,1,1), cost:rep(2), crowds:rep(2) },
   'CN-32': { weather: s12(1,2,1,1,1,2,2,3,2,0,1,1) }, // Jiangsu (Nanjing)
   'CN-33': { weather: s12(1,2,1,1,1,2,2,3,2,0,1,1) }, // Zhejiang (Hangzhou)
@@ -1515,55 +1515,55 @@ const CD_A1 = {
   'CN-35': { weather: s12(1,1,1,1,1,2,2,2,2,1,1,1) }, // Fujian (Xiamen)
   'CN-36': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Jiangxi
 
-  // Central — hot, humid summers; flooding risk Jul–Aug
+  // Central: hot, humid summers; flooding risk Jul–Aug
   'CN-42': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Hubei (Wuhan)
   'CN-43': { weather: s12(1,2,1,1,1,2,2,3,1,0,1,1) }, // Hunan (Changsha)
 
-  // South — subtropical/tropical; excellent Nov–Mar
-  // Guangdong — megacity belt (Guangzhou/Shenzhen); expensive; gateway to HK/Macau
+  // South: subtropical/tropical; excellent Nov–Mar
+  // Guangdong: megacity belt (Guangzhou/Shenzhen); expensive; gateway to HK/Macau
   'CN-44': { weather: s12(1,2,2,2,2,2,2,2,2,1,0,1), cost:rep(2), crowds:rep(2) },
   'CN-45': { weather: s12(1,2,2,2,2,2,2,2,1,0,1,1) }, // Guangxi (Guilin)
-  // Hainan — China's tropical island; resort prices; best beaches in the country
+  // Hainan: China's tropical island; resort prices; best beaches in the country
   'CN-46': { weather: s12(0,0,0,1,2,2,2,2,2,1,0,0), beaches:rep(0), cost:rep(2) },
 
-  // Southwest — Chengdu/Chongqing basin foggy; Yunnan "spring city"
+  // Southwest: Chengdu/Chongqing basin foggy; Yunnan "spring city"
   'CN-50': { weather: s12(1,1,1,1,1,2,2,3,2,1,1,1) }, // Chongqing
   'CN-51': { weather: s12(1,1,1,1,1,2,2,2,2,1,1,2) }, // Sichuan (Chengdu)
   'CN-52': { weather: s12(1,1,1,1,1,2,1,1,1,0,1,1) }, // Guizhou (mild/overcast)
-  'CN-53': { weather: s12(0,0,0,0,1,2,2,2,1,0,0,0) }, // Yunnan (Kunming — spring city)
+  'CN-53': { weather: s12(0,0,0,0,1,2,2,2,1,0,0,0) }, // Yunnan (Kunming: spring city)
 
-  // Northwest — arid, extreme continental
+  // Northwest: arid, extreme continental
   'CN-61': { weather: s12(2,2,1,1,0,1,1,2,0,0,1,2) }, // Shaanxi (Xi'an)
   'CN-62': { weather: s12(2,2,1,1,0,0,1,2,0,1,2,2) }, // Gansu (Lanzhou)
   'CN-64': { weather: s12(2,2,1,1,0,0,1,2,0,0,1,2) }, // Ningxia
-  // Xinjiang — pervasive surveillance; restricted zones near borders; Silk Road sites open but monitored
+  // Xinjiang: pervasive surveillance; restricted zones near borders; Silk Road sites open but monitored
   'CN-65': { weather: s12(3,3,2,1,0,0,3,3,1,1,2,3), safety:rep(2), crowds:rep(0), visa:rep(2) },
 
   // High plateau
-  // Tibet/Xizang — Tibet Travel Permit required beyond Chinese visa; strict surveillance; very few tourists
+  // Tibet/Xizang: Tibet Travel Permit required beyond Chinese visa; strict surveillance; very few tourists
   'CN-54': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3), visa:rep(3), crowds:rep(0), safety:rep(2) },
-  // Qinghai — high plateau; no special permit; remote but accessible; low tourist density
+  // Qinghai: high plateau; no special permit; remote but accessible; low tourist density
   'CN-63': { weather: s12(3,3,2,1,0,1,1,1,0,1,2,3), crowds:rep(0) },
 
   // ── India ────────────────────────────────────────────────────────────────
-  // Delhi — solo female safety significantly worse than national average; extreme heat/pollution
-  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1), solo:rep(3), safety:rep(2) }, // — extreme heat May–Jun; humid Jul–Sep
-  'IN-RJ': { weather: s12(0,1,1,2,3,3,2,2,2,1,0,0) }, // Rajasthan — Thar desert; scorching Apr–Jun
-  // Kerala — most progressive state; lower solo risk; excellent public healthcare
-  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), solo:rep(1), safety:rep(1), lgbtq:rep(1) }, // — heavy monsoon Jun–Aug; best Nov–Feb
-  // Goa — India's most LGBTQ-tolerant state; international beach scene; safer for solo travellers
-  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0), lgbtq:rep(1), solo:rep(1), safety:rep(1) }, // — best Nov–Feb; heavy monsoon Jun–Sep
-  'IN-HP': { weather: s12(3,3,2,1,0,1,2,2,1,0,1,3) }, // Himachal Pradesh — mountain; snow Nov–Mar
-  'IN-UK': { weather: s12(2,2,1,1,1,2,3,3,2,0,1,2) }, // Uttarakhand — Himalayan foothills
-  'IN-MH': { weather: s12(0,0,1,2,3,3,3,3,3,1,1,0) }, // Maharashtra (Mumbai) — heavy monsoon Jun–Sep
-  'IN-GJ': { weather: s12(0,0,1,2,3,3,2,2,2,1,0,0) }, // Gujarat — hot/arid; monsoon Jun–Sep
-  'IN-TN': { weather: s12(0,0,1,1,2,2,2,2,1,2,3,1) }, // Tamil Nadu — NE monsoon Oct–Dec!
+  // Delhi: solo female safety significantly worse than national average; extreme heat/pollution
+  'IN-DL': { weather: s12(1,1,2,2,3,3,2,2,2,1,0,1), solo:rep(3), safety:rep(2) }, //: extreme heat May–Jun; humid Jul–Sep
+  'IN-RJ': { weather: s12(0,1,1,2,3,3,2,2,2,1,0,0) }, // Rajasthan: Thar desert; scorching Apr–Jun
+  // Kerala: most progressive state; lower solo risk; excellent public healthcare
+  'IN-KL': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), solo:rep(1), safety:rep(1), lgbtq:rep(1) }, //: heavy monsoon Jun–Aug; best Nov–Feb
+  // Goa: India's most LGBTQ-tolerant state; international beach scene; safer for solo travellers
+  'IN-GA': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0), lgbtq:rep(1), solo:rep(1), safety:rep(1) }, //: best Nov–Feb; heavy monsoon Jun–Sep
+  'IN-HP': { weather: s12(3,3,2,1,0,1,2,2,1,0,1,3) }, // Himachal Pradesh: mountain; snow Nov–Mar
+  'IN-UK': { weather: s12(2,2,1,1,1,2,3,3,2,0,1,2) }, // Uttarakhand: Himalayan foothills
+  'IN-MH': { weather: s12(0,0,1,2,3,3,3,3,3,1,1,0) }, // Maharashtra (Mumbai): heavy monsoon Jun–Sep
+  'IN-GJ': { weather: s12(0,0,1,2,3,3,2,2,2,1,0,0) }, // Gujarat: hot/arid; monsoon Jun–Sep
+  'IN-TN': { weather: s12(0,0,1,1,2,2,2,2,1,2,3,1) }, // Tamil Nadu: NE monsoon Oct–Dec!
   'IN-WB': { weather: s12(1,1,2,2,3,3,3,3,2,1,1,1) }, // West Bengal (Kolkata)
-  'IN-AS': { weather: s12(1,1,2,2,3,3,3,3,3,2,1,1) }, // Assam — very heavy monsoon
-  // Jammu & Kashmir — active conflict zone; special permits; do not travel near LoC
-  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3), safety:rep(3), visa:rep(3), crowds:rep(0), solo:rep(3) }, // — valley; snowy winters
+  'IN-AS': { weather: s12(1,1,2,2,3,3,3,3,3,2,1,1) }, // Assam: very heavy monsoon
+  // Jammu & Kashmir: active conflict zone; special permits; do not travel near LoC
+  'IN-JK': { weather: s12(3,3,2,1,0,0,1,1,0,0,1,3), safety:rep(3), visa:rep(3), crowds:rep(0), solo:rep(3) }, //: valley; snowy winters
 
-  // ── USA — all 50 states ───────────────────────────────────────────────────
+  // ── USA: all 50 states ───────────────────────────────────────────────────
   // US national fallbacks: cost:rep(3), safety:rep(1), lgbtq:rep(1), disaster:rep(1)
   // Per-state entries only specify layers that meaningfully differ from those defaults.
   // cannabis scale: 0=Recreational Legal  1=Medical/Decrim  2=Minor Penalties  3=Severe
@@ -1634,59 +1634,59 @@ const CD_A1 = {
   'US-ME': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3), cost:rep(2), safety:rep(0), lgbtq:rep(1), cannabis:0 },       // Recreational since 2016
 
   // ── Australia ────────────────────────────────────────────────────────────
-  'AU-QLD': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) }, // Queensland — tropical north; cyclone season Dec–Mar
-  'AU-NT':  { weather: s12(3,3,3,2,0,0,0,0,0,0,1,3) }, // Northern Territory — severe wet season Nov–Apr
-  'AU-WA':  { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // Western Australia — Perth Mediterranean
-  'AU-SA':  { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1) }, // South Australia — hot summers; mild winters
-  'AU-NSW': { weather: s12(1,1,1,0,0,1,1,1,1,0,0,1) }, // New South Wales (Sydney) — mostly pleasant
-  'AU-VIC': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // Victoria (Melbourne) — variable; warm summers
-  'AU-TAS': { weather: s12(2,2,2,1,1,2,2,2,1,1,1,2) }, // Tasmania — cooler; windier
+  'AU-QLD': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) }, // Queensland: tropical north; cyclone season Dec–Mar
+  'AU-NT':  { weather: s12(3,3,3,2,0,0,0,0,0,0,1,3) }, // Northern Territory: severe wet season Nov–Apr
+  'AU-WA':  { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // Western Australia: Perth Mediterranean
+  'AU-SA':  { weather: s12(1,1,0,0,1,2,2,2,1,0,0,1) }, // South Australia: hot summers; mild winters
+  'AU-NSW': { weather: s12(1,1,1,0,0,1,1,1,1,0,0,1) }, // New South Wales (Sydney), mostly pleasant
+  'AU-VIC': { weather: s12(1,1,1,1,1,2,2,2,1,0,0,1) }, // Victoria (Melbourne): variable; warm summers
+  'AU-TAS': { weather: s12(2,2,2,1,1,2,2,2,1,1,1,2) }, // Tasmania: cooler; windier
 
   // ── Russia ───────────────────────────────────────────────────────────────
-  'RU-MOW': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Moscow — harsh continental winters
-  'RU-KDA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1) }, // Krasnodar (Sochi/Black Sea) — much milder
-  'RU-SA':  { weather: s12(3,3,3,3,1,0,0,1,2,3,3,3) }, // Sakha/Yakutia — coldest inhabited region on Earth
-  'RU-PRI': { weather: s12(3,2,1,1,1,1,2,2,1,0,2,3) }, // Primorsky (Vladivostok) — monsoon influenced
+  'RU-MOW': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Moscow: harsh continental winters
+  'RU-KDA': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1) }, // Krasnodar (Sochi/Black Sea): much milder
+  'RU-SA':  { weather: s12(3,3,3,3,1,0,0,1,2,3,3,3) }, // Sakha/Yakutia: coldest inhabited region on Earth
+  'RU-PRI': { weather: s12(3,2,1,1,1,1,2,2,1,0,2,3) }, // Primorsky (Vladivostok): monsoon influenced
 
   // ── Brazil ───────────────────────────────────────────────────────────────
-  'BR-AM': { weather: s12(2,2,2,2,2,1,1,1,1,1,2,2) }, // Amazonas (Manaus) — hot/wet year-round
-  'BR-PA': { weather: s12(2,3,3,3,2,1,1,1,1,1,2,2) }, // Pará — very heavy rain Mar–May
-  'BR-BA': { weather: s12(1,1,2,2,2,2,2,2,1,1,1,1) }, // Bahia (Salvador) — wet Apr–Jul
-  'BR-SP': { weather: s12(2,2,2,2,1,1,1,1,1,1,2,2) }, // São Paulo — subtropical; mild most of year
-  'BR-RS': { weather: s12(1,1,1,2,2,2,3,2,2,1,1,1) }, // Rio Grande do Sul — coldest Brazil; cool winters
-  'BR-CE': { weather: s12(2,2,3,3,2,1,0,0,0,0,1,1) }, // Ceará (Fortaleza) — NE; rainy Feb–May
+  'BR-AM': { weather: s12(2,2,2,2,2,1,1,1,1,1,2,2) }, // Amazonas (Manaus): hot/wet year-round
+  'BR-PA': { weather: s12(2,3,3,3,2,1,1,1,1,1,2,2) }, // Pará: very heavy rain Mar–May
+  'BR-BA': { weather: s12(1,1,2,2,2,2,2,2,1,1,1,1) }, // Bahia (Salvador): wet Apr–Jul
+  'BR-SP': { weather: s12(2,2,2,2,1,1,1,1,1,1,2,2) }, // São Paulo: subtropical; mild most of year
+  'BR-RS': { weather: s12(1,1,1,2,2,2,3,2,2,1,1,1) }, // Rio Grande do Sul: coldest Brazil; cool winters
+  'BR-CE': { weather: s12(2,2,3,3,2,1,0,0,0,0,1,1) }, // Ceará (Fortaleza): NE; rainy Feb–May
   'BR-RJ':  { weather: s12(1,1,2,2,1,1,0,0,0,1,1,1), beaches:rep(0), cost:rep(2), crowds:rep(2), safety:rep(2) },
   'BR-MG':  { weather: s12(1,1,1,2,2,2,1,1,0,0,1,2), cost:rep(1) },
   'BR-SC':  { weather: s12(1,1,1,1,1,1,1,2,0,0,1,1), beaches:rep(1), cost:rep(1) },
   'BR-PE':  { weather: s12(1,1,2,2,2,2,1,0,0,0,1,1), beaches:rep(0), cost:rep(0) },
 
   // ── Canada ───────────────────────────────────────────────────────────────
-  'CA-BC': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // British Columbia — mild coast; rainy winters
-  'CA-ON': { weather: s12(3,3,2,1,1,0,0,0,0,1,2,3) }, // Ontario (Toronto) — cold winters; hot summers
-  'CA-QC': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3) }, // Quebec (Montreal) — harsh winters
-  'CA-AB': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Alberta (Calgary) — continental; cold winters
-  'CA-YT': { weather: s12(3,3,3,3,2,1,1,1,2,3,3,3) }, // Yukon — subarctic; very cold
-  'CA-NS': { weather: s12(3,3,2,2,1,1,1,1,1,1,2,3) }, // Nova Scotia — maritime; foggy; cold winters
+  'CA-BC': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) }, // British Columbia: mild coast; rainy winters
+  'CA-ON': { weather: s12(3,3,2,1,1,0,0,0,0,1,2,3) }, // Ontario (Toronto): cold winters; hot summers
+  'CA-QC': { weather: s12(3,3,3,2,1,0,0,0,1,1,2,3) }, // Quebec (Montreal): harsh winters
+  'CA-AB': { weather: s12(3,3,2,1,1,0,0,0,1,1,2,3) }, // Alberta (Calgary): continental; cold winters
+  'CA-YT': { weather: s12(3,3,3,3,2,1,1,1,2,3,3,3) }, // Yukon: subarctic; very cold
+  'CA-NS': { weather: s12(3,3,2,2,1,1,1,1,1,1,2,3) }, // Nova Scotia: maritime; foggy; cold winters
 
   // ── France ───────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(0), corrupt:rep(0)
-  // Ile-de-France — Paris; most expensive; Europe's pickpocket capital; extreme summer crowds
+  // Ile-de-France: Paris; most expensive; Europe's pickpocket capital; extreme summer crowds
   'FR-IDF': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(3), crowds:rep(3), safety:rep(1) },
-  // Provence-Alpes-Cote d'Azur — Mediterranean coast; Riviera; excellent beaches; very crowded Jul-Aug
+  // Provence-Alpes-Cote d'Azur: Mediterranean coast; Riviera; excellent beaches; very crowded Jul-Aug
   'FR-PAC': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0) },
-  // Occitanie — Toulouse/Montpellier; Mediterranean access; affordable; beautiful countryside
+  // Occitanie: Toulouse/Montpellier; Mediterranean access; affordable; beautiful countryside
   'FR-OCC': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), cost:rep(1), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3) },
-  // Bretagne — Atlantic coast; rainy; Celtic culture; seafood; affordable
+  // Bretagne: Atlantic coast; rainy; Celtic culture; seafood; affordable
   'FR-BRE': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1), beaches:s12(2,2,2,1,1,1,1,1,1,1,1,2) },
-  // Nouvelle-Aquitaine — Bordeaux wine country; Atlantic Basque coast; affordable
+  // Nouvelle-Aquitaine: Bordeaux wine country; Atlantic Basque coast; affordable
   'FR-NAQ': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), cost:rep(1), beaches:s12(2,2,1,1,0,0,0,0,0,1,2,2) },
-  // Auvergne-Rhone-Alpes — Lyon/Alps; ski season inflates cost Dec-Mar
+  // Auvergne-Rhone-Alpes: Lyon/Alps; ski season inflates cost Dec-Mar
   'FR-ARA': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(1) },
-  // Normandie — rainy Atlantic climate; D-Day history; affordable; cider and cheese country
+  // Normandie: rainy Atlantic climate; D-Day history; affordable; cider and cheese country
   'FR-NOR': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1) },
-  // Grand Est — Alsace/Strasbourg; continental winters; Germanic culture; affordable
+  // Grand Est: Alsace/Strasbourg; continental winters; Germanic culture; affordable
   'FR-GES': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(1) },
-  // Corse — island; hot dry summers; expensive; low crime; very limited winter tourism
+  // Corse: island; hot dry summers; expensive; low crime; very limited winter tourism
   'FR-COR': { weather: s12(1,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
   'FR-HDF': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1) },
   'FR-CVL': { weather: s12(2,2,1,1,0,0,1,1,0,1,1,2), cost:rep(1) },
@@ -1695,15 +1695,15 @@ const CD_A1 = {
 
   // ── Germany ──────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(0)
-  // Bavaria — Munich; Oktoberfest; conservative south; most expensive German state
+  // Bavaria: Munich; Oktoberfest; conservative south; most expensive German state
   'DE-BY': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(2), lgbtq:rep(1), crowds:s12(1,1,1,1,1,1,2,2,2,2,3,1) },
-  // Berlin — city-state; most progressive; significantly cheaper than Munich; cultural capital
+  // Berlin: city-state; most progressive; significantly cheaper than Munich; cultural capital
   'DE-BE': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(1), lgbtq:rep(0), crowds:rep(2) },
-  // Hamburg — maritime gateway; progressive; milder Atlantic climate
+  // Hamburg: maritime gateway; progressive; milder Atlantic climate
   'DE-HH': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(2), lgbtq:rep(0) },
-  // North Rhine-Westphalia — Cologne/Dusseldorf; densely urban; industrial heartland
+  // North Rhine-Westphalia: Cologne/Dusseldorf; densely urban; industrial heartland
   'DE-NW': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(2) },
-  // Baden-Wurttemberg — Stuttgart/Black Forest; wealthy; expensive; tech industry
+  // Baden-Wurttemberg: Stuttgart/Black Forest; wealthy; expensive; tech industry
   'DE-BW': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2), cost:rep(2) },
   'DE-HE':  { weather: s12(2,2,1,1,1,0,0,0,1,1,2,2), cost:rep(2) },
   'DE-NI':  { weather: s12(2,2,2,1,1,1,0,0,1,1,2,2), cost:rep(1) },
@@ -1719,19 +1719,19 @@ const CD_A1 = {
 
   // ── Spain ────────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(1), safety:rep(0), lgbtq:rep(0)
-  // Catalonia — Barcelona; premium prices; severe overtourism Jul-Aug; active separatist politics
+  // Catalonia: Barcelona; premium prices; severe overtourism Jul-Aug; active separatist politics
   'ES-CT': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,2,2,2,3,3,2,2,1,1), beaches:s12(2,2,1,1,0,0,0,0,0,1,2,2) },
-  // Andalucia — cheapest region; extreme heat Jul-Aug (45C in Sevilla); Flamenco/Alhambra
+  // Andalucia: cheapest region; extreme heat Jul-Aug (45C in Sevilla); Flamenco/Alhambra
   'ES-AN': { weather: s12(1,1,0,0,0,2,3,3,1,0,0,1), cost:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
-  // Canary Islands — perpetual spring; excellent beaches; year-round destination; EU territory
+  // Canary Islands: perpetual spring; excellent beaches; year-round destination; EU territory
   'ES-CN': { weather: s12(0,0,0,0,0,0,0,0,0,0,0,0), beaches:rep(0), cost:rep(1), crowds:s12(2,2,1,1,1,1,2,2,1,1,1,2) },
-  // Balearic Islands — Ibiza/Majorca; very expensive in summer; extreme overtourism Jul-Aug
+  // Balearic Islands: Ibiza/Majorca; very expensive in summer; extreme overtourism Jul-Aug
   'ES-IB': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0), cost:rep(2) },
-  // Basque Country — rainy Atlantic; San Sebastian food capital; high cost; cultural autonomy
+  // Basque Country: rainy Atlantic; San Sebastian food capital; high cost; cultural autonomy
   'ES-PV': { weather: s12(2,2,1,1,1,1,1,1,1,1,2,2), cost:rep(2) },
-  // Madrid region — hot dry summers; expensive capital; lively nightlife year-round
+  // Madrid region: hot dry summers; expensive capital; lively nightlife year-round
   'ES-MD': { weather: s12(1,1,1,1,0,1,2,2,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,2,2,2,2,2,2,2,1,1) },
-  // Valencia — sunniest major city; good beaches; more affordable than Barcelona
+  // Valencia: sunniest major city; good beaches; more affordable than Barcelona
   'ES-VC': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1), cost:rep(1), beaches:s12(2,2,1,1,0,0,0,0,0,0,1,2) },
   'ES-GA':  { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(0), beaches:rep(1) },
   'ES-CM':  { weather: s12(2,2,1,1,1,2,3,3,1,0,1,2), cost:rep(0) },
@@ -1746,181 +1746,181 @@ const CD_A1 = {
 
   // ── Italy ─────────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(2), safety:rep(0), lgbtq:rep(1), corrupt:rep(1)
-  // Lombardia — Milan; most expensive region; fashion/finance; top healthcare
+  // Lombardia: Milan; most expensive region; fashion/finance; top healthcare
   'IT-25': { weather: s12(2,2,1,1,1,0,0,0,0,1,2,2), cost:rep(3) },
-  // Veneto — Venice; extremely crowded; premium prices; flooding risk in Venice
+  // Veneto: Venice; extremely crowded; premium prices; flooding risk in Venice
   'IT-34': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,2), cost:rep(2), crowds:s12(1,1,2,3,3,3,3,3,3,2,2,1) },
-  // Toscana — Florence/Tuscany; severe overtourism May-Sep; excellent spring and fall
+  // Toscana: Florence/Tuscany; severe overtourism May-Sep; excellent spring and fall
   'IT-52': { weather: s12(1,1,1,1,1,0,0,0,0,1,1,1), cost:rep(2), crowds:s12(1,1,2,3,3,3,3,3,3,2,1,1) },
-  // Lazio — Rome; extreme summer crowds and heat; premium tourist pricing
+  // Lazio: Rome; extreme summer crowds and heat; premium tourist pricing
   'IT-62': { weather: s12(1,1,1,0,0,0,1,1,0,0,1,1), cost:rep(2), crowds:s12(1,1,2,3,2,2,3,3,2,2,1,1) },
-  // Campania — Naples/Amalfi; cheapest mainland; higher petty crime; Camorra influence
+  // Campania: Naples/Amalfi; cheapest mainland; higher petty crime; Camorra influence
   'IT-72': { weather: s12(1,1,1,0,0,0,1,1,0,0,1,1), cost:rep(0), safety:rep(1), corrupt:rep(2), beaches:s12(2,2,1,1,0,0,0,0,0,1,2,2) },
-  // Puglia — heel of Italy; very affordable; beautiful beaches; less crowded than north
+  // Puglia: heel of Italy; very affordable; beautiful beaches; less crowded than north
   'IT-75': { weather: s12(1,1,0,0,0,0,1,1,0,0,0,1), cost:rep(0), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
-  // Sicilia — warm, cheap, Mafia-related corruption still present; best in spring/fall
+  // Sicilia: warm, cheap, Mafia-related corruption still present; best in spring/fall
   'IT-82': { weather: s12(1,1,0,0,0,0,0,0,0,0,1,1), cost:rep(0), safety:rep(1), corrupt:rep(2), beaches:s12(2,2,1,0,0,0,0,0,0,1,2,2) },
-  // Sardegna — beautiful beaches; very expensive Jul-Aug; deserted in winter
+  // Sardegna: beautiful beaches; very expensive Jul-Aug; deserted in winter
   'IT-88': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), cost:rep(2), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) },
-  // (The older alpha-coded duplicates of the numeric regions above — IT-LOM,
-  //  IT-LAZ, IT-TOS, IT-VEN, IT-CAM, IT-SIC, IT-SAR, and Spain's ES-IC — were
+  // (The older alpha-coded duplicates of the numeric regions above: IT-LOM,
+  //  IT-LAZ, IT-TOS, IT-VEN, IT-CAM, IT-SIC, IT-SAR, and Spain's ES-IC: were
   //  merged into their canonical twins and removed; CD_A1_ALIAS resolves the
   //  Natural Earth codes onto the canonical keys.)
   'IT-TAA': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3), cost:rep(2) },
   'IT-LIG': { weather: s12(1,1,0,0,1,1,1,1,1,0,0,1), beaches:rep(0), cost:rep(2) },
 
   // ── Japan ─────────────────────────────────────────────────────────────────────
-  // Hokkaido — subarctic; powder ski paradise Dec-Mar; cool pleasant summers; best Jul-Sep
+  // Hokkaido: subarctic; powder ski paradise Dec-Mar; cool pleasant summers; best Jul-Sep
   'JP-01': { weather: s12(3,3,2,2,1,0,0,0,1,1,2,3) },
-  // Niigata / Sea of Japan coast — record snowfall Dec-Mar; pleasant summers; sake country
+  // Niigata / Sea of Japan coast: record snowfall Dec-Mar; pleasant summers; sake country
   'JP-15': { weather: s12(2,3,2,1,0,0,0,0,1,1,1,2) },
-  // Nagano — Japanese Alps; cold winters; ski resorts; excellent fall foliage; mild summers
+  // Nagano: Japanese Alps; cold winters; ski resorts; excellent fall foliage; mild summers
   'JP-20': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) },
-  // Kanto (Tokyo) — humid subtropical; spring cherry blossom Apr excellent; brutal heat Jul-Aug; best Oct
+  // Kanto (Tokyo): humid subtropical; spring cherry blossom Apr excellent; brutal heat Jul-Aug; best Oct
   'JP-13': { weather: s12(1,1,1,0,1,2,3,3,2,0,1,1), cost:rep(3), crowds:s12(1,1,2,3,2,1,1,2,1,3,2,1) },
-  // Kyoto — same brutal summer heat as Tokyo; most extreme spring/fall overtourism in Japan
+  // Kyoto: same brutal summer heat as Tokyo; most extreme spring/fall overtourism in Japan
   'JP-26': { weather: s12(1,1,1,0,1,2,3,3,2,0,1,1), crowds:s12(1,1,3,3,2,2,1,2,2,3,3,1) },
-  // Osaka — slightly warmer than Kyoto; lively city; crowded but less acute than Kyoto peaks
+  // Osaka: slightly warmer than Kyoto; lively city; crowded but less acute than Kyoto peaks
   'JP-27': { weather: s12(1,1,0,0,1,2,3,3,2,0,0,1) },
-  // Kyushu (Fukuoka) — warmest Honshu/Kyushu; mild winters; typhoon season Aug-Sep
+  // Kyushu (Fukuoka): warmest Honshu/Kyushu; mild winters; typhoon season Aug-Sep
   'JP-40': { weather: s12(0,1,1,0,1,1,2,2,2,0,0,0) },
-  // Okinawa — subtropical; rainy tsuyu May-Jun; typhoons Aug-Oct; mild winters; excellent beaches
+  // Okinawa: subtropical; rainy tsuyu May-Jun; typhoons Aug-Oct; mild winters; excellent beaches
   'JP-47': { weather: s12(1,0,0,0,2,2,1,2,2,1,1,1), beaches:rep(0) },
 
   // ── Mexico ────────────────────────────────────────────────────────────────────
-  // CDMX / Mexico City — highland 2240 m; mild and spring-like year-round; rainy Jun-Sep; safest major city
+  // CDMX / Mexico City: highland 2240 m; mild and spring-like year-round; rainy Jun-Sep; safest major city
   'MX-CMX': { weather: s12(0,0,0,0,1,2,2,2,2,1,0,0), cost:rep(1) },
-  // Quintana Roo (Cancún, Tulum, Playa) — hot/humid; hurricane season Jun-Nov; peak crowds Dec-Jan/Mar
+  // Quintana Roo (Cancún, Tulum, Playa): hot/humid; hurricane season Jun-Nov; peak crowds Dec-Jan/Mar
   'MX-ROO': { weather: s12(0,0,0,1,1,2,2,2,2,2,1,0), disaster:rep(3), crowds:s12(2,2,1,1,1,1,1,1,1,1,2,2), beaches:s12(0,0,0,1,1,2,2,2,2,2,1,0) },
-  // Oaxaca — highland city 1550 m; spring-like; rainy Jun-Sep; extremely affordable; rich culture
+  // Oaxaca: highland city 1550 m; spring-like; rainy Jun-Sep; extremely affordable; rich culture
   'MX-OAX': { weather: s12(0,0,0,0,1,2,2,2,1,0,0,0), cost:rep(0) },
-  // Jalisco (Guadalajara + Puerto Vallarta) — highland city mild; PV coast hot; rainy Jun-Sep
+  // Jalisco (Guadalajara + Puerto Vallarta): highland city mild; PV coast hot; rainy Jun-Sep
   'MX-JAL': { weather: s12(0,0,0,0,1,2,2,2,2,1,0,0), cost:rep(1) },
-  // Sonora (Hermosillo, border) — Sonoran Desert; scorching Jun-Sep 45 °C; mild Oct-Apr
+  // Sonora (Hermosillo, border): Sonoran Desert; scorching Jun-Sep 45 °C; mild Oct-Apr
   'MX-SON': { weather: s12(0,0,1,1,2,3,3,3,2,1,0,0), safety:rep(2) },
-  // Baja California Sur (Los Cabos, La Paz) — desert peninsula; excellent Oct-May; brutal Jul-Aug
+  // Baja California Sur (Los Cabos, La Paz): desert peninsula; excellent Oct-May; brutal Jul-Aug
   'MX-BCS': { weather: s12(0,0,0,0,1,2,3,3,2,1,0,0), beaches:s12(0,0,0,0,1,2,3,3,2,0,0,0) },
-  // Baja California Norte (Tijuana, Ensenada) — Mediterranean-ish; warm winters; safety concerns near border
+  // Baja California Norte (Tijuana, Ensenada): Mediterranean-ish; warm winters; safety concerns near border
   'MX-BCN': { weather: s12(1,1,0,0,0,0,0,0,0,0,1,1), safety:rep(2) },
-  // Yucatan (Mérida, Chichén Itzá) — very hot; drier than Q.Roo; oppressive heat May-Aug
+  // Yucatan (Mérida, Chichén Itzá): very hot; drier than Q.Roo; oppressive heat May-Aug
   'MX-YUC': { weather: s12(0,0,0,1,2,2,3,3,2,1,1,0) },
-  // Chiapas (San Cristóbal, Palenque) — highland cool / jungle hot; rainy Jun-Oct
+  // Chiapas (San Cristóbal, Palenque): highland cool / jungle hot; rainy Jun-Oct
   'MX-CHP': { weather: s12(0,0,0,0,1,2,2,2,2,1,0,0), cost:rep(0) },
-  // Guerrero (Acapulco) — high homicide rate; avoid non-resort areas; hot/humid coast
+  // Guerrero (Acapulco): high homicide rate; avoid non-resort areas; hot/humid coast
   'MX-GRO': { weather: s12(0,0,0,0,1,2,2,2,2,2,1,0), safety:rep(3) },
-  // Tabasco (Villahermosa) — hot, wet, jungle gateway; not a leisure destination
+  // Tabasco (Villahermosa): hot, wet, jungle gateway; not a leisure destination
   'MX-TAB': { weather: s12(1,1,1,2,2,3,3,3,3,2,1,1) },
 
   // ── Thailand ─────────────────────────────────────────────────────────────────
-  // Bangkok — hot year-round; cool dry season Nov-Jan; rainy May-Oct; air quality variable
+  // Bangkok: hot year-round; cool dry season Nov-Jan; rainy May-Oct; air quality variable
   'TH-10': { weather: s12(0,0,1,1,2,2,2,2,2,2,1,0) },
-  // Chiang Mai — SMOKE SEASON Mar-Apr critical; cool dry Nov-Jan; rainy Jun-Oct; forest fires from slash-and-burn
+  // Chiang Mai: SMOKE SEASON Mar-Apr critical; cool dry Nov-Jan; rainy Jun-Oct; forest fires from slash-and-burn
   'TH-50': { weather: s12(0,0,3,3,2,1,1,1,2,1,0,0) },
-  // Phuket — Andaman coast; DRY season Nov-Apr; monsoon May-Oct (rough seas, some resorts close)
+  // Phuket: Andaman coast; DRY season Nov-Apr; monsoon May-Oct (rough seas, some resorts close)
   'TH-83': { weather: s12(0,0,0,0,2,2,2,2,2,2,1,0), beaches:s12(0,0,0,0,2,3,3,3,2,2,1,0) },
-  // Krabi — Andaman coast; same pattern as Phuket; dry Nov-Apr excellent
+  // Krabi: Andaman coast; same pattern as Phuket; dry Nov-Apr excellent
   'TH-81': { weather: s12(0,0,0,0,2,2,2,2,2,2,1,0), beaches:s12(0,0,0,0,2,3,3,3,2,2,1,0) },
-  // Surat Thani (Koh Samui / Gulf coast) — OPPOSITE rain season to Phuket; dry Jan-Sep; heavy rain Oct-Dec
+  // Surat Thani (Koh Samui / Gulf coast): OPPOSITE rain season to Phuket; dry Jan-Sep; heavy rain Oct-Dec
   'TH-84': { weather: s12(0,0,0,0,0,1,1,1,1,2,3,2), beaches:s12(0,0,0,0,0,1,1,1,1,2,3,2) },
-  // Prachuap Khiri Khan (Hua Hin / Gulf coast) — similar to Samui; driest Jan-May
+  // Prachuap Khiri Khan (Hua Hin / Gulf coast): similar to Samui; driest Jan-May
   'TH-77': { weather: s12(0,0,0,0,0,1,1,1,1,2,2,1) },
 
   // ── Vietnam ───────────────────────────────────────────────────────────────────
-  // Hanoi — 4 seasons; cool drizzly Jan-Mar; hot humid summer; rainy Jul-Aug; best Oct-Dec
+  // Hanoi: 4 seasons; cool drizzly Jan-Mar; hot humid summer; rainy Jul-Aug; best Oct-Dec
   'VN-HN': { weather: s12(2,2,2,1,1,1,2,2,1,0,0,1) },
-  // Haiphong — similar to Hanoi; typhoon risk Aug-Sep
+  // Haiphong: similar to Hanoi; typhoon risk Aug-Sep
   'VN-HP': { weather: s12(2,2,2,1,1,1,2,2,2,1,0,1) },
-  // Da Nang / Central coast — FLOOD SEASON Oct-Dec severe; dry hot Feb-Aug; best Feb-May
+  // Da Nang / Central coast: FLOOD SEASON Oct-Dec severe; dry hot Feb-Aug; best Feb-May
   'VN-DN': { weather: s12(2,1,0,0,0,1,1,1,1,2,3,2) },
-  // Ho Chi Minh City (South) — 2 seasons; dry cool Nov-Apr; hot rainy May-Oct
+  // Ho Chi Minh City (South): 2 seasons; dry cool Nov-Apr; hot rainy May-Oct
   'VN-SG': { weather: s12(0,0,0,1,2,3,3,3,2,2,1,0) },
-  // Can Tho / Mekong Delta — very similar to HCMC; flooding Aug-Oct
+  // Can Tho / Mekong Delta: very similar to HCMC; flooding Aug-Oct
   'VN-CT': { weather: s12(0,0,0,1,2,3,3,3,3,2,1,0) },
 
   // ── Turkey ────────────────────────────────────────────────────────────────────
-  // Istanbul — hybrid climate; hot dry summers; cold wet winters; best Apr-May, Sep-Oct
+  // Istanbul: hybrid climate; hot dry summers; cold wet winters; best Apr-May, Sep-Oct
   'TR-34': { weather: s12(2,2,1,0,0,0,1,1,0,1,2,2) },
-  // Ankara — steppe continental; cold dry winters; hot dry summers; best Apr-May, Sep-Oct
+  // Ankara: steppe continental; cold dry winters; hot dry summers; best Apr-May, Sep-Oct
   'TR-06': { weather: s12(2,2,1,1,0,1,2,2,0,1,1,2) },
-  // Antalya / Turkish Riviera — excellent beaches; nearly year-round sun; best Apr-Jun, Sep-Oct
+  // Antalya / Turkish Riviera: excellent beaches; nearly year-round sun; best Apr-Jun, Sep-Oct
   'TR-07': { weather: s12(1,1,0,0,0,0,1,2,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,1,0,0,2,2) },
-  // Izmir / Aegean coast — very similar to Antalya; slightly cooler; excellent spring/fall
+  // Izmir / Aegean coast: very similar to Antalya; slightly cooler; excellent spring/fall
   'TR-35': { weather: s12(1,1,0,0,0,0,1,2,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,1,0,0,2,2) },
-  // Erzurum / Eastern Anatolia — extreme cold; snow Oct-Apr; short pleasant summer
+  // Erzurum / Eastern Anatolia: extreme cold; snow Oct-Apr; short pleasant summer
   'TR-25': { weather: s12(3,3,3,2,1,0,0,0,1,2,3,3) },
-  // Rize / Black Sea coast — very rainy year-round; lush green; mild temperatures
+  // Rize / Black Sea coast: very rainy year-round; lush green; mild temperatures
   'TR-53': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2) },
 
   // ── Greece ────────────────────────────────────────────────────────────────────
-  // Attica (Athens) — scorching Jul-Aug (38-42 °C); great spring and fall; mild winter
+  // Attica (Athens): scorching Jul-Aug (38-42 °C); great spring and fall; mild winter
   'GR-I': { weather: s12(1,1,1,0,0,0,2,2,0,0,1,1), crowds:s12(1,1,2,2,2,3,3,3,3,2,1,1) },
-  // South Aegean (Santorini, Mykonos, Rhodes) — premium prices; extreme Jul-Aug crowds; excellent beaches
+  // South Aegean (Santorini, Mykonos, Rhodes): premium prices; extreme Jul-Aug crowds; excellent beaches
   'GR-L': { weather: s12(1,1,1,0,0,0,1,2,0,0,1,1), cost:rep(3), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0), beaches:s12(2,2,1,0,0,0,0,1,0,0,1,2) },
-  // Crete — warmest Greek region; best Oct-May; slightly more breeze than Athens; very crowded Jul-Aug
+  // Crete: warmest Greek region; best Oct-May; slightly more breeze than Athens; very crowded Jul-Aug
   'GR-M': { weather: s12(1,1,1,0,0,0,1,1,0,0,1,1), crowds:s12(0,0,1,2,2,3,3,3,2,1,0,0), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2) },
-  // West Macedonia — mountainous; cold snowy winters; cool summers; off the tourist trail
+  // West Macedonia: mountainous; cold snowy winters; cool summers; off the tourist trail
   'GR-C': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) },
-  // Ionian Islands (Corfu, Zakynthos) — lush/rainy in winter; excellent May-Sep; cheaper than Aegean
+  // Ionian Islands (Corfu, Zakynthos): lush/rainy in winter; excellent May-Sep; cheaper than Aegean
   'GR-F': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2) },
 
   // ── Portugal ──────────────────────────────────────────────────────────────────
-  // Lisboa (Lisbon) — mild Atlantic climate; warm sunny summers (but rarely brutal); best Apr-Oct
+  // Lisboa (Lisbon): mild Atlantic climate; warm sunny summers (but rarely brutal); best Apr-Oct
   'PT-11': { weather: s12(1,1,1,1,0,0,0,0,0,0,1,1) },
-  // Porto — rainier and cooler than Lisbon; lush green Douro valley; best May-Sep
+  // Porto: rainier and cooler than Lisbon; lush green Douro valley; best May-Sep
   'PT-13': { weather: s12(2,2,2,1,1,0,0,0,1,1,2,2) },
-  // Faro / Algarve — southern beach coast; best beaches in Portugal; driest region; best Apr-Oct
+  // Faro / Algarve: southern beach coast; best beaches in Portugal; driest region; best Apr-Oct
   'PT-08': { weather: s12(1,1,0,0,0,0,0,0,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2) },
-  // Madeira — "island of eternal spring"; subtropical; mild year-round; best Apr-Oct
+  // Madeira: "island of eternal spring"; subtropical; mild year-round; best Apr-Oct
   'PT-30': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(2,2,2,1,1,1,1,1,1,1,2,2) },
-  // Azores — mid-Atlantic; rainy/windy; very variable; whale watching; dramatic landscapes
+  // Azores: mid-Atlantic; rainy/windy; very variable; whale watching; dramatic landscapes
   'PT-20': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2) },
 
-  // ── India — additional states ─────────────────────────────────────────────────
-  // Karnataka (Bengaluru/Hampi) — Deccan plateau 920 m; most pleasant in India year-round; monsoon Jun-Sep
+  // ── India: additional states ─────────────────────────────────────────────────
+  // Karnataka (Bengaluru/Hampi): Deccan plateau 920 m; most pleasant in India year-round; monsoon Jun-Sep
   'IN-KA': { weather: s12(0,0,1,1,2,2,2,2,2,1,0,0) },
-  // Uttar Pradesh (Agra/Varanasi) — brutal heat May-Jun; very crowded monuments; moderate solo risk
+  // Uttar Pradesh (Agra/Varanasi): brutal heat May-Jun; very crowded monuments; moderate solo risk
   'IN-UP': { weather: s12(0,0,1,2,3,3,3,3,2,1,0,0), crowds:rep(3), safety:rep(2), solo:rep(2) },
-  // Punjab (Amritsar/Golden Temple) — hot dry summers; cold foggy winters; best Oct-Mar
+  // Punjab (Amritsar/Golden Temple): hot dry summers; cold foggy winters; best Oct-Mar
   'IN-PB': { weather: s12(1,1,1,2,3,3,3,3,2,1,0,1) },
-  // Madhya Pradesh (Khajuraho, Orchha, Kanha) — hot central India; best Oct-Feb
+  // Madhya Pradesh (Khajuraho, Orchha, Kanha): hot central India; best Oct-Feb
   'IN-MP': { weather: s12(0,0,1,2,3,3,3,3,2,1,0,0) },
-  // Telangana (Hyderabad) — hot plateau; best Nov-Feb; intense heat Apr-Jun
+  // Telangana (Hyderabad): hot plateau; best Nov-Feb; intense heat Apr-Jun
   'IN-TS': { weather: s12(0,0,1,2,3,3,2,2,2,1,0,0) },
-  // Tamil Nadu (Chennai, Madurai) — hot all year; NE monsoon Oct-Dec (opposite to rest of India!)
-  // IN-TN already exists above — skip
-  // Odisha (Puri, Konark) — hot coast; very cyclone-prone; best Nov-Feb
+  // Tamil Nadu (Chennai, Madurai): hot all year; NE monsoon Oct-Dec (opposite to rest of India!)
+  // IN-TN already exists above: skip
+  // Odisha (Puri, Konark): hot coast; very cyclone-prone; best Nov-Feb
   'IN-OD': { weather: s12(0,0,1,2,3,3,2,2,2,2,1,0), disaster:rep(3) },
-  // Bihar (Bodh Gaya, Patna) — hot humid Gangetic plain; best Nov-Feb
+  // Bihar (Bodh Gaya, Patna): hot humid Gangetic plain; best Nov-Feb
   'IN-BR': { weather: s12(0,0,1,2,3,3,3,3,2,1,0,0) },
-  // Sikkim — Himalayan mountain state; cold winters; spring rhododendrons; monsoon Jun-Sep
+  // Sikkim: Himalayan mountain state; cold winters; spring rhododendrons; monsoon Jun-Sep
   'IN-SK': { weather: s12(2,2,2,1,0,1,2,2,1,0,1,2) },
-  // Andhra Pradesh (Vizag coast) — tropical coast; NE monsoon Oct-Dec; hot summers
+  // Andhra Pradesh (Vizag coast): tropical coast; NE monsoon Oct-Dec; hot summers
   'IN-AP': { weather: s12(0,0,1,1,2,2,2,2,2,1,2,1) },
 
   // ── Indonesia ─────────────────────────────────────────────────────────────────
-  // Bali — dry season Apr-Oct excellent; rainy Nov-Mar (still warm but humid storms); best Jun-Sep
+  // Bali: dry season Apr-Oct excellent; rainy Nov-Mar (still warm but humid storms); best Jun-Sep
   'ID-BA': { weather: s12(2,2,2,1,0,0,0,0,0,1,2,2), beaches:s12(2,2,2,1,0,0,0,0,0,1,2,2) },
-  // Jakarta / Java West — equatorial; hot/humid year-round; rainy Nov-Apr; flooding risk Jan-Feb
+  // Jakarta / Java West: equatorial; hot/humid year-round; rainy Nov-Apr; flooding risk Jan-Feb
   'ID-JK': { weather: s12(2,3,2,1,1,0,0,0,0,0,1,2) },
-  // East Java (Surabaya, Bromo) — slightly drier than west; dry Jun-Oct best for Bromo
+  // East Java (Surabaya, Bromo): slightly drier than west; dry Jun-Oct best for Bromo
   'ID-JI': { weather: s12(2,2,2,1,0,0,0,0,0,1,1,2) },
-  // North Sumatra (Medan, Bukit Lawang) — equatorial; very rainy; relatively cool at altitude
+  // North Sumatra (Medan, Bukit Lawang): equatorial; very rainy; relatively cool at altitude
   'ID-SU': { weather: s12(2,2,2,2,2,2,1,1,1,2,2,2) },
-  // East Kalimantan (Borneo) — equatorial rainforest; very rainy; extreme humidity
+  // East Kalimantan (Borneo): equatorial rainforest; very rainy; extreme humidity
   'ID-KI': { weather: s12(2,2,2,2,1,1,1,1,1,1,2,2) },
-  // Papua — extreme rainfall; frontier; very limited infrastructure; best Jun-Sep
+  // Papua: extreme rainfall; frontier; very limited infrastructure; best Jun-Sep
   'ID-PA': { weather: s12(2,2,3,3,2,1,1,1,1,2,2,2) },
 
   // ── South Africa ──────────────────────────────────────────────────────────────
-  // Western Cape (Cape Town) — Mediterranean (SOUTHERN HEMISPHERE); best Oct-Apr; winter rain Jun-Aug
+  // Western Cape (Cape Town): Mediterranean (SOUTHERN HEMISPHERE); best Oct-Apr; winter rain Jun-Aug
   'ZA-WC': { weather: s12(0,0,0,1,1,2,2,2,1,0,0,0), beaches:s12(0,0,0,1,1,2,2,2,1,0,0,0) },
-  // Gauteng (Johannesburg, Pretoria) — highveld 1700 m; warm dry winters excellent; summer afternoon thunderstorms
+  // Gauteng (Johannesburg, Pretoria): highveld 1700 m; warm dry winters excellent; summer afternoon thunderstorms
   'ZA-GP': { weather: s12(1,1,1,0,0,0,0,0,0,1,1,1) },
-  // KwaZulu-Natal (Durban) — subtropical coast; warm all year; best May-Oct (dry); humid summers
+  // KwaZulu-Natal (Durban): subtropical coast; warm all year; best May-Oct (dry); humid summers
   'ZA-KZN': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(1,1,1,0,0,0,0,0,0,0,1,1) },
-  // Northern Cape (Kalahari, Upington) — extreme desert heat Dec-Feb (Jan often 45 °C); best Jun-Sep
+  // Northern Cape (Kalahari, Upington): extreme desert heat Dec-Feb (Jan often 45 °C); best Jun-Sep
   'ZA-NC': { weather: s12(3,3,2,1,0,0,0,0,0,1,2,3) },
-  // Mpumalanga (Kruger National Park) — best game viewing May-Sep (dry); malaria risk year-round
+  // Mpumalanga (Kruger National Park): best game viewing May-Sep (dry); malaria risk year-round
   'ZA-MP': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1), health:rep(2) },
   'ZA-LP':  { weather: s12(0,0,0,1,1,2,2,1,1,0,0,0), cost:rep(0) },
   'ZA-EC':  { weather: s12(0,0,0,1,1,2,2,2,1,0,0,0), beaches:rep(1), cost:rep(0), safety:rep(2) },
@@ -1928,293 +1928,293 @@ const CD_A1 = {
   'ZA-FS':  { weather: s12(0,0,0,1,1,2,2,2,1,0,0,0), cost:rep(0) },
 
   // ── Morocco ───────────────────────────────────────────────────────────────────
-  // Grand Casablanca-Settat — coastal Atlantic; mild year-round; best Mar-May, Sep-Nov
+  // Grand Casablanca-Settat: coastal Atlantic; mild year-round; best Mar-May, Sep-Nov
   'MA-06': { weather: s12(1,1,0,0,0,0,1,1,0,0,1,1) },
-  // Marrakesh-Safi (Marrakech) — pre-Saharan heat; extreme Jul-Aug (45 °C+); best Oct-Apr
+  // Marrakesh-Safi (Marrakech): pre-Saharan heat; extreme Jul-Aug (45 °C+); best Oct-Apr
   'MA-07': { weather: s12(0,0,0,0,1,2,3,3,1,0,0,0) },
-  // Fès-Meknès (Fez) — inland continental; hot summers; best Mar-May, Sep-Nov
+  // Fès-Meknès (Fez): inland continental; hot summers; best Mar-May, Sep-Nov
   'MA-03': { weather: s12(1,1,0,0,0,2,3,3,1,0,1,1) },
-  // Draa-Tafilalet (Ouarzazate, Sahara Desert) — extreme desert; best Oct-Mar; summer brutal
+  // Draa-Tafilalet (Ouarzazate, Sahara Desert): extreme desert; best Oct-Mar; summer brutal
   'MA-08': { weather: s12(0,0,0,0,1,2,3,3,2,1,0,0) },
-  // Tanger-Tétouan-Al Hoceima (Tangier) — Mediterranean north; mild Atlantic; best Apr-Sep
+  // Tanger-Tétouan-Al Hoceima (Tangier): Mediterranean north; mild Atlantic; best Apr-Sep
   'MA-01': { weather: s12(1,1,1,0,0,0,0,0,0,0,1,1) },
 
   // ── United Kingdom ─────────────────────────────────────────────────────────────
   // National fallbacks: safety:rep(0), cost:rep(2), lgbtq:rep(0)
-  // England — temperate maritime; mixed year-round; London premium costs; busy summers
+  // England: temperate maritime; mixed year-round; London premium costs; busy summers
   'GB-ENG': { weather: s12(2,2,1,1,1,1,1,1,1,1,2,2), crowds:s12(1,1,1,2,2,2,3,3,2,1,1,1) },
-  // Scotland — Atlantic/North Sea; significantly wetter and colder; Highland wilderness; cheaper
+  // Scotland: Atlantic/North Sea; significantly wetter and colder; Highland wilderness; cheaper
   'GB-SCT': { weather: s12(3,3,2,2,1,1,1,1,1,2,2,3), cost:rep(1) },
-  // Wales — rainy Atlantic coast; mountainous; Celtic heritage; cheaper than England; best Jun-Sep
+  // Wales: rainy Atlantic coast; mountainous; Celtic heritage; cheaper than England; best Jun-Sep
   'GB-WLS': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1) },
-  // Northern Ireland — similar to Scotland climate; Belfast resurgent; cheaper; peaceful since GFA
+  // Northern Ireland: similar to Scotland climate; Belfast resurgent; cheaper; peaceful since GFA
   'GB-NIR': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), cost:rep(1) },
 
   // ── Argentina ──────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(1), safety:rep(1), lgbtq:rep(0)
-  // Buenos Aires (CABA) — cosmopolitan capital; mild subtropical; humid summers; most expensive
+  // Buenos Aires (CABA): cosmopolitan capital; mild subtropical; humid summers; most expensive
   'AR-C': { weather: s12(1,1,1,0,0,1,1,1,0,0,0,1), cost:rep(2), crowds:rep(2) },
-  // Buenos Aires Province — Atlantic coast + pampas; similar climate to CABA
+  // Buenos Aires Province: Atlantic coast + pampas; similar climate to CABA
   'AR-B': { weather: s12(1,1,1,0,0,1,1,1,0,0,0,1) },
-  // Mendoza — Andes foothills; dry & sunny; wine country; extreme summer heat; harvest Mar-Apr
+  // Mendoza: Andes foothills; dry & sunny; wine country; extreme summer heat; harvest Mar-Apr
   'AR-M': { weather: s12(1,1,0,0,0,1,2,1,0,0,0,1), crowds:s12(1,2,2,2,1,0,0,0,1,1,1,1) },
-  // Misiones (Iguazú Falls) — subtropical jungle; hot & humid year-round; cooler/drier Jul-Aug
+  // Misiones (Iguazú Falls): subtropical jungle; hot & humid year-round; cooler/drier Jul-Aug
   'AR-N': { weather: s12(2,2,1,1,1,1,1,1,1,1,1,2), health:rep(1), crowds:s12(2,2,1,0,0,0,2,2,1,0,0,1) },
-  // Neuquén (Bariloche / Lake District) — ski Jun-Sep; trekking Dec-Feb; shoulder Mar-May
+  // Neuquén (Bariloche / Lake District): ski Jun-Sep; trekking Dec-Feb; shoulder Mar-May
   'AR-Q': { weather: s12(0,0,1,1,2,2,2,2,2,1,0,0), cost:s12(1,1,1,1,1,2,2,2,1,1,1,1), crowds:s12(2,2,1,0,0,1,2,2,1,0,0,1) },
-  // Santa Cruz (El Calafate / El Chaltén / Perito Moreno) — Patagonia; ferocious wind; Nov-Feb only
+  // Santa Cruz (El Calafate / El Chaltén / Perito Moreno): Patagonia; ferocious wind; Nov-Feb only
   'AR-Z': { weather: s12(0,0,1,2,3,3,3,3,2,1,0,0), cost:rep(2), remote:rep(2), crowds:s12(3,3,2,1,0,0,0,0,0,0,1,2) },
-  // Jujuy (Quebrada de Humahuaca / Altiplano) — 3000-4400 m; rainy Dec-Feb; dry May-Oct best
+  // Jujuy (Quebrada de Humahuaca / Altiplano): 3000-4400 m; rainy Dec-Feb; dry May-Oct best
   'AR-Y': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), health:rep(1) },
 
   // ── Colombia ───────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(1), safety:rep(1), lgbtq:rep(1)
-  // Bogotá DC — 2600 m; year-round spring ~14°C; two rainy seasons Apr-May & Oct-Nov; most expensive
+  // Bogotá DC: 2600 m; year-round spring ~14°C; two rainy seasons Apr-May & Oct-Nov; most expensive
   'CO-DC': { weather: s12(0,0,1,2,2,1,0,0,1,2,2,1), cost:rep(2) },
-  // Antioquia (Medellín) — "eternal spring" 22°C; two brief rainy seasons; top digital-nomad hub
+  // Antioquia (Medellín): "eternal spring" 22°C; two brief rainy seasons; top digital-nomad hub
   'CO-ANT': { weather: s12(0,0,0,1,1,0,0,0,1,1,0,0), crowds:rep(2) },
-  // Bolívar (Cartagena) — hot Caribbean coast; dry Dec-Apr; rainy May-Nov; historic walled city
+  // Bolívar (Cartagena): hot Caribbean coast; dry Dec-Apr; rainy May-Nov; historic walled city
   'CO-BOL': { weather: s12(0,0,0,0,1,2,2,2,1,1,1,0), health:rep(1) },
-  // Magdalena (Santa Marta / Tayrona NP) — Caribbean coast; hot; best Dec-Mar; park crowded on holidays
+  // Magdalena (Santa Marta / Tayrona NP): Caribbean coast; hot; best Dec-Mar; park crowded on holidays
   'CO-MAG': { weather: s12(0,0,0,0,1,1,1,1,1,1,1,0), health:rep(1), crowds:s12(2,1,1,0,0,0,0,0,0,0,1,2) },
-  // Valle del Cauca (Cali) — warm year-round; two rainy seasons; salsa capital; higher urban crime
+  // Valle del Cauca (Cali): warm year-round; two rainy seasons; salsa capital; higher urban crime
   'CO-VAC': { weather: s12(0,0,1,1,1,1,1,0,1,1,1,0), safety:rep(2) },
-  // Quindío (Salento / Coffee Region) — lush Andean hills; eternal spring; ecotourism
+  // Quindío (Salento / Coffee Region): lush Andean hills; eternal spring; ecotourism
   'CO-QUI': { weather: s12(0,0,0,1,1,0,0,0,1,1,0,0) },
 
   // ── Peru ───────────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(1), safety:rep(1), health:rep(1)
-  // Lima Metro — Pacific desert coast; sunny Jan-Apr; garúa gray fog Jun-Nov; food capital
+  // Lima Metro: Pacific desert coast; sunny Jan-Apr; garúa gray fog Jun-Nov; food capital
   'PE-LIM': { weather: s12(0,0,0,1,1,2,2,2,2,1,1,0), cost:rep(2) },
-  // Cusco (Machu Picchu gateway) — 3400 m; dry May-Oct; rainy Nov-Apr (landslides); altitude risk
+  // Cusco (Machu Picchu gateway): 3400 m; dry May-Oct; rainy Nov-Apr (landslides); altitude risk
   'PE-CUS': { weather: s12(2,2,1,0,0,0,0,0,0,0,1,2), health:rep(1), crowds:s12(0,0,1,1,2,3,3,3,2,2,1,0) },
-  // Madre de Dios (Amazon / Puerto Maldonado) — tropical; very wet Nov-Apr; drier May-Oct
+  // Madre de Dios (Amazon / Puerto Maldonado): tropical; very wet Nov-Apr; drier May-Oct
   'PE-MDD': { weather: s12(2,2,2,1,1,1,1,1,1,1,2,2), health:rep(2), remote:rep(2) },
-  // Arequipa — 2300 m; dry & sunny most of year; brief rains Jan-Mar; the "White City"
+  // Arequipa: 2300 m; dry & sunny most of year; brief rains Jan-Mar; the "White City"
   'PE-ARE': { weather: s12(1,1,1,0,0,0,0,0,0,0,0,1) },
-  // Puno (Lake Titicaca) — 3800 m; dry May-Oct (hard frosts at night); rainy Nov-Apr; altitude risk
+  // Puno (Lake Titicaca): 3800 m; dry May-Oct (hard frosts at night); rainy Nov-Apr; altitude risk
   'PE-PUN': { weather: s12(2,2,1,0,0,1,1,1,0,0,1,2), health:rep(1) },
-  // Ica (Nazca Lines / Huacachina) — coastal desert; sunny & dry year-round; hot Dec-Mar
+  // Ica (Nazca Lines / Huacachina): coastal desert; sunny & dry year-round; hot Dec-Mar
   'PE-ICA': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1) },
 
   // ── New Zealand ────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(2), safety:rep(0)
-  // Auckland — subtropical north; warm humid summer Dec-Feb; wetter winter; busiest gateway
+  // Auckland: subtropical north; warm humid summer Dec-Feb; wetter winter; busiest gateway
   'NZ-AUK': { weather: s12(0,0,0,1,2,2,2,2,1,1,0,0), crowds:rep(2) },
-  // Bay of Plenty (Rotorua / Tauranga) — geothermal; warm; best Nov-Apr; lush kiwi heartland
+  // Bay of Plenty (Rotorua / Tauranga): geothermal; warm; best Nov-Apr; lush kiwi heartland
   'NZ-BOP': { weather: s12(0,0,0,1,1,2,2,2,1,1,0,0) },
-  // Wellington — windiest capital on earth; cooler; excellent arts and food scene
+  // Wellington: windiest capital on earth; cooler; excellent arts and food scene
   'NZ-WGN': { weather: s12(1,1,1,2,2,2,2,2,2,1,1,1) },
-  // Canterbury (Christchurch) — drier east coast; continental; coldest winters; best Dec-Feb
+  // Canterbury (Christchurch): drier east coast; continental; coldest winters; best Dec-Feb
   'NZ-CAN': { weather: s12(0,0,1,1,2,2,3,3,2,1,0,0) },
-  // Otago (Queenstown / Dunedin) — ski Jun-Sep; summer trekking Dec-Feb; premium resort costs
+  // Otago (Queenstown / Dunedin): ski Jun-Sep; summer trekking Dec-Feb; premium resort costs
   'NZ-OTA': { weather: s12(0,0,1,1,2,2,2,2,2,1,0,0), cost:s12(2,2,2,2,2,3,3,3,2,2,2,2), crowds:s12(3,3,2,1,1,2,3,3,1,1,2,3) },
-  // Southland / Fiordland (Milford Sound) — wettest region NZ; dramatic; cold; unpredictable
+  // Southland / Fiordland (Milford Sound): wettest region NZ; dramatic; cold; unpredictable
   'NZ-STL': { weather: s12(1,1,2,2,2,3,3,3,2,2,1,1) },
 
   // ── Egypt ──────────────────────────────────────────────────────────────────────
   // National fallbacks: cost:rep(1), safety:rep(1)
-  // Cairo / Giza — extreme heat Jun-Sep (45°C+); best Oct-Apr; pyramids always overcrowded
+  // Cairo / Giza: extreme heat Jun-Sep (45°C+); best Oct-Apr; pyramids always overcrowded
   'EG-C': { weather: s12(0,0,0,1,2,3,3,3,2,0,0,0), crowds:rep(3) },
-  // Alexandria — Mediterranean coast; cooler and wetter than Cairo; Roman heritage; best Mar-Jun
+  // Alexandria: Mediterranean coast; cooler and wetter than Cairo; Roman heritage; best Mar-Jun
   'EG-ALX': { weather: s12(1,1,1,0,0,0,0,1,0,0,1,1) },
-  // Red Sea / Al Bahr al Ahmar (Hurghada / Marsa Alam) — desert coast; best Oct-May; diving year-round
+  // Red Sea / Al Bahr al Ahmar (Hurghada / Marsa Alam): desert coast; best Oct-May; diving year-round
   'EG-BA': { weather: s12(1,1,0,0,0,1,2,2,1,0,0,1), beaches:s12(0,0,0,0,0,1,1,1,0,0,0,0) },
-  // South Sinai (Sharm el-Sheikh / Dahab) — Red Sea resorts; best Oct-May; Sinai peninsula caution
+  // South Sinai (Sharm el-Sheikh / Dahab): Red Sea resorts; best Oct-May; Sinai peninsula caution
   'EG-JS': { weather: s12(1,1,0,0,0,1,2,2,1,0,0,1), beaches:s12(0,0,0,0,0,1,1,1,0,0,0,0) },
-  // Luxor — Upper Egypt; Valley of Kings / Karnak; brutal Jun-Sep heat; best Nov-Feb
+  // Luxor: Upper Egypt; Valley of Kings / Karnak; brutal Jun-Sep heat; best Nov-Feb
   'EG-LX': { weather: s12(0,0,0,1,2,3,3,3,2,1,0,0), crowds:rep(2) },
 
   // ── Nigeria ─────────────────────────────────────────────────────────────────────
   // National fallbacks: safety:rep(2), health:rep(2), lgbtq:rep(3)
-  // Lagos State — commercial megacity; urban crime + traffic chaos; most expensive; very crowded
+  // Lagos State: commercial megacity; urban crime + traffic chaos; most expensive; very crowded
   'NG-LA': { cost:rep(2), crowds:rep(3) },
-  // FCT Abuja — purpose-built capital; more orderly; diplomatic/expat hub; safer than Lagos
+  // FCT Abuja: purpose-built capital; more orderly; diplomatic/expat hub; safer than Lagos
   'NG-FC': { safety:rep(1), cost:rep(2) },
-  // Kano State — major northern city; Islamic conservative; sharia law applies; high security risk
+  // Kano State: major northern city; Islamic conservative; sharia law applies; high security risk
   'NG-KN': { safety:rep(3) },
-  // Rivers State (Port Harcourt) — Niger Delta oil hub; kidnapping and armed-gang risk
+  // Rivers State (Port Harcourt): Niger Delta oil hub; kidnapping and armed-gang risk
   'NG-RI': { safety:rep(3) },
-  // Cross River (Calabar) — southeast; wildlife / ecotourism; more stable than Delta/North
+  // Cross River (Calabar): southeast; wildlife / ecotourism; more stable than Delta/North
   'NG-CR': { safety:rep(1) },
 
   // ── Pakistan ───────────────────────────────────────────────────────────────────
   // National fallbacks: safety:rep(2), lgbtq:rep(3), health:rep(1)
-  // Islamabad Capital Territory — well-planned diplomatic capital; Margalla Hills; safest major city
+  // Islamabad Capital Territory: well-planned diplomatic capital; Margalla Hills; safest major city
   'PK-IS': { safety:rep(1), weather: s12(1,1,1,0,0,1,2,2,1,0,1,1) },
-  // Punjab (Lahore) — Mughal heritage; safe for tourism; extreme summer heat; best Oct-Mar
+  // Punjab (Lahore): Mughal heritage; safe for tourism; extreme summer heat; best Oct-Mar
   'PK-PB': { safety:rep(1), weather: s12(1,1,0,0,2,3,3,3,1,0,0,1), crowds:rep(2) },
-  // Sindh (Karachi) — port megacity; urban crime; extreme heat Apr-Jun; best Nov-Feb
+  // Sindh (Karachi): port megacity; urban crime; extreme heat Apr-Jun; best Nov-Feb
   'PK-SD': { weather: s12(0,0,1,2,3,2,1,1,1,0,0,0) },
-  // Gilgit-Baltistan (Karakoram / K2 base camp) — spectacular mountain trekking; best May-Sep
+  // Gilgit-Baltistan (Karakoram / K2 base camp): spectacular mountain trekking; best May-Sep
   'PK-GB': { safety:rep(1), weather: s12(3,3,2,1,0,0,0,0,0,0,1,3), remote:rep(2) },
-  // Balochistan — insurgency; kidnapping risk; vast remote desert; travel strongly discouraged
+  // Balochistan: insurgency; kidnapping risk; vast remote desert; travel strongly discouraged
   'PK-BA': { safety:rep(3), remote:rep(3) },
 
   // ── Philippines ─────────────────────────────────────────────────────────────────
-  // Metro Manila — dense megacity; dry Dec-Apr; typhoon-season rains Jul-Oct; heavy traffic
+  // Metro Manila: dense megacity; dry Dec-Apr; typhoon-season rains Jul-Oct; heavy traffic
   'PH-MNL': { weather: s12(0,0,1,1,2,2,3,3,3,2,1,0), crowds:rep(2) },
-  // Cebu — Visayas hub; beaches + diving; drier than Luzon; less typhoon-exposed
+  // Cebu: Visayas hub; beaches + diving; drier than Luzon; less typhoon-exposed
   'PH-CEB': { weather: s12(0,0,0,1,1,2,2,2,2,2,1,0), beaches:s12(0,0,0,1,1,2,2,2,2,1,1,0) },
-  // Palawan (El Nido, Coron) — the country's best beaches; dry Dec-May, wet Jun-Oct
+  // Palawan (El Nido, Coron): the country's best beaches; dry Dec-May, wet Jun-Oct
   'PH-PLW': { weather: s12(0,0,0,0,1,2,3,3,3,2,1,0), beaches:s12(0,0,0,0,1,2,3,3,3,2,1,0) },
-  // Bohol — Chocolate Hills, Panglao beaches; similar rhythm to Cebu
+  // Bohol: Chocolate Hills, Panglao beaches; similar rhythm to Cebu
   'PH-BOH': { weather: s12(0,0,0,1,1,2,2,2,2,2,1,0), beaches:s12(0,0,0,1,1,2,2,2,2,1,1,0) },
-  // Aklan (Boracay) — premium island resort; peak crowds Dec-Mar + Holy Week; wet Jul-Sep
+  // Aklan (Boracay): premium island resort; peak crowds Dec-Mar + Holy Week; wet Jul-Sep
   'PH-AKL': { weather: s12(0,0,0,1,1,2,3,3,3,2,1,0), beaches:s12(0,0,0,0,1,2,3,3,2,2,1,0), crowds:s12(3,3,2,2,1,1,1,1,1,1,2,3), cost:rep(2) },
-  // Benguet (Baguio) — cool mountain "summer capital"; landslide-prone monsoon Jul-Sep
+  // Benguet (Baguio): cool mountain "summer capital"; landslide-prone monsoon Jul-Sep
   'PH-BEN': { weather: s12(0,0,0,0,1,2,3,3,3,2,1,0) },
-  // Davao — Mindanao's safest major city; outside the typhoon belt; even climate year-round
+  // Davao: Mindanao's safest major city; outside the typhoon belt; even climate year-round
   'PH-DAV': { weather: rep(1), crowds:rep(1) },
-  // Sulu archipelago — active insurgency; kidnapping risk; travel strongly discouraged
+  // Sulu archipelago: active insurgency; kidnapping risk; travel strongly discouraged
   'PH-SLU': { weather: s12(1,1,1,1,1,2,2,2,2,2,1,1), safety:rep(3), solo:rep(3), crowds:rep(0) },
 
   // ── Malaysia ────────────────────────────────────────────────────────────────────
-  // Kuala Lumpur — equatorial; inter-monsoon thunderstorms Mar-Apr & Oct-Nov
+  // Kuala Lumpur: equatorial; inter-monsoon thunderstorms Mar-Apr & Oct-Nov
   'MY-14': { weather: s12(1,1,2,2,1,1,1,1,1,2,2,1), crowds:rep(1) },
-  // Penang (George Town) — heritage + food capital; wettest Sep-Nov
+  // Penang (George Town): heritage + food capital; wettest Sep-Nov
   'MY-07': { weather: s12(0,0,1,1,1,1,1,2,2,2,2,1), beaches:s12(1,1,1,1,1,1,1,2,2,2,2,1) },
-  // Sabah (Kota Kinabalu, Sipadan) — diving best Apr-Sep; eastern-island coastal advisories
+  // Sabah (Kota Kinabalu, Sipadan): diving best Apr-Sep; eastern-island coastal advisories
   'MY-12': { weather: s12(2,1,1,1,1,1,1,1,1,2,2,2), beaches:s12(1,1,0,0,0,0,0,0,0,1,1,1), safety:rep(2) },
-  // Sarawak (Kuching) — Borneo longhouses + national parks; NE monsoon soaks Nov-Feb
+  // Sarawak (Kuching): Borneo longhouses + national parks; NE monsoon soaks Nov-Feb
   'MY-13': { weather: s12(3,2,1,1,1,0,0,0,1,1,2,3) },
-  // Terengganu (Perhentian, Redang) — east-coast islands shut during Nov-Feb monsoon
+  // Terengganu (Perhentian, Redang): east-coast islands shut during Nov-Feb monsoon
   'MY-11': { weather: s12(3,3,1,0,0,0,0,0,1,2,3,3), beaches:s12(3,3,1,0,0,0,0,0,1,2,3,3) },
-  // Pahang (Tioman, Cameron Highlands) — east-coast monsoon Nov-Feb; highlands cool year-round
+  // Pahang (Tioman, Cameron Highlands): east-coast monsoon Nov-Feb; highlands cool year-round
   'MY-06': { weather: s12(3,2,1,0,0,0,0,0,1,2,3,3), beaches:s12(3,3,1,0,0,0,0,0,1,2,3,3) },
 
   // ── South Korea ─────────────────────────────────────────────────────────────────
-  // Seoul — bitter winters; jangma monsoon Jul; superb Apr-May & Sep-Oct
+  // Seoul: bitter winters; jangma monsoon Jul; superb Apr-May & Sep-Oct
   'KR-11': { weather: s12(3,2,1,0,0,1,3,2,0,0,1,2), crowds:rep(2) },
-  // Gyeonggi (Suwon, DMZ tours) — same continental rhythm as Seoul
+  // Gyeonggi (Suwon, DMZ tours): same continental rhythm as Seoul
   'KR-41': { weather: s12(3,2,1,0,0,1,3,2,0,0,1,2) },
-  // Busan — milder coastal; Haeundae beach season Jul-Aug; typhoon fringe Aug-Sep
+  // Busan: milder coastal; Haeundae beach season Jul-Aug; typhoon fringe Aug-Sep
   'KR-26': { weather: s12(2,2,1,0,0,1,2,2,1,0,1,2), beaches:s12(3,3,2,1,1,1,0,0,1,1,2,3) },
-  // Jeju — volcanic resort island; mildest region; very crowded in summer holidays
+  // Jeju: volcanic resort island; mildest region; very crowded in summer holidays
   'KR-49': { weather: s12(2,2,1,0,0,1,2,2,1,0,1,2), beaches:s12(3,3,2,1,1,0,0,0,1,1,2,3), crowds:s12(1,1,1,2,2,2,3,3,2,2,1,1) },
-  // Gangwon (Seoraksan, Pyeongchang) — ski Dec-Feb; cool summers; blazing autumn foliage
+  // Gangwon (Seoraksan, Pyeongchang): ski Dec-Feb; cool summers; blazing autumn foliage
   'KR-42': { weather: s12(2,2,2,1,0,1,2,2,0,0,1,2) },
-  // North Gyeongsang (Gyeongju, Andong) — Silla heritage; pleasant spring and autumn
+  // North Gyeongsang (Gyeongju, Andong): Silla heritage; pleasant spring and autumn
   'KR-47': { weather: s12(2,2,1,0,0,1,2,2,1,0,1,2) },
 
   // ── Chile ───────────────────────────────────────────────────────────────────────
-  // Santiago Metropolitan — Mediterranean; dry warm Nov-Mar; winter rain + smog Jun-Aug
+  // Santiago Metropolitan: Mediterranean; dry warm Nov-Mar; winter rain + smog Jun-Aug
   'CL-RM': { weather: s12(0,0,0,1,2,2,2,2,1,0,0,0) },
-  // Antofagasta (San Pedro de Atacama) — driest desert on earth; superb year-round; altiplano showers Jan-Feb
+  // Antofagasta (San Pedro de Atacama): driest desert on earth; superb year-round; altiplano showers Jan-Feb
   'CL-AN': { weather: s12(1,1,0,0,0,0,0,0,0,0,0,1) },
-  // Valparaíso / Viña del Mar — coastal Mediterranean; beach season Dec-Mar (cold Humboldt water)
+  // Valparaíso / Viña del Mar: coastal Mediterranean; beach season Dec-Mar (cold Humboldt water)
   'CL-VS': { weather: s12(0,0,0,1,2,2,2,2,1,1,0,0), beaches:s12(0,0,1,2,3,3,3,3,2,2,1,0) },
-  // La Araucanía (Pucón) — lakes + volcanoes; best Dec-Mar; long rainy winter
+  // La Araucanía (Pucón): lakes + volcanoes; best Dec-Mar; long rainy winter
   'CL-AR': { weather: s12(0,0,1,2,3,3,3,3,2,1,1,0) },
-  // Los Lagos (Puerto Varas, Chiloé) — lush and rainy; austral summer is the window
+  // Los Lagos (Puerto Varas, Chiloé): lush and rainy; austral summer is the window
   'CL-LL': { weather: s12(0,1,1,2,3,3,3,3,2,2,1,0) },
-  // Magallanes (Torres del Paine) — Patagonia; Nov-Mar trekking season; park saturated Dec-Feb
+  // Magallanes (Torres del Paine): Patagonia; Nov-Mar trekking season; park saturated Dec-Feb
   'CL-MA': { weather: s12(1,1,1,2,3,3,3,3,2,2,1,1), crowds:s12(3,3,2,1,0,0,0,0,0,1,2,3) },
 
   // ── Poland ──────────────────────────────────────────────────────────────────────
-  // Masovian (Warsaw) — continental; best May-Sep; grey freezing Nov-Feb
+  // Masovian (Warsaw): continental; best May-Sep; grey freezing Nov-Feb
   'PL-MZ': { weather: s12(3,2,2,1,0,0,0,0,0,1,2,3) },
-  // Lesser Poland (Kraków, Zakopane) — Poland's tourism magnet; busy year-round, packed in summer
+  // Lesser Poland (Kraków, Zakopane): Poland's tourism magnet; busy year-round, packed in summer
   'PL-MA': { weather: s12(3,2,2,1,0,0,0,0,0,1,2,3), crowds:s12(1,1,1,2,2,3,3,3,2,2,1,2) },
-  // Pomeranian (Gdańsk, Sopot) — Baltic coast; short Jun-Aug beach season
+  // Pomeranian (Gdańsk, Sopot): Baltic coast; short Jun-Aug beach season
   'PL-PM': { weather: s12(3,3,2,1,1,0,0,0,1,2,2,3), beaches:s12(3,3,3,2,2,1,0,0,2,3,3,3) },
-  // Lower Silesian (Wrocław) — slightly milder southwest; Christmas markets in December
+  // Lower Silesian (Wrocław): slightly milder southwest; Christmas markets in December
   'PL-DS': { weather: s12(3,2,2,1,0,0,0,0,0,1,2,3) },
-  // Warmian-Masurian — land of a thousand lakes; sailing Jun-Aug; bleak off-season
+  // Warmian-Masurian: land of a thousand lakes; sailing Jun-Aug; bleak off-season
   'PL-WN': { weather: s12(3,3,2,1,1,0,0,0,1,2,3,3) },
 
   // ── Switzerland ─────────────────────────────────────────────────────────────────
-  // Zürich — lakeside city; best May-Sep; grey inversion fog Nov-Jan
+  // Zürich: lakeside city; best May-Sep; grey inversion fog Nov-Jan
   'CH-ZH': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2) },
-  // Geneva — Lac Léman; mild for Switzerland; best May-Sep
+  // Geneva: Lac Léman; mild for Switzerland; best May-Sep
   'CH-GE': { weather: s12(2,2,1,1,0,0,0,0,0,1,2,2) },
-  // Bern (incl. Bernese Oberland — Interlaken, Grindelwald) — alpine icon; peak-season crowds Jun-Aug
+  // Bern (incl. Bernese Oberland, Interlaken, Grindelwald), alpine icon; peak-season crowds Jun-Aug
   'CH-BE': { weather: s12(2,2,2,1,1,0,0,0,0,1,2,2), crowds:s12(2,2,1,1,2,3,3,3,2,1,1,2) },
-  // Valais (Zermatt, Matterhorn) — ski Dec-Apr, hiking Jul-Sep; muddy shoulder May + Nov; premium prices
+  // Valais (Zermatt, Matterhorn): ski Dec-Apr, hiking Jul-Sep; muddy shoulder May + Nov; premium prices
   'CH-VS': { weather: s12(1,1,1,2,2,1,0,0,0,1,2,1), cost:rep(3) },
-  // Graubünden (St. Moritz, Davos) — glamour ski resorts; same dual season as Valais
+  // Graubünden (St. Moritz, Davos): glamour ski resorts; same dual season as Valais
   'CH-GR': { weather: s12(1,1,1,2,2,1,0,0,0,1,2,1), cost:rep(3) },
-  // Ticino (Lugano) — Italian-speaking south; mildest canton; palm-lined lakes
+  // Ticino (Lugano): Italian-speaking south; mildest canton; palm-lined lakes
   'CH-TI': { weather: s12(2,1,1,0,0,0,0,0,0,1,1,2) },
 
   // ── Sweden ──────────────────────────────────────────────────────────────────────
-  // Stockholm — archipelago summers May-Sep; dark Nov-Feb
+  // Stockholm: archipelago summers May-Sep; dark Nov-Feb
   'SE-AB': { weather: s12(3,3,2,1,0,0,0,0,1,2,3,3) },
-  // Skåne (Malmö, Lund) — mildest region; long shoulder seasons
+  // Skåne (Malmö, Lund): mildest region; long shoulder seasons
   'SE-M': { weather: s12(3,2,2,1,0,0,0,0,1,1,2,3) },
-  // Västra Götaland (Gothenburg) — rainy west coast; Jun-Aug window
+  // Västra Götaland (Gothenburg): rainy west coast; Jun-Aug window
   'SE-O': { weather: s12(3,3,2,1,0,0,0,0,1,2,3,3) },
-  // Gotland (Visby) — medieval island; all of Sweden descends in July
+  // Gotland (Visby): medieval island; all of Sweden descends in July
   'SE-I': { weather: s12(3,3,2,1,1,0,0,0,1,2,3,3), crowds:s12(0,0,0,0,1,2,3,3,1,0,0,0) },
-  // Norrbotten (Swedish Lapland — Abisko, Kiruna) — aurora Sep-Mar, midnight sun Jun-Jul; brutal winters
+  // Norrbotten (Swedish Lapland, Abisko, Kiruna), aurora Sep-Mar, midnight sun Jun-Jul; brutal winters
   'SE-BD': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3), crowds:rep(0) },
-  // Jämtland (Åre) — Scandinavia's top ski resort Dec-Apr; hiking Jul-Aug
+  // Jämtland (Åre): Scandinavia's top ski resort Dec-Apr; hiking Jul-Aug
   'SE-Z': { weather: s12(2,2,2,2,2,1,0,0,1,2,2,2) },
 
   // ── Norway ──────────────────────────────────────────────────────────────────────
-  // Oslo — fjord-side capital; best May-Sep
+  // Oslo: fjord-side capital; best May-Sep
   'NO-03': { weather: s12(3,3,2,1,0,0,0,0,1,2,3,3) },
-  // Hordaland (Bergen) — gateway to the fjords; rains ~240 days a year
+  // Hordaland (Bergen): gateway to the fjords; rains ~240 days a year
   'NO-12': { weather: s12(3,3,2,2,1,1,1,1,2,2,3,3) },
-  // Møre og Romsdal (Geirangerfjord, Ålesund) — fjord cruising May-Sep
+  // Møre og Romsdal (Geirangerfjord, Ålesund): fjord cruising May-Sep
   'NO-15': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3) },
-  // Nordland (Lofoten) — midnight-sun peaks Jun-Aug; surf + aurora shoulder seasons
+  // Nordland (Lofoten): midnight-sun peaks Jun-Aug; surf + aurora shoulder seasons
   'NO-18': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3) },
-  // Troms (Tromsø) — aurora capital Sep-Mar; polar night Nov-Jan
+  // Troms (Tromsø): aurora capital Sep-Mar; polar night Nov-Jan
   'NO-19': { weather: s12(3,3,2,2,1,0,0,0,1,2,3,3) },
-  // Svalbard — high-Arctic frontier; expedition season May-Sep; polar bears outnumber people
+  // Svalbard: high-Arctic frontier; expedition season May-Sep; polar bears outnumber people
   'NO-21': { weather: s12(3,3,3,2,2,1,1,1,2,3,3,3), crowds:rep(0), cost:rep(3) },
 
   // ── Kenya ───────────────────────────────────────────────────────────────────────
-  // Nairobi — 1 800 m altitude keeps it mild; long rains Apr-May; petty-crime caution
+  // Nairobi: 1 800 m altitude keeps it mild; long rains Apr-May; petty-crime caution
   'KE-110': { weather: s12(0,0,2,3,2,1,1,1,0,1,2,1), safety:rep(2) },
-  // Coast (Mombasa, Diani, Lamu) — Indian Ocean beaches; soaked Apr-Jun
+  // Coast (Mombasa, Diani, Lamu): Indian Ocean beaches; soaked Apr-Jun
   'KE-300': { weather: s12(0,0,1,3,3,2,1,1,1,1,2,1), beaches:s12(0,0,1,3,3,2,1,0,0,0,1,0) },
-  // Rift Valley (Maasai Mara, Nakuru, Naivasha) — migration Jul-Oct; lodges packed Jul-Sep
+  // Rift Valley (Maasai Mara, Nakuru, Naivasha): migration Jul-Oct; lodges packed Jul-Sep
   'KE-700': { weather: s12(1,1,2,3,2,1,0,0,0,1,2,1), crowds:s12(1,1,1,1,1,2,3,3,3,2,1,2) },
-  // Eastern (Amboseli, Tsavo East) — classic dry-season safari Jun-Oct + Jan-Feb
+  // Eastern (Amboseli, Tsavo East): classic dry-season safari Jun-Oct + Jan-Feb
   'KE-400': { weather: s12(1,1,2,3,2,1,0,0,0,1,2,1) },
-  // North-Eastern — Somalia border region; terrorism risk; travel strongly discouraged
+  // North-Eastern: Somalia border region; terrorism risk; travel strongly discouraged
   'KE-500': { weather: s12(2,2,2,2,2,1,1,1,1,2,2,2), safety:rep(3), solo:rep(3), crowds:rep(0) },
 
   // ── Tanzania ────────────────────────────────────────────────────────────────────
-  // Arusha — safari capital (Serengeti/Ngorongoro gateway); dry Jun-Oct; long rains Mar-May
+  // Arusha: safari capital (Serengeti/Ngorongoro gateway); dry Jun-Oct; long rains Mar-May
   'TZ-01': { weather: s12(1,1,2,3,2,0,0,0,0,1,2,1), crowds:s12(1,1,1,1,1,2,3,3,2,2,1,2) },
-  // Mara (northern Serengeti) — river-crossing season Jul-Sep draws the world's safari crowds
+  // Mara (northern Serengeti): river-crossing season Jul-Sep draws the world's safari crowds
   'TZ-13': { weather: s12(1,1,2,3,2,1,0,0,0,1,2,1), crowds:s12(1,1,1,1,1,2,3,3,3,2,1,1) },
-  // Kilimanjaro (Moshi) — summit windows Jan-Mar & Jun-Oct; avoid the Apr-May rains
+  // Kilimanjaro (Moshi): summit windows Jan-Mar & Jun-Oct; avoid the Apr-May rains
   'TZ-09': { weather: s12(0,0,1,3,3,1,0,0,0,0,2,1) },
-  // Dar es Salaam — hot humid commercial coast; heaviest rain Apr-May
+  // Dar es Salaam: hot humid commercial coast; heaviest rain Apr-May
   'TZ-02': { weather: s12(1,1,2,3,3,1,1,1,1,1,2,1) },
-  // Zanzibar North (Nungwi, Kendwa) — flagship beaches; monsoon rains Mar-May
+  // Zanzibar North (Nungwi, Kendwa): flagship beaches; monsoon rains Mar-May
   'TZ-07': { weather: s12(0,0,1,3,3,1,0,0,0,1,2,1), beaches:s12(0,0,1,3,3,1,0,0,0,0,1,0) },
-  // Zanzibar West (Stone Town) — Swahili heritage port; same monsoon rhythm
+  // Zanzibar West (Stone Town): Swahili heritage port; same monsoon rhythm
   'TZ-15': { weather: s12(1,1,1,3,3,1,0,0,0,1,2,1) },
 
   // ── Ecuador ─────────────────────────────────────────────────────────────────────
-  // Pichincha (Quito) — 2 850 m "eternal spring"; afternoon rains Feb-Apr; acclimatise on arrival
+  // Pichincha (Quito): 2 850 m "eternal spring"; afternoon rains Feb-Apr; acclimatise on arrival
   'EC-P': { weather: s12(1,2,2,2,1,0,0,0,1,1,2,1) },
-  // Guayas (Guayaquil) — hot humid port; gang violence has sharply raised risk; transit with care
+  // Guayas (Guayaquil): hot humid port; gang violence has sharply raised risk; transit with care
   'EC-G': { weather: s12(2,3,3,2,1,1,1,1,1,1,1,2), safety:rep(3), solo:rep(3) },
-  // Galápagos — wildlife unmatched year-round; warm seas Jan-May, cool garúa mist Jun-Dec
+  // Galápagos: wildlife unmatched year-round; warm seas Jan-May, cool garúa mist Jun-Dec
   'EC-W': { weather: s12(0,0,0,0,0,1,1,1,1,1,1,0), beaches:rep(0), crowds:rep(1), cost:rep(3) },
-  // Azuay (Cuenca) — colonial highland gem; mild and spring-like all year
+  // Azuay (Cuenca): colonial highland gem; mild and spring-like all year
   'EC-A': { weather: s12(1,1,2,2,1,0,0,0,1,1,1,1) },
-  // Santa Elena (Montañita, Salinas) — surf coast; sunny season Dec-Apr, overcast May-Nov
+  // Santa Elena (Montañita, Salinas): surf coast; sunny season Dec-Apr, overcast May-Nov
   'EC-SE': { weather: s12(1,1,1,1,2,2,2,2,2,2,2,1), beaches:s12(0,0,0,0,1,2,2,2,2,2,1,0) },
-  // Napo (Tena) — Amazon basin; hot, humid and rainy whatever the month
+  // Napo (Tena): Amazon basin; hot, humid and rainy whatever the month
   'EC-N': { weather: rep(2) },
 
   // ── Costa Rica ──────────────────────────────────────────────────────────────────
-  // San José (Central Valley) — eternal-spring capital; dry Dec-Apr, wettest Sep-Oct
+  // San José (Central Valley): eternal-spring capital; dry Dec-Apr, wettest Sep-Oct
   'CR-SJ': { weather: s12(0,0,0,1,2,2,2,2,3,3,2,0) },
-  // Guanacaste (Tamarindo, Papagayo) — driest beach coast; high-season crowds Dec-Feb
+  // Guanacaste (Tamarindo, Papagayo): driest beach coast; high-season crowds Dec-Feb
   'CR-G': { weather: s12(0,0,0,0,1,2,1,1,2,2,1,0), beaches:s12(0,0,0,0,1,2,1,1,2,2,1,0), crowds:s12(3,3,2,1,1,1,2,1,1,1,2,3) },
-  // Puntarenas (Manuel Antonio, Monteverde, Osa) — lush Pacific; deluges Sep-Oct
+  // Puntarenas (Manuel Antonio, Monteverde, Osa): lush Pacific; deluges Sep-Oct
   'CR-P': { weather: s12(0,0,0,1,2,2,2,2,3,3,2,1) },
-  // Limón (Puerto Viejo, Tortuguero) — Caribbean side; inverted seasons — driest Feb-Mar & Sep-Oct
+  // Limón (Puerto Viejo, Tortuguero), Caribbean side; inverted seasons, driest Feb-Mar & Sep-Oct
   'CR-L': { weather: s12(1,0,0,1,2,2,2,1,0,0,2,2) },
-  // Alajuela (Arenal, La Fortuna) — volcano + hot springs; rain eases Feb-Apr
+  // Alajuela (Arenal, La Fortuna): volcano + hot springs; rain eases Feb-Apr
   'CR-A': { weather: s12(0,0,0,1,2,2,2,2,2,2,2,1) },
 
 };
@@ -2225,7 +2225,7 @@ const CD_A1 = {
 // provinces vs autonomous communities; French departments vs regions; Italian
 // provinces vs regions; GB districts vs home nations; assorted legacy codes).
 // Maps NE feature code → the CD_A1 key whose ratings it should inherit.
-// GENERATED from the original NE properties — regenerate alongside CD_A1.
+// GENERATED from the original NE properties: regenerate alongside CD_A1.
 const CD_A1_ALIAS = {
   'CN-AH': 'CN-34',
   'CN-BJ': 'CN-11',
@@ -2717,7 +2717,7 @@ const CD_A1_ALIAS = {
 // ─── Province search index ────────────────────────────────────────────────────
 // One entry per CD_A1-rated province: n = English display name, a = optional
 // local/alternate name (both searched), c = display centre. GENERATED from
-// data/admin1.geojson (alias-aware) — regenerate when CD_A1 gains countries.
+// data/admin1.geojson (alias-aware): regenerate when CD_A1 gains countries.
 const ADMIN1_SEARCH = {
   'AR-B': { n:'Buenos Aires', c:[-37.15,-60.03] },
   'AR-C': { n:'Buenos Aires', a:'Ciudad de Buenos Aires', c:[-34.65,-58.44] },
@@ -3310,7 +3310,7 @@ const CITIES = [
     disaster:rep(2), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(2)
   }),
   mk('Bangalore','IN',12.972,77.594,{
-    // India's tech capital at 900m — best climate in India year-round; cosmopolitan
+    // India's tech capital at 900m: best climate in India year-round; cosmopolitan
     weather:s12(0,0,0,1,2,2,2,2,2,1,0,0), safety:rep(2), cost:rep(0), family:rep(1), solo:rep(2),
     remote:rep(0), corrupt:rep(2), health:rep(1), crowds:s12(0,0,1,1,2,2,1,1,1,1,0,0),
     disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(2)
@@ -3468,7 +3468,7 @@ const CITIES = [
     disaster:rep(2), visa:rep(0), lgbtq:rep(0), beaches:rep(3), road:rep(0), vaccines:rep(0)
   }),
   mk('Marseille','FR',43.296,5.370,{
-    // Mediterranean coast — hot dry summers; gritty, affordable; North Africa influence
+    // Mediterranean coast: hot dry summers; gritty, affordable; North Africa influence
     weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,3,3,2,1,0,0),
     disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:s12(3,3,2,1,0,0,0,0,0,0,1,2), road:rep(1), vaccines:rep(0)
@@ -3616,26 +3616,26 @@ const CITIES = [
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(2,2,2,2,1,1,1,1,1,1,2,2),
     disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(1,1,1,1,1,1,1,1,1,1,1,1), road:rep(1), vaccines:rep(0)
   }),
-  // ── USA — city-level granularity (weather, cost, safety vary significantly) ──
+  // ── USA: city-level granularity (weather, cost, safety vary significantly) ──
   mk('Los Angeles','US',34.052,-118.244,{
     weather:s12(0,0,0,0,0,0,0,0,0,0,0,0), safety:rep(1), cost:rep(3), family:rep(1), solo:rep(1),
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,2,1,1),
     disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(0,0,0,0,0,0,0,0,0,0,0,0), road:rep(1), vaccines:rep(0)
   }),
   mk('San Francisco','US',37.774,-122.419,{
-    // Mild Mediterranean coast — noticeably cooler than inland CA all year
+    // Mild Mediterranean coast: noticeably cooler than inland CA all year
     weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), safety:rep(2), cost:rep(3), family:rep(1), solo:rep(1),
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,1),
     disaster:rep(2), visa:rep(1), lgbtq:rep(0), beaches:s12(3,3,3,3,2,1,1,1,2,3,3,3), road:rep(1), vaccines:rep(0)
   }),
   mk('Bakersfield','US',35.373,-119.019,{
-    // Central Valley: 40 °C+ summers — much hotter and cheaper than coastal CA
+    // Central Valley: 40 °C+ summers: much hotter and cheaper than coastal CA
     weather:s12(0,0,1,1,1,2,3,3,2,1,0,0), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1),
     remote:rep(1), corrupt:rep(1), health:rep(1), crowds:rep(0),
     disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(0)
   }),
   mk('Sacramento','US',38.582,-121.494,{
-    // Inland valley — hot dry summers, mild winters; moderately priced
+    // Inland valley: hot dry summers, mild winters; moderately priced
     weather:s12(0,0,1,1,1,1,3,3,2,1,0,0), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(1),
     remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(0,0,1,1,2,2,1,1,1,1,0,0),
     disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), road:rep(1), vaccines:rep(0)
@@ -4857,7 +4857,7 @@ const BORDERS = [
   bc('Hidalgo / Reynosa','US','MX',26.097,-98.261,'open','24 hours','Rio Grande Valley crossing'),
   bc('Niagara Falls Rainbow Bridge','US','CA',43.087,-79.068,'open','24 hours','Iconic Niagara gateway'),
   bc('Detroit / Windsor Ambassador Bridge','US','CA',42.322,-83.040,'open','24 hours','Busiest US–Canada crossing by trade value'),
-  bc('Peace Arch — Blaine','US','CA',48.993,-122.753,'open','24 hours','Pacific coast crossing; typically short waits'),
+  bc('Peace Arch: Blaine','US','CA',48.993,-122.753,'open','24 hours','Pacific coast crossing; typically short waits'),
   bc('Desaguadero','PE','BO',-16.560,-69.048,'open','06:00–21:00','Lake Titicaca border; Puno to La Paz'),
   bc('Paso Los Libertadores','AR','CL',-32.832,-70.084,'open','24 hours','Main Andes highway crossing'),
   bc('Foz do Iguaçu / Ciudad del Este','BR','PY',-25.560,-54.587,'open','24 hours','Triple-border crossing point'),
@@ -4871,8 +4871,8 @@ const BORDERS = [
   bc('Kasumbalesa','CD','ZM',-11.213,27.790,'restricted','06:00–18:00','Copper-belt crossing; expect significant delays'),
   bc('Salloum / Amsaed','EG','LY',31.558,25.168,'restricted','08:00–18:00','Libya border; check current government advisories'),
   bc('Oujda / Zouj Bghal','MA','DZ',34.672,-1.911,'closed','Closed','Closed since 1994; no crossing permitted'),
-  bc('Ceuta — Tarajal','MA','ES',35.889,-5.320,'open','24 hours','Spanish enclave; Schengen area entry point'),
-  bc('Melilla — Beni Enzar','MA','ES',35.291,-2.963,'open','24 hours','Spanish enclave; EU territory crossing'),
+  bc('Ceuta: Tarajal','MA','ES',35.889,-5.320,'open','24 hours','Spanish enclave; Schengen area entry point'),
+  bc('Melilla: Beni Enzar','MA','ES',35.291,-2.963,'open','24 hours','Spanish enclave; EU territory crossing'),
   // ── Caucasus ─────────────────────────────────────────────────────────────────
   bc('Lars / Russian Military Highway','GE','RU',42.637,44.602,'restricted','09:00–18:00','Restricted; verify eligibility before travel'),
   bc('Bagratashen / Akarak','GE','AM',41.189,44.800,'open','24 hours','Main Georgia–Armenia highway crossing'),
@@ -4881,7 +4881,7 @@ const BORDERS = [
   // ── Central Asia ─────────────────────────────────────────────────────────────
   bc('Korgas','KZ','CN',44.168,80.374,'open','09:00–18:00','Silk Road gateway to Xinjiang'),
   bc('Torugart Pass','KG','CN',40.522,75.405,'restricted','09:00–16:00','High altitude; pre-arranged permits required'),
-  bc('Friendship Bridge — Termez','UZ','AF',37.241,67.270,'restricted','08:00–17:00','Humanitarian access only; tourists not admitted'),
+  bc('Friendship Bridge: Termez','UZ','AF',37.241,67.270,'restricted','08:00–17:00','Humanitarian access only; tourists not admitted'),
   bc('Irkeshtam','KG','CN',39.667,73.895,'open','09:00–17:00','Southern Xinjiang route; seasonal closure possible'),
   // ── Europe ───────────────────────────────────────────────────────────────────
   bc('Medyka / Shehyni','PL','UA',49.800,22.872,'open','24 hours','Main Poland–Ukraine crossing; high wartime use'),
@@ -4889,7 +4889,7 @@ const BORDERS = [
   bc('Horgos / Röszke','RS','HU',46.177,19.976,'open','24 hours','Main Serbia–Hungary motorway crossing'),
   bc('Bruzgi / Kuznica','BY','PL',53.394,23.851,'closed','Closed','Closed to tourist traffic; security exclusion zone'),
 
-  // ── Europe — Schengen / EU external ──────────────────────────────────────────
+  // ── Europe: Schengen / EU external ──────────────────────────────────────────
   bc('Vaalimaa / Torfyanovka','FI','RU',60.724,27.813,'closed','Closed','Closed since 2023; all Finnish–Russian border crossings shut'),
   bc('Nuijamaa / Brusnichnoe','FI','RU',61.057,28.584,'closed','Closed','Closed since 2023'),
   bc('Imatra / Svetogorsk','FI','RU',61.172,28.773,'closed','Closed','Closed since 2023'),
@@ -4980,7 +4980,7 @@ const BORDERS = [
   // ── Additional Americas ───────────────────────────────────────────────────────
   bc('Nogales / Heroica Nogales','US','MX',31.338,-110.934,'open','24 hours','Arizona–Sonora crossing'),
   bc('Brownsville / Matamoros','US','MX',25.905,-97.498,'open','24 hours','Texas Rio Grande Valley crossing'),
-  bc('Simon Bolivar Bridge — Cucuta','CO','VE',7.897,-72.453,'restricted','Variable','Intermittent; political tensions; verify hours before travel'),
+  bc('Simon Bolivar Bridge: Cucuta','CO','VE',7.897,-72.453,'restricted','Variable','Intermittent; political tensions; verify hours before travel'),
   bc('Rumichaca Bridge','CO','EC',0.819,-77.671,'open','24 hours','Main Colombia–Ecuador crossing on the Pan-American Highway'),
   bc('Macará / La Tina','EC','PE',-4.383,-79.940,'open','24 hours','Ecuador–Peru crossing; secondary to the main Pan-American route'),
   bc('Chacalluta / Santa Rosa','PE','CL',-18.340,-70.120,'open','24 hours','Main Peru–Chile crossing near Arica'),
@@ -5087,7 +5087,7 @@ const BORDERS = [
 
 // ─── Named beaches ────────────────────────────────────────────────────────────
 const BEACHES = [
-  // ── Mediterranean Europe — Spain ──
+  // ── Mediterranean Europe: Spain ──
   bch('La Barceloneta','ES',41.378,2.194,'open','Year-round','good','showers,toilets,lifeguard,parking,cafes,accessible','standard','Most accessible urban beach in Barcelona; crowded Jul–Aug; sea can be murky near harbour'),
   bch('Playa de la Concha','ES',43.328,-1.984,'open','Jun–Sep','excellent','showers,toilets,lifeguard,parking,cafes,first-aid,accessible','standard','Most beautiful urban beach in Spain; calm sheltered bay; busy Jul–Aug; Blue Flag'),
   bch('Playa de Muro','ES',39.863,3.114,'open','May–Oct','excellent','showers,toilets,lifeguard,parking,cafes,rental-chairs,accessible','standard','Mallorca; 7km white sand; shallow warm water; very family-friendly'),
@@ -5101,7 +5101,7 @@ const BEACHES = [
   bch('Playa d\'en Bossa','ES',38.867,1.413,'open','May–Oct','good','showers,toilets,lifeguard,parking,cafes,rental-chairs,water-sports','topless-ok','Ibiza; 3km party beach strip; beach clubs, DJs; very crowded Jul–Aug'),
   bch('Playa de Valdoviño','ES',43.584,-8.181,'open','Jun–Sep','good','showers,toilets,parking','standard','Galicia; Atlantic surf beach; wild and uncrowded; cold water even in summer'),
   bch('Playa de Langre','ES',43.467,-3.876,'open','Jun–Sep','excellent','toilets,parking','naturist','Cantabria; cliff-backed clothing-optional beach; hard to find; wild and beautiful'),
-  // ── Mediterranean Europe — France ──
+  // ── Mediterranean Europe: France ──
   bch('Plage de Pampelonne','FR',43.240,6.632,'open','May–Sep','good','showers,toilets,lifeguard,parking,cafes,rental-chairs,water-sports','topless-ok','St Tropez; 5km of famous beach clubs (Club 55, Nikki Beach); very expensive; beautiful sand'),
   bch('Plage de la Croisette','FR',43.553,7.015,'open','May–Sep','good','showers,toilets,lifeguard,cafes,rental-chairs,accessible','topless-ok','Cannes; glamorous promenade beach; mostly private paying sections; free public strip'),
   bch('Plage des Catalans','FR',43.291,5.358,'open','Jun–Sep','fair','showers,toilets,lifeguard,parking,cafes','topless-ok','Marseille city beach; small pebble/sand; accessible by bus from centre; some pollution concerns'),
@@ -5109,7 +5109,7 @@ const BEACHES = [
   bch('Plage de la Baule','FR',47.279,-2.394,'seasonal','Jun–Aug','good','showers,toilets,lifeguard,parking,cafes,rental-chairs,accessible','standard','Loire-Atlantique; 8km crescent; finest Atlantic beach in France; warm shallow bay; family ideal'),
   bch('Plage Naturiste de Montalivet','FR',45.376,-1.143,'restricted','Jun–Aug','good','showers,toilets,lifeguard,parking,cafes','naturist','Oldest official naturist resort in Europe (est. 1950); full facilities; 4km Atlantic beach'),
   bch('Plage d\'Étretat','FR',49.707,0.207,'open','Jun–Aug','good','toilets,parking,cafes','standard','Dramatic chalk-arch cliffs; pebble beach unsuitable for swimming; primarily scenic; very photogenic'),
-  // ── Mediterranean Europe — Italy ──
+  // ── Mediterranean Europe: Italy ──
   bch('Spiaggia dei Conigli','IT',35.498,12.620,'open','May–Sep','excellent','toilets,lifeguard,parking','standard','Lampedusa; consistently voted best beach in Europe; turquoise lagoon; loggerhead turtles nest here; limited access during nesting'),
   bch('Cala Goloritzé','IT',40.121,9.620,'restricted','May–Oct','excellent','toilets','standard','Sardinia; UNESCO site; 2hr hike or boat only; crystal water; climbing routes on limestone pinnacle'),
   bch('La Pelosa','IT',40.980,8.183,'restricted','May–Sep','excellent','showers,toilets,lifeguard,parking','standard','Sardinia; N tip; entry fee + timed tickets to protect sand; Caribbean-style shallow water; arrive early'),
@@ -5119,7 +5119,7 @@ const BEACHES = [
   bch('Rimini','IT',44.057,12.560,'open','May–Sep','fair','showers,toilets,lifeguard,parking,cafes,rental-chairs,first-aid,accessible,water-sports','standard','Mass-market resort; 15km of managed beach; excellent facilities; Adriatic not its cleanest; very family-popular'),
   bch('Punta Prosciutto','IT',40.235,17.837,'open','Jun–Sep','excellent','toilets,parking','standard','Puglia; shallow transparent water; fine white sand; protected dunes; relatively uncrowded'),
   bch('Spiaggia di Vignanotica','IT',41.710,16.056,'open','Jun–Sep','excellent','toilets','standard','Puglia Gargano coast; dramatic white cliffs; pebble and sand; boat or steep path access; wild and beautiful'),
-  // ── Mediterranean Europe — Greece ──
+  // ── Mediterranean Europe: Greece ──
   bch('Navagio (Shipwreck Beach)','GR',37.860,20.603,'restricted','May–Oct','excellent','toilets','standard','Zakynthos; most photographed beach in Greece; access by boat only; 1980 smuggler shipwreck; limestone cliffs'),
   bch('Elafonissi','GR',35.268,23.539,'open','May–Oct','excellent','showers,toilets,parking,cafes','standard','Crete SW corner; pink-tinged sand lagoon; wading depth only; gets crowded Jul–Aug'),
   bch('Balos Lagoon','GR',35.601,23.573,'open','May–Oct','excellent','toilets,cafes','standard','Crete NW; pink/white sand; turquoise lagoon; ferry or 4WD track; very busy in peak season'),
@@ -5132,7 +5132,7 @@ const BEACHES = [
   bch('Falassarna','GR',35.520,23.572,'open','May–Oct','excellent','showers,toilets,parking,cafes','standard','Crete NW; one of widest most beautiful beaches in Crete; faces west for spectacular sunsets; Blue Flag'),
   bch('Preveli','GR',35.199,24.572,'open','May–Oct','excellent','toilets','standard','Crete; palm tree gorge meets the sea; snorkelling in freshwater/saltwater mix; short hike required'),
   bch('Koukounaries','GR',39.118,23.417,'open','May–Oct','excellent','showers,toilets,lifeguard,parking,cafes,rental-chairs','standard','Skiathos; fine golden sand backed by pine forest; shallow turquoise water; family-friendly; Blue Flag'),
-  // ── Mediterranean Europe — Croatia / Montenegro ──
+  // ── Mediterranean Europe: Croatia / Montenegro ──
   bch('Zlatni Rat','HR',43.460,16.637,'open','Jun–Sep','excellent','showers,toilets,lifeguard,parking,cafes,water-sports','topless-ok','Brač; iconic shifting pebble spit that changes shape with currents; brilliant turquoise water; windsurfing'),
   bch('Stiniva','HR',43.033,16.275,'open','Jun–Sep','excellent','cafes','topless-ok','Vis; spectacular enclosed cove accessed through narrow cliff gap; pebble beach; boat or challenging hike'),
   bch('Saharun','HR',44.015,14.873,'open','Jun–Sep','excellent','toilets,parking','topless-ok','Dugi Otok; fine sand; unusually flat and calm; very clear water; one of few sandy beaches in Dalmatia'),
@@ -5145,7 +5145,7 @@ const BEACHES = [
   bch('Patara','TR',36.296,29.318,'restricted','Apr–Oct','excellent','showers,toilets,parking,cafes','standard','18km longest beach in Turkey; loggerhead turtle nesting site; access prohibited at night; also ancient ruins'),
   bch('Cleopatra Beach','TR',36.546,32.009,'open','May–Oct','good','showers,toilets,lifeguard,parking,cafes,rental-chairs,accessible','standard','Alanya; legend says sand imported from Egypt for Cleopatra; fine pale sand; calm water; resort strip'),
   bch('Çirali','TR',36.434,30.477,'open','May–Oct','excellent','showers,toilets,parking,cafes','standard','Loggerhead nesting beach; quiet village atmosphere; adjacent Olympos ruins and Chimaera flames; no large hotels'),
-  // ── Portugal — Algarve ──
+  // ── Portugal: Algarve ──
   bch('Praia do Camilo','PT',37.083,-8.669,'open','May–Oct','excellent','toilets,parking,cafes','standard','Lagos; small sheltered cove between golden limestone arches; wooden boardwalk stairs; very photogenic'),
   bch('Praia da Marinha','PT',37.091,-8.409,'open','May–Oct','excellent','toilets,parking,cafes','standard','Algarve; dramatic rock arch formations; snorkelling; one of most photographed coastlines in Portugal'),
   bch('Praia de Benagil','PT',37.093,-8.424,'restricted','May–Oct','excellent','toilets,cafes','standard','Algarve; sea cave with sky-hole only accessible by kayak or swim; no boat landings inside; magical'),
@@ -5161,7 +5161,7 @@ const BEACHES = [
   bch('Praia do Norte','PT',39.600,-9.070,'open','Year-round','good','toilets,parking,cafes','standard','Nazaré; world-record giant waves in winter (do not swim Oct–Mar); summer swimming is safe; spectacular for watching'),
   bch('Inch Beach','IE',52.126,-9.985,'open','Jun–Aug','good','toilets,parking,cafes','standard','Dingle Peninsula; 5km Atlantic spit; horse riding; cold water but dramatic Kerry mountains backdrop'),
   bch('Keem Bay','IE',53.975,-10.100,'open','Jun–Aug','excellent','toilets,parking','standard','Achill Island; remote turquoise arc; one of Ireland\'s most beautiful; strong currents; Blue Flag; bask sharks offshore'),
-  bch('Reynisfjara','IS',63.403,-19.046,'open','Year-round','good','parking,cafes','standard','Black sand beach with basalt columns and sea stacks; extremely dangerous sneaker waves — do not approach water edge'),
+  bch('Reynisfjara','IS',63.403,-19.046,'open','Year-round','good','parking,cafes','standard','Black sand beach with basalt columns and sea stacks; extremely dangerous sneaker waves: do not approach water edge'),
   bch('Diamond Beach','IS',64.056,-16.231,'open','Year-round','good','parking,cafes','standard','Glacier lagoon (Jökulsárlón); ice blocks wash onto black sand; stunning in golden hour; no swimming'),
   bch('Nauthólsvík','IS',64.123,-21.937,'seasonal','Jun–Aug','good','showers,toilets,cafes,accessible','standard','Reykjavik geothermally heated beach; hot-pot in the sea; popular with locals; only warm enough Jun–Aug'),
   // ── Caribbean & Atlantic Islands ──
@@ -5178,7 +5178,7 @@ const BEACHES = [
   bch('Maracas Bay','TT',10.749,-61.382,'open','Year-round','good','showers,toilets,lifeguard,parking,cafes','standard','Trinidad; national beach; shark-and-bake fish sandwiches are a local tradition; rough surf; 45 min from Port of Spain'),
   // ── USA ──
   bch('Hanauma Bay','US',21.270,-157.695,'restricted','Year-round','excellent','showers,toilets,parking,cafes,first-aid,accessible','standard','Oahu; world-class snorkel reserve; entry fee + mandatory 10-min education video; no touching coral; book online; spectacular marine life'),
-  bch('Lanikai','US',21.391,-157.718,'open','Year-round','excellent','parking','standard','Oahu; calm lagoon; impossibly blue water; Mokulua islands offshore; residential area — street parking only; no facilities'),
+  bch('Lanikai','US',21.391,-157.718,'open','Year-round','excellent','parking','standard','Oahu; calm lagoon; impossibly blue water; Mokulua islands offshore; residential area: street parking only; no facilities'),
   bch('Hapuna','US',19.976,-155.831,'open','Year-round','excellent','showers,toilets,lifeguard,parking,cafes,camping','standard','Big Island; half-mile white sand; best swimmable beach on island; can get rough surf in winter'),
   bch('Coronado','US',32.698,-117.177,'open','Year-round','good','showers,toilets,lifeguard,parking,cafes,accessible','standard','San Diego; broad white sand backed by Hotel del Coronado; family beach; mild year-round; accessible by ferry'),
   bch('Cannon Beach','US',45.893,-123.961,'open','Year-round','good','toilets,parking,cafes','standard','Oregon; Haystack Rock sea stack is iconic; tide pools; too cold to swim; beautiful for walking; fog common'),
@@ -5236,23 +5236,23 @@ const BEACHES = [
   bch('Hiriketiya','LK',5.933,80.547,'open','Nov–Apr','excellent','toilets,cafes,water-sports','standard','Sri Lanka S; bowl-shaped bay; beginner surfing; yoga and wellness community; less crowded than Mirissa and Unawatuna'),
   bch('Uppuveli','LK',8.599,81.218,'seasonal','May–Sep','excellent','showers,toilets,cafes,water-sports','standard','Trincomalee, E Sri Lanka; calm clear turquoise water May–Sep (dry season); whale sharks Jul–Aug; opposite season to SW'),
   bch('Maafushi','MV',3.948,73.540,'open','Year-round','excellent','toilets,cafes,water-sports','standard','Maldives; guesthouse island accessible without resort prices; bikini beach on one end; local beach covered on other end'),
-  // ── Southeast Asia — Thailand ──
+  // ── Southeast Asia: Thailand ──
   bch('Railay West','TH',8.012,98.836,'open','Nov–Apr','excellent','showers,toilets,cafes,water-sports','standard','Krabi; boat access only from Ao Nang; dramatic limestone cliffs; rock climbing on adjacent cliffs; best Nov–Apr; gets crowded'),
   bch('Phra Nang Cave Beach','TH',8.000,98.837,'open','Nov–Apr','excellent','toilets','standard','Krabi; most stunning beach in Thailand; princess shrine cave behind; access only by longtail; part of same peninsula as Railay'),
   bch('Ko Phi Phi Don Beach','TH',7.745,98.778,'open','Nov–Apr','good','showers,toilets,lifeguard,cafes,rental-chairs,water-sports','standard','Andaman; iconic beach; very crowded Dec–Mar; gorgeous water; boats everywhere; the quiet season is May–Oct'),
   bch('Haad Rin (Full Moon Party)','TH',9.681,100.053,'open','Year-round','fair','showers,toilets,cafes,water-sports','standard','Koh Phangan; famous Full Moon Party beach; packed on party nights; daily rubbish problem; bucket cocktails; avoid if you want peace'),
   bch('Kata Noi','TH',7.824,98.293,'open','Nov–Apr','excellent','showers,toilets,lifeguard,cafes,rental-chairs,water-sports','standard','Phuket; smaller and quieter than Kata or Patong; excellent snorkelling at S end; gets rough May–Oct'),
   bch('Koh Kood (Klong Chao)','TH',11.602,102.475,'seasonal','Nov–Apr','excellent','toilets,cafes','standard','Ko Kut; last unspoiled large Thai island; crystal water; limited accommodation; best Nov–Apr; remote but magical'),
-  // ── Southeast Asia — Vietnam ──
+  // ── Southeast Asia: Vietnam ──
   bch('An Bang','VN',15.923,108.348,'open','Feb–Aug','good','showers,toilets,cafes,rental-chairs','standard','Hoi An area; local atmosphere; good beach cafes; fresher and less commercial than Cua Dai; flooded Oct–Dec'),
   bch('Bai Sao','VN',10.040,103.997,'open','Nov–May','excellent','showers,toilets,parking,cafes,rental-chairs,water-sports','standard','Phu Quoc S; white sand; calm clear water; best Nov–May dry season; some development but still beautiful'),
-  // ── Southeast Asia — Indonesia ──
+  // ── Southeast Asia: Indonesia ──
   bch('Kuta','ID',-8.718,115.169,'open','May–Oct','fair','showers,toilets,lifeguard,parking,cafes,rental-chairs,water-sports','standard','Bali; learn-to-surf beach; famous sunsets; extremely crowded; hawkers; poor water quality at times; best May–Oct'),
   bch('Seminyak','ID',-8.697,115.156,'open','May–Oct','good','showers,toilets,lifeguard,parking,cafes,rental-chairs,water-sports','topless-ok','Bali; upmarket beach clubs; famous sunset strip; less chaotic than Kuta; potato head beach club; waves suitable for intermediate surfers'),
   bch('Nusa Dua','ID',-8.801,115.231,'open','May–Oct','excellent','showers,toilets,lifeguard,parking,cafes,rental-chairs,water-sports,accessible','standard','Bali; calm lagoon; resort enclave; families and honeymooners; most serene swimming in Bali; gated but accessible'),
   bch('Pink Beach','ID',-8.649,119.450,'restricted','May–Oct','excellent','toilets','standard','Komodo NP; pink-tinted coral sand; entry only with guide on NP tour; excellent snorkelling in strong currents; Komodo dragons on Rinca'),
   bch('Tanjung Aan','ID',-8.891,116.276,'open','May–Oct','excellent','toilets,cafes','standard','Lombok; twin crescent bays divided by headland; one side surf, one side calm; stunning; Kuta Lombok is a different place from Kuta Bali'),
-  // ── Southeast Asia — Malaysia / Philippines ──
+  // ── Southeast Asia: Malaysia / Philippines ──
   bch('Tanjung Rhu','MY',6.376,99.876,'open','Nov–Mar','excellent','toilets,parking,cafes','standard','Langkawi N; shallow turquoise bay; mangroves; very calm; best Nov–Mar dry season; deserted at low tide'),
   bch('Perhentian Islands','MY',5.908,102.764,'seasonal','Mar–Oct','excellent','showers,toilets,cafes,water-sports','standard','Terengganu; crystal clear backpacker paradise; excellent snorkelling; sea turtles; closed Nov–Feb (monsoon)'),
   bch('El Nido Nacpan','PH',11.267,119.337,'open','Nov–May','excellent','cafes','standard','Palawan; 4km wild white sand; few facilities; far end is undeveloped; quiet even in season; one of best in Philippines'),
@@ -5304,7 +5304,7 @@ const CLIMATE_ZONES = [
   { id:'eu-ionian-islands', name:'Greek Ionian Islands', parent:'GR', layers:{ weather:s12(2,2,1,0,0,0,0,0,0,0,1,2), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2) }, geometry:{ type:'Polygon', coordinates:[[[19.5,37.5],[20.5,37.5],[21.5,37.5],[21.5,38.5],[21.0,39.5],[20.0,40.0],[19.5,39.5],[19.5,38.5],[19.5,37.5]]] } },
   { id:'eu-canary-islands', name:'Canary Islands (Year-round Spring)', parent:'ES', layers:{ weather:s12(0,0,0,0,0,0,0,0,0,0,0,0), beaches:s12(0,0,0,0,0,0,0,0,0,0,0,0), crowds:s12(2,2,1,1,1,1,2,2,1,1,1,2) }, geometry:{ type:'Polygon', coordinates:[[[-18.5,27.5],[-13.0,27.5],[-13.0,29.5],[-18.5,29.5],[-18.5,27.5]]] } },
   { id:'eu-dinaric-coast', name:'Adriatic (Dalmatia & Montenegro)', parent:'HR', layers:{ weather:s12(1,1,1,0,0,0,0,0,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,0,0,0,1,2), crowds:s12(0,0,1,1,2,3,3,3,2,1,0,0) }, geometry:{ type:'Polygon', coordinates:[[[13.5,44.0],[14.5,45.0],[16.5,43.5],[17.0,43.0],[18.0,43.0],[19.0,42.0],[20.0,41.5],[19.5,41.0],[18.5,41.5],[17.5,42.5],[16.0,42.5],[15.0,43.5],[14.0,44.0],[13.5,44.0]]] } },
-  { id:'eu-iceland-south', name:'Iceland — South & Reykjavik', parent:'IS', layers:{ weather:s12(3,3,3,2,1,0,0,1,2,3,3,3) }, geometry:{ type:'Polygon', coordinates:[[[-24.0,63.5],[-22.0,63.5],[-20.0,63.5],[-18.0,64.0],[-20.0,64.5],[-22.0,64.5],[-24.0,64.0],[-24.0,63.5]]] } },
+  { id:'eu-iceland-south', name:'Iceland: South & Reykjavik', parent:'IS', layers:{ weather:s12(3,3,3,2,1,0,0,1,2,3,3,3) }, geometry:{ type:'Polygon', coordinates:[[[-24.0,63.5],[-22.0,63.5],[-20.0,63.5],[-18.0,64.0],[-20.0,64.5],[-22.0,64.5],[-24.0,64.0],[-24.0,63.5]]] } },
   // ── Middle East & Central Asia ──
   { id:'me-levant-coast', name:'Levant Mediterranean Coast', parent:'TR', layers:{ weather:s12(1,1,0,0,0,0,1,2,0,0,1,1), beaches:s12(2,2,1,0,0,0,0,1,0,0,1,2) }, geometry:{ type:'Polygon', coordinates:[[[27.0,36.5],[28.5,37.0],[29.5,37.0],[31.0,37.0],[32.5,36.5],[34.0,36.5],[36.5,35.5],[36.5,34.5],[36.0,33.5],[35.5,33.0],[35.0,32.0],[34.5,31.5],[34.0,31.5],[34.5,32.5],[35.0,33.5],[35.0,34.5],[35.5,35.5],[35.0,36.5],[33.0,37.0],[31.0,37.5],[29.0,37.5],[27.0,37.5],[27.0,36.5]]] } },
   { id:'me-anatolian-plateau', name:'Central Anatolian Plateau', parent:'TR', layers:{ weather:s12(2,2,1,1,0,1,2,2,0,1,1,2) }, geometry:{ type:'Polygon', coordinates:[[[29.0,39.5],[30.5,40.5],[32.0,40.5],[34.0,41.0],[36.0,41.0],[38.0,40.0],[38.0,38.5],[37.0,37.5],[35.0,37.0],[33.0,37.0],[31.0,37.5],[29.0,38.0],[29.0,39.5]]] } },
@@ -5326,13 +5326,13 @@ const CLIMATE_ZONES = [
   { id:'sa-thar-desert', name:'Thar Desert & Rajasthan', parent:'IN', layers:{ weather:s12(0,0,1,2,3,3,3,3,2,1,0,0) }, geometry:{ type:'Polygon', coordinates:[[[68.0,28.0],[70.0,28.5],[72.0,27.5],[74.0,27.0],[74.0,25.0],[72.0,24.0],[70.0,24.5],[68.5,25.5],[67.5,27.0],[68.0,28.0]]] } },
   { id:'sa-bangladesh-delta', name:'Ganges–Brahmaputra Delta', parent:'BD', layers:{ weather:s12(0,0,1,2,3,3,3,3,2,1,0,0), disaster:s12(0,0,0,0,1,3,3,3,3,2,0,0), health:rep(2) }, geometry:{ type:'Polygon', coordinates:[[[88.0,22.0],[89.0,21.5],[90.0,21.5],[91.5,22.0],[92.5,22.5],[92.0,23.5],[91.0,24.0],[90.0,24.5],[89.0,24.5],[88.0,24.0],[88.0,22.0]]] } },
   { id:'sa-sri-lanka-wet-zone', name:'SW Sri Lanka (Wet Zone)', parent:'LK', layers:{ weather:s12(1,1,1,1,2,3,3,3,2,2,1,1), beaches:s12(0,0,1,1,2,3,3,3,2,2,0,0) }, geometry:{ type:'Polygon', coordinates:[[[79.8,6.0],[80.5,5.9],[80.5,7.0],[80.2,8.5],[79.8,9.5],[79.5,9.5],[79.5,7.5],[79.5,6.0],[79.8,6.0]]] } },
-  { id:'sa-sri-lanka-dry-zone', name:'NE Sri Lanka (Dry Zone — Trinco)', parent:'LK', layers:{ weather:s12(2,1,0,0,0,0,0,0,1,2,3,2), beaches:s12(2,1,0,0,0,0,0,0,1,2,3,2) }, geometry:{ type:'Polygon', coordinates:[[[80.5,7.0],[80.8,7.5],[81.5,8.0],[81.9,9.0],[81.0,9.5],[80.5,9.5],[80.2,8.5],[80.5,7.0]]] } },
+  { id:'sa-sri-lanka-dry-zone', name:'NE Sri Lanka (Dry Zone: Trinco)', parent:'LK', layers:{ weather:s12(2,1,0,0,0,0,0,0,1,2,3,2), beaches:s12(2,1,0,0,0,0,0,0,1,2,3,2) }, geometry:{ type:'Polygon', coordinates:[[[80.5,7.0],[80.8,7.5],[81.5,8.0],[81.9,9.0],[81.0,9.5],[80.5,9.5],[80.2,8.5],[80.5,7.0]]] } },
   // ── East & Southeast Asia ──
   { id:'ea-hokkaido', name:'Hokkaido (Subarctic Japan)', parent:'JP', layers:{ weather:s12(3,3,2,2,1,0,0,0,1,1,2,3) }, geometry:{ type:'Polygon', coordinates:[[[141.0,44.0],[141.5,44.5],[142.5,44.5],[143.5,44.0],[144.5,44.0],[145.0,43.5],[145.5,43.0],[145.0,42.5],[144.0,42.0],[143.0,42.0],[142.0,42.5],[141.0,43.0],[140.5,43.5],[141.0,44.0]]] } },
   { id:'ea-honshu-sea-of-japan-coast', name:'Sea of Japan Coast (Heavy Snow)', parent:'JP', layers:{ weather:s12(2,3,2,1,0,0,0,0,1,1,1,2) }, geometry:{ type:'Polygon', coordinates:[[[132.5,34.5],[133.5,35.0],[135.0,35.5],[136.5,36.5],[137.5,37.0],[138.5,38.0],[139.5,39.5],[140.5,41.5],[141.5,42.5],[141.5,43.0],[140.5,42.0],[139.0,40.0],[138.0,37.5],[136.5,36.0],[135.0,35.0],[133.5,34.5],[132.5,34.5]]] } },
   { id:'ea-okinawa-ryukyu', name:'Okinawa & Ryukyu Islands', parent:'JP', layers:{ weather:s12(1,0,0,0,2,2,1,2,2,1,1,1), beaches:s12(0,0,0,0,2,2,1,2,2,1,1,1), disaster:s12(0,0,0,0,1,1,1,3,3,2,0,0) }, geometry:{ type:'Polygon', coordinates:[[[123.0,24.0],[124.5,24.5],[126.0,26.0],[127.5,26.5],[128.5,27.0],[129.0,28.0],[129.0,28.5],[127.5,28.0],[126.0,27.0],[124.5,25.5],[123.0,25.0],[123.0,24.0]]] } },
   { id:'ea-tibetan-plateau', name:'Tibetan Plateau (above 3500m)', parent:'CN', layers:{ weather:s12(3,3,2,1,0,1,1,1,0,1,2,3) }, geometry:{ type:'Polygon', coordinates:[[[80.0,31.0],[82.0,32.0],[84.0,32.0],[86.0,31.5],[88.0,32.0],[90.0,32.5],[92.0,32.0],[94.0,33.0],[96.0,33.0],[97.0,34.0],[96.0,35.0],[94.0,34.5],[92.0,33.5],[90.0,33.0],[88.0,33.0],[86.0,32.5],[84.0,33.0],[82.0,33.0],[80.0,32.5],[80.0,31.0]]] } },
-  { id:'ea-yunnan-highlands', name:'Yunnan Highlands — Spring City Zone', parent:'CN', layers:{ weather:s12(0,0,0,0,1,2,2,2,1,0,0,0) }, geometry:{ type:'Polygon', coordinates:[[[99.0,25.5],[100.0,26.5],[101.0,27.0],[102.5,27.0],[103.0,26.0],[103.0,24.5],[102.5,23.0],[101.5,22.5],[100.5,22.5],[100.0,23.5],[99.5,24.5],[99.0,25.5]]] } },
+  { id:'ea-yunnan-highlands', name:'Yunnan Highlands: Spring City Zone', parent:'CN', layers:{ weather:s12(0,0,0,0,1,2,2,2,1,0,0,0) }, geometry:{ type:'Polygon', coordinates:[[[99.0,25.5],[100.0,26.5],[101.0,27.0],[102.5,27.0],[103.0,26.0],[103.0,24.5],[102.5,23.0],[101.5,22.5],[100.5,22.5],[100.0,23.5],[99.5,24.5],[99.0,25.5]]] } },
   { id:'ea-sichuan-basin', name:'Sichuan Basin (Overcast & Foggy)', parent:'CN', layers:{ weather:s12(1,1,1,1,1,2,2,3,2,1,1,2) }, geometry:{ type:'Polygon', coordinates:[[[102.5,28.0],[103.5,29.0],[104.5,30.0],[105.5,30.5],[107.0,31.0],[108.5,30.5],[108.5,29.0],[107.5,28.0],[106.0,28.5],[104.5,28.5],[103.0,28.0],[102.5,28.0]]] } },
   { id:'ea-south-china-tropical', name:'South China & Hainan (Subtropical)', parent:'CN', layers:{ weather:s12(1,2,2,2,2,2,2,2,2,1,0,1), beaches:s12(0,0,1,1,2,2,2,2,2,1,0,0), disaster:s12(0,0,0,0,1,2,2,3,3,2,0,0) }, geometry:{ type:'Polygon', coordinates:[[[108.0,18.0],[110.5,18.5],[110.5,20.0],[110.0,21.0],[109.0,21.5],[108.0,22.0],[110.0,23.5],[111.5,24.0],[113.0,23.5],[114.0,23.0],[115.5,22.5],[117.0,23.0],[117.5,24.0],[115.5,24.0],[113.0,24.5],[110.5,22.5],[109.5,21.5],[108.5,21.0],[108.0,19.5],[108.0,18.0]]] } },
   { id:'ea-north-vietnam', name:'Northern Vietnam (4-Season Hanoi)', parent:'VN', layers:{ weather:s12(2,2,2,1,1,1,2,2,1,0,0,1) }, geometry:{ type:'Polygon', coordinates:[[[102.0,21.5],[103.0,22.5],[104.5,22.5],[106.5,22.0],[107.5,21.5],[108.0,21.0],[107.0,20.0],[106.0,19.5],[105.0,19.5],[104.0,20.0],[103.0,20.5],[102.0,21.5]]] } },
@@ -5343,9 +5343,9 @@ const CLIMATE_ZONES = [
   { id:'ea-chiang-mai-north-thailand', name:'North Thailand Highlands (Smoke Season)', parent:'TH', layers:{ weather:s12(0,0,3,3,2,1,1,1,2,1,0,0), health:s12(0,0,3,3,2,0,0,0,0,0,0,0) }, geometry:{ type:'Polygon', coordinates:[[[98.5,16.5],[99.5,17.5],[100.0,18.0],[100.5,19.0],[101.0,20.0],[101.5,20.5],[102.5,20.5],[102.5,19.0],[101.5,18.0],[100.5,17.0],[99.5,16.5],[98.5,16.5]]] } },
   { id:'ea-luzon-pacific-coast', name:'Luzon Pacific Coast (Typhoon Corridor)', parent:'PH', layers:{ weather:s12(1,1,1,2,2,2,2,2,2,2,2,1), disaster:rep(3) }, geometry:{ type:'Polygon', coordinates:[[[120.0,14.0],[120.5,14.5],[121.0,15.5],[122.0,16.5],[123.0,17.5],[124.0,18.0],[124.0,17.0],[123.0,16.5],[122.5,15.5],[121.5,14.5],[120.5,13.5],[120.0,14.0]]] } },
   { id:'ea-luzon-west-manila', name:'Manila & West Luzon', parent:'PH', layers:{ weather:s12(0,0,0,1,2,2,2,2,2,2,1,0) }, geometry:{ type:'Polygon', coordinates:[[[119.5,16.5],[120.0,16.0],[120.5,15.0],[121.0,14.5],[120.5,14.0],[120.0,13.5],[119.5,13.0],[119.0,14.0],[119.0,15.5],[119.5,16.5]]] } },
-  { id:'ea-visayas-sulu', name:'Visayas (Cebu / Bohol — Outside Typhoon Belt)', parent:'PH', layers:{ weather:s12(0,0,0,1,1,1,1,1,1,1,1,0), beaches:s12(0,0,0,1,1,1,1,1,1,1,1,0), disaster:rep(1) }, geometry:{ type:'Polygon', coordinates:[[[122.5,10.5],[123.5,11.0],[124.5,11.5],[125.0,11.0],[124.5,10.0],[123.5,9.5],[122.5,9.5],[121.5,9.5],[121.0,10.5],[122.5,10.5]]] } },
+  { id:'ea-visayas-sulu', name:'Visayas (Cebu / Bohol: Outside Typhoon Belt)', parent:'PH', layers:{ weather:s12(0,0,0,1,1,1,1,1,1,1,1,0), beaches:s12(0,0,0,1,1,1,1,1,1,1,1,0), disaster:rep(1) }, geometry:{ type:'Polygon', coordinates:[[[122.5,10.5],[123.5,11.0],[124.5,11.5],[125.0,11.0],[124.5,10.0],[123.5,9.5],[122.5,9.5],[121.5,9.5],[121.0,10.5],[122.5,10.5]]] } },
   { id:'ea-mindanao-palawan', name:'Mindanao & Palawan (South of Typhoon Belt)', parent:'PH', layers:{ weather:s12(0,0,0,0,0,1,1,1,1,1,0,0), beaches:s12(0,0,0,0,0,1,1,1,1,1,0,0) }, geometry:{ type:'Polygon', coordinates:[[[117.5,9.0],[118.5,9.5],[119.5,10.0],[120.5,10.5],[121.5,9.0],[122.5,8.5],[124.0,7.5],[125.5,8.0],[126.0,8.5],[125.5,9.0],[124.0,8.5],[122.5,8.0],[120.5,9.0],[119.0,9.5],[117.5,9.0]]] } },
-  { id:'ea-borneo-equatorial', name:'Borneo (Equatorial — Always Rainy)', parent:'MY', layers:{ weather:s12(2,2,2,2,2,2,1,1,1,2,2,2), health:rep(2) }, geometry:{ type:'Polygon', coordinates:[[[108.0,1.5],[109.5,1.0],[111.0,1.5],[113.0,1.5],[114.5,2.0],[115.5,3.5],[117.0,4.0],[118.0,5.0],[118.0,6.5],[116.5,7.0],[115.0,6.5],[113.0,5.5],[111.0,4.0],[109.5,2.5],[108.0,1.5]]] } },
+  { id:'ea-borneo-equatorial', name:'Borneo (Equatorial: Always Rainy)', parent:'MY', layers:{ weather:s12(2,2,2,2,2,2,1,1,1,2,2,2), health:rep(2) }, geometry:{ type:'Polygon', coordinates:[[[108.0,1.5],[109.5,1.0],[111.0,1.5],[113.0,1.5],[114.5,2.0],[115.5,3.5],[117.0,4.0],[118.0,5.0],[118.0,6.5],[116.5,7.0],[115.0,6.5],[113.0,5.5],[111.0,4.0],[109.5,2.5],[108.0,1.5]]] } },
   { id:'ea-bali-lombok', name:'Bali & Lombok (Dry Season Apr–Oct)', parent:'ID', layers:{ weather:s12(2,2,2,1,0,0,0,0,0,1,2,2), beaches:s12(2,2,2,1,0,0,0,0,0,1,2,2) }, geometry:{ type:'Polygon', coordinates:[[[114.5,-8.8],[115.5,-8.2],[116.5,-8.2],[117.5,-8.8],[117.5,-9.0],[116.5,-9.0],[115.5,-8.8],[114.5,-9.0],[114.5,-8.8]]] } },
   { id:'ea-java-west-jakarta', name:'West Java & Jakarta (Flooding Nov–Mar)', parent:'ID', layers:{ weather:s12(2,3,2,1,1,0,0,0,0,0,1,2), disaster:s12(0,2,3,1,0,0,0,0,0,0,0,1) }, geometry:{ type:'Polygon', coordinates:[[[106.0,-5.8],[107.5,-6.0],[109.0,-6.5],[109.5,-7.0],[109.0,-7.5],[107.5,-7.5],[106.0,-7.0],[105.5,-6.5],[106.0,-5.8]]] } },
   { id:'ea-sumatra-west-coast', name:'Sumatra West Coast (Extreme Rainfall)', parent:'ID', layers:{ weather:s12(2,2,3,3,2,1,1,1,1,2,3,2), disaster:rep(2) }, geometry:{ type:'Polygon', coordinates:[[[95.5,5.5],[97.0,4.5],[98.0,3.0],[99.0,2.0],[100.0,1.0],[101.0,0.0],[103.0,-2.5],[104.5,-5.0],[106.0,-6.0],[105.5,-6.5],[104.0,-5.5],[102.5,-3.5],[101.0,-1.0],[100.5,0.5],[99.5,1.5],[98.5,3.0],[97.5,4.5],[96.0,5.0],[95.5,5.5]]] } },
@@ -5386,7 +5386,7 @@ const CLIMATE_ZONES = [
   { id:'oc-queensland-tropical', name:'Tropical Queensland (Wet Season Nov–Apr)', parent:'AU', layers:{ weather:s12(2,2,3,2,0,0,0,0,0,0,1,2), disaster:s12(3,3,2,1,0,0,0,0,0,0,0,2), beaches:s12(2,2,3,2,0,0,0,0,0,0,1,2) }, geometry:{ type:'Polygon', coordinates:[[[138.0,-20.0],[142.0,-18.5],[144.0,-17.5],[146.0,-17.0],[148.0,-17.5],[150.0,-20.0],[149.0,-22.0],[148.0,-24.0],[146.5,-25.0],[145.0,-25.0],[143.0,-24.0],[141.0,-22.0],[138.5,-20.0],[138.0,-20.0]]] } },
   { id:'oc-queensland-se', name:'SE Queensland & Gold Coast', parent:'AU', layers:{ weather:s12(1,1,1,1,0,0,0,0,0,0,1,1), beaches:s12(0,0,1,1,0,0,0,0,0,0,0,0) }, geometry:{ type:'Polygon', coordinates:[[[149.5,-24.5],[151.5,-26.0],[153.0,-27.5],[153.5,-29.5],[152.5,-30.0],[151.0,-30.5],[149.5,-30.0],[148.5,-28.0],[149.5,-24.5]]] } },
   { id:'oc-outback-core', name:'Australian Outback (Extreme Heat Oct–Mar)', parent:'AU', layers:{ weather:s12(3,3,2,1,0,0,0,0,0,1,2,3) }, geometry:{ type:'Polygon', coordinates:[[[118.0,-22.0],[126.0,-22.0],[130.0,-22.0],[134.0,-22.0],[138.0,-22.0],[138.0,-28.0],[134.0,-30.0],[130.0,-30.0],[126.0,-28.0],[122.0,-26.0],[118.0,-24.0],[118.0,-22.0]]] } },
-  { id:'oc-sw-australia-perth', name:'SW Australia — Perth Mediterranean', parent:'AU', layers:{ weather:s12(0,0,0,0,1,2,2,2,1,0,0,0), beaches:s12(0,0,0,0,1,2,2,2,1,0,0,0) }, geometry:{ type:'Polygon', coordinates:[[[113.5,-32.0],[115.0,-32.5],[116.5,-33.5],[116.5,-35.5],[115.0,-35.0],[113.5,-33.5],[113.5,-32.0]]] } },
+  { id:'oc-sw-australia-perth', name:'SW Australia: Perth Mediterranean', parent:'AU', layers:{ weather:s12(0,0,0,0,1,2,2,2,1,0,0,0), beaches:s12(0,0,0,0,1,2,2,2,1,0,0,0) }, geometry:{ type:'Polygon', coordinates:[[[113.5,-32.0],[115.0,-32.5],[116.5,-33.5],[116.5,-35.5],[115.0,-35.0],[113.5,-33.5],[113.5,-32.0]]] } },
   { id:'oc-south-island-nz', name:'New Zealand South Island', parent:'NZ', layers:{ weather:s12(1,1,1,2,2,2,2,2,2,1,1,1) }, geometry:{ type:'Polygon', coordinates:[[[166.0,-45.5],[167.5,-46.0],[168.5,-46.5],[169.5,-46.5],[170.5,-44.5],[171.5,-42.5],[172.5,-41.0],[173.5,-42.5],[172.0,-44.0],[170.5,-45.5],[168.5,-46.0],[167.0,-46.5],[166.0,-45.5]]] } },
   { id:'oc-north-island-nz', name:'New Zealand North Island', parent:'NZ', layers:{ weather:s12(1,1,1,1,1,2,2,2,1,0,0,1) }, geometry:{ type:'Polygon', coordinates:[[[172.5,-41.0],[173.0,-40.5],[174.5,-39.5],[175.5,-39.0],[176.5,-38.0],[177.5,-38.5],[178.0,-39.5],[177.5,-41.0],[176.0,-41.5],[175.0,-42.0],[173.5,-41.5],[172.5,-41.0]]] } },
   { id:'oc-polynesia', name:'Polynesia (Fiji / Samoa / Tonga)', parent:'FJ', layers:{ weather:s12(1,2,2,1,0,0,0,0,0,0,0,1), beaches:s12(1,2,2,1,0,0,0,0,0,0,0,1), disaster:s12(2,3,3,2,0,0,0,0,0,0,0,2) }, geometry:{ type:'Polygon', coordinates:[[[172.0,-23.0],[178.0,-23.0],[179.5,-18.0],[178.0,-13.5],[175.0,-10.0],[172.0,-14.0],[172.0,-23.0]]] } },
@@ -5423,12 +5423,12 @@ const TERRITORIES = [
 ];
 
 // ─── Admin-2 county/municipality data ─────────────────────────────────────────
-// GeoJSON source: geoBoundaries (https://www.geoboundaries.org) — CC-BY 4.0.
+// GeoJSON source: geoBoundaries (https://www.geoboundaries.org): CC-BY 4.0.
 // Files self-hosted in data/admin2/. See data/admin2/README.md for download
 // instructions and update procedure.
 
 // ISO 3166-1 alpha-2 → alpha-3 mapping.
-// Only countries that have CD_A1 data are included — admin-2 is only loaded
+// Only countries that have CD_A1 data are included: admin-2 is only loaded
 // for countries where we already have sub-national province data.
 const ISO2_TO_ISO3 = {
   AR:'ARG', AU:'AUS', BR:'BRA', CA:'CAN', CN:'CHN', CO:'COL',
@@ -5519,7 +5519,7 @@ const NYPD_PRECINCTS = [
   {p:122,b:"Staten Island", lat:40.5725,lng:-74.1046,ci:2},
   {p:123,b:"Staten Island", lat:40.5428,lng:-74.1778,ci:1},
 ];
-// GATE 2 — VISA_DATA additions (appended via Object.assign)
+// GATE 2: VISA_DATA additions (appended via Object.assign)
 const VISA_DATA_ADDITIONS = {
   // ── Europe (remaining) ──────────────────────────────────────────────────────
   // Schengen / EU members not yet covered
@@ -5668,7 +5668,7 @@ const VISA_DATA_ADDITIONS = {
 };
 
 if(typeof VISA_DATA!=="undefined"&&typeof VISA_DATA_ADDITIONS!=="undefined")Object.assign(VISA_DATA,VISA_DATA_ADDITIONS);
-// GATE 3 — COST_DETAILS additions
+// GATE 3: COST_DETAILS additions
 const COST_DETAILS_ADDITIONS = {
   // Europe
   AD: { hostel:60, meal:14, transport:5,  coffee:3, beer:4,  note:'No VAT makes electronics and tobacco cheap; hotels are pricey' },
@@ -5892,15 +5892,15 @@ const COST_DETAILS_ADDITIONS = {
 };
 
 if(typeof COST_DETAILS!=="undefined"&&typeof COST_DETAILS_ADDITIONS!=="undefined")Object.assign(COST_DETAILS,COST_DETAILS_ADDITIONS);
-// GATE 7 — CD_CLIMATE additions
+// GATE 7: CD_CLIMATE additions
 const CD_CLIMATE_ADDITIONS = {
-  // Europe — Nordic
+  // Europe: Nordic
   NO: { temp:[-4,-4, 0, 5,11,16,18,17,13, 7, 2,-2], rain:[ 55, 40, 46, 41, 45, 58, 68, 80, 86, 93, 75, 64] },
   IS: { temp:[ 0, 1, 1, 4, 8,11,13,13,10, 6,  2, 1], rain:[ 76, 65, 62, 59, 42, 44, 52, 63, 72, 87, 81, 80] },
-  // Europe — Western
+  // Europe: Western
   LU: { temp:[ 1, 2, 6,10,15,18,20,20,17,12,  6, 2], rain:[ 72, 60, 64, 59, 64, 75, 68, 72, 63, 67, 70, 76] },
   MT: { temp:[13,13,15,18,22,26,30,30,27,23, 18,14], rain:[ 80, 46, 37, 19,  6,  2,  0,  4, 27, 76,103, 96] },
-  // Europe — Eastern / Balkans
+  // Europe: Eastern / Balkans
   RO: { temp:[-3,-1, 4,11,17,21,23,23,18,12,  5,-1], rain:[ 37, 35, 31, 37, 58, 73, 62, 58, 40, 27, 40, 42] },
   BG: { temp:[ 1, 3, 8,13,18,22,25,25,21,15,  8, 3], rain:[ 36, 28, 31, 42, 56, 65, 52, 38, 33, 31, 44, 51] },
   MK: { temp:[ 1, 4, 8,13,18,22,25,25,21,14,  8, 2], rain:[ 30, 28, 31, 38, 46, 45, 31, 26, 32, 38, 44, 39] },
@@ -5937,7 +5937,7 @@ const CD_CLIMATE_ADDITIONS = {
   // North Africa
   DZ: { temp:[ 9,11,14,17,22,26,30,29,25,20, 14,10], rain:[ 26, 17, 18,  9,  5,  1,  0,  0,  4, 12, 24, 28] },
   LY: { temp:[12,14,17,21,25,28,28,28,26,22, 17,13], rain:[ 22,  9,  7,  2,  1,  0,  0,  0,  0,  2, 10, 24] },
-  // Sub-Saharan Africa — East
+  // Sub-Saharan Africa: East
   SD: { temp:[22,24,28,33,38,40,38,38,37,35, 28,23], rain:[  0,  0,  0,  0,  0,  1, 17, 30, 11,  1,  0,  0] },
   SS: { temp:[27,28,31,33,32,30,28,28,28,29, 28,27], rain:[  2,  3, 19, 62,130,122,127,127,100, 66, 18,  4] },
   ER: { temp:[17,18,21,25,28,32,33,32,30,26, 22,18], rain:[  2,  4,  4,  3,  5, 11, 37, 62, 31, 11,  4,  2] },
@@ -5946,7 +5946,7 @@ const CD_CLIMATE_ADDITIONS = {
   UG: { temp:[24,25,25,24,23,21,20,21,22,22, 23,23], rain:[ 52, 63, 97,157,119, 67, 44, 51, 88,117, 93, 60] },
   RW: { temp:[20,20,20,19,19,18,18,19,20,20, 19,19], rain:[ 68, 92,132,146, 75, 18,  9, 20, 76,106, 96, 63] },
   BI: { temp:[21,21,20,19,19,18,18,19,20,21, 20,20], rain:[ 84, 90,143,130, 73, 15,  9, 12, 57,105,108, 77] },
-  // Sub-Saharan Africa — Southern
+  // Sub-Saharan Africa: Southern
   MZ: { temp:[28,28,27,25,22,20,19,20,22,24, 26,28], rain:[154,148,101, 53, 23, 18, 13, 11, 17, 37, 74,132] },
   ZM: { temp:[22,22,22,22,22,19,18,20,23,25, 25,23], rain:[195,191,134, 44,  4,  0,  0,  0,  0,  8, 75,170] },
   ZW: { temp:[23,22,22,21,18,15,14,16,19,23, 23,22], rain:[166,149, 90, 35,  8,  3,  2,  2,  5, 26, 94,152] },
@@ -5960,7 +5960,7 @@ const CD_CLIMATE_ADDITIONS = {
   MU: { temp:[27,28,27,26,23,22,21,21,22,23, 24,26], rain:[157,172,133, 87, 76, 59, 64, 63, 45, 47, 53, 95] },
   SC: { temp:[28,29,29,29,28,27,26,26,27,27, 27,27], rain:[385,268,147, 77, 63, 55, 52, 75, 92,150,262,374] },
   KM: { temp:[28,29,29,28,27,25,24,24,25,26, 27,28], rain:[293,224,191,138, 79, 33, 15, 15, 28, 71,147,247] },
-  // Sub-Saharan Africa — Central
+  // Sub-Saharan Africa: Central
   CD: { temp:[26,26,26,27,26,24,23,24,25,26, 26,26], rain:[125,111,155,183,139, 38, 14, 28, 81,151,195,139] },
   CG: { temp:[26,27,27,27,25,23,22,23,25,26, 26,26], rain:[105,127,150,169, 80, 11,  4, 12, 58,134,184,132] },
   CF: { temp:[24,25,27,27,27,26,25,25,26,26, 25,24], rain:[  8, 18, 63,114,139,113, 93,116,155,118, 45, 12] },
@@ -5968,7 +5968,7 @@ const CD_CLIMATE_ADDITIONS = {
   GA: { temp:[26,27,27,27,27,24,23,24,25,25, 26,26], rain:[247,221,285,276,210, 43, 15, 47,198,320,333,235] },
   GQ: { temp:[26,26,26,26,27,25,24,24,25,26, 26,26], rain:[ 84, 89,166,198,194, 89, 47, 61,201,279,216,118] },
   ST: { temp:[27,27,28,28,27,25,23,23,24,25, 27,27], rain:[ 99, 72, 73,131,210,251,135, 53, 73,214,266,180] },
-  // Sub-Saharan Africa — West
+  // Sub-Saharan Africa: West
   TD: { temp:[17,21,26,33,37,35,31,30,32,33, 24,18], rain:[  0,  0,  2, 12, 31, 52, 82,107, 52, 11,  1,  0] },
   NE: { temp:[22,25,30,35,38,36,32,30,33,36, 28,22], rain:[  0,  0,  1,  4, 28, 65, 98, 91, 48, 11,  1,  0] },
   ML: { temp:[23,26,30,34,38,35,32,31,33,35, 28,23], rain:[  0,  0,  1,  3, 25, 58,117,107, 77, 18,  2,  0] },
@@ -5982,7 +5982,7 @@ const CD_CLIMATE_ADDITIONS = {
   CI: { temp:[27,28,29,28,28,25,24,24,25,26, 27,27], rain:[ 28, 49, 90,127,262,458,194, 95,121,173, 85, 35] },
   TG: { temp:[27,28,30,30,29,27,26,26,27,28, 28,27], rain:[ 36, 55, 90,109,131,145, 72, 45, 86,100, 60, 40] },
   BJ: { temp:[27,28,30,31,30,28,27,26,27,28, 28,27], rain:[ 18, 36, 75,112,125,181,119, 71,113,126, 29, 14] },
-  // Sub-Saharan Africa — Indian Ocean islands
+  // Sub-Saharan Africa: Indian Ocean islands
   CV: { temp:[22,22,22,23,24,26,27,28,28,27, 25,23], rain:[  2,  1,  0,  0,  0,  2, 13, 28, 46, 30,  6,  1] },
   // South America
   VE: { temp:[26,27,28,29,28,27,27,27,27,27, 26,26], rain:[ 23, 12, 15, 33, 85,124,124,119,108, 94, 62, 36] },
@@ -6002,7 +6002,7 @@ const CD_CLIMATE_ADDITIONS = {
   NI: { temp:[26,27,29,30,30,29,28,28,28,28, 27,26], rain:[  5,  3,  5, 22,143,210,143,177,192,213, 75, 17] },
   CR: { temp:[22,22,23,23,23,22,21,22,22,22, 22,22], rain:[ 13, 10, 14, 40,222,286,239,302,333,282,121, 31] },
   PA: { temp:[26,26,27,27,27,27,27,27,27,26, 26,26], rain:[ 46, 25, 20, 61,152,143,128,138,146,189,229,145] },
-  // Pacific — Oceania
+  // Pacific: Oceania
   PG: { temp:[28,28,28,27,27,26,26,26,26,27, 28,28], rain:[148,149,162,172,180,187,144,109,111,130,157,162] },
   SB: { temp:[28,28,28,27,27,26,26,26,26,27, 28,28], rain:[267,218,230,264,260,203,163,135,144,161,184,219] },
   VU: { temp:[29,29,28,27,25,23,22,22,23,25, 27,28], rain:[355,303,358,300,193, 92, 69, 78,118,149,147,198] },
@@ -6063,7 +6063,7 @@ const CD_CLIMATE_ADDITIONS = {
   TN: { temp:[11,12,14,17,21,26,29,29,25,20,15,12], rain:[ 52, 44, 44, 37, 26, 14,  4,  7, 32, 52, 66, 58] },
 };
 
-if(typeof CD_CLIMATE!=="undefined"&&typeof CD_CLIMATE_ADDITIONS!=="undefined")Object.assign(CD_CLIMATE,CD_CLIMATE_ADDITIONS);// Nomadic Almanac — Health Data
+if(typeof CD_CLIMATE!=="undefined"&&typeof CD_CLIMATE_ADDITIONS!=="undefined")Object.assign(CD_CLIMATE,CD_CLIMATE_ADDITIONS);// Nomadic Almanac: Health Data
 // ALTITUDE_DATA (VACCINE_DATA lives in data-detail.js)
 // Generated 2026-06-04
 
@@ -6081,7 +6081,7 @@ const ALTITUDE_DATA = {
   SV: 658,    // San Salvador
   VE: 900,    // Caracas
   AR: 1782,   // Mendoza (primary Andes tourist region); Buenos Aires sea level
-  // ── Africa — East & Horn ──────────────────────────────────────────────────
+  // ── Africa: East & Horn ──────────────────────────────────────────────────
   ET: 2355,   // Addis Ababa
   ER: 2325,   // Asmara
   RW: 1567,   // Kigali
@@ -6093,27 +6093,27 @@ const ALTITUDE_DATA = {
   ZM: 1280,   // Lusaka
   ZW: 1490,   // Harare
   MW: 1030,   // Lilongwe
-  // ── Africa — West & Central ───────────────────────────────────────────────
+  // ── Africa: West & Central ───────────────────────────────────────────────
   CM: 760,    // Yaounde
-  // ── Africa — North ────────────────────────────────────────────────────────
+  // ── Africa: North ────────────────────────────────────────────────────────
   MA: 1750,   // Marrakech (Atlas gateway); Rabat is at sea level
   DZ: 728,    // Algiers (Tell Atlas; Tamanrasset 1400m)
   // ── Middle East ───────────────────────────────────────────────────────────
   YE: 2250,   // Sana'a
   SA: 950,    // Riyadh; Abha (Asir) ~2200m primary tourist altitude
   JO: 775,    // Amman
-  // ── Asia — Caucasus ───────────────────────────────────────────────────────
+  // ── Asia: Caucasus ───────────────────────────────────────────────────────
   AM: 990,    // Yerevan
   GE: 490,    // Tbilisi (just under threshold; Kazbegi 1700m is primary tourist destination)
-  // ── Asia — Central ────────────────────────────────────────────────────────
+  // ── Asia: Central ────────────────────────────────────────────────────────
   KG: 760,    // Bishkek (Tian Shan peaks 3000-7000m)
   TJ: 800,    // Dushanbe (Pamir Highway primary route > 4000m)
   AF: 1791,   // Kabul
   KZ: 1050,   // Nur-Sultan (Astana)
-  // ── Asia — South ─────────────────────────────────────────────────────────
+  // ── Asia: South ─────────────────────────────────────────────────────────
   NP: 1300,   // Kathmandu; trekking areas up to 5000m+
   BT: 2334,   // Thimphu
-  // ── Asia — East ──────────────────────────────────────────────────────────
+  // ── Asia: East ──────────────────────────────────────────────────────────
   CN: 3490,   // Lhasa (Tibet; primary high-altitude tourist destination)
   MN: 1350,   // Ulaanbaatar
   // ── Europe ────────────────────────────────────────────────────────────────
@@ -6125,35 +6125,35 @@ const ALTITUDE_DATA = {
   PG: 1500,   // Papua New Guinea highlands (primary inland tourist destination)
 };
 
-// ─── CD_CANNABIS gap-fill — 63 remaining UN member states ────────────────────
+// ─── CD_CANNABIS gap-fill: 63 remaining UN member states ────────────────────
 // Sources: HRI Global Drug Policy Index 2024, EMCDDA, individual country legislation
 // Traveller perspective: reflects realistic risk to a foreign visitor.
 if (typeof CD_CANNABIS !== 'undefined') Object.assign(CD_CANNABIS, {
-  // ── Tier 1: Medical/Decrim — personal possession formally or effectively tolerated ──
+  // ── Tier 1: Medical/Decrim: personal possession formally or effectively tolerated ──
   AG:1,   // Antigua & Barbuda: decriminalised personal possession 2018
-  DM:1,   // Dominica: Drugs (Prevention of Misuse) (Amendment) Act 2023 — up to 28g decrim
-  GD:1,   // Grenada: Cannabis (Amendment) Act 2019 — up to 14g decriminalised
+  DM:1,   // Dominica: Drugs (Prevention of Misuse) (Amendment) Act 2023: up to 28g decrim
+  GD:1,   // Grenada: Cannabis (Amendment) Act 2019: up to 14g decriminalised
   KN:1,   // St Kitts & Nevis: decriminalised 2023 (up to 14g)
-  LC:1,   // Saint Lucia: Misuse of Drugs (Amendment) Act 2022 — personal amounts decrim
+  LC:1,   // Saint Lucia: Misuse of Drugs (Amendment) Act 2022: personal amounts decrim
   LS:1,   // Lesotho: first African country to license medicinal cultivation (2017); personal rarely prosecuted
-  MW:1,   // Malawi: Cannabis Regulation Act 2020 — licensed production; personal use decriminalised
+  MW:1,   // Malawi: Cannabis Regulation Act 2020: licensed production; personal use decriminalised
   VC:1,   // St Vincent & the Grenadines: decriminalised 2018; medical scheme active
   VE:1,   // Venezuela: Supreme Court (TSJ) ruled personal consumption not punishable
 
-  // ── Tier 2: Minor penalties — technically illegal; small amounts = fine / caution ──
+  // ── Tier 2: Minor penalties: technically illegal; small amounts = fine / caution ──
   AD:2,   // Andorra: follows broadly European norms; possession = administrative fine
   AO:2,   // Angola: illegal; police rarely enforce for personal amounts
   BI:2,   // Burundi: illegal; enforcement minimal outside Bujumbura
   BJ:2,   // Benin: illegal; minor fine in practice
   BS:2,   // Bahamas: illegal; tourists typically receive fine for minor possession
-  BW:2,   // Botswana: Drugs and Related Substances Act — fine or short sentence, rarely applied
+  BW:2,   // Botswana: Drugs and Related Substances Act: fine or short sentence, rarely applied
   CD:2,   // DR Congo: illegal; enforcement highly irregular
   CF:2,   // Central African Republic: illegal; state capacity limits enforcement
   CG:2,   // Republic of Congo: illegal; minor penalties in practice
   CI:2,   // Côte d'Ivoire: illegal; minor fine common
   CM:2,   // Cameroon: illegal; minor possession = fine; widespread use in rural north
   CV:2,   // Cape Verde: illegal; minor penalty; significant transit country
-  FJ:2,   // Fiji: Illicit Drugs Control Act — possession = fine; enforcement inconsistent
+  FJ:2,   // Fiji: Illicit Drugs Control Act: possession = fine; enforcement inconsistent
   FM:2,   // Micronesia: illegal; enforcement extremely limited
   GA:2,   // Gabon: illegal; minor penalties; traditional use tolerated outside Libreville
   GN:2,   // Guinea: illegal; enforcement minimal; widespread rural cultivation
@@ -6186,20 +6186,20 @@ if (typeof CD_CANNABIS !== 'undefined') Object.assign(CD_CANNABIS, {
   ZM:2,   // Zambia: Cannabis Licensing Act 2021 allows export; personal possession still illegal but rarely enforced
   ZW:2,   // Zimbabwe: licensed cultivation for export (2018); possession still illegal
 
-  // ── Tier 3: Severe penalties — significant prison time; foreigners regularly prosecuted ──
+  // ── Tier 3: Severe penalties: significant prison time; foreigners regularly prosecuted ──
   DJ:3,   // Djibouti: up to 10 years for possession; strictly enforced
   GM:3,   // Gambia: Islamic penal influences; up to 5 years; foreigners prosecuted
   KM:3,   // Comoros: Islamic law; strict prosecution; significant sentences
-  MU:3,   // Mauritius: Dangerous Drugs Act — up to 5 years for possession; strictly enforced; foreigners targeted
+  MU:3,   // Mauritius: Dangerous Drugs Act: up to 5 years for possession; strictly enforced; foreigners targeted
   PS:3,   // Palestine: illegal in both PA and Hamas-controlled areas; strict Hamas enforcement in Gaza
-  SC:3,   // Seychelles: Misuse of Drugs Act — up to 10 years; regularly enforced against tourists
+  SC:3,   // Seychelles: Misuse of Drugs Act: up to 10 years; regularly enforced against tourists
   SN:3,   // Senegal: mandatory 2+ years for first offence; widespread arrests; tourists prosecuted
-  TJ:3,   // Tajikistan: Criminal Code — 5-12 years for possession; strict enforcement
+  TJ:3,   // Tajikistan: Criminal Code: 5-12 years for possession; strict enforcement
   TM:3,   // Turkmenistan: among world's strictest drug laws; long sentences for any amount
-  TW:3,   // Taiwan: Narcotics Hazard Prevention Act — 3-7 years possession; zero tolerance enforcement
+  TW:3,   // Taiwan: Narcotics Hazard Prevention Act: 3-7 years possession; zero tolerance enforcement
 });
 
-// AUTO-GENERATED city additions — review before integrating
+// AUTO-GENERATED city additions: review before integrating
 CITIES.push(
   mk('Malaga','ES',36.7213,-4.4214,{ weather:s12(1,1,1,1,1,1,2,2,1,1,1,1), safety:rep(0), cost:rep(0), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,3,3,3,2,2,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(0), road:rep(0), vaccines:rep(0) }),
   mk('Palma de Mallorca','ES',39.5696,2.6502,{ weather:s12(1,1,1,1,1,1,2,2,1,1,1,1), safety:rep(0), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(1), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,3,3,3,3,2,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(0), road:rep(0), vaccines:rep(0) }),
@@ -6290,7 +6290,7 @@ CITIES.push(
   mk('Hulhumalé','MV',4.2122,73.5407,{ weather:s12(0,0,0,1,2,2,2,2,2,2,1,1), safety:rep(0), cost:rep(2), family:rep(0), solo:rep(1), remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,1,1,1,1,2,2), disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:rep(0), road:rep(0), vaccines:rep(1) }),
 );
 
-// AUTO-GENERATED capital-city additions — review before integrating
+// AUTO-GENERATED capital-city additions: review before integrating
 CITIES.push(
   mk('Luxembourg City','LU',49.6116,6.1319,{ weather:s12(2,2,1,1,1,1,1,1,1,2,2,2), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), road:rep(0), vaccines:rep(0) }),
   mk('Oslo','NO',59.9139,10.7522,{ weather:s12(3,3,2,2,1,1,1,1,1,2,3,3), safety:rep(0), cost:rep(3), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(0), health:rep(0), crowds:s12(1,1,1,1,2,3,3,3,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), road:rep(0), vaccines:rep(0) }),
@@ -6344,7 +6344,7 @@ CITIES.push(
   mk('Moroni','KM',-11.7172,43.2473,{ weather:s12(2,2,2,1,1,0,0,0,1,1,2,2), safety:rep(2), cost:rep(2), family:rep(1), solo:rep(2), remote:rep(3), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) }),
 );
 
-// AUTO-GENERATED capitals (completion) — review
+// AUTO-GENERATED capitals (completion): review
 CITIES.push(
   mk('Asmara','ER',15.3229,38.9251,{ weather:s12(1,1,1,1,2,2,2,2,1,1,1,1), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(3), corrupt:rep(3), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(2), road:rep(2), vaccines:rep(2) }),
   mk('Djibouti','DJ',11.5721,43.1456,{ weather:s12(1,1,1,2,3,3,3,3,3,2,1,1), safety:rep(2), cost:rep(2), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(1), road:rep(2), vaccines:rep(2) }),
@@ -6376,7 +6376,7 @@ CITIES.push(
   mk('Asuncion','PY',-25.2637,-57.5759,{ weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(1), cost:rep(0), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1) }),
 );
 
-// AUTO-GENERATED 1000-city expansion — review before integrating
+// AUTO-GENERATED 1000-city expansion: review before integrating
 CITIES.push(
   mk('Toulouse','FR',43.6047,1.4442,{ weather:s12(1,1,1,0,0,1,1,1,0,1,1,1), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(3), road:rep(1), vaccines:rep(0) }),
   mk('Nantes','FR',47.2184,-1.5536,{ weather:s12(1,1,1,1,0,0,1,1,0,1,1,1), safety:rep(1), cost:rep(1), family:rep(0), solo:rep(0), remote:rep(0), corrupt:rep(1), health:rep(0), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1), disaster:rep(0), visa:rep(0), lgbtq:rep(0), beaches:rep(2), road:rep(1), vaccines:rep(0) }),
@@ -6902,7 +6902,7 @@ CITIES.push(
   mk('Dnipro','UA',48.4647,35.0462,{ weather:s12(3,3,2,1,1,1,1,1,1,1,2,3), safety:rep(3), cost:rep(0), family:rep(3), solo:rep(3), remote:rep(3), corrupt:rep(3), health:rep(2), crowds:s12(1,1,1,1,2,2,2,2,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(1) }),
 );
 
-// ── +2861 world cities (workflow w6ljuy34n, 2026-06-06) — deduped vs existing, secret-scanned, brace-balanced ──
+// ── +2861 world cities (workflow w6ljuy34n, 2026-06-06): deduped vs existing, secret-scanned, brace-balanced ──
 CITIES.push(mk('Kunshan','CN',31.3675,120.9647,{ weather:s12(1,1,2,2,2,2,3,3,2,2,1,1), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(1), remote:rep(2), corrupt:rep(1), health:rep(1), crowds:s12(1,1,1,2,2,2,3,2,2,2,1,1), disaster:rep(1), visa:rep(1), lgbtq:rep(1), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
 CITIES.push(mk('Taicang','CN',31.4527,121.1013,{ weather:s12(1,1,2,2,2,2,3,3,2,2,1,1), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(1), remote:rep(2), corrupt:rep(1), health:rep(1), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1), disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
 CITIES.push(mk('Changshu','CN',31.6541,120.7522,{ weather:s12(1,1,2,2,2,2,3,3,2,2,1,1), safety:rep(1), cost:rep(2), family:rep(1), solo:rep(1), remote:rep(2), corrupt:rep(1), health:rep(1), crowds:s12(1,1,1,1,2,2,2,2,1,1,1,1), disaster:rep(1), visa:rep(1), lgbtq:rep(2), beaches:rep(3), road:rep(1), vaccines:rep(1) }));
@@ -9765,7 +9765,7 @@ CITIES.push(mk('Pangkal Pinang','ID',-2.1316,106.1169,{ weather:s12(3,3,2,2,1,1,
 CITIES.push(mk('Tanjung Pinang','ID',0.9187,104.4529,{ weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(1), corrupt:rep(2), health:rep(2), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(3), beaches:rep(1), road:rep(2), vaccines:rep(2) }));
 CITIES.push(mk('Batam','ID',1.0784,104.0305,{ weather:s12(2,2,2,2,1,1,1,1,1,2,2,2), safety:rep(1), cost:rep(1), family:rep(1), solo:rep(1), remote:rep(2), corrupt:rep(2), health:rep(1), crowds:s12(1,1,1,2,2,2,2,2,2,1,1,2), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(1), vaccines:rep(2) }));
 
-// ── Madagascar — additional cities (highlands, coasts, and remote regions) ──
+// ── Madagascar: additional cities (highlands, coasts, and remote regions) ──
 CITIES.push(mk('Antsirabe','MG',-19.8659,47.0333,{ weather:s12(2,2,1,1,1,1,1,1,1,1,1,2), safety:rep(2), cost:rep(1), family:rep(1), solo:rep(2), remote:rep(1), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(1), visa:rep(0), lgbtq:rep(2), beaches:rep(3), road:rep(2), vaccines:rep(3) }));
 CITIES.push(mk('Morondava','MG',-20.2848,44.2841,{ weather:s12(3,3,2,1,1,1,1,1,1,2,2,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,2,2,2,2,2,1,1,1), disaster:rep(2), visa:rep(0), lgbtq:rep(2), beaches:rep(1), road:rep(3), vaccines:rep(3) }));
 CITIES.push(mk('Sambava','MG',-14.2667,50.1667,{ weather:s12(3,3,2,2,1,1,1,1,2,2,3,3), safety:rep(2), cost:rep(1), family:rep(2), solo:rep(2), remote:rep(2), corrupt:rep(3), health:rep(3), crowds:s12(1,1,1,1,1,1,1,1,1,1,1,1), disaster:rep(3), visa:rep(0), lgbtq:rep(2), beaches:rep(2), road:rep(3), vaccines:rep(3) }));

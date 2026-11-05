@@ -6,7 +6,7 @@ Steps:
 3. For bulk operations: calculate the total number of calls/operations needed and compare against any known rate limits or quotas.
 4. For file writes: confirm the target file exists and the write location is correct.
 5. Report the result as GO or STOP:
-   - GO: all checks passed — state what was verified and proceed with the task.
-   - STOP: one or more checks failed — state exactly what failed and what must be resolved before proceeding. Do NOT start the main task.
+   - GO: all checks passed: state what was verified and proceed with the task.
+   - STOP: one or more checks failed: state exactly what failed and what must be resolved before proceeding. Do NOT start the main task.
 
 Do not skip this check. Do not assume an API works without testing it.

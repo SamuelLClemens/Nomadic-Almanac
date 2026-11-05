@@ -1,4 +1,4 @@
-# Nomadic Almanac — Visual Verifier Skill
+# Nomadic Almanac: Visual Verifier Skill
 
 Use this skill after ANY code change to the Nomadic Almanac project.
 It boots the app, drives every key UI surface, captures evidence, and
@@ -13,7 +13,7 @@ reports PASS / FAIL with screenshots.
 pkill -f "almanac_server" 2>/dev/null; sleep 1
 cat > /tmp/almanac_server2.py << 'EOF'
 import http.server, os, socketserver
-port = int(os.environ.get('PORT', 7433))
+port = int(os.environ.get('PORT', 7432))
 os.chdir("/Users/zim/Desktop/Claude Code")
 class H(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -24,10 +24,10 @@ S(("", port), H).serve_forever()
 EOF
 python3 /tmp/almanac_server2.py &
 sleep 3
-curl -s -o /dev/null -w "%{http_code}" http://localhost:7433/index.html
+curl -s -o /dev/null -w "%{http_code}" http://localhost:7432/index.html
 ```
 
-Expected: `200`. If not — server failed, report BLOCKED.
+Expected: `200`. If not: server failed, report BLOCKED.
 
 ---
 
@@ -38,14 +38,14 @@ Use `preview_start` with server name `nomadic-almanac` (launch.json at
 If the browser lands on `chrome-error://`, navigate via:
 
 ```javascript
-window.location.href = 'http://localhost:7433/index.html'
+window.location.href = 'http://localhost:7432/index.html'
 ```
 
 Wait **8 seconds** for `data.js` (~2.6 MB, ~44 k lines) to parse.
 
 ---
 
-## Checklist — drive every surface
+## Checklist: drive every surface
 
 Run each check via `preview_eval` or screenshot. Mark ✅ / ❌ / ⚠️.
 
@@ -54,7 +54,7 @@ Run each check via `preview_eval` or screenshot. Mark ✅ / ❌ / ⚠️.
 // should be null (dismissed) or opacity-0 within 6 s of load
 document.getElementById('loading-overlay')?.style.opacity
 ```
-✅ null or `'0'` — ❌ visible with full opacity after 6 s
+✅ null or `'0'`: ❌ visible with full opacity after 6 s
 
 ### 2. Topbar structure
 ```javascript
@@ -102,7 +102,7 @@ Close by clicking outside, verify `classList.contains('open')` → false.
 ✅ `leafletOk` true; `mapTop` matches `tbHeight + 'px'`
 
 ### 6. Choropleth loads (give it 15 s after overlay dismissal)
-Take screenshot — countries should show coloured fills over satellite basemap.
+Take screenshot: countries should show coloured fills over satellite basemap.
 
 ### 7. Country click → tooltip
 Use `preview_click` to click the centre of a visible country fill.
@@ -136,28 +136,28 @@ window.activeLayers?.has('visa')
 // Must be zero errors
 ```
 Use `preview_console_logs` with `level: 'error'`.  
-✅ 0 errors — ❌ any error is a FAIL.
+✅ 0 errors: ❌ any error is a FAIL.
 
 ---
 
 ## Report format
 
 ```
-## Verification: Nomadic Almanac — <short description of change>
+## Verification: Nomadic Almanac: <short description of change>
 
 **Verdict:** PASS | FAIL | BLOCKED
 
 ### Checklist
-1. Loading overlay — ✅/❌
-2. Topbar structure — ✅/❌  months=N
-3. Primary layers — ✅/❌
-4. More dropdown — ✅/❌
-5. Map / Leaflet — ✅/❌  top=Npx
-6. Choropleth — ✅/❌ (screenshot)
-7. Click tooltip — ✅/❌
-8. Field Guide title — ✅/❌
-9. Passport / Visa — ✅/❌
-10. Console errors — ✅/❌  N errors
+1. Loading overlay: ✅/❌
+2. Topbar structure: ✅/❌  months=N
+3. Primary layers: ✅/❌
+4. More dropdown: ✅/❌
+5. Map / Leaflet: ✅/❌  top=Npx
+6. Choropleth: ✅/❌ (screenshot)
+7. Click tooltip: ✅/❌
+8. Field Guide title: ✅/❌
+9. Passport / Visa: ✅/❌
+10. Console errors: ✅/❌  N errors
 
 ### Findings
 <any ⚠️ observations>
@@ -167,12 +167,12 @@ Use `preview_console_logs` with `level: 'error'`.
 
 ## Known environment notes
 
-- The `preview_start` browser is sandboxed — `XMLHttpRequest` to localhost
+- The `preview_start` browser is sandboxed: `XMLHttpRequest` to localhost
   fails from `chrome-error://`. Always navigate explicitly after start.
 - `data.js` is ~2.6 MB. Allow 8–12 s for first parse; subsequent reloads
   are faster if the browser has cached it.
 - The Esri satellite tile CDN (`arcgisonline.com`) requires network access.
   A black map with no errors usually means the tiles CDN is unreachable or
-  slow — not a code bug.
+  slow, not a code bug.
 - `fitMapBelowTopbar()` runs before Leaflet initialises; the `if (map)`
   guard is intentional and correct.
