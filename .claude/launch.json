@@ -3,8 +3,10 @@
   "configurations": [
     {
       "name": "nomadic-almanac",
-      "runtimeExecutable": "/usr/bin/python3",
-      "runtimeArgs": ["/tmp/almanac_server.py"],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "serve.py"
+      ],
       "port": 7432
     }
   ]
