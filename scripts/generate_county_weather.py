@@ -12,7 +12,7 @@ Data source
   Parameters: T2M (mean 2-metre temperature, °C)
               PRECTOTCORR (precipitation, mm/day → converted to mm/month)
   The API returns pre-computed long-term monthly averages in a single
-  call per location — no manual aggregation required.
+  call per location: no manual aggregation required.
 
 Rating method
 ─────────────
@@ -35,7 +35,7 @@ Performance
   This reduces ~14,000 features to ~3,000–5,000 unique API calls.
   Successful results are cached to scripts/weather_cache.json so the
   script can be safely interrupted and resumed. Failed (null) entries
-  are NOT cached — they are retried on the next run.
+  are NOT cached: they are retried on the next run.
 
 Safety
 ──────
@@ -75,9 +75,9 @@ CACHE_FILE  = SCRIPT_DIR / 'weather_cache.json'
 DATA_JS     = PROJECT_DIR / 'data.js'
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-GRID_RES               = 0.5   # degrees — dedup centroids to reduce API calls
+GRID_RES               = 0.5   # degrees: dedup centroids to reduce API calls
 MAX_WORKERS            = 1     # sequential: one request at a time, no bursting possible
-API_DELAY              = 5.0   # seconds between requests (12 req/min — well under any limit)
+API_DELAY              = 5.0   # seconds between requests (12 req/min: well under any limit)
 CONSECUTIVE_FAIL_LIMIT = 20    # abort only after 20 genuine non-rate-limit failures in a row
 PROGRESS_INTERVAL      = 100   # print progress every N features per country
 RATE_LIMIT_BACKOFF     = 300   # seconds to wait after a 429 (5 min per retry)
@@ -156,14 +156,14 @@ def fetch_normals(lat, lon, retries=3):
     """
     Fetch monthly climate normals from NASA POWER Climatology API.
     Returns:
-      - list[int]  — 12 monthly ratings on success
-      - None       — data / parse error (should NOT be retried indefinitely)
-      - RATE_LIMIT_SENTINEL — 429 throttle exhausted all retries (treat as
+      - list[int] : 12 monthly ratings on success
+      - None      : data / parse error (should NOT be retried indefinitely)
+      - RATE_LIMIT_SENTINEL: 429 throttle exhausted all retries (treat as
         transient; caller should NOT count toward the consecutive-fail abort)
 
     API: https://power.larc.nasa.gov/api/temporal/climatology/point
     No API key required. No daily quota (but has a request-rate throttle).
-    Precipitation is returned in mm/day — converted to mm/month here.
+    Precipitation is returned in mm/day: converted to mm/month here.
     """
     params = urlencode({
         'parameters': 'T2M,PRECTOTCORR',
@@ -199,7 +199,7 @@ def fetch_normals(lat, lon, retries=3):
 
         except HTTPError as exc:
             if exc.code in (429, 503, 502):
-                # Rate-limited or server overloaded — pause and retry.
+                # Rate-limited or server overloaded: pause and retry.
                 # Return RATE_LIMIT_SENTINEL (not None) so the caller
                 # knows NOT to count this toward the consecutive-fail abort.
                 wait = RATE_LIMIT_BACKOFF * (attempt + 1)
@@ -208,7 +208,7 @@ def fetch_normals(lat, lon, retries=3):
                       file=sys.stderr)
                 time.sleep(wait)
                 continue
-            # Other HTTP errors (4xx client, 5xx server) — standard back-off
+            # Other HTTP errors (4xx client, 5xx server): standard back-off
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)
             else:
@@ -224,7 +224,7 @@ def fetch_normals(lat, lon, retries=3):
                       file=sys.stderr)
                 return None
 
-    # Exhausted all retries — if every attempt was a rate-limit, return the
+    # Exhausted all retries, if every attempt was a rate-limit, return the
     # sentinel so the caller treats this as a temporary failure.
     return RATE_LIMIT_SENTINEL
 
@@ -274,13 +274,13 @@ def get_ratings(lat, lon):
         if cached != 'MISSING' and cached is not None:
             return cached
 
-    # Acquire a global rate-limit slot — serialises the inter-request gap.
+    # Acquire a global rate-limit slot: serialises the inter-request gap.
     _acquire_rate_slot()
     result = fetch_normals(lat, lon)
 
     with _cache_lock:
         if result is RATE_LIMIT_SENTINEL:
-            # Do NOT cache rate-limit sentinel — it must be retried next time.
+            # Do NOT cache rate-limit sentinel: it must be retried next time.
             # (The None-check in the cache read means None is also retried, but
             # we distinguish sentinel from None to avoid counting against the
             # consecutive-fail abort. Store None so the key exists but retries.)
@@ -324,12 +324,12 @@ def process_country(iso2, iso3):
         print(f'  SKIP {iso3}: file not found', file=sys.stderr)
         return {}
 
-    print(f'  {iso3} — loading GeoJSON...', file=sys.stderr)
+    print(f'  {iso3}: loading GeoJSON...', file=sys.stderr)
     with open(filepath) as f:
         geojson = json.load(f)
 
     features = geojson.get('features', [])
-    print(f'  {iso3} — {len(features)} features, fetching climate data...',
+    print(f'  {iso3}: {len(features)} features, fetching climate data...',
           file=sys.stderr)
 
     entries = {}
@@ -348,7 +348,7 @@ def process_country(iso2, iso3):
         result   = get_ratings(lat, lon)
 
         if result is RATE_LIMIT_SENTINEL:
-            # Transient rate limit — do NOT count as a real failure.
+            # Transient rate limit: do NOT count as a real failure.
             # The entry will be retried on next run (None is in cache).
             return
 
@@ -372,14 +372,14 @@ def process_country(iso2, iso3):
             if done % PROGRESS_INTERVAL == 0 or done == len(features):
                 cache_hits = sum(1 for v in _cache.values() if v is not None)
                 print(
-                    f'    {done}/{len(features)} features processed — '
-                    f'{len(entries)} entries built — '
+                    f'    {done}/{len(features)} features processed: '
+                    f'{len(entries)} entries built: '
                     f'{cache_hits} grid points cached',
                     file=sys.stderr
                 )
                 save_cache()
 
-    print(f'  {iso3} done — {len(entries)}/{len(features)} entries generated',
+    print(f'  {iso3} done: {len(entries)}/{len(features)} entries generated',
           file=sys.stderr)
     return entries
 
@@ -397,7 +397,7 @@ def patch_data_js(all_entries):
 
     lines = [
         'const CD_A2 = {',
-        '  // Generated by scripts/generate_county_weather.py — do not edit by hand',
+        '  // Generated by scripts/generate_county_weather.py: do not edit by hand',
         '  // Source: NASA POWER Climatology API (no quota, no API key)',
     ]
     for shape_id in sorted(all_entries):
@@ -435,7 +435,7 @@ def patch_data_js(all_entries):
     with open(DATA_JS, 'w') as f:
         f.write(src[:start] + new_block + src[end:])
 
-    print(f'data.js patched — {len(all_entries)} CD_A2 entries written',
+    print(f'data.js patched: {len(all_entries)} CD_A2 entries written',
           file=sys.stderr)
 
 # ── Smoke test ─────────────────────────────────────────────────────────────────

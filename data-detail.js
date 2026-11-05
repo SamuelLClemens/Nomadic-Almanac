@@ -1,8 +1,8 @@
-// Nomadic Almanac — data-detail.js
+// Nomadic Almanac: data-detail.js
 // Heavy prose tables split out of data.js so the first paint does not pay for
 // them (VACCINE_DATA, TIPPING_DETAIL_DATA, COUNTRY_FACTS, PHRASES_BY_LANG,
 // COUNTRY_INTEL, COUNTRY_EXTRA). Loaded with `defer` from index.html (pure
-// literals — no data.js helper calls — but defer keeps the execution order
+// literals, no data.js helper calls, but defer keeps the execution order
 // deterministic); every consumer in app.js typeof-guards these tables, so the
 // app boots and the map is fully interactive before this file executes.
 
@@ -330,7 +330,7 @@ const VACCINE_DATA = {
       malaria: 'moderate',
       notes: null
     },
-    // ── Asia — Southeast ─────────────────────────────────────────────────────
+    // ── Asia: Southeast ─────────────────────────────────────────────────────
     TH: {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
@@ -397,7 +397,7 @@ const VACCINE_DATA = {
       malaria: 'none',
       notes: null
     },
-    // ── Asia — South ─────────────────────────────────────────────────────────
+    // ── Asia: South ─────────────────────────────────────────────────────────
     IN: {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Japanese Encephalitis'],
@@ -426,7 +426,7 @@ const VACCINE_DATA = {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Cholera','Rabies','Polio booster'],
       malaria: 'moderate',
-      notes: 'Polio-endemic country — booster required for long-stay travellers per WHO guidance.'
+      notes: 'Polio-endemic country: booster required for long-stay travellers per WHO guidance.'
     },
     AF: {
       required: [],
@@ -446,7 +446,7 @@ const VACCINE_DATA = {
       malaria: 'low',
       notes: 'Malaria risk in southern lowland areas.'
     },
-    // ── Asia — East ──────────────────────────────────────────────────────────
+    // ── Asia: East ──────────────────────────────────────────────────────────
     CN: {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies','Japanese Encephalitis'],
@@ -483,7 +483,7 @@ const VACCINE_DATA = {
       malaria: 'none',
       notes: 'Dengue risk in southern Taiwan.'
     },
-    // ── Asia — Central ───────────────────────────────────────────────────────
+    // ── Asia: Central ───────────────────────────────────────────────────────
     KZ: {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
@@ -678,7 +678,7 @@ const VACCINE_DATA = {
       malaria: 'none',
       notes: 'Tick-borne encephalitis risk in forested areas of Siberia and the Urals; consider vaccination.'
     },
-    // ── Americas — Latin America ──────────────────────────────────────────────
+    // ── Americas: Latin America ──────────────────────────────────────────────
     MX: {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
@@ -755,7 +755,7 @@ const VACCINE_DATA = {
       required: ['Yellow Fever'],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
       malaria: 'high',
-      notes: 'French Guiana — Yellow Fever required for entry.'
+      notes: 'French Guiana: Yellow Fever required for entry.'
     },
     BR: {
       required: [],
@@ -779,7 +779,7 @@ const VACCINE_DATA = {
       required: [],
       recommended: ['Hepatitis A','Hepatitis B','Typhoid','Rabies'],
       malaria: 'moderate',
-      notes: 'Malaria in lowland Amazon and Beni areas. Altitude sickness critical — La Paz 3640m, Uyuni salt flats ~3656m.'
+      notes: 'Malaria in lowland Amazon and Beni areas. Altitude sickness critical: La Paz 3640m, Uyuni salt flats ~3656m.'
     },
     PY: {
       required: [],
@@ -1698,7 +1698,7 @@ const TIPPING_DETAIL_DATA = {
       tour_guide:   { tip: 'ZAR 100-200/day', cash: true, note: 'Per person; important in tourism economy' },
       delivery:     { tip: 'ZAR 10-20', cash: false, note: 'App tipping common' },
     },
-    quickTip: 'Tip 10-15% at restaurants; also tip parking lot car guards (ZAR 5-10) — it is culturally expected.'
+    quickTip: 'Tip 10-15% at restaurants; also tip parking lot car guards (ZAR 5-10): it is culturally expected.'
   },
   NG: {
     serviceCharge: false,
@@ -1787,7 +1787,7 @@ const TIPPING_DETAIL_DATA = {
   },
   CO: {
     serviceCharge: true,
-    scNote: '10% propina (tip) is added to bills but legally optional — you may ask to remove it',
+    scNote: '10% propina (tip) is added to bills but legally optional: you may ask to remove it',
     industries: {
       restaurant:   { tip: 'none', cash: false, note: 'Propina is included; you may legally decline it' },
       cafe:         { tip: 'none', cash: false, note: 'Not expected' },
@@ -1872,7 +1872,7 @@ const TIPPING_DETAIL_DATA = {
   }
 };
 
-// ─── COUNTRY_FACTS — enriched per-country reference (population, languages, currency,
+// ─── COUNTRY_FACTS: enriched per-country reference (population, languages, currency,
 // calling code, driving side, electrical plugs/voltage, emergency numbers, brief history).
 // Safety-critical fields web-verified (Wikipedia emergency numbers; worldstandards.eu plugs;
 // Wikipedia calling codes + driving side). 195 countries.
@@ -5713,7 +5713,7 @@ const COUNTRY_FACTS = {
    "name": "West African CFA Franc"
   },
   "region": "West Africa",
-  "hist": "Mali was the heart of great medieval empires—Ghana, Mali, and Songhai—whose wealth in gold and salt made Timbuktu and Djenné renowned centers of trade and Islamic scholarship. The famous pilgrimage of Mansa Musa in the 14th century symbolized the empire's prosperity. After French colonial rule, the country gained independence in 1960. Its Saharan and Sahelian heritage, the mud-brick Great Mosque of Djenné, and a celebrated musical tradition continue to shape its cultural identity.",
+  "hist": "Mali was the heart of great medieval empires (Ghana, Mali, and Songhai) whose wealth in gold and salt made Timbuktu and Djenné renowned centers of trade and Islamic scholarship. The famous pilgrimage of Mansa Musa in the 14th century symbolized the empire's prosperity. After French colonial rule, the country gained independence in 1960. Its Saharan and Sahelian heritage, the mud-brick Great Mosque of Djenné, and a celebrated musical tradition continue to shape its cultural identity.",
   "call": "+223",
   "drive": "right",
   "plugs": [
@@ -7420,7 +7420,7 @@ const COUNTRY_FACTS = {
    "name": "United States Dollar"
   },
   "region": "Micronesia",
-  "hist": "The Federated States of Micronesia spans four states — Yap, Chuuk, Pohnpei, and Kosrae — across the western Pacific. The region holds ancient sites such as the stone city of Nan Madol on Pohnpei, and its islands passed through Spanish, German, and Japanese control before falling under US trusteeship after the Second World War. The federation adopted its constitution in 1979 and entered into a Compact of Free Association with the United States in 1986. Distinct languages and traditions persist across each of the four states.",
+  "hist": "The Federated States of Micronesia spans four states, Yap, Chuuk, Pohnpei, and Kosrae, across the western Pacific. The region holds ancient sites such as the stone city of Nan Madol on Pohnpei, and its islands passed through Spanish, German, and Japanese control before falling under US trusteeship after the Second World War. The federation adopted its constitution in 1979 and entered into a Compact of Free Association with the United States in 1986. Distinct languages and traditions persist across each of the four states.",
   "call": "+691",
   "drive": "right",
   "plugs": [
@@ -7694,7 +7694,7 @@ const COUNTRY_FACTS = {
  }
 };
 
-// ─── PHRASES_BY_LANG — traveler phrasebook keyed by language (28 phrases + numbers
+// ─── PHRASES_BY_LANG: traveler phrasebook keyed by language (28 phrases + numbers
 // 1-10, native script + pronunciation). Generated then verified by a fluent-speaker
 // reviewer per language. Consumed by buildPhrasebookSection() via the country's
 // primary language (COUNTRY_FACTS[iso2].langs).
@@ -12074,7 +12074,7 @@ const PHRASES_BY_LANG = {
    {
     "en": "Goodbye",
     "loc": "Hoşça kalın",
-    "pron": "HOSH-cha kah-LUHN (said by the one leaving); the one staying says 'Güle güle' — gew-LEH gew-LEH"
+    "pron": "HOSH-cha kah-LUHN (said by the one leaving); the one staying says 'Güle güle': gew-LEH gew-LEH"
    },
    {
     "en": "Please",
@@ -12164,7 +12164,7 @@ const PHRASES_BY_LANG = {
    {
     "en": "My name is …",
     "loc": "Adım …",
-    "pron": "ah-DUHM … (or 'Benim adım …' — beh-NEEM ah-DUHM)"
+    "pron": "ah-DUHM … (or 'Benim adım …': beh-NEEM ah-DUHM)"
    },
    {
     "en": "How are you?",
@@ -16019,7 +16019,7 @@ const PHRASES_BY_LANG = {
    {
     "en": "Please",
     "loc": "Ngicela",
-    "pron": "ngee-CEH-lah ('c' is a dental click — tongue tip on the teeth)"
+    "pron": "ngee-CEH-lah ('c' is a dental click: tongue tip on the teeth)"
    },
    {
     "en": "Thank you",
@@ -16039,12 +16039,12 @@ const PHRASES_BY_LANG = {
    {
     "en": "No",
     "loc": "Cha",
-    "pron": "!ah ('c' is a dental click, not 'tsh' — click the tongue off the teeth, then 'ah')"
+    "pron": "!ah ('c' is a dental click, not 'tsh': click the tongue off the teeth, then 'ah')"
    },
    {
     "en": "Excuse me",
     "loc": "Uxolo",
-    "pron": "oo-XOH-loh ('x' is a lateral click — like the sound used to urge on a horse)"
+    "pron": "oo-XOH-loh ('x' is a lateral click, like the sound used to urge on a horse)"
    },
    {
     "en": "Sorry",
@@ -16059,7 +16059,7 @@ const PHRASES_BY_LANG = {
    {
     "en": "I don't understand",
     "loc": "Angiqondi",
-    "pron": "ah-ngee-QOHN-dee ('q' is a palatal click — tongue pulled sharply off the roof of the mouth)"
+    "pron": "ah-ngee-QOHN-dee ('q' is a palatal click: tongue pulled sharply off the roof of the mouth)"
    },
    {
     "en": "Help!",
@@ -17413,7 +17413,7 @@ const PHRASES_BY_LANG = {
    {
     "en": "Yes",
     "loc": "კი",
-    "pron": "kee (also 'diakh' — დიახ, more formal)"
+    "pron": "kee (also 'diakh': დიახ, more formal)"
    },
    {
     "en": "No",
@@ -18763,7 +18763,7 @@ const PHRASES_BY_LANG = {
  }
 };
 
-// ─── Country Intelligence — static briefs for all ~195 countries (generated, neutrality-reviewed) ───
+// ─── Country Intelligence: static briefs for all ~195 countries (generated, neutrality-reviewed) ───
 const COUNTRY_INTEL = {
  "AL": {
   "iso2": "AL",
@@ -19488,7 +19488,7 @@ const COUNTRY_INTEL = {
  "EC": {
   "iso2": "EC",
   "origin": "Ecuador emerged from the dissolution of Gran Colombia in 1830, taking its name from the equator that bisects the country. Its identity today is shaped by a striking geographic compression of Andean highlands, Amazon basin, Pacific coast, and the Galapagos into one small nation, alongside a large Indigenous population whose movements reshaped modern politics.",
-  "character": "Ecuadorians often describe a quiet regionalism between the coastal Guayaquil mentality and the Andean Quito sensibility, yet share a warm, family-centred and unhurried social rhythm. Visitors are frequently surprised by how compact the country is — one can move from snow-capped volcanoes to cloud forest to beach within a single day.",
+  "character": "Ecuadorians often describe a quiet regionalism between the coastal Guayaquil mentality and the Andean Quito sensibility, yet share a warm, family-centred and unhurried social rhythm. Visitors are frequently surprised by how compact the country is: one can move from snow-capped volcanoes to cloud forest to beach within a single day.",
   "complexity": "The expansion of oil and mining into Amazonian territories remains a genuine point of tension between economic development and the rights and lands of Indigenous communities, and visitors will encounter strongly held views on both sides.",
   "bestFor": [
    "Galapagos wildlife encounters",
@@ -19500,7 +19500,7 @@ const COUNTRY_INTEL = {
  "SV": {
   "iso2": "SV",
   "origin": "El Salvador gained independence from Spain in 1821 and, after a period within the Central American Federation, became fully sovereign in 1841. The country today is profoundly shaped by the legacy of its 1980-1992 civil war and by a vast diaspora whose remittances anchor the economy.",
-  "character": "Salvadorans are known for resilience, hard work, and a notably welcoming disposition toward the few travellers who arrive. Visitors are often surprised by the country's compact beauty — volcanic lakes, surf-class Pacific breaks, and colonial towns — set against a reputation that has shifted dramatically in recent years.",
+  "character": "Salvadorans are known for resilience, hard work, and a notably welcoming disposition toward the few travellers who arrive. Visitors are often surprised by the country's compact beauty, volcanic lakes, surf-class Pacific breaks, and colonial towns, set against a reputation that has shifted dramatically in recent years.",
   "complexity": "The sweeping security measures that sharply reduced gang violence have drawn both strong domestic approval and international concern over civil liberties and due process, a nuance worth understanding before forming conclusions.",
   "bestFor": [
    "World-class Pacific surf",
@@ -19847,7 +19847,7 @@ const COUNTRY_INTEL = {
  },
  "LY": {
   "iso2": "LY",
-  "origin": "Modern Libya emerged from three historically distinct Ottoman and later Italian-administered regions—Tripolitania, Cyrenaica, and Fezzan—unified under independence in 1951. Decades under Muammar Gaddafi ended with the 2011 uprising, and the country's politics have since been shaped by competing administrations and a gradual, uneven push toward national reconciliation.",
+  "origin": "Modern Libya emerged from three historically distinct Ottoman and later Italian-administered regions (Tripolitania, Cyrenaica, and Fezzan) unified under independence in 1951. Decades under Muammar Gaddafi ended with the 2011 uprising, and the country's politics have since been shaped by competing administrations and a gradual, uneven push toward national reconciliation.",
   "character": "Libyan identity blends Arab, Amazigh (Berber), and Mediterranean influences with strong tribal and regional loyalties. Visitors are often surprised by the scale and preservation of Roman cities such as Leptis Magna and Sabratha, which rank among the finest classical sites anywhere.",
   "complexity": "Governance has been divided between rival authorities based in the west and east, and any travel requires careful attention to which institutions hold practical control in a given area.",
   "bestFor": [
@@ -19872,7 +19872,7 @@ const COUNTRY_INTEL = {
  "OM": {
   "iso2": "OM",
   "origin": "Oman's identity is rooted in a centuries-old maritime and trading empire that once extended to East Africa and the Indian Ocean, and the modern state was reshaped after 1970 under a wide-ranging modernization program. The Ibadi school of Islam, distinct from both Sunni and Shia traditions, has long shaped its measured, consensus-oriented public life.",
-  "character": "Omanis are known for understated courtesy and a strong sense of heritage that coexists with modern infrastructure. Visitors are often surprised by the dramatic landscape variety—fjord-like coastlines, desert sands, and the monsoon-green hills of Dhofar.",
+  "character": "Omanis are known for understated courtesy and a strong sense of heritage that coexists with modern infrastructure. Visitors are often surprised by the dramatic landscape variety: fjord-like coastlines, desert sands, and the monsoon-green hills of Dhofar.",
   "complexity": "Oman has historically positioned itself as a discreet regional mediator, and visitors should appreciate its preference for quiet diplomacy over public alignment in a tense neighborhood.",
   "bestFor": [
    "Wadi and mountain exploration",
@@ -20567,7 +20567,7 @@ const COUNTRY_INTEL = {
  },
  "AF": {
   "iso2": "AF",
-  "origin": "Afghanistan emerged as a distinct polity in 1747 under Ahmad Shah Durrani, consolidating Pashtun, Tajik, Hazara, Uzbek and other peoples across a strategic crossroads of Central, South and West Asia. Decades of conflict since 1979 — Soviet intervention, civil war, and the post-2001 and post-2021 transitions — continue to shape governance, displacement and daily life.",
+  "origin": "Afghanistan emerged as a distinct polity in 1747 under Ahmad Shah Durrani, consolidating Pashtun, Tajik, Hazara, Uzbek and other peoples across a strategic crossroads of Central, South and West Asia. Decades of conflict since 1979, Soviet intervention, civil war, and the post-2001 and post-2021 transitions, continue to shape governance, displacement and daily life.",
   "character": "Afghan identity rests on deep traditions of hospitality, family honour, poetry and resilience that have endured through generations of upheaval. Visitors are often struck by the warmth extended to guests and by landscapes ranging from the high Hindu Kush to fertile river valleys.",
   "complexity": "Governance, the status of women and girls, and access to education and work remain matters of intense international and domestic concern, and conditions vary significantly by region and over time.",
   "bestFor": [
@@ -21998,7 +21998,7 @@ const COUNTRY_EXTRA = {
   "etiquette": [
    "Greet warmly and use titles like Señor/Señora; Colombians are courteous and formal with strangers.",
    "Avoid references to drugs, cartels, or Pablo Escobar, which many find offensive.",
-   "Keep valuables discreet ('no dar papaya' — do not give opportunity) to avoid petty theft.",
+   "Keep valuables discreet ('no dar papaya': do not give opportunity) to avoid petty theft.",
    "Dress smartly in cities, as appearance is taken seriously."
   ],
   "transport": "From Bogotá's El Dorado Airport, use official white airport taxis or the cheaper authorized buses; the city relies on the TransMilenio bus rapid transit, while Medellín has a clean metro and cable cars. Uber, DiDi, Cabify, and Beat operate, though Uber works in a legal gray zone and drivers may ask you to sit up front.",

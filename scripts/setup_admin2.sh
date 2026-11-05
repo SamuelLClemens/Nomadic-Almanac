@@ -38,7 +38,7 @@ for iso2 in "${!COUNTRIES[@]}"; do
   OUTFILE="${ADMIN2_DIR}/${iso3}_ADM2_simplified.geojson"
 
   if [ -f "$OUTFILE" ]; then
-    echo "  [$COUNT/$TOTAL] $iso3 — already exists, skipping"
+    echo "  [$COUNT/$TOTAL] $iso3: already exists, skipping"
     continue
   fi
 
@@ -51,7 +51,7 @@ for iso2 in "${!COUNTRIES[@]}"; do
     SIZE=$(du -sh "$OUTFILE" | cut -f1)
     echo "     Saved ${iso3}_ADM2_simplified.geojson ($SIZE)"
   else
-    echo "     WARN: Could not resolve URL for $iso3 — skipping"
+    echo "     WARN: Could not resolve URL for $iso3: skipping"
   fi
   sleep 1
 done
@@ -78,7 +78,7 @@ cd "$PROJECT_DIR"
 
 TMPOUT=$(mktemp /tmp/cd_a2_parent_XXXX.js)
 node scripts/precompute_admin2.js > "$TMPOUT" 2>/dev/null || {
-  echo "  Precompute failed — check scripts/precompute_admin2.js output manually"
+  echo "  Precompute failed: check scripts/precompute_admin2.js output manually"
   exit 1
 }
 
@@ -87,7 +87,7 @@ LINES=$(grep -c "^  '" "$TMPOUT" || echo 0)
 echo "  Generated $LINES shapeID mappings"
 
 if [ "$LINES" -eq 0 ]; then
-  echo "  No mappings generated — check that GeoJSON files downloaded correctly"
+  echo "  No mappings generated: check that GeoJSON files downloaded correctly"
   exit 1
 fi
 
@@ -117,7 +117,7 @@ if not replacement.endswith('};'):
 result = re.sub(pattern, replacement, src, flags=re.DOTALL)
 
 if result == src:
-    print('WARN: CD_A2_PARENT pattern not matched — manually paste output from $TMPOUT into data.js')
+    print('WARN: CD_A2_PARENT pattern not matched: manually paste output from $TMPOUT into data.js')
 else:
     with open('data.js', 'w') as f:
         f.write(result)

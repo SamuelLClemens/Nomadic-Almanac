@@ -145,7 +145,7 @@ def render_table(valid_keys: set, null_count: int, is_running: bool, pid, rate_p
     total_valid = len(valid_keys)
 
     print()
-    print("=== Nomadic Almanac — Weather Generation Progress ===")
+    print("=== Nomadic Almanac: Weather Generation Progress ===")
 
     if is_running:
         print(f"Process:  RUNNING  (PID {pid})")

@@ -3,7 +3,7 @@
   <!-- Background -->
   <rect width="200" height="38" rx="2" fill="#0a0804"/>
 
-  <!-- Graticule — Longitude lines every 30° -->
+  <!-- Graticule: Longitude lines every 30° -->
   <!-- 150W x=16.67 -->
   <line x1="16.67" y1="0" x2="16.67" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
   <!-- 120W x=33.33 -->
@@ -27,7 +27,7 @@
   <!-- 150E x=183.33 -->
   <line x1="183.33" y1="0" x2="183.33" y2="38" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
 
-  <!-- Graticule — Latitude lines -->
+  <!-- Graticule: Latitude lines -->
   <!-- 60N y=4.22 -->
   <line x1="0" y1="4.22" x2="200" y2="4.22" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
   <!-- 45N y=8.44 -->
@@ -36,7 +36,7 @@
   <line x1="0" y1="12.67" x2="200" y2="12.67" stroke="#c9a84c" stroke-width="0.35" opacity="0.12"/>
   <!-- Tropic of Cancer 23.5N y=14.50, dashed -->
   <line x1="0" y1="14.50" x2="200" y2="14.50" stroke="#c9a84c" stroke-width="0.4" stroke-dasharray="2,3" opacity="0.14"/>
-  <!-- Equator y=21.11 — emphasized -->
+  <!-- Equator y=21.11: emphasized -->
   <line x1="0" y1="21.11" x2="200" y2="21.11" stroke="#c9a84c" stroke-width="0.6" opacity="0.20"/>
   <!-- Tropic of Capricorn 23.5S y=27.73, dashed -->
   <line x1="0" y1="27.73" x2="200" y2="27.73" stroke="#c9a84c" stroke-width="0.4" stroke-dasharray="2,3" opacity="0.14"/>
