@@ -15,16 +15,17 @@
   <!-- Resource hints — resolve DNS / open sockets before scripts run -->
   <link rel="preconnect"    href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect"    href="https://fonts.gstatic.com" crossorigin>
-  <!-- Full preconnect (DNS+TCP+TLS) for the hosts the DEFAULT view hits
-       immediately: Esri satellite tiles + the a/b/c Carto label subdomains
-       (Leaflet's {s} placeholder). No crossorigin: tiles are plain <img>. -->
+  <!-- Full preconnect (DNS+TCP+TLS) for the host the DEFAULT view hits immediately: Esri
+       serves both the satellite tiles and the place-label overlay. No crossorigin: tiles are
+       plain <img>. -->
   <link rel="preconnect"    href="https://server.arcgisonline.com">
-  <link rel="preconnect"    href="https://a.basemaps.cartocdn.com">
-  <link rel="preconnect"    href="https://b.basemaps.cartocdn.com">
-  <link rel="preconnect"    href="https://c.basemaps.cartocdn.com">
   <link rel="dns-prefetch"  href="https://raw.githubusercontent.com">
-  <!-- All six interface font families in ONE request (was 3 links + a duplicate @import). -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <!-- All six interface font families in ONE request (was 3 links + a duplicate @import).
+       Loaded without blocking first paint: media="print" does not block rendering, and onload
+       switches it on once it arrives. If Google Fonts is slow or blocked the page simply keeps
+       its fallback fonts (display=swap), so the CDN is never a single point of failure. -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"></noscript>
   <style>
     :root {
       --na-prussian: #1B2A4A;
@@ -45,6 +46,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0e0b06">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Nomadic Almanac">

@@ -1,5 +1,35 @@
 'use strict';
 
+// ─── Safe storage ─────────────────────────────────────────────────────────────
+// Merely READING window.localStorage throws a SecurityError in Safari with all cookies blocked,
+// in locked-down in-app browsers (WebViews), in sandboxed frames and under some enterprise
+// profiles; writes throw QuotaExceededError when storage is full. An unguarded read during boot
+// aborted the whole script and left a blank page. Every storage call goes through these shims.
+// A value is held in memory only when the real store refuses it, so preferences still work for
+// the rest of the visit and the app always boots.
+function na_makeStore(kind) {
+  var mem = {};
+  function backing() { try { return window[kind]; } catch (e) { return null; } }
+  return {
+    getItem: function (k) {
+      if (Object.prototype.hasOwnProperty.call(mem, k)) return mem[k];
+      try { var s = backing(); if (s) return s.getItem(k); } catch (e) {}
+      return null;
+    },
+    setItem: function (k, v) {
+      v = String(v);
+      try { var s = backing(); if (s) { s.setItem(k, v); delete mem[k]; return; } } catch (e) {}
+      mem[k] = v;
+    },
+    removeItem: function (k) {
+      delete mem[k];
+      try { var s = backing(); if (s) s.removeItem(k); } catch (e) {}
+    },
+  };
+}
+var NA_LS = na_makeStore('localStorage');
+var NA_SS = na_makeStore('sessionStorage');
+
 // ─── State ────────────────────────────────────────────────────────────────────
 let activeMonth    = new Date().getMonth();
 let selectedMonths = new Set([new Date().getMonth()]);
@@ -39,21 +69,21 @@ let _holidayMarkers = [];
 // Click-toggle tooltip: tracks which feature's popup is currently open.
 // Clicking the same feature again closes the tooltip (toggle behavior).
 let _activeTooltipKey = null;
-let _tempUnit         = localStorage.getItem('na_temp') || 'C';   // 'C' or 'F' — persisted
-var _distUnit         = localStorage.getItem('na_dist') || 'km';  // 'km' or 'mi' — persisted
-var _elevUnit         = localStorage.getItem('na_elev') || 'm';   // 'm' or 'ft' — persisted
-var _rainUnit         = localStorage.getItem('na_rain') || 'mm';  // 'mm' or 'in' — persisted
+let _tempUnit         = NA_LS.getItem('na_temp') || 'C';   // 'C' or 'F' — persisted
+var _distUnit         = NA_LS.getItem('na_dist') || 'km';  // 'km' or 'mi' — persisted
+var _elevUnit         = NA_LS.getItem('na_elev') || 'm';   // 'm' or 'ft' — persisted
+var _rainUnit         = NA_LS.getItem('na_rain') || 'mm';  // 'mm' or 'in' — persisted
 // Mirror unit prefs onto window so functions that read window._tempUnit (e.g. the
 // climate wheel) stay in sync with the lexically-scoped globals.
 if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; window._rainUnit = _rainUnit; }
-var _mapStyle         = localStorage.getItem('na_mapstyle') || 'satellite'; // basemap style
-var _dateFormat       = localStorage.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
-var _clockFormat      = localStorage.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
+var _mapStyle         = NA_LS.getItem('na_mapstyle') || 'satellite'; // basemap style
+var _dateFormat       = NA_LS.getItem('na_datefmt') || 'DMY'; // 'DMY' or 'MDY'
+var _clockFormat      = NA_LS.getItem('na_clockfmt') || '24h'; // '24h' or '12h'
 var _basemapLayer     = null;  // reference to the current basemap tile layer
 var _basemapUserPinned = false; // true once the traveller explicitly picks a basemap; then the Day/Night theme stops auto-swapping satellite <-> night-lights
 var _naBootstrapping  = true;  // true during initial boot — the theme must NOT auto-swap the satellite basemap on first load (the site opens on satellite + the day/light default). Cleared once boot completes; later theme toggles then sync normally.
 var _labelLayer       = null;  // reference to the place-labels overlay tile layer
-var _labelsOn         = (localStorage.getItem('na_labels') !== '0'); // place labels visible?
+var _labelsOn         = (NA_LS.getItem('na_labels') !== '0'); // place labels visible?
 let climateZoneLayer  = null;
 let _elevationTileLayer = null;
 let _climateRenderer  = null;
@@ -305,11 +335,11 @@ function _deriveCityClimate(features, getCode, isoOf, cities, store) {
   });
 }
 
-let _visitedSet = new Set(JSON.parse((() => { try { return localStorage.getItem('na_visited') || '[]'; } catch (_) { return '[]'; } })()));
+let _visitedSet = new Set(JSON.parse((() => { try { return NA_LS.getItem('na_visited') || '[]'; } catch (_) { return '[]'; } })()));
 
 function _persistVisited() {
   try {
-    localStorage.setItem('na_visited', JSON.stringify([..._visitedSet]));
+    NA_LS.setItem('na_visited', JSON.stringify([..._visitedSet]));
   } catch (_) { /* quota or private mode — silently ignore */ }
 }
 
@@ -356,11 +386,11 @@ function isVisited(iso2) {
 var _wishlist = new Set();
 
 function _loadWishlist() {
-  try { var d = JSON.parse(localStorage.getItem('na_wishlist')||'[]'); if (Array.isArray(d)) _wishlist = new Set(d); } catch(e){}
+  try { var d = JSON.parse(NA_LS.getItem('na_wishlist')||'[]'); if (Array.isArray(d)) _wishlist = new Set(d); } catch(e){}
 }
 
 function _saveWishlist() {
-  try { localStorage.setItem('na_wishlist', JSON.stringify(Array.from(_wishlist))); } catch(e){}
+  try { NA_LS.setItem('na_wishlist', JSON.stringify(Array.from(_wishlist))); } catch(e){}
 }
 
 function _toggleWishlist(iso2) {
@@ -425,7 +455,7 @@ function _countryFlag(iso2) {
 }
 
 // ─── Currency / distance / language globals ───────────────────────────────────
-var _currCode = localStorage.getItem('na_curr') || 'USD';
+var _currCode = NA_LS.getItem('na_curr') || 'USD';
 // Static FX snapshot — units of each currency per 1 USD. Self-hosted (no live
 // API / external runtime dependency). Refresh at deploy time and bump the date.
 var _RATES_AS_OF = 'June 2026';
@@ -492,13 +522,13 @@ function na_detectDefaultCurrency() {
   return 'USD';
 }
 // First visit (no stored choice): default to the locale's currency.
-try { if (!localStorage.getItem('na_curr')) _currCode = na_detectDefaultCurrency(); } catch (_e) {}
+try { if (!NA_LS.getItem('na_curr')) _currCode = na_detectDefaultCurrency(); } catch (_e) {}
 if (!_RATES[_currCode]) _currCode = 'USD';
 
 function na_setCurrency(code) {
   if (!_RATES[code]) code = 'USD';
   _currCode = code;
-  try { localStorage.setItem('na_curr', code); } catch (_e) {}
+  try { NA_LS.setItem('na_curr', code); } catch (_e) {}
   var btn = document.getElementById('btn-currency'); if (btn) btn.textContent = code;
   document.querySelectorAll('.na-curr-opt').forEach(function (b) { b.classList.toggle('active', b.dataset.curr === code); });
   document.querySelectorAll('.na-curr-current').forEach(function (el) { el.textContent = code; });
@@ -548,7 +578,7 @@ function _cycleCurrency() {
   na_setCurrency(_CURR_KEYS[(idx + 1) % _CURR_KEYS.length]);
 }
 
-var _lang = localStorage.getItem('na_lang') || 'en';
+var _lang = NA_LS.getItem('na_lang') || 'en';
 var _STRINGS = {
   en: { weather:'Weather', safety:'Safety', cost:'Cost', internet:'Internet', visa:'Visa Access', english:'English Proficiency', healthcare:'Healthcare', tapwater:'Tap Water', nightlife:'Nightlife', scam:'Scam Risk', malaria:'Malaria Risk', compare:'Compare', journal:'Journal', packing:'Packing List', wishlist:'Wishlist', share:'Share Trip', tipping:'Tipping', noTipping:'No Tipping', tipOptional:'Tip Optional', tipAppreciated:'Tip Appreciated', tipExpected:'Tipping Expected', countryIntel:'Country Intelligence', origin:'Origin', character:'Character', complexity:'Honest Complexity', bestFor:'Best For', notKnown:'What Locals Know', loading:'Loading', noData:'No Data', layers:'Layers', filters:'Filters', compare2:'Compare', share2:'Share', save:'Save', close:'Close', search:'Search', language:'Language', currency:'Currency', units:'Units', darkMode:'Dark Mode', about:'About' },
   es: { weather:'Clima', safety:'Seguridad', cost:'Costo', internet:'Internet', visa:'Visa', english:'Inglés', healthcare:'Salud', tapwater:'Agua Potable', nightlife:'Vida Nocturna', scam:'Riesgo de Estafa', malaria:'Riesgo de Malaria', compare:'Comparar', journal:'Diario', packing:'Lista de Equipaje', wishlist:'Lista de Deseos', share:'Compartir', tipping:'Propinas', noTipping:'Sin propinas', tipOptional:'Propina opcional', tipAppreciated:'Propina apreciada', tipExpected:'Propina esperada', countryIntel:'Inteligencia del pais', origin:'Origen', character:'Caracter', complexity:'Complejidad honesta', bestFor:'Mejor para', notKnown:'Lo que saben los locales', loading:'Cargando', noData:'Sin datos', layers:'Capas', filters:'Filtros', compare2:'Comparar', share2:'Compartir', save:'Guardar', close:'Cerrar', search:'Buscar', language:'Idioma', currency:'Moneda', units:'Unidades', darkMode:'Modo oscuro', about:'Acerca de' },
@@ -630,7 +660,7 @@ Object.assign(_I18N.he, {
 
 // English spelling sub-preference for the single 'English' entry: 'uk' or 'us'.
 var _enSpelling = 'us';
-try { var _ss = localStorage.getItem('na_en_spelling'); if (_ss === 'uk' || _ss === 'us') _enSpelling = _ss; } catch (_e) {}
+try { var _ss = NA_LS.getItem('na_en_spelling'); if (_ss === 'uk' || _ss === 'us') _enSpelling = _ss; } catch (_e) {}
 
 function na_detectDefaultLang() {
   try {
@@ -651,7 +681,7 @@ function na_detectDefaultLang() {
 }
 
 // On first visit (no stored choice) default to the browser locale.
-try { if (!localStorage.getItem('na_lang')) _lang = na_detectDefaultLang(); } catch (_e) {}
+try { if (!NA_LS.getItem('na_lang')) _lang = na_detectDefaultLang(); } catch (_e) {}
 if (_lang === 'en-GB') { _enSpelling = 'uk'; _lang = 'en'; }   // legacy split → single English, British spelling
 else if (_lang === 'en-US') { _enSpelling = 'us'; _lang = 'en'; }
 if (_lang === 'iw') _lang = 'he';                              // legacy ISO code for Hebrew → modern 'he'
@@ -694,7 +724,7 @@ function na_setLang(code) {
   if (!_I18N[code]) code = 'en';      // unknown code → English
   _lang = code;
   if (code === 'en' && _LANG_META.en) _LANG_META.en.flag = (_enSpelling === 'uk') ? '🇬🇧' : '🇺🇸';
-  try { localStorage.setItem('na_lang', code); localStorage.setItem('na_en_spelling', _enSpelling); } catch (_e) {}
+  try { NA_LS.setItem('na_lang', code); NA_LS.setItem('na_en_spelling', _enSpelling); } catch (_e) {}
   var meta = _LANG_META[code] || _LANG_META.en;
   try {
     document.documentElement.setAttribute('lang', code);
@@ -743,7 +773,7 @@ function _dist(km) {
 
 function _toggleDistUnit() {
   _distUnit = _distUnit === 'km' ? 'mi' : 'km';
-  localStorage.setItem('na_dist', _distUnit);
+  NA_LS.setItem('na_dist', _distUnit);
   var btn = document.getElementById('btn-dist-unit');
   if (btn) btn.textContent = _distUnit === 'km' ? 'km' : 'mi';
   _buildRoutePanel && _buildRoutePanel();
@@ -791,7 +821,7 @@ function na_setRatingPalette(name) {
   var pal = RC_PALETTES[name] || RC_PALETTES.classic;
   for (var i = 0; i < 4 && i < pal.length; i++) { RC[i] = pal[i]; }   // RC2 aliases RC
   window._naPalette = name;
-  try { localStorage.setItem('na_palette', name); } catch (_e) {}
+  try { NA_LS.setItem('na_palette', name); } catch (_e) {}
   if (typeof _glyphHTMLCache !== 'undefined') _glyphHTMLCache = {};    // chips cache embeds RC colours
   if (typeof refresh === 'function')            { try { refresh(); } catch (_e) {} }
   if (typeof renderLayerGlyphs === 'function')  { try { renderLayerGlyphs(); } catch (_e) {} }
@@ -800,7 +830,7 @@ function na_setRatingPalette(name) {
 // Apply any stored palette preference before first paint (no repaint needed yet).
 (function () {
   try {
-    var p = localStorage.getItem('na_palette');
+    var p = NA_LS.getItem('na_palette');
     if (p && typeof RC_PALETTES !== 'undefined' && RC_PALETTES[p]) {
       for (var i = 0; i < 4 && i < RC_PALETTES[p].length; i++) { RC[i] = RC_PALETTES[p][i]; }
       window._naPalette = p;
@@ -824,7 +854,7 @@ function _validatePin(p) {
 
 function _loadTripPins() {
   try {
-    const raw = localStorage.getItem('na_trip_pins');
+    const raw = NA_LS.getItem('na_trip_pins');
     const parsed = raw ? JSON.parse(raw) : [];
     _tripPins = Array.isArray(parsed)
       ? parsed.map(_validatePin).filter(Boolean)
@@ -834,16 +864,16 @@ function _loadTripPins() {
 
 function _saveTripPins() {
   try {
-    localStorage.setItem('na_trip_pins', JSON.stringify(_tripPins));
+    NA_LS.setItem('na_trip_pins', JSON.stringify(_tripPins));
   } catch (_) { /* quota or private mode */ }
 }
 
 const _JOURNAL_KEY = 'na_journal';
 function _getJournal() {
-  try { return JSON.parse(localStorage.getItem(_JOURNAL_KEY) || '{}'); } catch(_) { return {}; }
+  try { return JSON.parse(NA_LS.getItem(_JOURNAL_KEY) || '{}'); } catch(_) { return {}; }
 }
 function _saveJournal(j) {
-  try { localStorage.setItem(_JOURNAL_KEY, JSON.stringify(j)); } catch(_) {}
+  try { NA_LS.setItem(_JOURNAL_KEY, JSON.stringify(j)); } catch(_) {}
 }
 function _getNote(iso2) { return _getJournal()[iso2] || ''; }
 function _saveNote(iso2, text) {
@@ -1482,21 +1512,32 @@ function initMap() {
   }, { passive: true });
 
   // Basemap tile configurations — satellite is the default; user can switch in Preferences.
+  // CARTO's free raster tiles (basemaps.cartocdn.com) were removed in favour of Esri's keyless
+  // services because CARTO now answers EVERY tile request with one fixed "API KEY REQUIRED"
+  // image. It arrives as HTTP 200, so Leaflet's tileerror never fires and the watermark shows
+  // on top of the map. maxNativeZoom values below were measured per service: past them Esri
+  // serves a constant placeholder tile instead of a 404.
+  var ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+  // Place-name overlays. Streets and Terrain already print their own names, so they get no
+  // overlay (it would draw every label twice); labels:null marks that.
+  // holder: the credit is skipped when the basemap's own attribution already names that holder.
+  var LABELS_IMAGERY = { url: ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', maxNativeZoom: 19, opacity: 0.85, holder: 'Esri', credit: 'Labels &copy; Esri' };
+  var LABELS_DARK    = { url: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',     maxNativeZoom: 16, opacity: 0.85, holder: 'Esri', credit: 'Labels &copy; Esri' };
   var BASEMAP_CONFIGS = {
     satellite: {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution: 'Tiles &copy; Esri',
-      maxZoom: 19,
+      url: ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri, Maxar, Earthstar Geographics',
+      maxZoom: 19, maxNativeZoom: 19, labels: LABELS_IMAGERY,
     },
     streets: {
-      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      maxZoom: 20, subdomains: 'abcd',
+      url: ESRI + 'World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19, maxNativeZoom: 19, labels: null,
     },
     dark: {
-      url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      maxZoom: 20, subdomains: 'abcd',
+      url: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19, maxNativeZoom: 16, labels: LABELS_DARK,
     },
     nightlights: {
       // NASA GIBS — VIIRS City Lights / Black Marble. Keyless public WMTS, static
@@ -1504,14 +1545,14 @@ function initMap() {
       // coastlines. Native to z8; maxNativeZoom upscales deeper zooms instead of 404.
       url: 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CityLights_2012/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg',
       attribution: 'Earth at Night &mdash; NASA Earth Observatory / GIBS (VIIRS City Lights)',
-      maxZoom: 19, maxNativeZoom: 8,
+      maxZoom: 19, maxNativeZoom: 8, labels: LABELS_IMAGERY,
     },
     terrain: {
       // OpenTopoMap — keyless topographic relief (Google-Terrain-like). Native to
       // z17; maxNativeZoom lets Leaflet upscale tiles to z19 instead of 404-ing.
       url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
-      maxZoom: 19, maxNativeZoom: 17, subdomains: 'abc',
+      maxZoom: 19, maxNativeZoom: 17, subdomains: 'abc', labels: null,
     },
   };
   window._BASEMAP_CONFIGS = BASEMAP_CONFIGS;  // expose for na_setBasemap
@@ -1521,26 +1562,15 @@ function initMap() {
   // satellite at launch (the dark theme must not pull the map into a dark map).
   if (_mapStyle === 'dark' || _mapStyle === 'nightlights') {
     _mapStyle = 'satellite';
-    try { localStorage.setItem('na_mapstyle', 'satellite'); } catch (e) {}
+    try { NA_LS.setItem('na_mapstyle', 'satellite'); } catch (e) {}
   }
   var style = (_mapStyle && BASEMAP_CONFIGS[_mapStyle]) ? _mapStyle : 'satellite';
-  var bc    = BASEMAP_CONFIGS[style];
-  _basemapLayer = L.tileLayer(bc.url, {
-    attribution: bc.attribution,
-    maxZoom:     bc.maxZoom     || 19,
-    subdomains:  bc.subdomains  || '',
-    errorTileUrl: '',
-  }).addTo(map);
+  _mapStyle = style;   // an unknown stored value must not outlive this line (labels and credits key off it)
+  _basemapLayer = na_newBasemapLayer(BASEMAP_CONFIGS[style]).addTo(map);
 
-  // Place-labels overlay — kept in a reference so it can be toggled on/off
-  // independently of the basemap (the on-map switcher exposes a Labels control).
-  _labelLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: 20,
-    opacity: 0.7,
-    pane: 'labelPane',
-  });
-  if (_labelsOn) _labelLayer.addTo(map);
+  // Place-labels overlay, kept in a reference so it can be toggled on/off independently of
+  // the basemap (the on-map switcher exposes a Labels control). Built per basemap style.
+  na_applyLabelLayer();
 }
 
 // ─── Month Selector ───────────────────────────────────────────────────────────
@@ -4061,9 +4091,9 @@ var _intelCache = {};
 
 async function _getCountryIntelligence(iso2, countryName) {
   if (_intelCache[iso2]) return _intelCache[iso2];
-  var cached = sessionStorage.getItem("na_intel_" + iso2);
+  var cached = NA_SS.getItem("na_intel_" + iso2);
   if (cached) { try { var r = JSON.parse(cached); _intelCache[iso2]=r; return r; } catch(e){} }
-  var apiKey = sessionStorage.getItem("na_api_key");
+  var apiKey = NA_SS.getItem("na_api_key");
   if (!apiKey) return null;
   try {
     var resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -4087,7 +4117,7 @@ async function _getCountryIntelligence(iso2, countryName) {
     if (!text) return null;
     var json = JSON.parse(text.replace(/^```json\n?/,"").replace(/\n?```$/,""));
     _intelCache[iso2] = json;
-    sessionStorage.setItem("na_intel_" + iso2, JSON.stringify(json));
+    NA_SS.setItem("na_intel_" + iso2, JSON.stringify(json));
     return json;
   } catch(e) { return null; }
 }
@@ -4121,7 +4151,7 @@ function _renderCountryIntel(iso2, countryName, containerEl) {
   }
   // Optional live enhancement when a personal API key is configured in session.
   var apiKey = null;
-  try { apiKey = sessionStorage.getItem('na_api_key'); } catch (_e) {}
+  try { apiKey = NA_SS.getItem('na_api_key'); } catch (_e) {}
   if (apiKey) {
     _getCountryIntelligence(iso2, countryName).then(function (live) {
       if (live) _renderIntelHTML(live, containerEl, true);
@@ -4726,8 +4756,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(
 // Silently no-ops if localStorage is unavailable (private browsing, quota full).
 function saveState() {
   try {
-    localStorage.setItem('na_layers',      JSON.stringify([...activeLayers]));
-    localStorage.setItem('na_nationality', selectedNationality || '');
+    NA_LS.setItem('na_layers',      JSON.stringify([...activeLayers]));
+    NA_LS.setItem('na_nationality', selectedNationality || '');
   } catch (_) {}
 }
 function loadState() {
@@ -4739,8 +4769,8 @@ function loadState() {
     // initURLState. Clean open: activeLayers is likewise NOT seeded from
     // localStorage, so a bare visit always opens on clean satellite.
     // Nationality, units and basemap still persist.
-    localStorage.removeItem('na_month');   // clear the legacy persisted month
-    const nat = localStorage.getItem('na_nationality');
+    NA_LS.removeItem('na_month');   // clear the legacy persisted month
+    const nat = NA_LS.getItem('na_nationality');
     if (nat) selectedNationality = nat;
   } catch (_) {}
 }
@@ -4813,7 +4843,7 @@ function buildCompositeScore(dataObj, iso2) {
 // Works by updating data-celsius spans in-place — no full re-render needed.
 function toggleTempUnit() {
   _tempUnit = _tempUnit === 'C' ? 'F' : 'C';
-  localStorage.setItem('na_temp', _tempUnit);
+  NA_LS.setItem('na_temp', _tempUnit);
   if (typeof window !== 'undefined') window._tempUnit = _tempUnit;
   document.querySelectorAll('.tt-temp-val').forEach(el => {
     const c = parseFloat(el.dataset.celsius);
@@ -4842,7 +4872,7 @@ function _fmtRainHTML(mm) {
 // Same in-place mechanism as toggleTempUnit: data-mm spans, no re-render.
 function toggleRainUnit() {
   _rainUnit = _rainUnit === 'mm' ? 'in' : 'mm';
-  try { localStorage.setItem('na_rain', _rainUnit); } catch (e) {}
+  try { NA_LS.setItem('na_rain', _rainUnit); } catch (e) {}
   if (typeof window !== 'undefined') window._rainUnit = _rainUnit;
   document.querySelectorAll('.tt-rain-val').forEach(el => {
     const mm = parseFloat(el.dataset.mm);
@@ -4866,10 +4896,10 @@ function na_setUnitSystem(sys) {
   _elevUnit = imp ? 'ft' : 'm';
   _rainUnit = imp ? 'in' : 'mm';
   try {
-    localStorage.setItem('na_temp', _tempUnit);
-    localStorage.setItem('na_dist', _distUnit);
-    localStorage.setItem('na_elev', _elevUnit);
-    localStorage.setItem('na_rain', _rainUnit);
+    NA_LS.setItem('na_temp', _tempUnit);
+    NA_LS.setItem('na_dist', _distUnit);
+    NA_LS.setItem('na_elev', _elevUnit);
+    NA_LS.setItem('na_rain', _rainUnit);
   } catch (_e) {}
   if (typeof window !== 'undefined') { window._tempUnit = _tempUnit; window._distUnit = _distUnit; window._elevUnit = _elevUnit; window._rainUnit = _rainUnit; }
   var distBtn = document.getElementById('btn-dist-unit');
@@ -7808,7 +7838,7 @@ function _naWireHintFlag(card) {
 }
 
 function showOnboardingHint() {
-  try { if (localStorage.getItem('na_hint_seen')) return; } catch (_) {}
+  try { if (NA_LS.getItem('na_hint_seen')) return; } catch (_) {}
   if (document.getElementById('onboarding-hint')) return;
   const el = document.createElement('div');
   el.id = 'onboarding-hint';
@@ -7857,7 +7887,7 @@ function showOnboardingHint() {
     if (dismissed) return;
     dismissed = true;
     teardownListeners();
-    try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
+    try { NA_LS.setItem('na_hint_seen', '1'); } catch (_) {}
     el.classList.add('na-hint-out');
     setTimeout(() => { if (el.parentNode) el.remove(); }, 320);
   }
@@ -8138,7 +8168,7 @@ function endTour() {
   window.removeEventListener('resize', _tourState.onResize);
   if (_tourState.overlay && _tourState.overlay.parentNode) _tourState.overlay.remove();
   _tourState = null;
-  try { localStorage.setItem('na_hint_seen', '1'); } catch (_) {}
+  try { NA_LS.setItem('na_hint_seen', '1'); } catch (_) {}
 }
 
 // Expose so Preferences / keyboard shortcuts can relaunch the walkthrough.
@@ -9031,7 +9061,7 @@ function na_applyTheme(mode) {
   if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') mode = 'auto';
   _naThemeMode = mode;
   _naApplyEffective(mode === 'auto' ? _naResolveAuto() : mode);
-  try { localStorage.setItem('na_theme', mode); } catch(e) {}
+  try { NA_LS.setItem('na_theme', mode); } catch(e) {}
   _naUpdateThemeBtn();
   _naStartAutoWatch();
 }
@@ -9053,7 +9083,7 @@ function _naAutoReResolve() {
 
 function na_initTheme() {
   var stored = null;
-  try { stored = localStorage.getItem('na_theme'); } catch(e) {}
+  try { stored = NA_LS.getItem('na_theme'); } catch(e) {}
   // New visitors open in DARK menus (the satellite map still loads first via the
   // _naBootstrapping guard, so only the chrome is dark). Returning users keep
   // whatever they last chose (light / dark / auto).
@@ -9090,13 +9120,13 @@ function na_initAccordion() {
       body.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
       body.classList.toggle('open', !isOpen);
       // Persist in sessionStorage
-      try { sessionStorage.setItem('na_accordion_' + id, isOpen ? '0' : '1'); } catch(e) {}
+      try { NA_SS.setItem('na_accordion_' + id, isOpen ? '0' : '1'); } catch(e) {}
     });
 
     // Restore state — layers accordion defaults to open; others default to closed
     var id = trigger.getAttribute('aria-controls');
     var saved = null;
-    try { saved = sessionStorage.getItem('na_accordion_' + id); } catch(e) {}
+    try { saved = NA_SS.getItem('na_accordion_' + id); } catch(e) {}
     var defaultOpen = (id === 'na-layers-list'); // layers always start open unless user closed it
     var shouldOpen = (saved === '1') || (saved === null && defaultOpen);
     if (shouldOpen) {
@@ -9381,50 +9411,74 @@ function na_initLayersSheet() {
 }
 
 // ── Preferences Sheet ─────────────────────────────────────────────────────
-function na_setBasemap(style) {
-  var configs = window._BASEMAP_CONFIGS;
-  if (!configs || !configs[style] || !map) return;
-  var bc = configs[style];
-  // Recreate the tile layer rather than setUrl(): subdomains, maxZoom and
-  // maxNativeZoom differ per style, and setUrl() leaves those stale — which
-  // breaks {s}-templated styles (street/dark/terrain) when switching away from
-  // satellite (no subdomains). Recreating guarantees correct tiles every time.
-  if (_basemapLayer) map.removeLayer(_basemapLayer);
-  _basemapLayer = L.tileLayer(bc.url, {
+// One place builds a basemap tile layer, so the first paint and every later switch agree on
+// zoom limits and subdomains.
+function na_newBasemapLayer(bc) {
+  return L.tileLayer(bc.url, {
     attribution:   bc.attribution,
     maxZoom:       bc.maxZoom       || 19,
     maxNativeZoom: bc.maxNativeZoom || bc.maxZoom || 19,
     subdomains:    bc.subdomains    || 'abc',
     errorTileUrl:  '',
-  }).addTo(map);
-  // OpenTopoMap (Terrain) is a restricted-use, rate-limited provider. If its tiles
-  // start failing, revert to satellite instead of rendering silent blank tiles
-  // (STATIC SITE RUNTIME DEPENDENCY RULE — external data must never fail silently).
-  if (style === 'terrain') {
-    var _terrErrs = 0;
+  });
+}
+
+// (Re)build the place-labels overlay for the active basemap. Styles that print their own
+// names (Streets, Terrain) have no overlay, so _labelLayer is null for them.
+function na_applyLabelLayer() {
+  if (!map) return;
+  if (_labelLayer && map.hasLayer(_labelLayer)) map.removeLayer(_labelLayer);
+  _labelLayer = null;
+  var cfg = (window._BASEMAP_CONFIGS || {})[_mapStyle];
+  var lc  = cfg && cfg.labels;
+  if (lc) {
+    _labelLayer = L.tileLayer(lc.url, {
+      maxZoom: 19, maxNativeZoom: lc.maxNativeZoom || 19,
+      opacity: lc.opacity || 0.85, pane: 'labelPane', errorTileUrl: '',
+    });
+    if (_labelsOn) _labelLayer.addTo(map);
+  }
+}
+
+function na_setBasemap(style) {
+  var configs = window._BASEMAP_CONFIGS;
+  if (!configs || !configs[style] || !map) return;
+  var bc = configs[style];
+  // Recreate the tile layer rather than setUrl(): subdomains, maxZoom and maxNativeZoom
+  // differ per style, and setUrl() leaves those stale. Recreating guarantees correct tiles.
+  if (_basemapLayer) map.removeLayer(_basemapLayer);
+  _basemapLayer = na_newBasemapLayer(bc).addTo(map);
+  // Any non-satellite provider can rate-limit, change its terms or go down. If its tiles start
+  // failing, fall back to satellite instead of rendering silent blank tiles (STATIC SITE RUNTIME
+  // DEPENDENCY RULE: external data must never fail silently). Being offline is not a provider fault.
+  if (style !== 'satellite') {
+    var _tileErrs = 0;
     _basemapLayer.on('tileerror', function () {
-      if (_mapStyle !== 'terrain') return;
-      if (++_terrErrs === 5) {
-        if (typeof na_toast === 'function') na_toast('Terrain tiles are unavailable right now — switched to Satellite.', 4000);
+      if (_mapStyle !== style || navigator.onLine === false) return;
+      if (++_tileErrs === 5) {
+        if (typeof na_toast === 'function') na_toast('That map style is unavailable right now, so the map switched to Satellite.', 4000);
         na_setBasemap('satellite');
       }
     });
   }
   _mapStyle = style;
-  localStorage.setItem('na_mapstyle', style);
+  NA_LS.setItem('na_mapstyle', style);
+  na_applyLabelLayer();
   na_updateAttribution();
   na_syncPrefsUI();
 }
 
 // Compose the attribution from the active basemap + the labels overlay (when on)
 // + the persistent geoBoundaries admin-2 credit, so switching basemaps never drops
-// a required licence credit (CARTO / OpenTopoMap / geoBoundaries each require it).
+// a required licence credit (Esri / OpenTopoMap / NASA GIBS / geoBoundaries each require it).
 function na_updateAttribution() {
   if (!map || !map.attributionControl) return;
   var configs = window._BASEMAP_CONFIGS || {};
   var parts = [];
   if (configs[_mapStyle] && configs[_mapStyle].attribution) parts.push(configs[_mapStyle].attribution);
-  if (_labelsOn) parts.push('Labels &copy; <a href="https://carto.com/attributions">CARTO</a>');
+  var lbl = configs[_mapStyle] && configs[_mapStyle].labels;
+  var baseCredit = (configs[_mapStyle] && configs[_mapStyle].attribution) || '';
+  if (_labelsOn && _labelLayer && lbl && baseCredit.indexOf(lbl.holder) === -1) parts.push(lbl.credit);
   parts.push('Admin-2: <a href="https://www.geoboundaries.org">geoBoundaries</a> (CC-BY 4.0)');
   map.attributionControl.getContainer().innerHTML = parts.join(' &nbsp;|&nbsp; ');
 }
@@ -9436,7 +9490,7 @@ function na_toggleLabels(on) {
     if (_labelsOn) { if (!map.hasLayer(_labelLayer)) _labelLayer.addTo(map); }
     else if (map.hasLayer(_labelLayer)) map.removeLayer(_labelLayer);
   }
-  localStorage.setItem('na_labels', _labelsOn ? '1' : '0');
+  NA_LS.setItem('na_labels', _labelsOn ? '1' : '0');
   na_updateAttribution();
   na_syncPrefsUI();
 }
@@ -9500,6 +9554,17 @@ function na_syncPrefsUI() {
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   });
+  // Streets and Terrain print their own place names, so the Place Labels control has nothing
+  // to switch there. Say so instead of leaving a button that silently does nothing.
+  var lblGrp = document.getElementById('pref-labels');
+  if (lblGrp) {
+    var cfg = (window._BASEMAP_CONFIGS || {})[_mapStyle];
+    var baked = !!(cfg && !cfg.labels);
+    lblGrp.querySelectorAll('.pref-opt').forEach(function(btn) {
+      btn.disabled = baked;
+      btn.title = baked ? 'This map style already shows place names' : '';
+    });
+  }
 }
 
 function na_initPrefsSheet() {
@@ -9534,7 +9599,7 @@ function na_initPrefsSheet() {
       } else if (id === 'pref-dist') {
         if (_distUnit !== val) {
           _distUnit = val;
-          localStorage.setItem('na_dist', _distUnit);
+          NA_LS.setItem('na_dist', _distUnit);
           var distBtn = document.getElementById('btn-dist-unit');
           if (distBtn) distBtn.textContent = _distUnit === 'km' ? 'km' : 'mi';
         }
@@ -9543,10 +9608,10 @@ function na_initPrefsSheet() {
         na_setBasemap(val);
       } else if (id === 'pref-dateformat') {
         _dateFormat = val;
-        localStorage.setItem('na_datefmt', _dateFormat);
+        NA_LS.setItem('na_datefmt', _dateFormat);
       } else if (id === 'pref-clock') {
         _clockFormat = val;
-        localStorage.setItem('na_clockfmt', _clockFormat);
+        NA_LS.setItem('na_clockfmt', _clockFormat);
       } else if (id === 'pref-labels') {
         na_toggleLabels(val === 'on');
       } else if (id === 'pref-palette') {
@@ -10194,7 +10259,7 @@ function na_initSidebarCollapse() {
     logo.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
     logo.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
     logo.setAttribute('aria-label', collapsed ? 'Expand navigation sidebar' : 'Collapse navigation sidebar');
-    if (persist) { try { localStorage.setItem('na_sidebar_collapsed', collapsed ? '1' : '0'); } catch (e) {} }
+    if (persist) { try { NA_LS.setItem('na_sidebar_collapsed', collapsed ? '1' : '0'); } catch (e) {} }
     // Tell Leaflet about the new map width once the width transition settles
     // (na_initMapResize also catches transitionend; this is a belt-and-braces).
     if (map) setTimeout(function () { try { map.invalidateSize({ animate: false }); } catch (e) {} }, 320);
@@ -10222,7 +10287,7 @@ function na_initSidebarCollapse() {
   }
 
   var saved = null;
-  try { saved = localStorage.getItem('na_sidebar_collapsed'); } catch (e) {}
+  try { saved = NA_LS.getItem('na_sidebar_collapsed'); } catch (e) {}
   apply(saved === '1', false);
 }
 
