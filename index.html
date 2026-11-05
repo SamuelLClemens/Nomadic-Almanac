@@ -1092,11 +1092,18 @@
        visit entirely. -->
 
 <script>
+  // The worker's install precaches about 15 MB (country polygons, county tables, scripts). Started at
+  // window load on a first visit it competed with the page's own country-polygon download on a slow
+  // link, so app.js calls _naSwRegister once the page is quiet (polygons built, data-detail.js
+  // loaded). The timer is only a backstop in case that never happens (a boot error, say).
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    window._naSwRegister = function () {
+      if (window._naSwDone) return;
+      window._naSwDone = true;
       navigator.serviceWorker.register('./sw.js')
         .catch(e => console.warn('SW registration failed:', e));
-    });
+    };
+    window.addEventListener('load', () => setTimeout(window._naSwRegister, 20000));
   }
 </script>
 </body>

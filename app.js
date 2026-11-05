@@ -8696,15 +8696,20 @@ function _idlePrefetchHeavyAssets() {
   // About 3 MB of speculative download: skip it for people who asked to save data or are on a
   // slow cellular link, where it would compete with the tiles and data they actually need.
   var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if (conn && (conn.saveData || /^(slow-2g|2g|3g)$/.test(conn.effectiveType || ''))) return;
+  if (conn && (conn.saveData || /^(slow-2g|2g|3g)$/.test(conn.effectiveType || ''))) { _naRegisterSW(); return; }
   var idle = window.requestIdleCallback || function (fn) { setTimeout(fn, 4000); };
   idle(function () {
     try {
       fetch('data/admin1.geojson', { priority: 'low' }).catch(function () {});
       fetch('data-admin2.js', { priority: 'low' }).catch(function () {});
     } catch (e) {}
+    // The worker's install precaches the same files: start it only now, with them already on the way
+    // (or cached), instead of at window load when it competed with the country polygons.
+    _naRegisterSW();
   });
 }
+// index.html defines window._naSwRegister (and a 20 s backstop timer); it is absent without service workers.
+function _naRegisterSW() { try { if (window._naSwRegister) window._naSwRegister(); } catch (_e) {} }
 // Post-boot loading order, each step waiting for the one before it so nothing shares the
 // connection with the 1.2 MB country download or the first tiles:
 //   window load AND country polygons settled -> data-detail.js (dossier prose, 0.23 MB gz)
