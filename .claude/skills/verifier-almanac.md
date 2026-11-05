@@ -13,7 +13,7 @@ reports PASS / FAIL with screenshots.
 pkill -f "almanac_server" 2>/dev/null; sleep 1
 cat > /tmp/almanac_server2.py << 'EOF'
 import http.server, os, socketserver
-port = int(os.environ.get('PORT', 7433))
+port = int(os.environ.get('PORT', 7432))
 os.chdir("/Users/zim/Desktop/Claude Code")
 class H(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -24,7 +24,7 @@ S(("", port), H).serve_forever()
 EOF
 python3 /tmp/almanac_server2.py &
 sleep 3
-curl -s -o /dev/null -w "%{http_code}" http://localhost:7433/index.html
+curl -s -o /dev/null -w "%{http_code}" http://localhost:7432/index.html
 ```
 
 Expected: `200`. If not — server failed, report BLOCKED.
@@ -38,7 +38,7 @@ Use `preview_start` with server name `nomadic-almanac` (launch.json at
 If the browser lands on `chrome-error://`, navigate via:
 
 ```javascript
-window.location.href = 'http://localhost:7433/index.html'
+window.location.href = 'http://localhost:7432/index.html'
 ```
 
 Wait **8 seconds** for `data.js` (~2.6 MB, ~44 k lines) to parse.
