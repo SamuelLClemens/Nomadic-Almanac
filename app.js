@@ -2672,8 +2672,9 @@ function buildTerritoryTooltip(id, name, type, adminIso) {
 function initPoliticalLayers() {
   if (!_geoData) return;
 
-  // Country border lines: lines only, not interactive
-  borderLinesLayer = L.geoJSON(_geoData, {
+  // Country border lines: lines only, not interactive. Created empty and filled in slices below,
+  // so the 250 extra polygons never run as one long task (see _naAddFeaturesSliced).
+  borderLinesLayer = L.geoJSON(null, {
     pane: 'politicalPane',
     interactive: false,
     style: () => ({ fill: false, color: 'rgba(255,255,255,0.35)', weight: 0.90 }),
@@ -2710,6 +2711,14 @@ function initPoliticalLayers() {
     borderLinesLayer.addTo(map);
     territoryLayerGroup.addTo(map);
   }
+
+  // Build the border lines in the background. They are decoration (not click targets), so boot
+  // does not wait for them. Their paths land after the territory polygons in the SVG, which would
+  // draw the lines over the territory fills; once the last one exists, restore the original
+  // stacking (territories on top, exactly as when the lines were built first).
+  _naAddFeaturesSliced(borderLinesLayer, _geoData.features).then(function () {
+    if (map && map.hasLayer(territoryLayerGroup)) territoryLayerGroup.eachLayer(function (l) { l.bringToFront(); });
+  }).catch(function (e) { console.warn('Border lines unavailable:', e && e.message); });
 }
 
 function renderPoliticalLayers() {
@@ -2725,6 +2734,72 @@ function renderPoliticalLayers() {
     if (map.hasLayer(borderLinesLayer)) borderLinesLayer.remove();
     if (map.hasLayer(territoryLayerGroup)) territoryLayerGroup.remove();
   }
+}
+
+// ─── Time-slicing helpers (first-load main-thread cost) ───────────────────────
+// The country GeoJSON is about 190 000 vertices. Parsing it and building two Leaflet polygon layers
+// from it (the choropleth and the political borders) used to run as ONE task: about 0.6 s on a
+// laptop and 1.5 to 2.3 s on a phone-class CPU, during which taps, scrolling and tile painting all
+// waited. The helpers below cut that work into slices of a few milliseconds. The end state is
+// identical (same features, same order, same styles); only the moment each polygon appears differs.
+
+// Let the browser run input, paint and tile decoding, then resume. scheduler.yield() keeps the
+// continuation's priority where supported. The fallback is a posted message rather than
+// setTimeout(0): timers are clamped to 4 ms once nested, and to 1 s in a background tab, which
+// would stretch the build out; a posted message is neither.
+function _naYield() {
+  if (typeof scheduler !== 'undefined' && scheduler && typeof scheduler.yield === 'function') return scheduler.yield();
+  return new Promise(function (resolve) {
+    if (typeof MessageChannel === 'function') {
+      var ch = new MessageChannel();
+      ch.port1.onmessage = function () { ch.port1.onmessage = null; resolve(); };
+      ch.port2.postMessage(0);
+    } else {
+      setTimeout(resolve, 0);
+    }
+  });
+}
+const NA_SLICE_MS = 10;   // work budget per slice: well under the 50 ms long-task threshold
+
+// Add GeoJSON features to a layer group one at a time, yielding whenever a slice has used its budget.
+// Behaves like L.geoJSON(featureCollection) followed by addTo(map), except that the group may
+// already be on the map: addData() adds each new polygon to the map itself.
+async function _naAddFeaturesSliced(group, features) {
+  var t0 = performance.now();
+  for (var i = 0; i < features.length; i++) {
+    group.addData(features[i]);
+    if (performance.now() - t0 > NA_SLICE_MS) { await _naYield(); t0 = performance.now(); }
+  }
+}
+
+// Parse a GeoJSON FeatureCollection response without one long task. res.json() parses the whole
+// 3.5 MB body at once. This reads the text, splits it at the feature boundaries and parses a few
+// features per slice, producing the same object. Anything unexpected (other formatting, a split
+// inside a string, a parse error) falls back to one plain JSON.parse of the whole text, so the
+// result can never differ from res.json().
+async function _naParseFeatureCollection(res) {
+  var text = await res.text();
+  var HEAD = '{"type":"FeatureCollection","features":[';
+  var TAIL = ']}';
+  var SEP  = '},{"type":"Feature"';
+  if (text.startsWith(HEAD) && text.endsWith(TAIL)) {
+    try {
+      var features = [];
+      var end = text.length - TAIL.length;
+      var pos = HEAD.length;
+      var t0 = performance.now();
+      while (pos < end) {
+        var next = text.indexOf(SEP, pos);
+        var last = next === -1 || next >= end;
+        features.push(JSON.parse(text.slice(pos, last ? end : next + 1)));
+        if (last) break;
+        pos = next + 2;
+        if (performance.now() - t0 > NA_SLICE_MS) { await _naYield(); t0 = performance.now(); }
+      }
+      if (features.length) return { type: 'FeatureCollection', features: features };
+    } catch (e) { /* fall through to the whole-document parse */ }
+  }
+  return JSON.parse(text);
 }
 
 // ─── Choropleth ───────────────────────────────────────────────────────────────
@@ -2748,13 +2823,14 @@ async function initChoropleth() {
     clearTimeout(timeout);
     clearTimeout(slowTimer);
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    data = await res.json();
+    data = await _naParseFeatureCollection(res);
   } catch (e) {
     clearTimeout(timeout);
     clearTimeout(slowTimer);
     console.warn('Country GeoJSON unavailable: map will render without choropleth:', e.message);
     const st = document.getElementById('map-status');
     if (st) { st.textContent = '⚠ Country data unavailable: check your connection and reload.'; st.style.display = 'block'; }
+    _naCountriesSettled();
     return;
   }
   _geoData = data;  // cache for border-lines layer
@@ -2765,7 +2841,10 @@ async function initChoropleth() {
     if (iso2 && iso2 !== '-99') countryNames[iso2] = name;
   });
 
-  geojsonLayer = L.geoJSON(data, {
+  // Built empty and already on the map, then filled in slices (see _naAddFeaturesSliced). Each
+  // polygon's style is computed as it is created, so layers toggled mid-build are honoured, and
+  // renderChoropleth() (called by refresh()) restyles whatever exists at that moment.
+  geojsonLayer = L.geoJSON(null, {
     pane: 'choroplethPane',
     style: feature => {
       const iso2 = getIso2(feature.properties);
@@ -2796,6 +2875,8 @@ async function initChoropleth() {
       });
     },
   }).addTo(map);
+  await _naAddFeaturesSliced(geojsonLayer, data.features);
+  _naCountriesSettled();
 }
 
 function renderChoropleth() {
@@ -8600,8 +8681,11 @@ var _admin2MoveDebounce = null;
 
 // Idle prefetch: warm the HTTP cache for the two big lazy assets so the first
 // zoom past province/county level feels instant instead of waiting on a
-// multi-MB fetch. Runs only after the window load event and during an idle
-// slot, so it never competes with boot work; failures are silently ignored
+// multi-MB fetch. Runs only after the window load event AND once the country
+// polygons have settled (built, or failed), and during an idle slot, so it
+// never competes with boot work or with the 1.2 MB country download: on a slow
+// link the old load-time start shared the connection with that download and
+// delayed the visitor's own polygons by seconds. Failures are silently ignored
 // (the real lazy-load paths fetch normally and remain the source of truth).
 function _idlePrefetchHeavyAssets() {
   // About 3 MB of speculative download: skip it for people who asked to save data or are on a
@@ -8616,8 +8700,16 @@ function _idlePrefetchHeavyAssets() {
     } catch (e) {}
   });
 }
-if (document.readyState === 'complete') _idlePrefetchHeavyAssets();
-else window.addEventListener('load', _idlePrefetchHeavyAssets, { once: true });
+var _naPrefetchGates = 2;   // window load, country polygons settled
+function _naPrefetchGateOpen() { if (--_naPrefetchGates === 0) _idlePrefetchHeavyAssets(); }
+var _naCountriesSettledOnce = false;
+function _naCountriesSettled() {
+  if (_naCountriesSettledOnce) return;
+  _naCountriesSettledOnce = true;
+  _naPrefetchGateOpen();
+}
+if (document.readyState === 'complete') _naPrefetchGateOpen();
+else window.addEventListener('load', _naPrefetchGateOpen, { once: true });
 
 // ─── NYC NYPD Precinct Crime Sublayer ────────────────────────────────────────
 // Renders color-coded precinct markers when Safety layer is active, zoom >= 10,
