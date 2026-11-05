@@ -226,7 +226,7 @@ html, body {
     rgba(28,20,8,0.78)  370px
   );
   border-bottom: 1px solid var(--b2);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
 }
 
 #topbar::after {
@@ -621,14 +621,18 @@ html, body {
 }
 
 /* ─── Map Status ─────────────────────────────────────────────────────────── */
+/* left/bottom clear the sidebar (240px, or 64px on laptops) and the phone bottom nav, which used
+   to cover this message. */
 #map-status {
   display: none;
-  position: fixed; bottom: 18px; left: 14px; z-index: 1000;
+  position: fixed; bottom: 18px; left: calc(var(--sidebar-w) + 14px); z-index: 1000;
   background: rgba(16,12,5,0.82); color: var(--sand);
   font-family: var(--fm); font-size: 10px;
   padding: 6px 10px; border-radius: 4px;
   pointer-events: none; letter-spacing: 0.04em;
 }
+@media (max-width: 1279px) { #map-status { left: calc(var(--sidebar-w-sm) + 14px); } }
+@media (max-width: 767px)  { #map-status { left: 10px; bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 10px); } }
 
 /* ─── Legend (Field Guide) ───────────────────────────────────────────────── */
 #legend {
@@ -642,7 +646,7 @@ html, body {
   background: rgba(14,11,6,0.84); border: 1px solid var(--b2);
   border-left: 2px solid rgba(201,168,76,0.35);
   border-radius: 9px; padding: 9px 11px;
-  backdrop-filter: blur(22px); min-width: 178px; max-width: 230px;
+  -webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px); min-width: 178px; max-width: 230px;
   display: none; box-shadow: 0 6px 24px rgba(0,0,0,.55);
   font-family: var(--fm);
   opacity: 0.88;
@@ -683,7 +687,7 @@ html, body {
   border-radius: 10px; padding: 8px;
   display: none; flex-direction: column; gap: 2px;
   min-width: 175px; box-shadow: 0 8px 28px rgba(0,0,0,.88);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
   max-height: 280px; overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(201,168,76,0.3) transparent;
@@ -1117,7 +1121,7 @@ html, body {
   /* Thumb-reachable tap targets (was 8px — too small to hit reliably). */
   .mb { padding: 6px 10px; font-size: 11px; }
   .lb, .tb { padding: 6px 10px; font-size: 10px; }
-  #map-status { bottom: 10px; left: 10px; font-size: 9px; }
+  #map-status { font-size: 9px; }
   /* iOS Safari zooms viewport on focus if input font-size < 16px.
      Override to 16px on mobile so the map stays in frame. */
   #country-search, #passport-select { font-size: 16px !important; }
@@ -2356,7 +2360,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 
 #na-prefs-overlay {
   position: absolute; inset: 0;
-  background: rgba(5,8,20,0.72); backdrop-filter: blur(2px);
+  background: rgba(5,8,20,0.72); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
 }
 
 #na-prefs-panel {
@@ -2898,7 +2902,7 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 #na-more-sheet[hidden] { display: none; }
 #na-more-overlay {
   position: absolute; inset: 0;
-  background: rgba(5,8,20,0.72); backdrop-filter: blur(2px);
+  background: rgba(5,8,20,0.72); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
 }
 #na-more-panel {
   position: relative; z-index: 1;

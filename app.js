@@ -30,6 +30,15 @@ function na_makeStore(kind) {
 var NA_LS = na_makeStore('localStorage');
 var NA_SS = na_makeStore('sessionStorage');
 
+// AbortSignal.timeout() is missing before Safari 16 / Chrome 103; calling it throws TypeError and
+// the feature that needed it fails. This falls back to an AbortController and a timer.
+function na_timeoutSignal(ms) {
+  if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) return AbortSignal.timeout(ms);
+  var c = new AbortController();
+  setTimeout(function () { c.abort(); }, ms);
+  return c.signal;
+}
+
 // ─── State ────────────────────────────────────────────────────────────────────
 let activeMonth    = new Date().getMonth();
 let selectedMonths = new Set([new Date().getMonth()]);
@@ -1567,6 +1576,7 @@ function initMap() {
   var style = (_mapStyle && BASEMAP_CONFIGS[_mapStyle]) ? _mapStyle : 'satellite';
   _mapStyle = style;   // an unknown stored value must not outlive this line (labels and credits key off it)
   _basemapLayer = na_newBasemapLayer(BASEMAP_CONFIGS[style]).addTo(map);
+  na_watchBasemap(_basemapLayer, style);
 
   // Place-labels overlay, kept in a reference so it can be toggled on/off independently of
   // the basemap (the on-map switcher exposes a Labels control). Built per basemap style.
@@ -1766,7 +1776,7 @@ function buildLayerButtons() {
     const catDd = document.createElement('div');
     catDd.id = 'cat-dd-' + group.id;
     catDd.className = 'cat-dropdown';
-    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;max-width:250px;box-shadow:0 10px 36px rgba(0,0,0,.88);backdrop-filter:blur(20px);max-height:80vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,0.3) transparent';
+    catDd.style.cssText = 'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2);border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px;min-width:185px;max-width:250px;box-shadow:0 10px 36px rgba(0,0,0,.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);max-height:80vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,0.3) transparent';
     document.body.appendChild(catDd);
 
     // Group header label
@@ -1993,7 +2003,7 @@ function _makeDropdown(id) {
     'position:fixed;z-index:1600;background:var(--panel);border:1px solid var(--b2)',
     'border-radius:10px;padding:10px;display:none;flex-direction:column;gap:4px',
     'min-width:210px;max-width:260px;box-shadow:0 10px 36px rgba(0,0,0,.88)',
-    'backdrop-filter:blur(20px);max-height:80vh;overflow-y:auto',
+    '-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);max-height:80vh;overflow-y:auto',
     'scrollbar-width:thin;scrollbar-color:rgba(201,168,76,0.3) transparent',
   ].join(';');
   document.body.appendChild(dd);
@@ -2720,13 +2730,17 @@ function renderPoliticalLayers() {
 // ─── Choropleth ───────────────────────────────────────────────────────────────
 async function initChoropleth() {
   let data;
+  // Declared outside the try so the catch can clear them. Cleared only on success, the 5 s
+  // "Loading map data" timer used to fire AFTER a failed fetch and overwrite the "Country data
+  // unavailable" message with a loading message that never resolved.
+  let timeout = null, slowTimer = null;
   try {
     // Self-hosted in data/countries.geojson — eliminates external CDN dependency.
     // Abort after 60 s (generous for slow 3G connections).
     // Show a status message after 5 s so users know why the map has no colours.
     const ctrl    = new AbortController();
-    const timeout = setTimeout(() => ctrl.abort(), 60000);
-    const slowTimer = setTimeout(() => {
+    timeout = setTimeout(() => ctrl.abort(), 60000);
+    slowTimer = setTimeout(() => {
       const st = document.getElementById('map-status');
       if (st) { st.textContent = '⏳ Loading map data… This may take a moment on slower connections.'; st.style.display = 'block'; }
     }, 5000);
@@ -2736,6 +2750,8 @@ async function initChoropleth() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
   } catch (e) {
+    clearTimeout(timeout);
+    clearTimeout(slowTimer);
     console.warn('Country GeoJSON unavailable — map will render without choropleth:', e.message);
     const st = document.getElementById('map-status');
     if (st) { st.textContent = '⚠ Country data unavailable — check your connection and reload.'; st.style.display = 'block'; }
@@ -3334,7 +3350,7 @@ out body;`;
       const res  = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
         body: 'data=' + encodeURIComponent(query),
-        signal: AbortSignal.timeout(22000),
+        signal: na_timeoutSignal(22000),
       });
       if (!res.ok) return;
       const json = await res.json();
@@ -4994,7 +5010,7 @@ function _fetchCurrentWeather(lat, lng, iso2, callback) {
   var key = iso2 || (Math.round(lat*2)/2 + ',' + Math.round(lng*2)/2);
   if (_weatherCache[key]) { callback(_weatherCache[key]); return; }
   var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) + '&longitude=' + lng.toFixed(3) + '&current_weather=true&wind_speed_unit=kmh';
-  fetch(url, {signal: AbortSignal.timeout(5000)})
+  fetch(url, {signal: na_timeoutSignal(5000)})
     .then(function(r){return r.json();})
     .then(function(d){
       if (d && d.current_weather) {
@@ -8588,6 +8604,10 @@ var _admin2MoveDebounce = null;
 // slot, so it never competes with boot work; failures are silently ignored
 // (the real lazy-load paths fetch normally and remain the source of truth).
 function _idlePrefetchHeavyAssets() {
+  // About 3 MB of speculative download: skip it for people who asked to save data or are on a
+  // slow cellular link, where it would compete with the tiles and data they actually need.
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && (conn.saveData || /^(slow-2g|2g|3g)$/.test(conn.effectiveType || ''))) return;
   var idle = window.requestIdleCallback || function (fn) { setTimeout(fn, 4000); };
   idle(function () {
     try {
@@ -9440,7 +9460,28 @@ function na_applyLabelLayer() {
   }
 }
 
-function na_setBasemap(style) {
+// Every tile provider can rate-limit, change its terms or go down (CARTO just did), and a blank map
+// with no explanation breaks the STATIC SITE RUNTIME DEPENDENCY RULE: external data must never fail
+// silently. If a basemap has failed 6 tiles and NEVER delivered one, switch once to a different
+// provider (satellite is Esri, so its fallback is Terrain; every other style falls back to
+// satellite). A flaky connection that still lands some tiles never triggers it, offline is not a
+// provider fault, and only ONE automatic switch is allowed per visit so two dead providers cannot
+// ping-pong. The switch is not saved: people return to their own choice once the provider recovers.
+var _basemapAutoFell = false;
+function na_watchBasemap(layer, style) {
+  var errs = 0, loaded = 0;
+  layer.on('tileload', function () { loaded++; });
+  layer.on('tileerror', function () {
+    if (_mapStyle !== style || navigator.onLine === false || _basemapAutoFell || loaded > 0) return;
+    if (++errs < 6) return;
+    _basemapAutoFell = true;
+    var next = (style === 'satellite') ? 'terrain' : 'satellite';
+    if (typeof na_toast === 'function') na_toast('That map style is unavailable right now, so the map switched to ' + (next === 'terrain' ? 'Terrain' : 'Satellite') + '.', 4500);
+    na_setBasemap(next, { transient: true });
+  });
+}
+
+function na_setBasemap(style, opts) {
   var configs = window._BASEMAP_CONFIGS;
   if (!configs || !configs[style] || !map) return;
   var bc = configs[style];
@@ -9448,21 +9489,9 @@ function na_setBasemap(style) {
   // differ per style, and setUrl() leaves those stale. Recreating guarantees correct tiles.
   if (_basemapLayer) map.removeLayer(_basemapLayer);
   _basemapLayer = na_newBasemapLayer(bc).addTo(map);
-  // Any non-satellite provider can rate-limit, change its terms or go down. If its tiles start
-  // failing, fall back to satellite instead of rendering silent blank tiles (STATIC SITE RUNTIME
-  // DEPENDENCY RULE: external data must never fail silently). Being offline is not a provider fault.
-  if (style !== 'satellite') {
-    var _tileErrs = 0;
-    _basemapLayer.on('tileerror', function () {
-      if (_mapStyle !== style || navigator.onLine === false) return;
-      if (++_tileErrs === 5) {
-        if (typeof na_toast === 'function') na_toast('That map style is unavailable right now, so the map switched to Satellite.', 4000);
-        na_setBasemap('satellite');
-      }
-    });
-  }
+  na_watchBasemap(_basemapLayer, style);
   _mapStyle = style;
-  NA_LS.setItem('na_mapstyle', style);
+  if (!(opts && opts.transient)) NA_LS.setItem('na_mapstyle', style);
   na_applyLabelLayer();
   na_updateAttribution();
   na_syncPrefsUI();
