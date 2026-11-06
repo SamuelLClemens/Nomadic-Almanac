@@ -1079,6 +1079,11 @@
 <script defer src="app.js"></script>
 <!-- Heavy split-out data tables are NOT script tags here, so that nothing but the
      three files above competes with them on a slow first visit:
+     - data-cities.js (the city table, 0.12 MB gz) is injected by app.js
+       (_naEnsureCities) once the page is quiet, or at once if something needs it
+       sooner (city dots from zoom 4, search, the province and county builds).
+       It calls data.js's mk()/rep()/s12() helpers and appends to the CITIES
+       array data.js defines, so it must run after data.js and must not be async.
      - data-detail.js (country dossier prose, 0.23 MB gz) is injected by app.js
        (_naEnsureDetail) once the page is quiet, or at once if a dossier is
        opened sooner; the open dossier is then rebuilt in place. It was a defer

@@ -42,6 +42,8 @@ const { point }             = require('@turf/helpers');
 
 const ADMIN2_DIR = path.resolve(__dirname, '../data/admin2');
 const CITIES_FILE = path.resolve(__dirname, '../data.js');
+// data.js defines `const CITIES = [];`; data-cities.js appends the entries (loaded after boot in the app).
+const CITIES_PART_FILE = path.resolve(__dirname, '../data-cities.js');
 
 // ISO 3166-1 alpha-2 → alpha-3 (must match ISO2_TO_ISO3 in data.js)
 const ISO2_TO_ISO3 = {
@@ -56,7 +58,7 @@ const ISO2_TO_ISO3 = {
 // We execute data.js in a sandbox to extract the CITIES array and CD_A1 keys.
 
 function loadDataJs() {
-  const src = fs.readFileSync(CITIES_FILE, 'utf8');
+  const src = fs.readFileSync(CITIES_FILE, 'utf8') + '\n' + fs.readFileSync(CITIES_PART_FILE, 'utf8');
 
   // Provide stubs for the helper functions used in data.js
   const rep  = v  => Array(12).fill(v);
@@ -111,7 +113,7 @@ async function main() {
     cities = dataJs.CITIES;
   } else {
     // Fallback: parse city lat/lng/country from mk() calls via regex
-    const src = fs.readFileSync(CITIES_FILE, 'utf8');
+    const src = fs.readFileSync(CITIES_FILE, 'utf8') + '\n' + fs.readFileSync(CITIES_PART_FILE, 'utf8');
     const mkRe = /mk\(\s*'([^']+)'\s*,\s*'([A-Z]{2})'\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)/g;
     let m;
     while ((m = mkRe.exec(src)) !== null) {

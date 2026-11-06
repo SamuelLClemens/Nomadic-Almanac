@@ -2982,7 +2982,9 @@ async function initAdmin1Choropleth() {
     });
 
     // Borrow real climate from the cities inside each province (used only where
-    // CD_A1 has no explicit value for a layer). Computed once, before first paint.
+    // CD_A1 has no explicit value for a layer). Computed once, before first paint, so it waits for
+    // the city table (data-cities.js loads after boot; normally it is long since there).
+    await _naWhenCities();
     try {
       const a1cities = (typeof CITIES !== 'undefined')
         ? CITIES.filter(c => c && _coveredByAdmin1.has(c.country)) : [];
@@ -3059,6 +3061,9 @@ async function loadAdmin2Country(iso2) {
     const res = await fetch(`data/admin2/${iso3}_ADM2_simplified.geojson`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const geojson = await res.json();
+    // The county climate below derives from the city table (data-cities.js loads after boot):
+    // wait for it before publishing the file, so the cache entry still reads as in flight.
+    await _naWhenCities();
     _admin2Cache[iso2] = geojson;
     if (statusEl) statusEl.style.display = 'none';
 
@@ -3218,6 +3223,8 @@ function renderCityMarkers() {
     }
     return;
   }
+  // Table not loaded yet (data-cities.js arrives after boot): ask for it; _naCitiesArrived re-runs this.
+  if (!_naCitiesDone) { _naEnsureCities(); return; }
   const list = zoom < 5 ? _capitalCities() : CITIES;
   // Viewport-gated like the glyph clusters: only cities inside the padded
   // bounds get DOM markers; the debounced moveend handler fills in newly
@@ -8710,42 +8717,96 @@ function _idlePrefetchHeavyAssets() {
 }
 // index.html defines window._naSwRegister (and a 20 s backstop timer); it is absent without service workers.
 function _naRegisterSW() { try { if (window._naSwRegister) window._naSwRegister(); } catch (_e) {} }
-// Post-boot loading order, each step waiting for the one before it so nothing shares the
-// connection with the 1.2 MB country download or the first tiles:
-//   window load AND country polygons settled -> data-detail.js (dossier prose, 0.23 MB gz)
-//   data-detail.js settled                    -> the idle prefetch above (admin-1 and admin-2, 3 MB)
-var _naQuietGates = 2;      // window load, country polygons settled
-var _naPrefetchGates = 3;   // the same two, plus data-detail.js settled
-function _naQuietGateOpen() { if (--_naQuietGates === 0) _naEnsureDetail(); }
-function _naPrefetchGateOpen() { if (--_naPrefetchGates === 0) _idlePrefetchHeavyAssets(); }
-function _naPageGateOpen() { _naQuietGateOpen(); _naPrefetchGateOpen(); }
+// ─── Post-boot loading chain ────────────────────────────────────────────────
+// Only index.html, style.css, leaflet.js, data.js and app.js are on the first-paint path. The rest
+// loads afterwards, one step at a time so no step shares the connection with the 1.2 MB country
+// download or the first tiles:
+//   window load AND country polygons settled
+//     -> data-cities.js  (the city table, 0.12 MB gz)
+//     -> data-detail.js  (dossier prose, 0.23 MB gz)
+//     -> the idle prefetch above (admin-1 and admin-2, 3 MB) and the service worker registration
+// Code that needs a step sooner asks for it (_naEnsureCities, _naEnsureDetail) and the chain then
+// simply finds that step done.
+var _naQuiet = false;                       // load and polygons both settled
+var _naChain = { cities: false, detail: false, tail: false };
+var _naLoadSeen = false;
 var _naCountriesSettledOnce = false;
+function _naChainNext() {
+  if (!_naQuiet) return;
+  if (!_naChain.cities) { _naEnsureCities(); return; }
+  if (!_naChain.detail) { _naEnsureDetail(); return; }
+  if (!_naChain.tail) { _naChain.tail = true; _idlePrefetchHeavyAssets(); }
+}
+function _naQuietCheck() {
+  if (_naLoadSeen && _naCountriesSettledOnce && !_naQuiet) { _naQuiet = true; _naChainNext(); }
+}
 function _naCountriesSettled() {
   if (_naCountriesSettledOnce) return;
   _naCountriesSettledOnce = true;
-  _naPageGateOpen();
+  _naQuietCheck();
 }
-if (document.readyState === 'complete') _naPageGateOpen();
-else window.addEventListener('load', _naPageGateOpen, { once: true });
+function _naOnLoad() { _naLoadSeen = true; _naQuietCheck(); }
+if (document.readyState === 'complete') _naOnLoad();
+else window.addEventListener('load', _naOnLoad, { once: true });
+
+// ─── City table (data-cities.js) ────────────────────────────────────────────
+// data.js defines `const CITIES = [];` and data-cities.js appends the 3,852 entries (1.2 MB, 0.12 MB
+// gz) after boot: city dots only draw from zoom 4, so the table is not needed for the first paint.
+// Readers: renderCityMarkers and the search box re-run when the table lands; the admin-1 and admin-2
+// builds, which derive province and county climate from the cities once, wait for it (_naWhenCities).
+var _naCitiesReq = false;
+var _naCitiesDone = false;
+var _naCitiesFails = 0;
+var _naCitiesWaiters = [];
+var _naSearchStale = false;   // search results were computed while the table was missing
+function _naCitiesSettle() {
+  _naChain.cities = true;
+  var w = _naCitiesWaiters; _naCitiesWaiters = [];
+  w.forEach(function (resolve) { resolve(); });
+  _naChainNext();
+}
+function _naEnsureCities() {
+  if (_naCitiesDone) { if (!_naChain.cities) _naCitiesSettle(); return; }
+  if (_naCitiesReq) return;
+  _naCitiesReq = true;
+  var s = document.createElement('script');
+  s.src = 'data-cities.js';
+  s.onload = function () { _naCitiesDone = true; _naCitiesArrived(); _naCitiesSettle(); };
+  // On failure allow one retry on a later demand (city dots ask on every pan, so not more);
+  // anything waiting carries on with the empty table, as it did when the table was missing before.
+  s.onerror = function () { _naCitiesFails++; _naCitiesReq = _naCitiesFails >= 2; _naCitiesSettle(); };
+  document.head.appendChild(s);
+}
+// Resolves once the table has loaded (or failed for good): for code that derives data from it once.
+function _naWhenCities() {
+  if (_naCitiesDone || _naCitiesFails >= 2) return Promise.resolve();
+  return new Promise(function (resolve) { _naCitiesWaiters.push(resolve); _naEnsureCities(); });
+}
+function _naCitiesArrived() {
+  try { if (typeof map !== 'undefined' && map) renderCityMarkers(); } catch (_e) {}
+  if (_naSearchStale) {
+    _naSearchStale = false;
+    var si = document.getElementById('na-search-input');
+    if (si && si.value.trim().length >= 2) { try { si.dispatchEvent(new Event('input')); } catch (_e) {} }
+  }
+}
 
 // ─── Dossier prose tables (data-detail.js) ──────────────────────────────────
 // COUNTRY_FACTS, COUNTRY_INTEL, COUNTRY_EXTRA, PHRASES_BY_LANG, VACCINE_DATA and
 // TIPPING_DETAIL_DATA (0.9 MB, 0.23 MB gz) only feed the country dossier, so they are not a
 // <script> tag in index.html: as one, the download shared the connection with data.js and app.js
-// and delayed the first map paint. They load once the page is quiet (see the gates above), or at
+// and delayed the first map paint. They load once the page is quiet (see the chain above), or at
 // once when a dossier is built sooner (search, a glyph or a map click). Every reader typeof-guards
 // the tables, so an early dossier simply renders without the prose; _naDetailArrived then rebuilds
 // it in place. The file is pure literals with no data.js helper calls, so injection order is free.
 var _naDetailReq = false;
-var _naDetailSettledOnce = false;
 var _naDossierWantsDetail = false;   // a dossier was built while the tables were missing
 function _naDetailSettled() {
-  if (_naDetailSettledOnce) return;
-  _naDetailSettledOnce = true;
-  _naPrefetchGateOpen();
+  _naChain.detail = true;
+  _naChainNext();
 }
 function _naEnsureDetail() {
-  if (typeof COUNTRY_FACTS !== 'undefined') { _naDetailSettled(); return; }
+  if (typeof COUNTRY_FACTS !== 'undefined') { if (!_naChain.detail) _naDetailSettled(); return; }
   if (_naDetailReq) return;
   _naDetailReq = true;
   var s = document.createElement('script');
@@ -10086,6 +10147,7 @@ function na_initSearch() {
       }
       // Search cities (notable places): fulfils the tour's "jump to any city".
       // Cap before render to keep the list responsive on the full CITIES array.
+      if (!_naCitiesDone) { _naSearchStale = true; _naEnsureCities(); }   // re-run when the table lands
       if (typeof CITIES !== 'undefined' && Array.isArray(CITIES)) {
         var _cityHits = 0;
         for (var ci = 0; ci < CITIES.length && _cityHits < 12; ci++) {
