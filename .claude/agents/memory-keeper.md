@@ -69,7 +69,7 @@ Extract the exact signatures (name + parameter list) and approximate line number
 Also record the state variables listed near the top of app.js.
 
 ### 2d: CITIES count
-Count the number of entries in the `CITIES` array (entries using the `mk(...)` helper).
+Count the number of entries in the `CITIES` array (entries using the `mk(...)` helper). The entries live in `data-cities.js`; `data.js` only defines the empty array.
 
 ### 2e: BORDERS count
 Count the number of entries in the `BORDERS` array (entries using the `bc(...)` helper).

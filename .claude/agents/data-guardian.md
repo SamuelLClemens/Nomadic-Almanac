@@ -13,6 +13,8 @@ The file under validation is always:
 /Users/zim/Desktop/Claude Code/data.js
 ```
 
+The city table was split out of `data.js`: `data.js` defines `const CITIES = [];` and `data-cities.js` (same directory) holds every `mk(...)` entry. Run every check below on `data-cities.js` as well.
+
 `data.js` is a hand-edited, ~1700-line plain JavaScript file with no build step. A single bad character silently kills the entire page. Your job is to catch every class of error listed below before anything is committed.
 
 ---
