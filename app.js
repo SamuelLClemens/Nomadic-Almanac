@@ -78,9 +78,9 @@ let _holidayMarkers = [];
 // ─── Visit counting and the Visitors layer: configuration ───────────────────────────────────────
 // NA_ANALYTICS_SITE is the ONLY switch for visit counting. Leave it empty and the page makes no
 // analytics request of any kind. To switch counting on, set it to the site code of the analytics
-// account (for GoatCounter, the "name" in https://name.goatcounter.com) AFTER the owner has taken
-// advice from Omer Hanegbi or Omri Siri on whether a notice or consent is needed. Steps:
-// docs/visitors-layer.md. The script loads after boot, never when Do Not Track is on.
+// account (for GoatCounter, the "name" in https://name.goatcounter.com). The site code is not a
+// secret; the API key is, and never belongs in this file. Steps: docs/visitors-layer.md. The script
+// loads after boot, never when Do Not Track is on.
 const NA_ANALYTICS_SITE = '';
 const NA_ANALYTICS_SRC  = 'https://gc.zgo.at/count.js';   // the one host the Content-Security-Policy allows
 // Countries with fewer visits than this are never drawn, whatever the data file says. The file is
@@ -11860,7 +11860,7 @@ Object.assign(_I18N, {
 // ── Visitors layer (where visitors come from): interface strings in 11 languages ──
 // Same additive deep-merge pattern. English is the reference text; the other ten are first drafts
 // that a native reader should confirm. The privacy line is a plain-language description of how this
-// site handles the data, not legal text: its final wording belongs to Omer Hanegbi or Omri Siri.
+// site handles the data, not legal text.
 (function (p) { Object.keys(p).forEach(function (l) { _I18N[l] = Object.assign(_I18N[l] || {}, p[l]); }); })({
   en: { "layer.visitors": "Visitors", "visitors.visits": "Visits", "visitors.updated": "Updated", "visitors.shown": "Countries shown",
     "visitors.size": "Pin size shows the number of visits.", "visitors.empty": "No visit data yet",

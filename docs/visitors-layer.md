@@ -18,9 +18,14 @@ Data file contract:
 
 The repository does not contain a `data/visitors.json`. Do not add sample numbers.
 
-## Step 0: obtain advice before enabling collection
+## Legal sign-off
 
-Whether a notice or a consent is needed for international visitors is a legal question. This change does not answer it. Consult Omer Hanegbi or Omri Siri before setting the site code in step 3. The plain-language note in the layer legend describes how the site handles the data; its final wording is also for them to confirm.
+The owner reports that Omri Siri has signed off on this layer (owner's statement in chat, 2026-11-06), so no further legal consultation is needed before collection is enabled. This document and the change itself give no legal advice. The plain-language note in the layer legend describes how the site handles the data; it is not legal text.
+
+## What the owner supplies
+
+- **The site code** (the `name` in `https://name.goatcounter.com`). It is not a secret: once collection is on it is visible in the page source. It goes into `NA_ANALYTICS_SITE` in `app.js` (step 3) and is the only value that needs to be handed to whoever makes that edit.
+- **The API key.** It is a secret. It goes only into the environment variable `GOATCOUNTER_TOKEN` on the machine that runs the script (step 4). Do not send it to anyone in chat or email, and do not put it in a file in this repository.
 
 ## Step 1: create the analytics account (owner action)
 
