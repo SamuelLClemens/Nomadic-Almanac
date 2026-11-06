@@ -1095,6 +1095,9 @@ const LAYERS = {
   scam:         { name:'Scam Risk',           emoji:'⚠', color:'#fb923c', levels:['Minimal','Low','Moderate','High Risk'] },
   malaria:      { name:'Malaria & Mosquito Risk', emoji:'🦟', color:'#a3e635', levels:['No Risk','Low Risk','Moderate','High Risk'] },
   elevation:    { label:'🏔 Elevation / Terrain', icon:'🏔', cat:'terrain', desc:'OpenTopoMap topographic overlay showing elevation and terrain. Based on OpenStreetMap + SRTM data.' },
+  // Pin overlay, not a 0-3 score layer: it has no `levels` and never enters activeLayers (toggleLayer keeps its
+  // on/off state in _naVisitors), so the choropleth, glyph chips and Combined View ignore it. Data: data/visitors.json.
+  visitors:     { name:'Visitors', emoji:'🌍', color:'#E0A84B', cat:'overlay', overlay:true, desc:'Where visitors to this site come from: one pin per country, sized by number of visits. Countries with fewer than 3 visits are hidden.' },
 };
 
 const DESCS = {

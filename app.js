@@ -75,6 +75,23 @@ let _roadDebounce = null;
 // Holiday markers (rendered from static COUNTRY_HOLIDAYS data)
 let _holidayMarkers = [];
 
+// ─── Visit counting and the Visitors layer: configuration ───────────────────────────────────────
+// NA_ANALYTICS_SITE is the ONLY switch for visit counting. Leave it empty and the page makes no
+// analytics request of any kind. To switch counting on, set it to the site code of the analytics
+// account (for GoatCounter, the "name" in https://name.goatcounter.com) AFTER the owner has taken
+// advice from Omer Hanegbi or Omri Siri on whether a notice or consent is needed. Steps:
+// docs/visitors-layer.md. The script loads after boot, never when Do Not Track is on.
+const NA_ANALYTICS_SITE = '';
+const NA_ANALYTICS_SRC  = 'https://gc.zgo.at/count.js';   // the one host the Content-Security-Policy allows
+// Countries with fewer visits than this are never drawn, whatever the data file says. The file is
+// filtered at generation too (scripts/update_visitors.py); this is the second, independent check.
+const NA_VISITORS_FLOOR = 3;
+// Visitors layer state. It is deliberately NOT part of activeLayers: it is a pin overlay with no
+// 0-3 score, and activeLayers drives the choropleth, the glyph chips and the Combined View.
+// state: idle -> loading -> ready | empty | error. The data file is fetched only once the layer is
+// first switched on.
+let _naVisitors = { active: false, state: 'idle', rows: [], updated: '', markers: [], json: null };
+
 // Click-toggle tooltip: tracks which feature's popup is currently open.
 // Clicking the same feature again closes the tooltip (toggle behavior).
 let _activeTooltipKey = null;
@@ -1695,10 +1712,16 @@ const CAT_GROUPS = [
 // toggleElevationLayer(activeLayers.has('elevation')), so no special-casing here.
 function toggleLayer(key) {
   if (!key) return;
-  if (activeLayers.has(key)) activeLayers.delete(key);
+  // The Visitors pin overlay keeps its own on/off flag (see _naVisitors); everything else below,
+  // refresh() included, then treats it like any other layer surface.
+  if (key === 'visitors') {
+    _naVisitors.active = !_naVisitors.active;
+    if (_naVisitors.active && _naVisitors.state === 'error') _naVisitors.state = 'idle';   // retry after a failed load
+  }
+  else if (activeLayers.has(key)) activeLayers.delete(key);
   else activeLayers.add(key);
   const pill = document.querySelector('.lb[data-key="' + key + '"]');
-  if (pill) { pill.classList.toggle('on', activeLayers.has(key)); pill.setAttribute('aria-pressed', activeLayers.has(key) ? 'true' : 'false'); }
+  if (pill) { pill.classList.toggle('on', _naLayerOn(key)); pill.setAttribute('aria-pressed', _naLayerOn(key) ? 'true' : 'false'); }
   _announceLayerToggle(key);
   syncMoreButtonState();
   syncCatButtons();
@@ -4773,26 +4796,7 @@ function _renderHolidayMarkers() {
     ? [0,1,2,3,4,5,6,7,8,9,10,11]
     : [...selectedMonths].length ? [...selectedMonths] : [activeMonth];
 
-  // Build a centroid lookup: COUNTRY_CENTERS (always available) plus _geoData bounds
-  // for any country not in COUNTRY_CENTERS.
-  const centroids = {};
-  if (typeof COUNTRY_CENTERS !== 'undefined') {
-    Object.entries(COUNTRY_CENTERS).forEach(([iso2, c]) => {
-      centroids[iso2] = { lat: c[0], lng: c[1] };
-    });
-  }
-  if (_geoData && _geoData.features) {
-    _geoData.features.forEach(f => {
-      const iso2 = getIso2(f.properties);
-      if (!iso2 || centroids[iso2]) return;   // already have it
-      try {
-        const b = L.geoJSON(f).getBounds();
-        const lat = (b.getSouth() + b.getNorth()) / 2;
-        const lng = (b.getWest()  + b.getEast())  / 2;
-        if (isFinite(lat) && isFinite(lng)) centroids[iso2] = { lat, lng };
-      } catch(_) {}
-    });
-  }
+  const centroids = _naCountryCentroids();
 
   // Union of every country that has a holiday OR a festival/event this month.
   const EV = (typeof COUNTRY_EVENTS !== 'undefined') ? COUNTRY_EVENTS : {};
@@ -4836,6 +4840,207 @@ function _renderHolidayMarkers() {
     marker.addTo(map);
     _holidayMarkers.push(marker);
   });
+}
+
+// ─── Country centroids (shared by Events & Holidays and Visitors) ───────────────
+// COUNTRY_CENTERS (always available, about 95 countries) plus the centre of the _geoData bounds
+// for every country it lacks. A country that straddles the antimeridian (Fiji, Kiribati) has bounds
+// spanning the whole globe, whose midpoint lies in the Atlantic: for those the largest part counts.
+function _naFeatureBounds(f) {
+  let b = L.geoJSON(f).getBounds();
+  if (b.getEast() - b.getWest() > 180 && f.geometry && f.geometry.type === 'MultiPolygon') {
+    let best = null, bestArea = -1;
+    f.geometry.coordinates.forEach(poly => {
+      const pb = L.geoJSON({ type: 'Feature', geometry: { type: 'Polygon', coordinates: poly } }).getBounds();
+      const area = (pb.getEast() - pb.getWest()) * (pb.getNorth() - pb.getSouth());
+      if (area > bestArea) { bestArea = area; best = pb; }
+    });
+    if (best) b = best;
+  }
+  return b;
+}
+function _naCountryCentroids() {
+  const centroids = {};
+  if (typeof COUNTRY_CENTERS !== 'undefined') {
+    Object.entries(COUNTRY_CENTERS).forEach(([iso2, c]) => {
+      centroids[iso2] = { lat: c[0], lng: c[1] };
+    });
+  }
+  if (_geoData && _geoData.features) {
+    _geoData.features.forEach(f => {
+      const iso2 = getIso2(f.properties);
+      if (!iso2 || centroids[iso2]) return;   // already have it
+      try {
+        const b = _naFeatureBounds(f);
+        const lat = (b.getSouth() + b.getNorth()) / 2;
+        const lng = (b.getWest()  + b.getEast())  / 2;
+        if (isFinite(lat) && isFinite(lng)) centroids[iso2] = { lat, lng };
+      } catch(_) {}
+    });
+  }
+  return centroids;
+}
+
+// ─── Visitors layer ─────────────────────────────────────────────────────────────
+// One pin per country at its centre, sized by the number of visits (area follows the count). The
+// counts come from data/visitors.json, written by scripts/update_visitors.py from an analytics
+// service that never keeps IP addresses. The file is requested only when the layer is first switched
+// on. No file, an empty file or a file with nothing above the floor: "No visit data yet", never
+// invented numbers. Nothing here ever sees, stores or shows an IP address.
+function _naLayerOn(key) {
+  return activeLayers.has(key) || (key === 'visitors' && _naVisitors.active);
+}
+
+// Pure. Validates the file and returns the rows to draw, or null when its shape is wrong. Strict
+// allowlist: two-letter upper-case codes, finite numbers, whole counts, and the floor applied again
+// here whatever "minVisits" says (the file can only raise it), so a stale or hand-edited file can
+// never publish a small count.
+function _naVisitorsParse(j, centroids) {
+  if (!j || typeof j !== 'object' || !j.countries || typeof j.countries !== 'object' || Array.isArray(j.countries)) return null;
+  const floor = Math.max(NA_VISITORS_FLOOR, Math.floor(Number(j.minVisits)) || 0);
+  const rows = [];
+  Object.keys(j.countries).forEach(function (iso2) {
+    if (!/^[A-Z]{2}$/.test(iso2)) return;
+    const raw = j.countries[iso2];
+    if (typeof raw !== 'number' || !isFinite(raw)) return;
+    const count = Math.floor(raw);
+    if (count < floor) return;
+    const c = centroids[iso2];
+    if (!c) return;
+    rows.push({ iso2: iso2, count: count, lat: c.lat, lng: c.lng });
+  });
+  rows.sort(function (a, b) { return b.count - a.count || (a.iso2 < b.iso2 ? -1 : 1); });
+  const updated = (typeof j.updated === 'string' && /^\d{4}-\d{2}-\d{2}/.test(j.updated)) ? j.updated.slice(0, 10) : '';
+  return { rows: rows, updated: updated };
+}
+
+function _naVisitorsApply(j) {
+  const parsed = _naVisitorsParse(j, _naCountryCentroids());
+  if (!parsed || !parsed.rows.length) {
+    _naVisitors.rows = []; _naVisitors.updated = ''; _naVisitors.state = 'empty';
+  } else {
+    _naVisitors.rows = parsed.rows; _naVisitors.updated = parsed.updated; _naVisitors.state = 'ready';
+  }
+}
+
+function _naVisitorsLoad() {
+  if (_naVisitors.state !== 'idle') return;
+  _naVisitors.state = 'loading';
+  fetch('data/visitors.json', { cache: 'no-cache', credentials: 'omit' })
+    .then(function (res) {
+      if (res.status === 404) return null;            // no file yet: the honest empty state
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (j) {
+      _naVisitors.json = j;
+      _naVisitorsApply(j);
+    })
+    .catch(function () { _naVisitors.state = 'error'; })
+    .then(function () {
+      if (!_naVisitors.active) return;
+      _naVisitorsRender();
+      updateLegend();
+      if (typeof showToast === 'function' && _naVisitors.state !== 'ready') {
+        showToast('🌍 ' + _t(_naVisitors.state === 'error' ? 'visitors.error' : 'visitors.empty'));
+      }
+    });
+}
+
+function _naVisitorsClear() {
+  _naVisitors.markers.forEach(function (m) { m.remove(); });
+  _naVisitors.markers = [];
+}
+
+// Idempotent and cheap: refresh() calls it on every change. Draws the pins when the layer is on and
+// the data is ready, removes them otherwise, and starts the first fetch on first activation.
+function _naVisitorsRender() {
+  if (!map) return;
+  if (!_naVisitors.active) {
+    _naVisitorsClear();
+    if (tooltipVisible && _activeTooltipKey && _activeTooltipKey.indexOf('visitors:') === 0) hideTooltip();
+    return;
+  }
+  if (_naVisitors.state === 'idle') { _naVisitorsLoad(); return; }
+  if (_naVisitors.state !== 'ready' || _naVisitors.markers.length) return;
+  const rows = _naVisitors.rows;
+  const max = rows[0].count;
+  rows.forEach(function (r) {
+    const d = Math.round(24 + 26 * Math.sqrt(r.count / max));   // 24 to 50 px, area follows the count
+    const text = r.count >= 10000 ? Math.round(r.count / 1000) + 'k' : r.count >= 1000 ? (Math.round(r.count / 100) / 10) + 'k' : String(r.count);
+    const html = '<div class="na-visit-pin" style="width:' + d + 'px;height:' + d + 'px;font-size:' + (d >= 38 ? 12 : d >= 30 ? 10 : 9) + 'px">' + text + '</div>';
+    const icon = L.divIcon({ className: 'na-visit-divicon', html: html, iconSize: [d, d], iconAnchor: [d / 2, d / 2] });
+    const name = (typeof countryNames !== 'undefined' && countryNames[r.iso2]) || r.iso2;
+    const marker = L.marker([r.lat, r.lng], {
+      pane: 'markersPane', icon: icon, keyboard: true,
+      title: name + ', ' + _t('visitors.visits') + ': ' + r.count,
+      alt: name + ', ' + _t('visitors.visits') + ': ' + r.count,
+      zIndexOffset: -d * 100,                                  // small pins stay on top of big ones
+    });
+    marker.on('click', function (ev) {
+      _featureClicked = true;
+      const el = marker.getElement();
+      const rect = el ? el.getBoundingClientRect() : null;
+      const x = rect ? rect.left + rect.width / 2 : (ev.originalEvent && ev.originalEvent.clientX) || 0;
+      const y = rect ? rect.top + rect.height / 2 : (ev.originalEvent && ev.originalEvent.clientY) || 0;
+      toggleTooltip('visitors:' + r.iso2, _naVisitorsTooltip(r, name), x, y);
+      setTimeout(function () { _featureClicked = false; }, 10);
+    });
+    marker.addTo(map);
+    _naVisitors.markers.push(marker);
+  });
+}
+
+function _naVisitorsTooltip(r, name) {
+  const n = (function () { try { return r.count.toLocaleString(); } catch (_) { return String(r.count); } })();
+  return '<div class="tth"><h3 id="tt-name">' + _esc(name) + '</h3>'
+    + '<div class="ts" id="tt-sub">🌍 ' + _esc(_layerName('visitors').toUpperCase()) + '</div>'
+    + (_naVisitors.updated ? '<div class="tm" id="tt-period">' + _esc(_t('visitors.updated') + ' ' + _naVisitors.updated) + '</div>' : '')
+    + '</div><div class="ttb" id="tt-body"><div class="ttdesc" style="font-size:12px">'
+    + _esc(_t('visitors.visits')) + ': <b>' + _esc(n) + '</b></div></div>';
+}
+
+// Legend block: pin-size key from the real data, or the honest empty state, plus the plain-language
+// privacy note. Called from updateLegend().
+function _naVisitorsLegendHtml() {
+  const v = _naVisitors;
+  let h = '<div class="ll" id="legend-visitors"><div class="ll-name">' + _esc(LAYERS.visitors.emoji + ' ' + _layerName('visitors')) + '</div>';
+  if (v.state === 'ready') {
+    h += '<div class="lr na-vis-scale"><span class="na-vis-dot" style="width:10px;height:10px"></span>'
+      + '<span class="llabel">' + v.rows[v.rows.length - 1].count + '</span>'
+      + '<span class="na-vis-dot" style="width:18px;height:18px"></span>'
+      + '<span class="llabel">' + v.rows[0].count + '</span></div>'
+      + '<div class="lr"><span class="llabel-note">' + _esc(_t('visitors.size')) + '</span></div>'
+      + '<div class="lr"><span class="llabel-note">' + _esc(_t('visitors.shown') + ': ' + v.rows.length + (v.updated ? ' · ' + _t('visitors.updated') + ' ' + v.updated : '')) + '</span></div>';
+  } else {
+    const k = v.state === 'error' ? 'visitors.error' : (v.state === 'idle' || v.state === 'loading') ? 'visitors.loading' : 'visitors.empty';
+    h += '<div class="lr"><span class="llabel" id="legend-visitors-state">' + _esc(_t(k)) + '</span></div>';
+  }
+  h += '<div class="lr"><span class="llabel-note na-vis-privacy">' + _esc(_t('visitors.privacy')) + '</span></div></div>';
+  return h;
+}
+
+// ─── Visit counting (off unless NA_ANALYTICS_SITE is set) ───────────────────────
+// Do Not Track and Global Privacy Control both mean "do not count me".
+function _naDoNotTrack() {
+  const n = navigator || {};
+  return n.doNotTrack === '1' || n.doNotTrack === 'yes' || window.doNotTrack === '1'
+    || n.msDoNotTrack === '1' || n.globalPrivacyControl === true;
+}
+function _naAnalyticsInit() {
+  const site = (typeof NA_ANALYTICS_SITE === 'string') ? NA_ANALYTICS_SITE.trim().toLowerCase() : '';
+  // Empty means off: nothing below runs and no request is made. A malformed code is treated the
+  // same, so a typo can never point the script or its beacon at another host.
+  if (!/^[a-z0-9][a-z0-9-]{0,62}$/.test(site)) return;
+  if (_naDoNotTrack()) return;
+  // The vendor script reads localStorage without a guard and throws where storage is blocked
+  // (Safari with cookies off, some in-app browsers): do not load it there.
+  try { window.localStorage.getItem('skipgc'); } catch (_e) { return; }
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = NA_ANALYTICS_SRC;
+  s.setAttribute('data-goatcounter', 'https://' + site + '.goatcounter.com/count');
+  document.head.appendChild(s);
 }
 
 // Clicking the same map feature twice toggles the tooltip off (dismiss).
@@ -5726,7 +5931,7 @@ function updateLegend() {
   const anyTransport = Object.values(TRANSPORT_LAYERS).some(d => d.active);
 
   const anyPOI = Object.values(POI_LAYERS).some(d => d.active);
-  if (active.length === 0 && !showBorders && !anyTransport && !_tzActive && !anyPOI) {
+  if (active.length === 0 && !showBorders && !anyTransport && !_tzActive && !anyPOI && !_naVisitors.active) {
     legend.style.display = 'none';
     return;
   }
@@ -5748,7 +5953,7 @@ function updateLegend() {
     else h4.insertBefore(document.createTextNode(titleText), h4.firstChild);
   }
   document.querySelectorAll('.llp-item').forEach(item => {
-    item.classList.toggle('active', activeLayers.has(item.dataset.key));
+    item.classList.toggle('active', _naLayerOn(item.dataset.key));
   });
   syncCatButtons();
 
@@ -5959,6 +6164,8 @@ function updateLegend() {
     </div>`;
   }
 
+  if (_naVisitors.active) html += _naVisitorsLegendHtml();
+
   if (_visitedSet.size > 0) {
     const vc = _visitedSet.size;
     html += `<div class="ll" style="text-align:center;padding-top:4px;border-top:1px solid rgba(34,197,94,0.15)">
@@ -6018,6 +6225,7 @@ function refresh() {
   renderPoliticalLayers();
   updateBestPanel();
   renderEventMarkers();
+  _naVisitorsRender();
   // Keep the sidebar/sheet layer-item active states in sync without idle polling.
   if (typeof na_updateLayerActiveStates === 'function') na_updateLayerActiveStates();
   // Re-evaluate the live crime overlay (no-op unless Safety is active and zoomed in).
@@ -7264,8 +7472,14 @@ function initURLState() {
     // Multi-layer: comma-separated; a single bare slug stays backward compatible.
     const lyr = params.get('layer');
     if (lyr && typeof LAYERS !== 'undefined') {
-      const wanted = lyr.split(',').filter(k => k in LAYERS);
+      // 'visitors' is a pin overlay with its own flag, never a member of activeLayers.
+      const wanted = lyr.split(',').filter(k => k in LAYERS && k !== 'visitors');
       if (wanted.length) { activeLayers.clear(); wanted.forEach(k => activeLayers.add(k)); }
+    }
+    // Like the layers above: the hash only decides when it mentions them, so an unrelated hash edit
+    // (a month link, say) leaves the pin overlay as it is.
+    if (params.has('visitors') || lyr) {
+      _naVisitors.active = params.get('visitors') === '1' || (!!lyr && lyr.split(',').indexOf('visitors') >= 0);
     }
     // Map view: apply now if the map exists (hashchange path), else stash for boot.
     const z = parseFloat(params.get('zoom'));
@@ -7310,6 +7524,7 @@ function updateURLState() {
   const layers = [...activeLayers];
   let hash = 'month=' + activeMonth;
   if (layers.length) hash += '&layer=' + layers.join(',');   // all active layers, not just the first
+  if (_naVisitors.active) hash += '&visitors=1';
   if (selectedNationality) hash += '&nat=' + selectedNationality;
   if (map) {
     const ctr = map.getCenter();
@@ -7404,7 +7619,7 @@ function showToast(msg) {
 // boot: it guards on the function's existence.
 function _announceLayerToggle(key) {
   if (!key || typeof LAYERS === 'undefined' || !LAYERS[key]) return;
-  var on = (typeof activeLayers !== 'undefined') && activeLayers.has(key);
+  var on = (typeof activeLayers !== 'undefined') && _naLayerOn(key);
   var emoji = LAYERS[key].emoji || '';
   var name = (typeof _layerName === 'function') ? _layerName(key) : key;
   if (typeof showToast === 'function') {
@@ -7725,6 +7940,13 @@ function initLegendCollapsible() {
     item.innerHTML = `<span style="font-size:13px">${layer.emoji}</span><span>${_layerName(key)}</span>`;
     item.addEventListener('click', e => {
       e.stopPropagation();
+      // The pin overlay keeps its own flag: toggleLayer() does the whole job (refresh, URL, save).
+      if (key === 'visitors') {
+        toggleLayer(key);
+        item.setAttribute('aria-checked', _naLayerOn(key) ? 'true' : 'false');
+        item.classList.toggle('active', _naLayerOn(key));
+        return;
+      }
       // Toggle this layer rather than replacing the whole active set, so opening
       // the picker on a multi-layer Combined View no longer silently wipes it.
       if (activeLayers.has(key)) {
@@ -7749,7 +7971,7 @@ function initLegendCollapsible() {
     picker.classList.toggle('open', !isOpen);
     if (!isOpen) {
       picker.querySelectorAll('.llp-item').forEach(item => {
-        const on = activeLayers.has(item.dataset.key);
+        const on = _naLayerOn(item.dataset.key);
         item.classList.toggle('active', on);
         item.setAttribute('aria-checked', on ? 'true' : 'false');
       });
@@ -8724,17 +8946,21 @@ function _naRegisterSW() { try { if (window._naSwRegister) window._naSwRegister(
 //   window load AND country polygons settled
 //     -> data-cities.js  (the city table, 0.12 MB gz)
 //     -> data-detail.js  (dossier prose, 0.23 MB gz)
+//     -> the visit-count script, only when NA_ANALYTICS_SITE is set (see the top of this file)
 //     -> the idle prefetch above (admin-1 and admin-2, 3 MB) and the service worker registration
 // Code that needs a step sooner asks for it (_naEnsureCities, _naEnsureDetail) and the chain then
 // simply finds that step done.
 var _naQuiet = false;                       // load and polygons both settled
-var _naChain = { cities: false, detail: false, tail: false };
+var _naChain = { cities: false, detail: false, analytics: false, tail: false };
 var _naLoadSeen = false;
 var _naCountriesSettledOnce = false;
 function _naChainNext() {
   if (!_naQuiet) return;
   if (!_naChain.cities) { _naEnsureCities(); return; }
   if (!_naChain.detail) { _naEnsureDetail(); return; }
+  // Optional visit counting: a no-op (no request) while NA_ANALYTICS_SITE is empty, and one small
+  // script plus one beacon otherwise, so it does not wait behind the 3 MB prefetch below.
+  if (!_naChain.analytics) { _naChain.analytics = true; _naAnalyticsInit(); }
   if (!_naChain.tail) { _naChain.tail = true; _idlePrefetchHeavyAssets(); }
 }
 function _naQuietCheck() {
@@ -8743,6 +8969,8 @@ function _naQuietCheck() {
 function _naCountriesSettled() {
   if (_naCountriesSettledOnce) return;
   _naCountriesSettledOnce = true;
+  // Pins for countries without a COUNTRY_CENTERS entry need the polygons: redo a file read earlier.
+  if (_naVisitors.json) { _naVisitorsApply(_naVisitors.json); if (_naVisitors.active) { _naVisitorsClear(); _naVisitorsRender(); updateLegend(); } }
   _naQuietCheck();
 }
 function _naOnLoad() { _naLoadSeen = true; _naQuietCheck(); }
@@ -9487,7 +9715,7 @@ function na_updateLayerActiveStates() {
   items.forEach(function(item) {
     var layerKey = item.getAttribute('data-layer');
     if (!layerKey) return;
-    var on = (typeof activeLayers !== 'undefined') && activeLayers.has(layerKey);
+    var on = (typeof activeLayers !== 'undefined') && _naLayerOn(layerKey);
     item.classList.toggle('active', on);
     item.classList.toggle('layer-active', on);
     item.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -9509,6 +9737,7 @@ function na_updateLayerActiveStates() {
     var activeList = [];
     if (typeof activeLayers !== 'undefined') {
       activeLayers.forEach(function(k) { activeList.push(k.toUpperCase().slice(0,4)); });
+      if (_naVisitors.active) activeList.push('VISI');
     }
     if (activeList.length > 0) {
       // One layer: show its abbreviation; multiple: show the count.
@@ -11626,4 +11855,55 @@ Object.assign(_I18N, {
   ja: { 'tt.countryGuide': '国別ガイドを開く' },
   ru: { 'tt.countryGuide': 'Открыть гид по стране' },
   he: { 'tt.countryGuide': 'פתח את מדריך המדינה' },
+});
+
+// ── Visitors layer (where visitors come from): interface strings in 11 languages ──
+// Same additive deep-merge pattern. English is the reference text; the other ten are first drafts
+// that a native reader should confirm. The privacy line is a plain-language description of how this
+// site handles the data, not legal text: its final wording belongs to Omer Hanegbi or Omri Siri.
+(function (p) { Object.keys(p).forEach(function (l) { _I18N[l] = Object.assign(_I18N[l] || {}, p[l]); }); })({
+  en: { "layer.visitors": "Visitors", "visitors.visits": "Visits", "visitors.updated": "Updated", "visitors.shown": "Countries shown",
+    "visitors.size": "Pin size shows the number of visits.", "visitors.empty": "No visit data yet",
+    "visitors.loading": "Loading visit data…", "visitors.error": "Visit data could not be loaded",
+    "visitors.privacy": "Visits are counted by country with a privacy-friendly analytics service. This site stores and shows no IP addresses, only country totals, and countries with fewer than 3 visits are hidden. Browsers that send Do Not Track are not counted." },
+  es: { "layer.visitors": "Visitantes", "visitors.visits": "Visitas", "visitors.updated": "Actualizado", "visitors.shown": "Países mostrados",
+    "visitors.size": "El tamaño del marcador indica el número de visitas.", "visitors.empty": "Aún no hay datos de visitas",
+    "visitors.loading": "Cargando datos de visitas…", "visitors.error": "No se pudieron cargar los datos de visitas",
+    "visitors.privacy": "Las visitas se cuentan por país con un servicio de analítica respetuoso con la privacidad. Este sitio no guarda ni muestra direcciones IP, solo totales por país, y se ocultan los países con menos de 3 visitas. No se cuentan los navegadores que envían Do Not Track." },
+  fr: { "layer.visitors": "Visiteurs", "visitors.visits": "Visites", "visitors.updated": "Mis à jour", "visitors.shown": "Pays affichés",
+    "visitors.size": "La taille du repère indique le nombre de visites.", "visitors.empty": "Pas encore de données de visites",
+    "visitors.loading": "Chargement des données de visites…", "visitors.error": "Impossible de charger les données de visites",
+    "visitors.privacy": "Les visites sont comptées par pays avec un service d'analyse respectueux de la vie privée. Ce site ne conserve ni n'affiche aucune adresse IP, uniquement des totaux par pays, et les pays comptant moins de 3 visites sont masqués. Les navigateurs qui envoient Do Not Track ne sont pas comptés." },
+  de: { "layer.visitors": "Besucher", "visitors.visits": "Besuche", "visitors.updated": "Aktualisiert", "visitors.shown": "Angezeigte Länder",
+    "visitors.size": "Die Größe der Markierung zeigt die Zahl der Besuche.", "visitors.empty": "Noch keine Besuchsdaten",
+    "visitors.loading": "Besuchsdaten werden geladen…", "visitors.error": "Besuchsdaten konnten nicht geladen werden",
+    "visitors.privacy": "Besuche werden pro Land mit einem datenschutzfreundlichen Analysedienst gezählt. Diese Website speichert und zeigt keine IP-Adressen, nur Ländersummen, und Länder mit weniger als 3 Besuchen werden ausgeblendet. Browser, die Do Not Track senden, werden nicht gezählt." },
+  pt: { "layer.visitors": "Visitantes", "visitors.visits": "Visitas", "visitors.updated": "Atualizado", "visitors.shown": "Países exibidos",
+    "visitors.size": "O tamanho do marcador mostra o número de visitas.", "visitors.empty": "Ainda não há dados de visitas",
+    "visitors.loading": "Carregando dados de visitas…", "visitors.error": "Não foi possível carregar os dados de visitas",
+    "visitors.privacy": "As visitas são contadas por país com um serviço de análise que respeita a privacidade. Este site não guarda nem mostra endereços IP, apenas totais por país, e países com menos de 3 visitas ficam ocultos. Navegadores que enviam Do Not Track não são contados." },
+  ar: { "layer.visitors": "الزوار", "visitors.visits": "الزيارات", "visitors.updated": "آخر تحديث", "visitors.shown": "الدول المعروضة",
+    "visitors.size": "يدل حجم الدبوس على عدد الزيارات.", "visitors.empty": "لا توجد بيانات زيارات بعد",
+    "visitors.loading": "جارٍ تحميل بيانات الزيارات…", "visitors.error": "تعذّر تحميل بيانات الزيارات",
+    "visitors.privacy": "تُحتسب الزيارات حسب الدولة عبر خدمة تحليلات تراعي الخصوصية. لا يخزّن هذا الموقع عناوين IP ولا يعرضها، بل مجاميع الدول فقط، وتُخفى الدول التي لديها أقل من 3 زيارات. لا تُحتسب المتصفحات التي ترسل إشارة Do Not Track." },
+  zh: { "layer.visitors": "访客", "visitors.visits": "访问次数", "visitors.updated": "更新于", "visitors.shown": "显示的国家数",
+    "visitors.size": "标记大小表示访问次数。", "visitors.empty": "暂无访问数据",
+    "visitors.loading": "正在加载访问数据…", "visitors.error": "无法加载访问数据",
+    "visitors.privacy": "访问按国家统计，使用注重隐私的分析服务。本网站不存储也不显示 IP 地址，只显示各国总数，访问少于 3 次的国家会被隐藏。发送 Do Not Track 的浏览器不会被统计。" },
+  hi: { "layer.visitors": "आगंतुक", "visitors.visits": "विज़िट", "visitors.updated": "अपडेट किया गया", "visitors.shown": "दिखाए गए देश",
+    "visitors.size": "पिन का आकार विज़िट की संख्या दर्शाता है।", "visitors.empty": "अभी तक कोई विज़िट डेटा नहीं",
+    "visitors.loading": "विज़िट डेटा लोड हो रहा है…", "visitors.error": "विज़िट डेटा लोड नहीं हो सका",
+    "visitors.privacy": "विज़िट देश के अनुसार एक गोपनीयता-अनुकूल एनालिटिक्स सेवा से गिनी जाती हैं। यह साइट IP पते न संग्रहीत करती है न दिखाती है, केवल देशवार कुल संख्या दिखाती है, और 3 से कम विज़िट वाले देश छिपे रहते हैं। Do Not Track भेजने वाले ब्राउज़र गिने नहीं जाते।" },
+  ja: { "layer.visitors": "訪問者", "visitors.visits": "訪問数", "visitors.updated": "更新", "visitors.shown": "表示国数",
+    "visitors.size": "ピンの大きさは訪問数を表します。", "visitors.empty": "訪問データはまだありません",
+    "visitors.loading": "訪問データを読み込み中…", "visitors.error": "訪問データを読み込めませんでした",
+    "visitors.privacy": "訪問はプライバシーに配慮した解析サービスで国別に集計しています。このサイトは IP アドレスを保存も表示もせず、国ごとの合計のみを示し、訪問が 3 件未満の国は非表示です。Do Not Track を送信するブラウザは集計されません。" },
+  ru: { "layer.visitors": "Посетители", "visitors.visits": "Визиты", "visitors.updated": "Обновлено", "visitors.shown": "Показано стран",
+    "visitors.size": "Размер метки показывает число визитов.", "visitors.empty": "Данных о визитах пока нет",
+    "visitors.loading": "Загрузка данных о визитах…", "visitors.error": "Не удалось загрузить данные о визитах",
+    "visitors.privacy": "Визиты считаются по странам с помощью сервиса аналитики, бережного к приватности. Сайт не хранит и не показывает IP-адреса, только итоги по странам, а страны менее чем с 3 визитами скрыты. Браузеры с заголовком Do Not Track не учитываются." },
+  he: { "layer.visitors": "מבקרים", "visitors.visits": "ביקורים", "visitors.updated": "עודכן", "visitors.shown": "מדינות מוצגות",
+    "visitors.size": "גודל הסימון מציין את מספר הביקורים.", "visitors.empty": "עדיין אין נתוני ביקורים",
+    "visitors.loading": "טוען נתוני ביקורים…", "visitors.error": "לא ניתן היה לטעון את נתוני הביקורים",
+    "visitors.privacy": "ביקורים נספרים לפי מדינה באמצעות שירות אנליטיקה ידידותי לפרטיות. אתר זה אינו שומר או מציג כתובות IP, אלא רק סכומים לפי מדינה, ומדינות עם פחות מ-3 ביקורים מוסתרות. דפדפנים ששולחים Do Not Track אינם נספרים." },
 });
