@@ -1077,20 +1077,38 @@
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
-<!-- Heavy split-out data tables. data-detail.js MUST be defer, not async:
-     defer guarantees it executes after data.js in document order, and app.js
-     typeof-guards every consumer so the map boots before it runs.
-     data-admin2.js is NOT loaded here at all: it calls data.js's rep()/s12()
-     helpers in its literals and is only needed by the zoom>=6 county view, so
-     app.js injects it on first county zoom (_ensureAdmin2Tables), keeping
-     ~0.42 MB gz off the first visit entirely. -->
-<script defer src="data-detail.js"></script>
+<!-- Heavy split-out data tables are NOT script tags here, so that nothing but the
+     three files above competes with them on a slow first visit:
+     - data-cities.js (the city table, 0.12 MB gz) is injected by app.js
+       (_naEnsureCities) once the page is quiet, or at once if something needs it
+       sooner (city dots from zoom 4, search, the province and county builds).
+       It calls data.js's mk()/rep()/s12() helpers and appends to the CITIES
+       array data.js defines, so it must run after data.js and must not be async.
+     - data-detail.js (country dossier prose, 0.23 MB gz) is injected by app.js
+       (_naEnsureDetail) once the page is quiet, or at once if a dossier is
+       opened sooner; the open dossier is then rebuilt in place. It was a defer
+       tag before, which shared the connection with data.js and app.js and
+       delayed the first map paint by about a second on a 1.6 Mbit/s link. It
+       must not become async: only app.js's typeof guards make it safe to
+       arrive late, and an async tag would race data.js.
+     - data-admin2.js calls data.js's rep()/s12() helpers in its literals and is
+       only needed by the zoom>=6 county view, so app.js injects it on first
+       county zoom (_ensureAdmin2Tables), keeping ~0.42 MB gz off the first
+       visit entirely. -->
+
 <script>
+  // The worker's install precaches about 15 MB (country polygons, county tables, scripts). Started at
+  // window load on a first visit it competed with the page's own country-polygon download on a slow
+  // link, so app.js calls _naSwRegister once the page is quiet (polygons built, data-detail.js
+  // loaded). The timer is only a backstop in case that never happens (a boot error, say).
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    window._naSwRegister = function () {
+      if (window._naSwDone) return;
+      window._naSwDone = true;
       navigator.serviceWorker.register('./sw.js')
         .catch(e => console.warn('SW registration failed:', e));
-    });
+    };
+    window.addEventListener('load', () => setTimeout(window._naSwRegister, 20000));
   }
 </script>
 </body>
