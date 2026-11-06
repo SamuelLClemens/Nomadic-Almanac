@@ -7,8 +7,10 @@
        because the app bootstraps inline; object/base-uri/form-action are locked,
        and schemes are restricted. The primary XSS defense is per-field _esc() on
        all OSM/user-derived strings. A tighter connect-src allowlist is a future
-       step (requires testing every tile/API/open-data integration). -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+       step (requires testing every tile/API/open-data integration).
+       script-src names ONE extra host, gc.zgo.at, the optional visit-count script (see
+       NA_ANALYTICS_SITE in app.js). While that constant is empty nothing is requested from it. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="description" content="The Nomadic Almanac: an interactive atlas of where to go and when. Costs, safety, weather, visas, and key phrases for 195 countries, by month.">
   <title>The Nomadic Almanac: World Travel Intelligence</title>

@@ -2522,6 +2522,40 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   .na-event-glyph:hover { transform: none; }
 }
 
+/* ─── Visitors layer ─────────────────────────────────────────────────────────
+   One pin per country, area proportional to the number of visits, the count inside. The fill is a
+   deep amber so the white count reads at 4.5:1 or better at every size. */
+.na-visit-divicon { background: none; border: none; }
+.na-visit-pin {
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 34%, #9A6212, #6E430A);
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.85), 0 2px 6px rgba(0,0,0,0.45);
+  color: #fff; font-family: var(--fm, 'IBM Plex Mono', monospace); font-weight: 700; line-height: 1;
+  cursor: pointer; transition: transform 0.12s ease;
+}
+.na-visit-divicon:hover .na-visit-pin, .na-visit-divicon:focus-visible .na-visit-pin { transform: scale(1.08); }
+.na-visit-divicon:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 50%; }
+.na-vis-scale { gap: 6px; }
+.na-vis-dot {
+  display: inline-block; border-radius: 50%; flex-shrink: 0;
+  background: radial-gradient(circle at 50% 34%, #9A6212, #6E430A);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.7);
+}
+.llabel-note.na-vis-privacy,
+#legend-visitors .llabel-note {
+  /* The privacy note is meant to be read, so it is larger and brighter than the other legend notes. */
+  display: block; margin-left: 0; white-space: normal; line-height: 1.4; letter-spacing: 0.2px;
+  font-size: 9.5px; color: var(--sand); opacity: 0.92;
+}
+.llabel-note.na-vis-privacy { margin-top: 4px; }
+[data-theme="light"] .llabel-note.na-vis-privacy,
+[data-theme="light"] #legend-visitors .llabel-note { color: #2E2008; }
+@media (prefers-reduced-motion: reduce) {
+  .na-visit-pin { transition: none; }
+  .na-visit-divicon:hover .na-visit-pin, .na-visit-divicon:focus-visible .na-visit-pin { transform: none; }
+}
+
 /* ─── Animated Trip Route Line ───────────────────────────────────────────────
    The trip planner draws an ordered journey line through the pins. A soft gold
    casing adds depth; the flowing dashed line "marches" from the first pin toward
