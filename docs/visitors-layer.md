@@ -87,7 +87,7 @@ Choose one:
 ## Checks
 
 - Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file.
-- The script has not been run against a live GoatCounter account, because none exists yet. The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors). Run `--dry-run` once after the account exists and compare the output with the GoatCounter dashboard.
+- The GoatCounter account now exists (site code `nomadicalmanac`), but the script has not been run against it yet. The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors). Run `--dry-run` once after some visits have been counted and compare the output with the GoatCounter dashboard.
 - Pins are placed with the application's existing country-centre logic (`COUNTRY_CENTERS`, then the centre of the country polygon bounds). A country that straddles the date line is centred on its largest part.
 
 ## Known limits

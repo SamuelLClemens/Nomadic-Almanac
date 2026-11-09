@@ -8,6 +8,7 @@ import datetime
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 import unittest
@@ -127,8 +128,12 @@ class Config(unittest.TestCase):
             self.assertEqual(uv.site_from_app_js(p), "")
             self.assertEqual(uv.site_from_app_js(os.path.join(d, "missing.js")), "")
 
-    def test_real_app_js_ships_with_collection_off(self):
-        self.assertEqual(uv.site_from_app_js(), "", "NA_ANALYTICS_SITE must stay empty in the repository until the owner enables it")
+    def test_real_app_js_site_code_is_empty_or_well_formed(self):
+        # Collection was switched on by the owner (site code set in app.js). Whatever the value is,
+        # it must be empty (off) or a well-formed code, the same shape app.js itself accepts, so a
+        # typo can never point the beacon at another host.
+        site = uv.site_from_app_js()
+        self.assertTrue(site == "" or re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", site), "malformed NA_ANALYTICS_SITE: %r" % site)
 
 
 class EndToEnd(unittest.TestCase):

@@ -81,7 +81,7 @@ let _holidayMarkers = [];
 // account (for GoatCounter, the "name" in https://name.goatcounter.com). The site code is not a
 // secret; the API key is, and never belongs in this file. Steps: docs/visitors-layer.md. The script
 // loads after boot, never when Do Not Track is on.
-const NA_ANALYTICS_SITE = '';
+const NA_ANALYTICS_SITE = 'nomadicalmanac';
 const NA_ANALYTICS_SRC  = 'https://gc.zgo.at/count.js';   // the one host the Content-Security-Policy allows
 // Countries with fewer visits than this are never drawn, whatever the data file says. The file is
 // filtered at generation too (scripts/update_visitors.py); this is the second, independent check.
