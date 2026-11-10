@@ -7,6 +7,7 @@ Status: visit counting is switched on for the GoatCounter site `nomadicalmanac` 
 ## How it works
 
 - A privacy-first analytics service (GoatCounter) counts visits by country. It does not keep IP addresses.
+- Visits are counted by the vendor's small count script, but this site serves its own pinned copy of it (`lib/count.js`, same origin). The page never loads a script from the vendor's host, so a change at the vendor cannot reach visitors' browsers; see "The pinned count script" below.
 - `scripts/update_visitors.py` reads the per-country totals from the service and writes `data/visitors.json`.
 - The map layer downloads `data/visitors.json` only when a visitor switches the layer on, and draws one pin per country, at the country centre, sized by the number of visits.
 - Countries with fewer than 3 visits are hidden twice: the script never writes them, and the browser drops them again even if the file contains them. The file may raise the minimum (`minVisits`) but never lower it below 3.
@@ -57,8 +58,8 @@ The script sends the key to one address only, `https://nomadicalmanac.goatcounte
 What the constant does:
 
 - While it is empty, the page requests nothing from any analytics host.
-- When it is set, one small script (`https://gc.zgo.at/count.js`) is added after the page has finished booting. It is skipped when the browser sends Do Not Track or Global Privacy Control, and when browser storage is blocked (the vendor script would raise an error there).
-- The Content-Security-Policy in `index.html` allows scripts from `gc.zgo.at` and from no other additional host. The count itself is sent to `https://CODE.goatcounter.com/count`, which the existing `connect-src https:` rule already permits.
+- When it is set, one small script (`./lib/count.js`, the pinned copy served from this site) is added after the page has finished booting. It is skipped when the browser sends Do Not Track or Global Privacy Control, and when browser storage is blocked (the script would raise an error there). Nothing is requested from `gc.zgo.at`.
+- The Content-Security-Policy in `index.html` names no script host other than this site (`'self'`); the inline scripts the page needs are still allowed (`'unsafe-inline'`). The count itself is sent to `https://CODE.goatcounter.com/count`, which the existing `connect-src https:` rule permits. That rule is deliberately left broad here; narrowing it, and removing `'unsafe-inline'`, is a separate planned change.
 - The page address fragment (the part after `#`, which holds month, nationality and trip pins) is never sent to the service.
 
 ## Step 4: generate the data file
@@ -101,8 +102,44 @@ Choose one:
 - Schedule it on the owner's own computer with `cron` or `launchd`, supplying `GOATCOUNTER_TOKEN` from the owner's keychain or environment, then commit and open a pull request.
 - A scheduled GitHub Actions workflow is possible but is deliberately not included here. If one is added later, it must store the key as an encrypted repository secret and open a pull request. It must not push to `main`.
 
+## The pinned count script
+
+`lib/count.js` is an unmodified copy of the vendor's count script. The first two lines are the vendor's header (it names GoatCounter and states the ISC licence); keep them. Do not edit the file by hand.
+
+Pin record (the guard test reads the SHA-256 line below):
+
+- Source URL: `https://gc.zgo.at/count.js`
+- Fetched: 2026-11-10, 20:18 UTC
+- Size: 9213 bytes
+- SHA-256: `792b7abd26c1fb6ae62906833e09a301251e2641816e69e4f95aba518f3fe3f0`
+
+What this version does (read in full on 2026-11-10; it contains no `eval`, no `Function` constructor and no script insertion):
+
+- On load it sends one request to the address in the `data-goatcounter` attribute of its own script tag: the page path (taken from the canonical link, plus the query string), the referrer, the page title, the screen width, a bot code and a random cache-busting value. It never sends the address fragment (the part after `#`).
+- It sends with `navigator.sendBeacon`, and falls back to a 1 by 1 pixel image request if the beacon is refused.
+- It reads and writes one localStorage key, `skipgc`, which is the vendor's opt-out switch.
+- It sets up click-event counting for elements marked `data-goatcounter-click`; no element in this page carries that attribute.
+- Its own filter refuses to count from `localhost` and private network addresses, so a local test server never sends a count.
+
+Why it is not precached: `lib/leaflet.js` is in `CORE` in `sw.js` because the page cannot start without it. The count script loads after boot, is optional (skipped for Do Not Track, Global Privacy Control and blocked storage), and its request needs the network anyway, so adding it to `CORE` would make every first visit download 9 KB that many visitors never use. The service worker still stores it after the first successful fetch, like every other file of this site.
+
+How to update it on purpose (for example when the vendor announces a change, or once a year):
+
+1. Fetch the current file to a scratch folder outside the repository and compare it with the pinned copy:
+
+   ```bash
+   d="$(mktemp -d)" && curl -sS --fail --max-time 30 -o "$d/count.js" https://gc.zgo.at/count.js && shasum -a 256 "$d/count.js" && diff "$d/count.js" lib/count.js; echo "$d"
+   ```
+
+   If `diff` prints nothing, the pinned copy is current and nothing else is needed.
+2. Read the whole new file, not only the diff. Look for any new network destination (`sendBeacon`, `fetch`, `XMLHttpRequest`, image or script creation, `document.write`), any new storage key, any `eval` or `Function` use, and any new field in the data it sends. Refuse the update if anything is unexplained.
+3. On a branch, copy the file over `lib/count.js`, then update the fetch date, size and SHA-256 in the pin record above (`shasum -a 256 lib/count.js`), and update the description of what the script does if it changed.
+4. Increase `CACHE` in `sw.js` by one, so returning visitors drop the old copy.
+5. Run `python3 scripts/test_count_js_pin.py`, load the page once with the analytics hosts unreachable, and open a pull request. Do not commit to `main`.
+
 ## Checks
 
+- Pin guard: `python3 scripts/test_count_js_pin.py`. It fails when the SHA-256 of `lib/count.js` differs from the pin record above, when the vendor header is missing, when `NA_ANALYTICS_SRC` in `app.js` is not a same-origin path to an existing file, or when `index.html` names any host in `script-src`. It reads local files only and makes no request.
 - Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file. One test starts two throw-away servers on `127.0.0.1` to prove that a redirect is not followed and that the key never reaches the redirect target; nothing leaves the machine.
 - The script has been run against the live account (2026-11-10). The per-country query, the dry-run and the written file agreed: one country at the floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).
 - Pins are placed with the application's existing country-centre logic (`COUNTRY_CENTERS`, then the centre of the country polygon bounds). A country that straddles the date line is centred on its largest part.
@@ -110,7 +147,9 @@ Choose one:
 ## Known limits
 
 - The count is GoatCounter's visitor count, not page views. A person who returns on another day is counted again.
-- The vendor script is loaded without a pinned integrity hash, because the vendor replaces the file in place. Self-hosting a copy of the script is the alternative if a stricter policy is required.
+- The count script is a pinned copy, so it receives no vendor changes or fixes until someone updates it on purpose (see "The pinned count script"). The count keeps working as long as the vendor keeps accepting requests at `https://CODE.goatcounter.com/count`.
+- The Content-Security-Policy still allows inline scripts and any HTTPS host for connections and images, so it would not stop a script that is already running on the page from sending data out. Pinning the count script closes the route by which the vendor could change that script; it does not narrow the policy.
+- Loading the page with the fragment `#toggle-goatcounter` makes the pinned script switch counting off or on in that browser (it stores or removes the `skipgc` key in localStorage) and show a browser alert. This is the vendor's own switch for skipping one's own visits.
 - Visitors who block the vendor host, send Do Not Track, or block browser storage are not counted, so the map understates real use.
 - A visit takes about 30 to 40 seconds to show up in the API. Automated browsers that announce themselves as `HeadlessChrome` were not counted in testing, so check the counting with an ordinary browser.
 - In the updater's `--dry-run` summary, "below the minimum" counts countries, not visits. For raw visit counts, query `/api/v0/stats/locations`.
