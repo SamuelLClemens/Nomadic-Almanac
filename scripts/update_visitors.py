@@ -17,6 +17,10 @@ Privacy and safety rules this script keeps:
     minimum but not lower it. The browser applies the same floor again.
   * On any failure the existing data/visitors.json is left untouched (the write is atomic), and a
     result with no countries does not replace a file that has some unless --allow-empty is given.
+  * The token is sent only to https://EXPECTED_SITE.goatcounter.com. A different site code (from
+    app.js, GOATCOUNTER_SITE or --site) is refused unless --allow-other-site is given, so a changed
+    NA_ANALYTICS_SITE cannot send the key to someone else's account. An HTTP redirect is never
+    followed, because urllib would resend the Authorization header to the new address.
 
 Python 3.8 or newer, standard library only. Run from anywhere; paths are relative to the repository.
 """
@@ -36,6 +40,9 @@ MIN_FLOOR = 3                                   # the lowest minimum that may ev
 TOKEN_ENV = "GOATCOUNTER_TOKEN"
 SITE_ENV = "GOATCOUNTER_SITE"
 SITE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+# The one account this repository's key belongs to. The key is sent to this site only. Changing it is
+# a reviewed edit of this file, not something a changed app.js or environment variable can do.
+EXPECTED_SITE = "nomadicalmanac"
 CODE_RE = re.compile(r"^[A-Z]{2}$")
 PAGE_LIMIT = 100                                # the API maximum
 MAX_PAGES = 10                                  # 1,000 countries is far more than exist
@@ -111,15 +118,28 @@ def build_document(counts, floor, now=None):
     }
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse every redirect. urllib's default handler copies the Authorization header to the new
+    address, whatever its host, so following one could hand the API key to another server. With no
+    redirect request built, the 3xx answer surfaces as an HTTPError and is reported, not followed."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
 def http_get(url, token):
-    """One GET with the token in the Authorization header. Returns (status, headers, parsed JSON)."""
+    """One GET with the token in the Authorization header. Returns (status, headers, parsed JSON).
+    A redirect is not followed: it comes back as its own 3xx status with no payload."""
     req = urllib.request.Request(url, headers={
         "Authorization": "Bearer " + token,
         "Accept": "application/json",
         "User-Agent": "nomadic-almanac-update-visitors/1",
     })
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with _OPENER.open(req, timeout=30) as resp:
             return resp.status, resp.headers, json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as err:
         return err.code, err.headers, None
@@ -151,6 +171,9 @@ def fetch_counts(site, token, since, now=None, get=http_get, sleep=time.sleep):
         if status in (401, 403):
             raise UpdateError("GoatCounter refused the key (HTTP %d). It needs the 'Read statistics' permission "
                               "and must belong to site '%s'." % (status, site))
+        if 300 <= status < 400:
+            raise UpdateError("GoatCounter answered with a redirect (HTTP %d). It was not followed, because the "
+                              "API key would be sent to the new address. Check the site code." % status)
         if status == 404:
             raise UpdateError("Site '%s' was not found (HTTP 404). Check the site code." % site)
         if status != 200 or payload is None:
@@ -203,10 +226,17 @@ def run(argv=None, env=None, get=http_get, now=None, out_stream=None):
     ap.add_argument("--dry-run", action="store_true", help="print the result, write nothing")
     ap.add_argument("--allow-empty", action="store_true",
                     help="let an empty result replace a file that has countries")
+    ap.add_argument("--allow-other-site", action="store_true",
+                    help="send the key to a site other than '%s' (only for an account of your own)" % EXPECTED_SITE)
     args = ap.parse_args(argv)
 
     token = clean_token(env.get(TOKEN_ENV))
     site = clean_site(args.site or env.get(SITE_ENV) or site_from_app_js())
+    if site != EXPECTED_SITE and not args.allow_other_site:
+        raise UpdateError("Refusing to send the API key to %s.goatcounter.com: this repository's site is '%s'. "
+                          "If the account really changed, edit EXPECTED_SITE in scripts/update_visitors.py in a "
+                          "reviewed change; for a run against another account of your own, pass --allow-other-site."
+                          % (site, EXPECTED_SITE))
     if args.min_visits < MIN_FLOOR:
         raise UpdateError("--min-visits cannot be lower than %d." % MIN_FLOOR)
     try:
