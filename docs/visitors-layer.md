@@ -2,7 +2,7 @@
 
 The Visitors layer shows, as pins on the world map, which countries the visits to this site came from.
 
-Status: visit counting is switched on for the GoatCounter site `nomadicalmanac` (PR 56). Every visitor whose browser allows it is counted once the page has finished loading, whether or not that visitor ever opens the layer. The steps below record how this was set up and how the data file is refreshed. Two states are still honest "off" states: while `NA_ANALYTICS_SITE` in `app.js` is empty, the page makes no analytics request of any kind, and while `data/visitors.json` is missing or holds no country at the floor, the layer shows "No visit data yet".
+Status: visit counting is switched on for the GoatCounter site `nomadicalmanac` (PR 56). Every visitor whose browser allows it is counted once the page has finished loading, whether or not that visitor ever opens the layer, unless the visitor has used "Do not count my visits" in Preferences (see "Privacy notice and opt-out"). The steps below record how this was set up and how the data file is refreshed. Two states are still honest "off" states: while `NA_ANALYTICS_SITE` in `app.js` is empty, the page makes no analytics request of any kind, and while `data/visitors.json` is missing or holds no country at the floor, the layer shows "No visit data yet". The committed `data/visitors.json` is currently the empty document, because the only country in the previous file was below the new floor.
 
 ## How it works
 
@@ -10,20 +10,24 @@ Status: visit counting is switched on for the GoatCounter site `nomadicalmanac` 
 - Visits are counted by the vendor's small count script, but this site serves its own pinned copy of it (`lib/count.js`, same origin). The page never loads a script from the vendor's host, so a change at the vendor cannot reach visitors' browsers; see "The pinned count script" below.
 - `scripts/update_visitors.py` reads the per-country totals from the service and writes `data/visitors.json`.
 - The map layer downloads `data/visitors.json` only when a visitor switches the layer on, and draws one pin per country, at the country centre, sized by the number of visits.
-- Countries with fewer than 3 visits are hidden twice: the script never writes them, and the browser drops them again even if the file contains them. The file may raise the minimum (`minVisits`) but never lower it below 3.
+- Countries with fewer than 10 visits are hidden twice: the script never writes them, and the browser drops them again even if the file contains them (`MIN_FLOOR` in `scripts/update_visitors.py` and `NA_VISITORS_FLOOR` in `app.js`; a test fails if the two numbers differ). The file may raise the minimum (`minVisits`) but never lower it below 10.
+- Every published count is rounded down to a multiple of 5 (12 becomes 10, 37 becomes 35), and a country is written only when its rounded count is at least the floor. `updated` is a date only (`YYYY-MM-DD`), never a time.
+- Why: GoatCounter counts visitors per daily session, so one returning person is counted again each day; the number is a visit count, not a head count, and a small number can be one person. The repository is public, so every refresh of `data/visitors.json` stays in the git history permanently, and the history is a time series. A floor of 10 keeps small groups out of the file. Rounding down means a single extra visit changes the published file in only one case out of five (when it carries the raw count across a multiple of 5), so a reader of the history cannot tell one visit from the next. The date-only `updated` removes the time of day from that history. These are the safest settings that still give a useful map; they do not make the history anonymous against someone who knows exactly when a particular visit happened and can see the commit that follows it.
 - No IP address is stored, committed, logged or shown by this repository. The script keeps only a two-letter country code and a whole number per country, and discards everything else.
 
 Data file contract:
 
 ```json
-{"updated": "2026-11-06T09:30:00Z", "minVisits": 3, "countries": {"US": 120, "DE": 44}}
+{"updated": "2026-11-06", "minVisits": 10, "countries": {"US": 120, "DE": 40}}
 ```
 
-`data/visitors.json` holds the real totals written by the script (the first file came with PR 57). Do not add sample or invented numbers.
+`data/visitors.json` holds only totals written by the script. The first file came with PR 57 (and published one country at 3 visits, below today's floor); the slice B change replaced it with the honest empty document `{"updated": "2026-11-10", "minVisits": 10, "countries": {}}`, built offline with the script's own `build_document` logic (no token, no request). Do not add sample or invented numbers. The browser still accepts an older file with a full timestamp in `updated` (it shows the first 10 characters).
 
 ## Legal sign-off
 
 The owner reports that Omri Siri has signed off on this layer (owner's statement in chat, 2026-11-06), so no further legal consultation is needed before collection is enabled. This document and the change itself give no legal advice. The plain-language note in the layer legend describes how the site handles the data; it is not legal text.
+
+Slice B (privacy: raising the floor, rounding, date-only `updated`, the visible notice and the opt-out): the owner reports that Omri Siri is fine with these changes and delegated the design ("smartest safest"; owner's statement in chat, 2026-11-10). This is recorded as the owner's statement. It is not legal advice and not a legal review of the wording of the notice, which a native reader and Omri Siri may still want to confirm.
 
 ## What the owner supplies
 
@@ -58,7 +62,7 @@ The script sends the key to one address only, `https://nomadicalmanac.goatcounte
 What the constant does:
 
 - While it is empty, the page requests nothing from any analytics host.
-- When it is set, one small script (`./lib/count.js`, the pinned copy served from this site) is added after the page has finished booting. It is skipped when the browser sends Do Not Track or Global Privacy Control, and when browser storage is blocked (the script would raise an error there). Nothing is requested from `gc.zgo.at`.
+- When it is set, one small script (`./lib/count.js`, the pinned copy served from this site) is added after the page has finished booting. It is skipped when the browser sends Do Not Track or Global Privacy Control, when the visitor has chosen "Do not count my visits" (the `skipgc` key is `'t'`), and when browser storage is blocked (the script would raise an error there). Nothing is requested from `gc.zgo.at`.
 - The Content-Security-Policy in `index.html` names no script host other than this site (`'self'`); the inline scripts the page needs are still allowed (`'unsafe-inline'`). The count itself is sent to `https://CODE.goatcounter.com/count`, which the existing `connect-src https:` rule permits. That rule is deliberately left broad here; narrowing it, and removing `'unsafe-inline'`, is a separate planned change.
 - The page address fragment (the part after `#`, which holds month, nationality and trip pins) is never sent to the service.
 
@@ -88,7 +92,7 @@ Useful options:
 
 - `--site CODE` overrides the code read from `app.js` (or from `GOATCOUNTER_SITE`). Only `nomadicalmanac`, the value of `EXPECTED_SITE` in `scripts/update_visitors.py`, is accepted; any other code is refused before a request is made.
 - `--allow-other-site` lifts that refusal, for a run against another GoatCounter account of your own. Never use it with a code you were given by someone else.
-- `--min-visits N` raises the minimum above 3. Values below 3 are refused.
+- `--min-visits N` raises the minimum above 10. Values below 10 are refused. The minimum is tested on the published, rounded-down count, so a raw count that rounds to less than N is dropped (with `--min-visits 12`, a raw 14 publishes as 10 and is dropped; a raw 17 publishes as 15 and is kept).
 - `--since YYYY-MM-DD` limits the count to visits on or after a date. The default is all time.
 - `--allow-empty` lets an empty result replace a file that has countries. Without it, the script keeps the existing file, which protects against a temporary service fault.
 
@@ -101,6 +105,16 @@ Choose one:
 - Run the script by hand when an update is wanted.
 - Schedule it on the owner's own computer with `cron` or `launchd`, supplying `GOATCOUNTER_TOKEN` from the owner's keychain or environment, then commit and open a pull request.
 - A scheduled GitHub Actions workflow is possible but is deliberately not included here. If one is added later, it must store the key as an encrypted repository secret and open a pull request. It must not push to `main`.
+
+## Privacy notice and opt-out
+
+Every visitor is counted, not only those who open the Visitors layer, so the notice does not live in the layer legend (the legend keeps its own shorter note).
+
+- Where: Settings (the gear in the bottom menu, on phone and on desktop), last row, "Privacy". It is the least intrusive place that already exists for choices of this kind; it adds one row to a sheet that every visitor can reach without opening any layer. The first-visit welcome card also carries a "Privacy" link on its own line, which opens Settings at that row.
+- What it says (11 languages, keys `prefs.privacy`, `prefs.privacyNote`, `prefs.optout`, `prefs.optoutSignal`): visits are counted by country with GoatCounter; no IP address is stored or shown; the counting script is hosted on this site; Do Not Track and Global Privacy Control are honoured; countries with fewer than 10 visits are never shown and counts are rounded down to a multiple of 5. English is the reference text; the other ten are first drafts that a native reader should confirm. The plain-language "Is my data private?" answer in the FAQ was changed to match (it used to say nothing is sent to a server).
+- The control: "Do not count my visits", an Off/On switch in the same row. On stores `localStorage.skipgc = 't'`, the vendor script's own opt-out key; Off removes it. `_naAnalyticsInit` reads the key and returns before it creates the script element, so an opted-out visitor never downloads `lib/count.js` and sends nothing. The change applies from the next page load. The vendor's `#toggle-goatcounter` fragment flips the same key, so the two stay in step.
+- When the browser already sends Do Not Track or Global Privacy Control, a line under the switch says the visits are not counted anyway, so an Off switch is not read as "you are being counted".
+- This is an opt-out, not an opt-in: a first-time visitor is counted on first load, before they can read the notice. Moving to opt-in would be a larger decision for the owner.
 
 ## The pinned count script
 
@@ -140,13 +154,15 @@ How to update it on purpose (for example when the vendor announces a change, or 
 ## Checks
 
 - Pin guard: `python3 scripts/test_count_js_pin.py`. It fails when the SHA-256 of `lib/count.js` differs from the pin record above, when the vendor header is missing, when `NA_ANALYTICS_SRC` in `app.js` is not a same-origin path to an existing file, or when `index.html` names any host in `script-src`. It reads local files only and makes no request.
-- Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file. One test starts two throw-away servers on `127.0.0.1` to prove that a redirect is not followed and that the key never reaches the redirect target; nothing leaves the machine.
-- The script has been run against the live account (2026-11-10). The per-country query, the dry-run and the written file agreed: one country at the floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).
+- Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file. They cover the floor, the rounding (including that a single extra visit changes the file only at a multiple of 5), the date-only `updated`, that `MIN_FLOOR` equals `NA_VISITORS_FLOOR` in `app.js`, and that the committed `data/visitors.json` obeys the contract. One test starts two throw-away servers on `127.0.0.1` to prove that a redirect is not followed and that the key never reaches the redirect target; nothing leaves the machine.
+- The script was run against the live account on 2026-11-10 (before the floor was raised from 3 to 10). The per-country query, the dry-run and the written file agreed: one country at the old floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).
 - Pins are placed with the application's existing country-centre logic (`COUNTRY_CENTERS`, then the centre of the country polygon bounds). A country that straddles the date line is centred on its largest part.
 
 ## Known limits
 
-- The count is GoatCounter's visitor count, not page views. A person who returns on another day is counted again.
+- The count is GoatCounter's visitor count, not page views and not people. A person who returns on another day is counted again, so a country showing 10 may be fewer than 10 people.
+- The public git history of `data/visitors.json` is a time series. Rounding and the floor hide single visits, but a change that appears between two commits still bounds when visits happened to the gap between those refreshes.
+- The opt-out is per browser (it lives in that browser's localStorage). Clearing site data, or using another browser or device, counts again until it is set again.
 - The count script is a pinned copy, so it receives no vendor changes or fixes until someone updates it on purpose (see "The pinned count script"). The count keeps working as long as the vendor keeps accepting requests at `https://CODE.goatcounter.com/count`.
 - The Content-Security-Policy still allows inline scripts and any HTTPS host for connections and images, so it would not stop a script that is already running on the page from sending data out. Pinning the count script closes the route by which the vendor could change that script; it does not narrow the policy.
 - Loading the page with the fragment `#toggle-goatcounter` makes the pinned script switch counting off or on in that browser (it stores or removes the `skipgc` key in localStorage) and show a browser alert. This is the vendor's own switch for skipping one's own visits.

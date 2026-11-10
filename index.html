@@ -1056,6 +1056,21 @@
         <button class="pref-opt" id="na-prefs-faq" data-val="faq" aria-label="Open frequently asked questions" style="flex:0 0 auto;padding-left:14px;padding-right:14px" data-i18n="welcome.faq">FAQ</button>
       </div>
 
+      <!-- Privacy: the notice for visit counting, for every visitor (it does not depend on any layer),
+           and the visitor's own opt-out. "On" means opted out: it stores the vendor's skipgc = 't'. -->
+      <div class="pref-row pref-row-stack" id="pref-privacy-row">
+        <span class="pref-label">🔒 <span data-i18n="prefs.privacy">Privacy</span></span>
+        <p class="pref-privacy-note" id="pref-privacy-note" data-i18n="prefs.privacyNote">This site counts visits by country with GoatCounter, a privacy-friendly analytics service. No IP address is stored or shown. The counting script is hosted on this site. Browsers that send Do Not Track or Global Privacy Control are not counted. Countries with fewer than 10 visits are never shown, and counts are rounded down to a multiple of 5. You can switch counting off for your browser below.</p>
+        <div class="pref-privacy-opt">
+          <span class="pref-label" id="pref-optout-label" data-i18n="prefs.optout">Do not count my visits</span>
+          <div class="pref-toggle-group" id="pref-optout" role="group" aria-labelledby="pref-optout-label">
+            <button class="pref-opt" data-val="off" data-i18n="prefs.off">Off</button>
+            <button class="pref-opt" data-val="on" data-i18n="prefs.on">On</button>
+          </div>
+        </div>
+        <p class="pref-privacy-note" id="pref-optout-signal" data-i18n="prefs.optoutSignal" hidden>Your browser already sends Do Not Track or Global Privacy Control, so your visits are not counted.</p>
+      </div>
+
     </div>
   </div>
 </div>
