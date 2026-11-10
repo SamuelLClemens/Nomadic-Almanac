@@ -1,0 +1,52 @@
+# Weekly map tile canary.
+#
+# Why: in November 2026 a tile vendor began answering every request with one fixed placeholder image
+# as HTTP 200, so nothing in the app noticed and visitors saw a watermark across the map. The check
+# fetches each basemap layer at several places and fails when the bytes are identical, an error comes
+# back, or the reply is not an image (see scripts/check_tiles.py). It needs no secrets and no keys.
+#
+# Run it by hand at any time: Actions tab, "Map tile check", "Run workflow", or locally with
+#   python3 scripts/check_tiles.py
+#
+# On failure the run turns red and one issue is opened (never a second while one is open), so the
+# owner is notified by GitHub's normal issue email instead of having to look at the Actions tab.
+# GitHub pauses scheduled workflows after 60 days without any repository activity; running the
+# workflow once by hand switches it back on.
+name: Map tile check
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'     # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write              # only used by the failure step below
+
+jobs:
+  tiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Run the tile canary
+        run: python3 scripts/check_tiles.py
+
+      - name: Open an issue when the check fails
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          open="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'Map tile check failed in:title' --json number --jq '.[0].number // empty')"
+          if [ -z "$open" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" \
+              --title "Map tile check failed" \
+              --body "The weekly map tile check failed: $RUN_URL. A basemap provider is probably returning an error or a placeholder image. Run python3 scripts/check_tiles.py locally to see which layer, then update BASEMAP_CONFIGS in app.js and LAYERS in scripts/check_tiles.py together."
+          else
+            echo "Issue #$open is already open; not creating another."
+          fi
