@@ -67,6 +67,18 @@ python3 scripts/update_visitors.py
 
 The first command prints the result and writes nothing. The second writes `data/visitors.json`. Then commit that file on a branch and open a pull request. Do not commit to `main`.
 
+To keep the key in the macOS Keychain instead of typing it each time, store it once. The command asks for the key without echoing it, so it never appears on a command line:
+
+```bash
+security add-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w
+```
+
+Then read it into the environment for a single run:
+
+```bash
+GOATCOUNTER_TOKEN="$(security find-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w)" python3 scripts/update_visitors.py --dry-run
+```
+
 Useful options:
 
 - `--site CODE` overrides the code read from `app.js` (or from `GOATCOUNTER_SITE`).
@@ -87,7 +99,7 @@ Choose one:
 ## Checks
 
 - Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file.
-- The GoatCounter account now exists (site code `nomadicalmanac`), but the script has not been run against it yet. The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors). Run `--dry-run` once after some visits have been counted and compare the output with the GoatCounter dashboard.
+- The script has been run against the live account (2026-11-10). The per-country query, the dry-run and the written file agreed: one country at the floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).
 - Pins are placed with the application's existing country-centre logic (`COUNTRY_CENTERS`, then the centre of the country polygon bounds). A country that straddles the date line is centred on its largest part.
 
 ## Known limits
@@ -95,3 +107,6 @@ Choose one:
 - The count is GoatCounter's visitor count, not page views. A person who returns on another day is counted again.
 - The vendor script is loaded without a pinned integrity hash, because the vendor replaces the file in place. Self-hosting a copy of the script is the alternative if a stricter policy is required.
 - Visitors who block the vendor host, send Do Not Track, or block browser storage are not counted, so the map understates real use.
+- A visit takes about 30 to 40 seconds to show up in the API. Automated browsers that announce themselves as `HeadlessChrome` were not counted in testing, so check the counting with an ordinary browser.
+- In the updater's `--dry-run` summary, "below the minimum" counts countries, not visits. For raw visit counts, query `/api/v0/stats/locations`.
+- GitHub Pages names a deployment after its commit. If a deploy times out (it did on 2026-11-09, in the "syncing files" stage), a re-run or a new build request for the same commit is refused with "Deployment cancelled". Merge a new commit to deploy again.
