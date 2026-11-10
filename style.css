@@ -1840,7 +1840,9 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
     box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(200,168,75,0.15);
     z-index: 1400;
   }
-  #na-bottom-nav .na-bottom-item { padding: 0 20px; min-width: 84px; }
+  /* Each item sizes to its own label (never narrower than 84px) so no label is clipped, in any
+     language: the shared "flex: 1" width left 46px for the text and cut "SETTINGS" and "JOURNEY". */
+  #na-bottom-nav .na-bottom-item { flex: 0 0 auto; padding: 0 16px; min-width: 84px; }
 }
 
 /* ── Standalone Preferences launcher: RETIRED ──────────────────────────────
