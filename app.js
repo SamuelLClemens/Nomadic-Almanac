@@ -82,7 +82,10 @@ let _holidayMarkers = [];
 // secret; the API key is, and never belongs in this file. Steps: docs/visitors-layer.md. The script
 // loads after boot, never when Do Not Track is on.
 const NA_ANALYTICS_SITE = 'nomadicalmanac';
-const NA_ANALYTICS_SRC  = 'https://gc.zgo.at/count.js';   // the one host the Content-Security-Policy allows
+// The count script is a pinned copy served from this site (same origin), not from the vendor host.
+// Its SHA-256 is recorded in docs/visitors-layer.md and checked by scripts/test_count_js_pin.py.
+// Do not edit lib/count.js by hand; the update procedure is in the same document.
+const NA_ANALYTICS_SRC  = './lib/count.js';
 // Countries with fewer visits than this are never drawn, whatever the data file says. The file is
 // filtered at generation too (scripts/update_visitors.py); this is the second, independent check.
 const NA_VISITORS_FLOOR = 3;
