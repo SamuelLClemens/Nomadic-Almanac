@@ -1,6 +1,8 @@
 # Visitors layer: owner guide
 
-The Visitors layer shows, as pins on the world map, which countries the visits to this site came from. It is off until the owner completes the steps below. Until then the layer shows the message "No visit data yet", and the page makes no analytics request of any kind.
+The Visitors layer shows, as pins on the world map, which countries the visits to this site came from.
+
+Status: visit counting is switched on for the GoatCounter site `nomadicalmanac` (PR 56). Every visitor whose browser allows it is counted once the page has finished loading, whether or not that visitor ever opens the layer. The steps below record how this was set up and how the data file is refreshed. Two states are still honest "off" states: while `NA_ANALYTICS_SITE` in `app.js` is empty, the page makes no analytics request of any kind, and while `data/visitors.json` is missing or holds no country at the floor, the layer shows "No visit data yet".
 
 ## How it works
 
@@ -16,7 +18,7 @@ Data file contract:
 {"updated": "2026-11-06T09:30:00Z", "minVisits": 3, "countries": {"US": 120, "DE": 44}}
 ```
 
-The repository does not contain a `data/visitors.json`. Do not add sample numbers.
+`data/visitors.json` holds the real totals written by the script (the first file came with PR 57). Do not add sample or invented numbers.
 
 ## Legal sign-off
 
@@ -37,7 +39,9 @@ Accounts cannot be created on the owner's behalf.
 
 ## Step 2: keep the API key out of the repository
 
-Store the key as the environment variable `GOATCOUNTER_TOKEN` in the shell or in a secret manager. Never commit it, paste it into a file, a ticket or a chat, or pass it on the command line. The script accepts it from the environment only and never prints it, including in error messages.
+Keep the key in a secret manager (on macOS, the Keychain: see step 4) and hand it to the script as the environment variable `GOATCOUNTER_TOKEN` for a single run. Never commit it, paste it into a file, a ticket or a chat, or type it into a command line. That includes `export GOATCOUNTER_TOKEN='...'`, because the shell saves every line you type in its history file. The script accepts the key from the environment only and never prints it, including in error messages.
+
+The script sends the key to one address only, `https://nomadicalmanac.goatcounter.com`. It refuses any other site code (from `app.js`, `GOATCOUNTER_SITE` or `--site`) unless `--allow-other-site` is given, and it never follows an HTTP redirect, because the key would travel with it. A redirect is reported as an error.
 
 ## Step 3: switch counting on
 
@@ -59,29 +63,30 @@ What the constant does:
 
 ## Step 4: generate the data file
 
-```bash
-export GOATCOUNTER_TOKEN='paste-the-key-here'
-python3 scripts/update_visitors.py --dry-run
-python3 scripts/update_visitors.py
-```
-
-The first command prints the result and writes nothing. The second writes `data/visitors.json`. Then commit that file on a branch and open a pull request. Do not commit to `main`.
-
-To keep the key in the macOS Keychain instead of typing it each time, store it once. The command asks for the key without echoing it, so it never appears on a command line:
+On macOS, keep the key in the Keychain. Store it once. The command asks for the key without echoing it, so it never appears on a command line or in the shell history:
 
 ```bash
 security add-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w
 ```
 
-Then read it into the environment for a single run:
+Then read it into the environment for a single run, first as a dry run and then for real:
 
 ```bash
 GOATCOUNTER_TOKEN="$(security find-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w)" python3 scripts/update_visitors.py --dry-run
 ```
 
+```bash
+GOATCOUNTER_TOKEN="$(security find-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w)" python3 scripts/update_visitors.py
+```
+
+The first command prints the result and writes nothing. The second writes `data/visitors.json`. Then commit that file on a branch and open a pull request. Do not commit to `main`.
+
+On another system, read the key from your secret manager in the same way, as `GOATCOUNTER_TOKEN="$(your-secret-manager-command)" python3 scripts/update_visitors.py`. Do not type the key itself into a command.
+
 Useful options:
 
-- `--site CODE` overrides the code read from `app.js` (or from `GOATCOUNTER_SITE`).
+- `--site CODE` overrides the code read from `app.js` (or from `GOATCOUNTER_SITE`). Only `nomadicalmanac`, the value of `EXPECTED_SITE` in `scripts/update_visitors.py`, is accepted; any other code is refused before a request is made.
+- `--allow-other-site` lifts that refusal, for a run against another GoatCounter account of your own. Never use it with a code you were given by someone else.
 - `--min-visits N` raises the minimum above 3. Values below 3 are refused.
 - `--since YYYY-MM-DD` limits the count to visits on or after a date. The default is all time.
 - `--allow-empty` lets an empty result replace a file that has countries. Without it, the script keeps the existing file, which protects against a temporary service fault.
@@ -98,7 +103,7 @@ Choose one:
 
 ## Checks
 
-- Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file.
+- Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file. One test starts two throw-away servers on `127.0.0.1` to prove that a redirect is not followed and that the key never reaches the redirect target; nothing leaves the machine.
 - The script has been run against the live account (2026-11-10). The per-country query, the dry-run and the written file agreed: one country at the floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).
 - Pins are placed with the application's existing country-centre logic (`COUNTRY_CENTERS`, then the centre of the country polygon bounds). A country that straddles the date line is centred on its largest part.
 

@@ -2,15 +2,18 @@
 """Tests for update_visitors.py: python3 scripts/test_update_visitors.py
 
 All data below is synthetic test input defined in this file. Nothing here is written to data/.
-The tests never touch the network: the HTTP call is replaced by a fake.
+The tests never touch the internet: the HTTP call is replaced by a fake. The one exception is
+NoRedirect, which talks to two throw-away servers on 127.0.0.1 to prove that a redirect is not followed.
 """
 import datetime
+import http.server
 import io
 import json
 import os
 import re
 import sys
 import tempfile
+import threading
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -141,7 +144,8 @@ class EndToEnd(unittest.TestCase):
         api = FakeApi(answers)
         stream = io.StringIO()
         env = {"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "example"} if env is None else env
-        code = uv.run(["--out", out_path] + list(extra), env=env, get=api, now=NOW, out_stream=stream)
+        # The fixtures use the site code "example", so the run must be told that is intended.
+        code = uv.run(["--out", out_path, "--allow-other-site"] + list(extra), env=env, get=api, now=NOW, out_stream=stream)
         return code, stream.getvalue(), api
 
     def test_writes_file_and_output_never_shows_token(self):
@@ -202,9 +206,107 @@ class EndToEnd(unittest.TestCase):
             with self.assertRaises(uv.UpdateError):
                 uv.run(["--out", out], env={"GOATCOUNTER_SITE": "example"}, get=api, now=NOW, out_stream=io.StringIO())
             with self.assertRaises(uv.UpdateError):
-                uv.run(["--out", out, "--min-visits", "1"], env={"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "example"},
+                uv.run(["--out", out, "--allow-other-site", "--min-visits", "1"],
+                       env={"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "example"},
                        get=api, now=NOW, out_stream=io.StringIO())
             self.assertEqual(api.calls, [])
+
+
+class SiteBinding(unittest.TestCase):
+    """The key may only be sent to the site this repository owns, unless the run says otherwise."""
+
+    def run_site(self, argv, env_site=None, answers=()):
+        env = {"GOATCOUNTER_TOKEN": TOKEN}
+        if env_site is not None:
+            env["GOATCOUNTER_SITE"] = env_site
+        api = FakeApi(answers)
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "visitors.json")
+            result = uv.run(["--out", out, "--dry-run"] + list(argv), env=env, get=api, now=NOW, out_stream=io.StringIO())
+        return result, api
+
+    def test_other_site_from_the_environment_is_refused_before_any_request(self):
+        api = FakeApi([])
+        with self.assertRaises(uv.UpdateError) as ctx:
+            uv.run(["--dry-run"], env={"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "someone-else"},
+                   get=api, now=NOW, out_stream=io.StringIO())
+        self.assertEqual(api.calls, [])
+        self.assertNotIn(TOKEN, str(ctx.exception))
+        self.assertIn("someone-else", str(ctx.exception))
+
+    def test_other_site_from_the_command_line_is_refused_before_any_request(self):
+        api = FakeApi([])
+        with self.assertRaises(uv.UpdateError):
+            uv.run(["--dry-run", "--site", "someone-else"], env={"GOATCOUNTER_TOKEN": TOKEN}, get=api, now=NOW,
+                   out_stream=io.StringIO())
+        self.assertEqual(api.calls, [])
+
+    def test_the_expected_site_is_accepted_and_is_the_only_host_called(self):
+        code, api = self.run_site(["--site", uv.EXPECTED_SITE], answers=[(200, page([("US", 9)]))])
+        self.assertEqual(code, 0)
+        self.assertEqual(len(api.calls), 1)
+        self.assertTrue(api.calls[0][0].startswith("https://%s.goatcounter.com/api/v0/stats/locations?" % uv.EXPECTED_SITE))
+
+    def test_the_explicit_flag_allows_another_site(self):
+        code, api = self.run_site(["--site", "my-own-test", "--allow-other-site"], answers=[(200, page([("US", 9)]))])
+        self.assertEqual(code, 0)
+        self.assertTrue(api.calls[0][0].startswith("https://my-own-test.goatcounter.com/"))
+
+    def test_app_js_names_the_expected_site_or_none(self):
+        # Switching counting to another account must be a visible change here as well as in app.js.
+        self.assertIn(uv.site_from_app_js(), ("", uv.EXPECTED_SITE))
+
+
+class NoRedirect(unittest.TestCase):
+    """A redirect must never carry the Authorization header to another address."""
+
+    def serve(self, handler):
+        server = http.server.HTTPServer(("127.0.0.1", 0), handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        return server
+
+    def test_http_get_reports_a_redirect_and_sends_nothing_to_the_new_address(self):
+        reached = []
+
+        class Target(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                reached.append(self.headers.get("Authorization"))
+                body = b'{"stats": [], "more": false}'
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        target = self.serve(Target)
+
+        class Redirector(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(302)
+                self.send_header("Location", "http://localhost:%d/api/v0/stats/locations" % target.server_port)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        redirector = self.serve(Redirector)
+        status, _headers, payload = uv.http_get("http://127.0.0.1:%d/api/v0/stats/locations" % redirector.server_port, TOKEN)
+        self.assertEqual(status, 302)
+        self.assertIsNone(payload)
+        self.assertEqual(reached, [])          # the second server was never contacted, so it saw no token
+
+    def test_a_redirect_is_an_error_that_does_not_show_the_token(self):
+        for status in (301, 302, 307, 308):
+            with self.assertRaises(uv.UpdateError) as ctx:
+                uv.fetch_counts("example", TOKEN, NOW, now=NOW, get=FakeApi([(status, None)]), sleep=lambda s: None)
+            self.assertIn("redirect", str(ctx.exception))
+            self.assertNotIn(TOKEN, str(ctx.exception))
 
 
 if __name__ == "__main__":
