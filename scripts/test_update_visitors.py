@@ -297,7 +297,12 @@ class CommittedFileAndFloors(unittest.TestCase):
     def test_committed_data_file_obeys_the_contract(self):
         with open(uv.DEFAULT_OUT, encoding="utf-8") as fh:
             doc = json.load(fh)
-        self.assertEqual(sorted(doc), ["countries", "minVisits", "updated"])
+        # Region level is on (slice G): the refresh workflow writes the document with --regions, which adds
+        # the pair minRegionVisits + regions (an empty regions object is normal). Either shape is the contract;
+        # the region rules themselves are checked in test_update_visitors_regions.py.
+        keys = sorted(doc)
+        self.assertIn(keys, (["countries", "minVisits", "updated"],
+                             ["countries", "minRegionVisits", "minVisits", "regions", "updated"]))
         self.assertRegex(doc["updated"], r"^\d{4}-\d{2}-\d{2}$")       # a date, no time
         self.assertGreaterEqual(doc["minVisits"], uv.MIN_FLOOR)
         for code, n in doc["countries"].items():

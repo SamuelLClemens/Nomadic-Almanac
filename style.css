@@ -2544,7 +2544,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
   background: radial-gradient(circle at 50% 34%, #9A6212, #6E430A);
   box-shadow: 0 0 0 1px rgba(255,255,255,0.7);
 }
-/* Region level (shipped off, see NA_VISITORS_REGIONS in app.js): a rounded SQUARE in teal, so a region
+/* Region level (see NA_VISITORS_REGIONS in app.js): a rounded SQUARE in teal, so a region
    pin differs from a country pin by shape and colour, not by colour alone. White on #14777B and on
    #0B4A4D is 5.3:1 or better. */
 .na-visit-pin-region {

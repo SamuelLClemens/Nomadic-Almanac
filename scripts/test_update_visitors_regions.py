@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Tests for the region level of update_visitors.py: python3 scripts/test_update_visitors_regions.py
 
-Region level is OFF unless --regions is given. All data below is synthetic test input defined in this
-file (the real data/admin1.geojson is read only by the one test that checks name matching on real
-region names, and nothing here is written to data/). The tests never touch the internet: the HTTP call
-is replaced by a fake. The live shape of the vendor's per-country response could NOT be checked,
-because Region collection is off in the owner's GoatCounter account; these tests encode what the
-vendor's published API description and source say, nothing more.
+The updater collects regions only when --regions is given (the refresh workflow passes it since
+slice G; a run by hand without it still writes the country-only document). All data below is synthetic
+test input defined in this file (the real data/admin1.geojson is read only by the one test that checks
+name matching on real region names, and nothing here is written to data/). The tests never touch the
+internet: the HTTP call is replaced by a fake. The live shape of the vendor's per-country response is
+NOT checked by these tests; they encode what the vendor's published API description and source say,
+nothing more. Whether a live `--regions --dry-run` has verified that shape is stated in the pull request
+and in docs/visitors-layer.md, section "Region level".
 """
 import contextlib
 import datetime
@@ -317,6 +319,29 @@ class EndToEnd(unittest.TestCase):
             self.assertEqual(sorted(doc), ["countries", "minRegionVisits", "minVisits", "regions", "updated"])
             self.assertIn("1 rows matched no region code", text)
 
+    def test_with_the_flag_and_no_region_at_the_floor_the_file_holds_an_empty_regions_object_and_compares_equal(self):
+        """The first scheduled runs after region goes on: no region has reached 25, but a country may have
+        changed. The document then carries an empty regions object (and the floor), which the workflow's
+        compare step must treat as the same published counts as a country-only document, so region going on
+        opens no pull request by itself."""
+        import visitors_changed as vc
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "visitors.json")
+            code, _text, api = self.run_main(out, [self.COUNTRIES, (200, region_page([("Ontario", 12)])),
+                                                   (200, region_page([("California", 24)]))], extra=["--regions"])
+            self.assertEqual(code, 0)
+            with open(out, encoding="utf-8") as fh:
+                doc = json.load(fh)
+            self.assertEqual(doc["regions"], {})
+            self.assertEqual(doc["minRegionVisits"], 25)
+            self.assertEqual(vc.problems(doc, allow_regions=True), [])
+            country_only = {"updated": "2026-11-01", "minVisits": 10, "countries": dict(doc["countries"])}
+            self.assertFalse(vc.changed(country_only, doc))        # no change, so no pull request
+            # one region reaching the floor is a change
+            doc2 = dict(doc, regions={"US-CA": 25})
+            self.assertTrue(vc.changed(country_only, doc2))
+            self.assertEqual(vc.problems(doc2, allow_regions=True), [])
+
     def test_dry_run_with_the_flag_writes_nothing(self):
         with tempfile.TemporaryDirectory() as d:
             out = os.path.join(d, "visitors.json")
@@ -373,12 +398,24 @@ class EndToEnd(unittest.TestCase):
             with open(out, encoding="utf-8") as fh:
                 self.assertEqual(json.load(fh)["regions"], {})
 
-    def test_the_committed_data_file_has_no_regions(self):
-        # Shipped OFF: data/visitors.json stays the honest empty document until the owner turns region on.
+    def test_the_committed_data_file_regions_obey_the_region_contract(self):
+        # Region level is on, so a refresh may add `minRegionVisits` and `regions` to data/visitors.json.
+        # Whatever is committed must obey the region rules: the keys come as a pair, the floor is not below
+        # MIN_REGION_FLOOR, every region is for a published country, at or above the effective floor, whole,
+        # and a multiple of the rounding step. With no regions key at all (today) there is nothing to check.
         with open(uv.DEFAULT_OUT, encoding="utf-8") as fh:
             doc = json.load(fh)
-        self.assertNotIn("regions", doc)
-        self.assertNotIn("minRegionVisits", doc)
+        self.assertEqual("regions" in doc, "minRegionVisits" in doc)
+        if "regions" not in doc:
+            return
+        floor = max(uv.MIN_REGION_FLOOR, doc["minVisits"], doc["minRegionVisits"])
+        self.assertGreaterEqual(doc["minRegionVisits"], uv.MIN_REGION_FLOOR)
+        for code, n in doc["regions"].items():
+            self.assertRegex(code, r"^[A-Z]{2}-[A-Z0-9]{1,3}$")
+            self.assertIn(code[:2], doc["countries"], "%s has no published country" % code)
+            self.assertIsInstance(n, int)
+            self.assertEqual(n % uv.ROUND_STEP, 0)
+            self.assertGreaterEqual(n, floor)
 
 
 if __name__ == "__main__":

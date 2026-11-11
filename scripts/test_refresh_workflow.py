@@ -14,8 +14,10 @@ indentation and regular expressions; full-line and trailing comments are ignored
     set below, or the top-level permissions are more than none;
   - the `propose` or `report` job references any secret other than the built-in token;
   - any step pushes to main or master, forces a push, merges, enables auto-merge or calls `gh api`;
-  - `--regions` appears (region level is shipped off), or the updater is told to leave its site binding
-    (`--allow-other-site`) or its empty-result protection (`--allow-empty`);
+  - `--regions` is missing from the updater step, appears anywhere else, or the updater step carries any
+    other flag; the validate step of `propose` lacks `--allow-regions`; or the updater is told to leave
+    its site binding (`--allow-other-site`, `--site`) or its empty-result protection (`--allow-empty`).
+    (Slice G switched region level on: the flag is now required in exactly one place, on purpose.)
   - a checkout lacks `persist-credentials: false`.
 Each rule is also run against a deliberately broken copy of the workflow, so a rule that stops
 matching fails here instead of passing silently. The tests read local files only and make no request.
@@ -254,8 +256,8 @@ def problems(text, tile_text=None):
     else:
         step = "\n".join(l for _, l in holders[0])
         if not re.search(r"^\s+env:\s*\n\s+%s: \$\{\{ secrets\.%s \}\}\s*\n" % (SECRET, SECRET), step, re.M) \
-                or not re.search(r"run: python3 scripts/update_visitors\.py\s*$", step):
-            found.append("the step that holds %s must be the updater step: the secret in its own env, run: python3 scripts/update_visitors.py" % SECRET)
+                or not re.search(r"run: python3 scripts/update_visitors\.py --regions\s*$", step):
+            found.append("the step that holds %s must be the updater step: the secret in its own env, run: python3 scripts/update_visitors.py --regions (that flag and no other)" % SECRET)
     if not re.search(r"^    environment: visitor-refresh\s*$", "\n".join(l for _, l in fetch), re.M):
         found.append("fetch must run in the environment visitor-refresh (it limits the secret to main)")
     if not re.search(r"^    if: github\.ref == 'refs/heads/main'\s*$", "\n".join(l for _, l in fetch), re.M):
@@ -317,9 +319,22 @@ def problems(text, tile_text=None):
                      r"enablePullRequestAutoMerge|\bgh\s+api\b|/merge\b|\bmerge_method\b", line, re.I):
             found.append("a step merges, enables auto-merge or calls the API directly: %s" % line.strip())
 
-    # 7. region level and the updater's protections
-    if re.search(r"(?<![\w-])--regions(?![\w-])", whole):
-        found.append("--regions appears; region level is shipped off")
+    # 7. region level (switched on in slice G) and the updater's protections. --regions is required in the
+    # updater step of fetch (rule 3 pins that line exactly) and may appear nowhere else; the validate step
+    # of propose must pass --allow-regions, or a file with regions would be refused the first time one
+    # reaches the floor (a failure no dry run could show).
+    region_hits = len(re.findall(r"(?<![\w-])--regions(?![\w-])", whole))
+    if region_hits != 1:
+        found.append("--regions must appear exactly once in the workflow (the updater step of fetch), found %d" % region_hits)
+    elif holders and len(holders) == 1 and not re.search(r"(?<![\w-])--regions(?![\w-])", "\n".join(l for _, l in holders[0])):
+        found.append("--regions appears outside the updater step of fetch")
+    if re.search(r"(?<![\w-])--regions(?![\w-])", "\n".join(l for _, l in jobs.get("propose", []) + jobs.get("report", []))):
+        found.append("--regions appears in the propose or report job")
+    validate_lines = [l for l in logical if "scripts/visitors_changed.py validate" in l]
+    if len(validate_lines) != 1 or not re.search(r"visitors_changed\.py validate --allow-regions ", validate_lines[0]):
+        found.append("the validate command must be exactly one and pass --allow-regions (region level is on)")
+    if re.search(r"(?<![\w-])--allow-regions(?![\w-])", "\n".join(l for _, l in fetch)):
+        found.append("--allow-regions belongs to the validate step of propose, not fetch")
     for flag in ("--allow-other-site", "--allow-empty", "--site"):
         if re.search(r"(?<![\w-])%s(?![\w-])" % re.escape(flag), whole):
             found.append("%s appears; the updater must keep its site binding and its empty-result protection" % flag)
@@ -409,8 +424,42 @@ class RealWorkflow(unittest.TestCase):
         hits = [(n, l.strip()) for n, l in code_lines(TEXT) if SECRET in l]
         self.assertEqual(len(hits), 1, hits)       # one line: the env key and its secrets. reference
 
-    def test_the_updater_step_passes_no_flags(self):
-        self.assertRegex(TEXT, r"(?m)^        run: python3 scripts/update_visitors\.py\s*$")
+    def test_the_updater_step_passes_exactly_the_regions_flag(self):
+        self.assertRegex(TEXT, r"(?m)^        run: python3 scripts/update_visitors\.py --regions\s*$")
+        self.assertEqual(len(re.findall(r"(?<![\w-])--regions(?![\w-])", "\n".join(l for _, l in code_lines(TEXT)))), 1)
+
+    def test_the_validate_step_allows_regions(self):
+        self.assertRegex(TEXT, r"(?m)^        run: python3 scripts/visitors_changed\.py validate --allow-regions \"\$RUNNER_TEMP/visitors-artifact/visitors\.json\"\s*$")
+
+    def test_the_workflows_own_validate_command_accepts_what_the_updater_writes(self):
+        """Run the validate command exactly as the workflow spells it (its flags, a temp file for the
+        artifact path) on the three documents the updater can write now: with regions, with an empty
+        regions object, and country-only. A missing flag would fail here, not on the first Monday a
+        region reaches the floor."""
+        import json
+        import subprocess
+        import sys
+        import tempfile
+        sys.path.insert(0, os.path.join(ROOT, "scripts"))
+        import update_visitors as uv
+        line = [l for _, l in code_lines(TEXT) if "scripts/visitors_changed.py validate" in l][0]
+        m = re.search(r"python3 scripts/visitors_changed\.py validate((?: --[\w-]+)*) \"", line)
+        self.assertIsNotNone(m, line)
+        flags = m.group(1).split()
+        docs = {
+            "with regions": uv.build_document({"US": 123, "DE": 40}, 10, regions={"US-CA": 77, "US-TX": 20, "DE-BY": 31}, region_floor=25),
+            "empty regions": uv.build_document({"US": 123}, 10, regions={}, region_floor=25),
+            "country only": uv.build_document({"US": 123}, 10),
+        }
+        self.assertEqual(sorted(docs["with regions"]["regions"]), ["DE-BY", "US-CA"])     # US-TX is below 25
+        with tempfile.TemporaryDirectory() as d:
+            for label, doc in docs.items():
+                path = os.path.join(d, "visitors.json")
+                with open(path, "w", encoding="utf-8") as fh:
+                    json.dump(doc, fh)
+                res = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "scripts", "visitors_changed.py"), "validate"] + flags + [path],
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                self.assertEqual(res.returncode, 0, "%s: %s" % (label, res.stderr))
 
     def test_schedule_is_weekly_and_off_the_tile_check_minute(self):
         cron, tile = cron_of(TEXT), cron_of(TILE)
@@ -433,9 +482,9 @@ class Detectors(unittest.TestCase):
         self.fires(broken("on:\n  schedule:", "on:\n  push:\n  schedule:"), "triggers must be exactly")
 
     def test_a_comment_is_not_a_rule_break(self):
-        text = broken("permissions: {}\n", "permissions: {}\n# pull_request: no, --regions no, gh pr merge --auto no, %s no\n" % SECRET)
+        text = broken("permissions: {}\n", "permissions: {}\n# pull_request: no, --allow-empty no, --regions twice no, gh pr merge --auto no, %s no\n" % SECRET)
         self.assertEqual(problems(text, TILE), [])
-        text = broken("python3 scripts/update_visitors.py\n", "python3 scripts/update_visitors.py   # not --regions\n")
+        text = broken("python3 scripts/update_visitors.py --regions\n", "python3 scripts/update_visitors.py --regions   # not --allow-empty\n")
         self.assertEqual(problems(text, TILE), [])
 
     def test_unpinned_or_foreign_actions(self):
@@ -509,12 +558,31 @@ class Detectors(unittest.TestCase):
             self.fires(text, "merges, enables auto-merge or calls the API")
 
     def test_regions_flag(self):
-        self.fires(broken("run: python3 scripts/update_visitors.py\n", "run: python3 scripts/update_visitors.py --regions\n"), "--regions")
-        self.fires(broken("run: python3 scripts/update_visitors.py\n", "run: python3 scripts/update_visitors.py --dry-run --regions\n"), "--regions")
+        upd = "run: python3 scripts/update_visitors.py --regions\n"
+        # missing from the updater step (region level is on, so the refresh must collect regions)
+        self.fires(broken(upd, "run: python3 scripts/update_visitors.py\n"), "the step that holds")
+        self.fires(broken(upd, "run: python3 scripts/update_visitors.py\n"), "--regions must appear exactly once")
+        # any other flag next to it, or in its place
+        self.fires(broken(upd, "run: python3 scripts/update_visitors.py --regions --dry-run\n"), "the step that holds")
+        self.fires(broken(upd, "run: python3 scripts/update_visitors.py --dry-run --regions\n"), "the step that holds")
+        self.fires(broken(upd, "run: python3 scripts/update_visitors.py --regions --min-region-visits 50\n"), "the step that holds")
+        # in a second place, or in the wrong job
+        self.fires(broken("python3 scripts/visitors_changed.py summary data/visitors.json",
+                          "python3 scripts/visitors_changed.py summary --regions data/visitors.json"), "--regions must appear exactly once")
+        self.fires(broken("python3 scripts/visitors_changed.py summary data/visitors.json",
+                          "python3 scripts/visitors_changed.py summary --regions data/visitors.json"), "propose or report job")
+        self.fires(broken("          echo \"Issue #$open is already open; not creating another.\"",
+                          "          echo --regions"), "propose or report job")
+
+    def test_validate_must_allow_regions(self):
+        val = "python3 scripts/visitors_changed.py validate --allow-regions "
+        self.fires(broken(val, "python3 scripts/visitors_changed.py validate "), "--allow-regions")
+        self.fires(broken("python3 scripts/visitors_changed.py compare", "python3 scripts/visitors_changed.py compare --allow-regions"),
+                   "belongs to the validate step")
 
     def test_updater_protections_kept(self):
         for flag in ("--allow-other-site", "--allow-empty", "--site other"):
-            self.fires(broken("run: python3 scripts/update_visitors.py\n", "run: python3 scripts/update_visitors.py %s\n" % flag),
+            self.fires(broken("run: python3 scripts/update_visitors.py --regions\n", "run: python3 scripts/update_visitors.py --regions %s\n" % flag),
                        flag.split()[0])
 
     def test_checkout_without_persist_credentials_false(self):
@@ -563,7 +631,8 @@ class Docs(unittest.TestCase):
                        "60 days"):
             self.assertTrue(needle in docs, "docs/visitors-layer.md does not mention %r" % needle)
         self.assertFalse("deliberately not included" in docs, "the old 'deliberately not included' sentence is still in docs/visitors-layer.md")
-        self.assertNotIn("--regions", TEXT)
+        self.assertIn("--regions", docs, "docs/visitors-layer.md must describe --regions")
+        self.assertIn("--allow-regions", docs, "docs/visitors-layer.md must mention that validate passes --allow-regions")
 
 
 if __name__ == "__main__":
