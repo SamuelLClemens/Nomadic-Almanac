@@ -92,11 +92,28 @@ const NA_ANALYTICS_SRC  = './lib/count.js';
 // visit count, not a head count, and the data file's history is public, so the floor is 10 and the
 // updater also publishes every count rounded down to a multiple of 5.
 const NA_VISITORS_FLOOR = 10;
+// Region level (visits by state or province): BUILT AND SHIPPED OFF. This is the master switch.
+// While it is false, no region data is read from data/visitors.json, no region pin, legend row or
+// text is created, and no request beyond today's is made; the Visitors layer behaves exactly as it
+// did before region existed (scripts/test_visitor_regions_off.py proves it). Region is more
+// granular than country and so more sensitive: turning it on needs Omri Siri's written
+// confirmation, Region switched on in the analytics account, a data file made with
+// `update_visitors.py --regions`, and an updated privacy notice. The four steps, in order, are in
+// docs/visitors-layer.md, section "Region level (off)". Do not flip this constant without them.
+const NA_VISITORS_REGIONS = false;
+// Regions with fewer visits than this are never drawn, whatever the data file says. It is higher
+// than the country floor on purpose: a region is a smaller group than a country, so the same count
+// points at fewer people. The file may raise it (minRegionVisits), never lower it, and it is never
+// below the effective country floor. scripts/update_visitors.py (MIN_REGION_FLOOR) writes with the
+// same number; a test fails if the two differ.
+const NA_VISITORS_REGION_FLOOR = 25;
 // Visitors layer state. It is deliberately NOT part of activeLayers: it is a pin overlay with no
 // 0-3 score, and activeLayers drives the choropleth, the glyph chips and the Combined View.
 // state: idle -> loading -> ready | empty | error. The data file is fetched only once the layer is
-// first switched on.
-let _naVisitors = { active: false, state: 'idle', rows: [], updated: '', markers: [], json: null };
+// first switched on. regions / regionMarkers / regionData stay empty while NA_VISITORS_REGIONS is
+// false (regionData: idle -> loading | failed, for the lazy admin-1 polygons that give region centres).
+let _naVisitors = { active: false, state: 'idle', rows: [], updated: '', markers: [], json: null,
+                    regions: [], regionMarkers: [], regionData: 'idle' };
 
 // Click-toggle tooltip: tracks which feature's popup is currently open.
 // Clicking the same feature again closes the tooltip (toggle behavior).
@@ -3068,6 +3085,7 @@ async function initAdmin1Choropleth() {
   } catch (e) {
     console.warn('Admin-1 choropleth unavailable: falling back to country level:', e.message);
   }
+  _naRegionsAdmin1Settled();   // visitor region pins wait for the polygons; a no-op while region is off
 }
 
 // ─── Admin-2 Choropleth (county/municipality level) ───────────────────────────
@@ -4895,6 +4913,7 @@ function _naLayerOn(key) {
 // allowlist: two-letter upper-case codes, finite numbers, whole counts, and the floor applied again
 // here whatever "minVisits" says (the file can only raise it), so a stale or hand-edited file can
 // never publish a small count.
+// @na-pure-begin (scripts/test_visitor_regions_off.py runs this block under a JavaScript engine)
 function _naVisitorsParse(j, centroids) {
   if (!j || typeof j !== 'object' || !j.countries || typeof j.countries !== 'object' || Array.isArray(j.countries)) return null;
   const floor = Math.max(NA_VISITORS_FLOOR, Math.floor(Number(j.minVisits)) || 0);
@@ -4914,14 +4933,45 @@ function _naVisitorsParse(j, centroids) {
   return { rows: rows, updated: updated };
 }
 
+// Pure, and only ever called while NA_VISITORS_REGIONS is true (it checks again, so a stray call
+// still returns nothing). Region rows {code, iso2, count} from the file's optional "regions" object.
+// Strict allowlist: keys are ISO 3166-2 shaped codes (US-CA), counts are finite whole numbers. Three
+// floors apply and the file can only raise them: the region floor (NA_VISITORS_REGION_FLOOR or the
+// file's minRegionVisits), and never below the effective COUNTRY floor. A region whose country is not
+// itself one of the published country rows is refused, so no region can appear for a country that
+// is below the country floor. No coordinates here: they come from the admin-1 polygons at draw time.
+function _naRegionsParse(j, countryRows) {
+  if (!NA_VISITORS_REGIONS) return [];
+  if (!j || typeof j !== 'object' || !j.regions || typeof j.regions !== 'object' || Array.isArray(j.regions)) return [];
+  const countryFloor = Math.max(NA_VISITORS_FLOOR, Math.floor(Number(j.minVisits)) || 0);
+  const floor = Math.max(NA_VISITORS_REGION_FLOOR, countryFloor, Math.floor(Number(j.minRegionVisits)) || 0);
+  const published = {};
+  (countryRows || []).forEach(function (r) { published[r.iso2] = true; });
+  const rows = [];
+  Object.keys(j.regions).forEach(function (code) {
+    if (!/^[A-Z]{2}-[A-Z0-9]{1,3}$/.test(code)) return;
+    const iso2 = code.slice(0, 2);
+    if (!published[iso2]) return;
+    const raw = j.regions[code];
+    if (typeof raw !== 'number' || !isFinite(raw) || Math.floor(raw) !== raw) return;
+    if (raw < floor) return;
+    rows.push({ code: code, iso2: iso2, count: raw });
+  });
+  rows.sort(function (a, b) { return b.count - a.count || (a.code < b.code ? -1 : 1); });
+  return rows;
+}
+
 function _naVisitorsApply(j) {
   const parsed = _naVisitorsParse(j, _naCountryCentroids());
   if (!parsed || !parsed.rows.length) {
     _naVisitors.rows = []; _naVisitors.updated = ''; _naVisitors.state = 'empty';
+    _naVisitors.regions = [];
   } else {
     _naVisitors.rows = parsed.rows; _naVisitors.updated = parsed.updated; _naVisitors.state = 'ready';
+    _naVisitors.regions = NA_VISITORS_REGIONS ? _naRegionsParse(j, parsed.rows) : [];
   }
 }
+// @na-pure-end
 
 function _naVisitorsLoad() {
   if (_naVisitors.state !== 'idle') return;
@@ -4950,6 +5000,8 @@ function _naVisitorsLoad() {
 function _naVisitorsClear() {
   _naVisitors.markers.forEach(function (m) { m.remove(); });
   _naVisitors.markers = [];
+  _naVisitors.regionMarkers.forEach(function (m) { m.remove(); });   // empty while region is off
+  _naVisitors.regionMarkers = [];
 }
 
 // Idempotent and cheap: refresh() calls it on every change. Draws the pins when the layer is on and
@@ -4962,7 +5014,8 @@ function _naVisitorsRender() {
     return;
   }
   if (_naVisitors.state === 'idle') { _naVisitorsLoad(); return; }
-  if (_naVisitors.state !== 'ready' || _naVisitors.markers.length) return;
+  if (_naVisitors.state !== 'ready') return;
+  if (_naVisitors.markers.length) { _naRegionsRender(); return; }   // returns at once while region is off
   const rows = _naVisitors.rows;
   const max = rows[0].count;
   rows.forEach(function (r) {
@@ -4989,6 +5042,114 @@ function _naVisitorsRender() {
     marker.addTo(map);
     _naVisitors.markers.push(marker);
   });
+  _naRegionsRender();   // returns at once while region is off
+}
+
+// ─── Visitors layer, region level (state or province pins; shipped OFF) ────────────────────────
+// Every function in this section starts with the NA_VISITORS_REGIONS guard (a test checks it), so
+// while the switch is false nothing here reads data, draws, shows text or makes a request.
+// Region pins are rounded SQUARES in teal; country pins are amber CIRCLES. They sit at the centre of
+// the admin-1 polygon (the same bounds-centre logic as the country pins, _naFeatureBounds), and are
+// sized like the country pins (area follows the count, same scale). The polygons come from
+// data/admin1.geojson through the existing lazy path (initAdmin1Choropleth); no new host.
+function _naRegionCentroids(codes) {
+  if (!NA_VISITORS_REGIONS) return {};
+  const out = {};
+  if (!_admin1GeoData || !_admin1GeoData.features) return out;
+  const want = {};
+  codes.forEach(function (c) { want[c] = true; });
+  const bestArea = {};
+  _admin1GeoData.features.forEach(function (f) {
+    const code = getAdmin1Code(f.properties);
+    if (!code || !want[code]) return;
+    try {
+      const b = _naFeatureBounds(f);
+      const lat = (b.getSouth() + b.getNorth()) / 2;
+      const lng = (b.getWest() + b.getEast()) / 2;
+      const area = (b.getEast() - b.getWest()) * (b.getNorth() - b.getSouth());
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      // A code can be several polygon parts: the largest part gives the centre, like a country that
+      // straddles the date line.
+      if (bestArea[code] === undefined || area > bestArea[code]) { bestArea[code] = area; out[code] = { lat: lat, lng: lng }; }
+    } catch (_e) {}
+  });
+  return out;
+}
+
+// Starts the one lazy fetch of the admin-1 polygons (the same guarded path the province zoom uses).
+// initAdmin1Choropleth() calls _naRegionsAdmin1Settled() when it ends, whoever started it.
+function _naRegionsEnsureData() {
+  if (!NA_VISITORS_REGIONS) return;
+  const v = _naVisitors;
+  if (_admin1GeoData || v.regionData !== 'idle') return;
+  if (!_naCountriesSettledOnce) return;           // _naCountriesSettled() redraws later and calls us again
+  v.regionData = 'loading';
+  if (_admin1Loading) return;                     // a province-zoom load is already running
+  _admin1Loading = true;
+  initAdmin1Choropleth().finally(function () { _admin1Loading = false; });
+}
+
+function _naRegionsAdmin1Settled() {
+  if (!NA_VISITORS_REGIONS) return;
+  _naVisitors.regionData = _admin1GeoData ? 'ready' : 'failed';   // 'failed': pins stay off, no retry loop
+  if (_naVisitors.active && _admin1GeoData) { _naRegionsRender(); updateLegend(); }
+}
+
+function _naRegionsRender() {
+  if (!NA_VISITORS_REGIONS) return;
+  const v = _naVisitors;
+  if (!map || !v.active || v.state !== 'ready' || !v.rows.length || v.regionMarkers.length || !v.regions.length) return;
+  if (!_admin1GeoData) { if (v.regionData === 'idle') _naRegionsEnsureData(); return; }
+  const centres = _naRegionCentroids(v.regions.map(function (r) { return r.code; }));
+  const max = v.rows[0].count;
+  v.regions.forEach(function (r) {
+    const c = centres[r.code];
+    if (!c) return;                                // no polygon for this code: nothing is drawn
+    const d = Math.round(22 + 24 * Math.sqrt(Math.min(1, r.count / max)));   // 22 to 46 px
+    const text = r.count >= 10000 ? Math.round(r.count / 1000) + 'k' : r.count >= 1000 ? (Math.round(r.count / 100) / 10) + 'k' : String(r.count);
+    const html = '<div class="na-visit-pin na-visit-pin-region" style="width:' + d + 'px;height:' + d + 'px;font-size:' + (d >= 36 ? 11 : d >= 28 ? 10 : 9) + 'px">' + text + '</div>';
+    const icon = L.divIcon({ className: 'na-visit-divicon na-visit-divicon-region', html: html, iconSize: [d, d], iconAnchor: [d / 2, d / 2] });
+    const regionName = _admin1NameCache[r.code] || r.code;
+    const countryName = (typeof countryNames !== 'undefined' && countryNames[r.iso2]) || r.iso2;
+    const label = regionName + ', ' + countryName + ', ' + _t('visitors.visits') + ': ' + r.count;
+    const marker = L.marker([c.lat, c.lng], {
+      pane: 'markersPane', icon: icon, keyboard: true, title: label, alt: label,
+      zIndexOffset: 10000 - d * 100,               // above the country pins, small ones above big ones
+    });
+    marker.on('click', function (ev) {
+      _featureClicked = true;
+      const el = marker.getElement();
+      const rect = el ? el.getBoundingClientRect() : null;
+      const x = rect ? rect.left + rect.width / 2 : (ev.originalEvent && ev.originalEvent.clientX) || 0;
+      const y = rect ? rect.top + rect.height / 2 : (ev.originalEvent && ev.originalEvent.clientY) || 0;
+      toggleTooltip('visitors:' + r.code, _naRegionTooltip(r, regionName, countryName), x, y);
+      setTimeout(function () { _featureClicked = false; }, 10);
+    });
+    marker.addTo(map);
+    v.regionMarkers.push(marker);
+  });
+  if (v.regionMarkers.length) updateLegend();
+}
+
+function _naRegionTooltip(r, regionName, countryName) {
+  if (!NA_VISITORS_REGIONS) return '';
+  const n = (function () { try { return r.count.toLocaleString(); } catch (_) { return String(r.count); } })();
+  return '<div class="tth"><h3 id="tt-name">' + _esc(regionName + ', ' + countryName) + '</h3>'
+    + '<div class="ts" id="tt-sub">🌍 ' + _esc(_layerName('visitors').toUpperCase() + ' · ' + _t('visitors.region').toUpperCase()) + '</div>'
+    + (_naVisitors.updated ? '<div class="tm" id="tt-period">' + _esc(_t('visitors.updated') + ' ' + _naVisitors.updated) + '</div>' : '')
+    + '</div><div class="ttb" id="tt-body"><div class="ttdesc" style="font-size:12px">'
+    + _esc(_t('visitors.visits')) + ': <b>' + _esc(n) + '</b></div></div>';
+}
+
+// Legend rows for the region pins (a square key, the count shown, the floor). '' while region is off.
+function _naRegionsLegendHtml() {
+  if (!NA_VISITORS_REGIONS) return '';
+  const v = _naVisitors;
+  if (v.state !== 'ready' || !v.regionMarkers.length) return '';
+  return '<div class="lr na-vis-scale"><span class="na-vis-dot na-vis-dot-region" style="width:14px;height:14px"></span>'
+    + '<span class="llabel-note">' + _esc(_t('visitors.regionKey')) + '</span></div>'
+    + '<div class="lr"><span class="llabel-note">' + _esc(_t('visitors.regionsShown') + ': ' + v.regionMarkers.length + ' · '
+      + _t('visitors.regionFloor').replace('{n}', String(NA_VISITORS_REGION_FLOOR))) + '</span></div>';
 }
 
 function _naVisitorsTooltip(r, name) {
@@ -5011,7 +5172,8 @@ function _naVisitorsLegendHtml() {
       + '<span class="na-vis-dot" style="width:18px;height:18px"></span>'
       + '<span class="llabel">' + v.rows[0].count + '</span></div>'
       + '<div class="lr"><span class="llabel-note">' + _esc(_t('visitors.size')) + '</span></div>'
-      + '<div class="lr"><span class="llabel-note">' + _esc(_t('visitors.shown') + ': ' + v.rows.length + (v.updated ? ' · ' + _t('visitors.updated') + ' ' + v.updated : '')) + '</span></div>';
+      + '<div class="lr"><span class="llabel-note">' + _esc(_t('visitors.shown') + ': ' + v.rows.length + (v.updated ? ' · ' + _t('visitors.updated') + ' ' + v.updated : '')) + '</span></div>'
+      + _naRegionsLegendHtml();   // '' while region is off
   } else {
     const k = v.state === 'error' ? 'visitors.error' : (v.state === 'idle' || v.state === 'loading') ? 'visitors.loading' : 'visitors.empty';
     h += '<div class="lr"><span class="llabel" id="legend-visitors-state">' + _esc(_t(k)) + '</span></div>';
@@ -12000,6 +12162,36 @@ Object.assign(_I18N, {
     "visitors.size": "גודל הסימון מציין את מספר הביקורים.", "visitors.empty": "עדיין אין נתוני ביקורים",
     "visitors.loading": "טוען נתוני ביקורים…", "visitors.error": "לא ניתן היה לטעון את נתוני הביקורים",
     "visitors.privacy": "ביקורים נספרים לפי מדינה באמצעות שירות אנליטיקה ידידותי לפרטיות. אתר זה אינו שומר או מציג כתובות IP, אלא רק סכומים לפי מדינה, ומדינות עם פחות מ-10 ביקורים מוסתרות. המספרים מעוגלים כלפי מטה למכפלה של 5. דפדפנים ששולחים Do Not Track אינם נספרים." },
+});
+
+// ── Visitors layer, region level (SHIPPED OFF, see NA_VISITORS_REGIONS): interface strings ──
+// Used only while the switch is true. Same additive deep-merge pattern; English is the reference
+// text and the other ten are first drafts that a native reader should confirm. {n} is replaced by
+// NA_VISITORS_REGION_FLOOR. The Preferences privacy notice (prefs.privacyNote) is NOT changed here;
+// it must be updated before the switch is turned on (docs/visitors-layer.md, "Region level (off)").
+(function (p) { Object.keys(p).forEach(function (l) { _I18N[l] = Object.assign(_I18N[l] || {}, p[l]); }); })({
+  en: { "visitors.region": "State or province", "visitors.regionKey": "Squares show states or provinces; circles show countries.",
+    "visitors.regionsShown": "Regions shown", "visitors.regionFloor": "Regions with fewer than {n} visits are hidden." },
+  es: { "visitors.region": "Estado o provincia", "visitors.regionKey": "Los cuadrados muestran estados o provincias; los círculos, países.",
+    "visitors.regionsShown": "Regiones mostradas", "visitors.regionFloor": "Se ocultan las regiones con menos de {n} visitas." },
+  fr: { "visitors.region": "État ou province", "visitors.regionKey": "Les carrés indiquent des États ou provinces ; les cercles indiquent des pays.",
+    "visitors.regionsShown": "Régions affichées", "visitors.regionFloor": "Les régions comptant moins de {n} visites sont masquées." },
+  de: { "visitors.region": "Bundesland oder Provinz", "visitors.regionKey": "Quadrate zeigen Bundesländer oder Provinzen, Kreise zeigen Länder.",
+    "visitors.regionsShown": "Angezeigte Regionen", "visitors.regionFloor": "Regionen mit weniger als {n} Besuchen werden ausgeblendet." },
+  pt: { "visitors.region": "Estado ou província", "visitors.regionKey": "Os quadrados mostram estados ou províncias; os círculos mostram países.",
+    "visitors.regionsShown": "Regiões exibidas", "visitors.regionFloor": "Regiões com menos de {n} visitas ficam ocultas." },
+  ar: { "visitors.region": "الولاية أو المقاطعة", "visitors.regionKey": "تدل المربعات على الولايات أو المقاطعات، وتدل الدوائر على الدول.",
+    "visitors.regionsShown": "المناطق المعروضة", "visitors.regionFloor": "تُخفى المناطق التي لديها أقل من {n} زيارة." },
+  zh: { "visitors.region": "州或省", "visitors.regionKey": "方形表示州或省，圆形表示国家。",
+    "visitors.regionsShown": "显示的地区数", "visitors.regionFloor": "访问少于 {n} 次的地区会被隐藏。" },
+  hi: { "visitors.region": "राज्य या प्रांत", "visitors.regionKey": "वर्ग राज्यों या प्रांतों को दर्शाते हैं; वृत्त देशों को दर्शाते हैं।",
+    "visitors.regionsShown": "दिखाए गए क्षेत्र", "visitors.regionFloor": "{n} से कम विज़िट वाले क्षेत्र छिपाए जाते हैं।" },
+  ja: { "visitors.region": "州または省", "visitors.regionKey": "四角は州・省、丸は国を表します。",
+    "visitors.regionsShown": "表示地域数", "visitors.regionFloor": "訪問が {n} 件未満の地域は非表示です。" },
+  ru: { "visitors.region": "Штат или провинция", "visitors.regionKey": "Квадраты показывают штаты или провинции, круги показывают страны.",
+    "visitors.regionsShown": "Показано регионов", "visitors.regionFloor": "Регионы менее чем с {n} визитами скрыты." },
+  he: { "visitors.region": "אזור (מחוז או מדינה פדרלית)", "visitors.regionKey": "ריבועים מציגים אזורים (מחוזות או מדינות פדרליות); עיגולים מציגים מדינות.",
+    "visitors.regionsShown": "אזורים מוצגים", "visitors.regionFloor": "אזורים עם פחות מ-{n} ביקורים מוסתרים." },
 });
 
 // ── Privacy notice and opt-out (Preferences, row "Privacy"): interface strings in 11 languages ──

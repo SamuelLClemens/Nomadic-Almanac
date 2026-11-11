@@ -116,6 +116,42 @@ Every visitor is counted, not only those who open the Visitors layer, so the not
 - When the browser already sends Do Not Track or Global Privacy Control, a line under the switch says the visits are not counted anyway, so an Off switch is not read as "you are being counted".
 - This is an opt-out, not an opt-in: a first-time visitor is counted on first load, before they can read the notice. Moving to opt-in would be a larger decision for the owner.
 
+## Region level (off)
+
+Region level means visits by state or province, drawn as pins on the map. It is built and **shipped switched off**: nothing about it changes what visitors see, what their browsers request or what is published in `data/visitors.json` until the owner turns it on. Region is more granular than country, so each count points at a smaller group of people; that is why it is gated.
+
+What exists:
+
+- **The switch.** `NA_VISITORS_REGIONS` in `app.js`, next to `NA_VISITORS_FLOOR`, is `false`. While it is false the page reads no region data, draws no region pin, shows no region legend row or text, and makes no request beyond today's. `python3 scripts/test_visitor_regions_off.py` proves this by running the real parsing code from `app.js` under JavaScriptCore with the switch false (a data file full of regions gives exactly the country-only result, no region state and no request), and it fails if a region function loses its guard. The test needs `jsc`, which ships with macOS; elsewhere that part is skipped with a message.
+- **The data contract.** An optional `regions` object in `data/visitors.json`, with ISO 3166-2 codes as keys and whole counts as values, plus `minRegionVisits`:
+
+  ```json
+  {"updated": "2026-11-06", "minVisits": 10, "countries": {"US": 120}, "minRegionVisits": 25, "regions": {"US-CA": 40}}
+  ```
+
+  The committed file has neither key and stays the honest empty document; never put sample numbers in it.
+- **The region floor is 25** (`NA_VISITORS_REGION_FLOOR` in `app.js`, `MIN_REGION_FLOOR` in `scripts/update_visitors.py`; a test fails if the two differ). Reason: a region is a smaller group than a country, so the same count points at fewer people, and the count is a visit count (a returning person is counted again each day). 25 is two and a half times the country floor of 10 and, like every published count, a multiple of 5. It is a proposal: the owner, with Omri Siri, can raise it. The file may raise it with `minRegionVisits`, never lower it. The browser applies it independently of the file, and never below the effective country floor (if the file raises `minVisits` to 50, regions need 50 too).
+- **No region without its country.** A region is drawn only when its country is itself one of the published country rows, so no region can appear for a country below the country floor. The updater does not even request the regions of such a country.
+- **The pins.** A region pin is a rounded teal square, a country pin is an amber circle; the legend names the difference, and the tooltip carries the words "State or province". Each sits at the centre of its admin-1 polygon (the same bounds-centre logic as the country pins) and is sized by its count on the same scale. The polygons come from `data/admin1.geojson` through the existing lazy load; no new host. A region code with no polygon in that file is not drawn.
+- **The updater.** `python3 scripts/update_visitors.py --regions` collects regions; without the flag the script behaves exactly as before and never writes a `regions` key (running it without the flag over a file that has regions drops them). With the flag it applies the country rules, stricter: only published countries are asked, counts are rounded down to a multiple of 5, the region floor is at least 25 (`--min-region-visits N` raises it, never below `--min-visits`), only a code that exists in `data/admin1.geojson` for that country and a whole number are kept. An empty region result does not replace a file that has regions unless `--allow-empty` is given.
+
+What could not be verified: how the live service answers a region request. The vendor's published API description and source show that regions come from a separate request per country, `GET /api/v0/stats/locations/CC` (the country code taken from the country query), and that each row of that answer carries a display name and a count but no code. The updater therefore matches the name to a code through `data/admin1.geojson`, drops a name that matches no code or more than one, and prints how many rows it could not match. Region collection is off in the owner's GoatCounter account, so no live region request was made, and the tests use synthetic data and a fake HTTP layer only. Expect partial coverage even when it works: where the admin-1 level in `data/admin1.geojson` differs from the vendor's, names will not match. In a spot check against the real file on 2026-11-11, the display names California, Ontario, Québec, Bayern, New South Wales, São Paulo, Maharashtra and Tel Aviv each resolved to one code, while Île-de-France, England, Catalonia and Bangkok matched nothing. Check the first `--dry-run` output (it prints the number of unmatched rows) before trusting it.
+
+### Turning region on (owner steps, in order)
+
+1. **Get Omri Siri's written confirmation** that region reporting may be switched on, and keep it with the other sign-offs. The owner reports that Omri Siri is fine with changes (an owner statement, not a record of his words); this document gives no legal advice and does not replace his confirmation.
+2. **Switch Region on in GoatCounter.** Site settings, data collection: tick Region as well as Country. It applies to new visits only; nothing is backfilled.
+3. **On a branch, flip the constant and bump the cache.** Set `const NA_VISITORS_REGIONS = true;` in `app.js`, increase `CACHE` in `sw.js` by one, and update the privacy notice (next paragraph) in the same change.
+4. **Run the updater with the flag**, review the diff, and open a pull request:
+
+   ```bash
+   GOATCOUNTER_TOKEN="$(security find-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w)" python3 scripts/update_visitors.py --regions --dry-run
+   ```
+
+   Read the dry run: published regions, the count of unmatched rows, and that no region belongs to an unpublished country. Then run it again without `--dry-run`, commit `data/visitors.json` on a branch and open a pull request. Do not commit to `main`.
+
+The privacy notice must be updated when region goes on. It currently says visits are counted by country and nothing about regions, which would then be incomplete. The text lives in four places in this repository: `prefs.privacyNote` (11 languages) in `app.js`, with its English fallback in `index.html` (`#pref-privacy-note`, in Settings, row "Privacy"); the legend note `visitors.privacy` (11 languages) in `app.js`; and the FAQ answer "Is my data private?" in `app.js`. Each should say that visits are also counted by state or province, name the region floor, and keep the rounding sentence. Leave the English text as the reference and have the other ten read by a native speaker; Omri Siri may want to read the final wording.
+
 ## The pinned count script
 
 `lib/count.js` is an unmodified copy of the vendor's count script. The first two lines are the vendor's header (it names GoatCounter and states the ISC licence); keep them. Do not edit the file by hand.
@@ -154,6 +190,7 @@ How to update it on purpose (for example when the vendor announces a change, or 
 ## Checks
 
 - Pin guard: `python3 scripts/test_count_js_pin.py`. It fails when the SHA-256 of `lib/count.js` differs from the pin record above, when the vendor header is missing, when `NA_ANALYTICS_SRC` in `app.js` is not a same-origin path to an existing file, or when `index.html` names any host in `script-src`. It reads local files only and makes no request.
+- Region level: `python3 scripts/test_update_visitors_regions.py` (the updater with `--regions`, synthetic data and a fake HTTP layer) and `python3 scripts/test_visitor_regions_off.py` (the shipped-off proof described in "Region level (off)").
 - Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file. They cover the floor, the rounding (including that a single extra visit changes the file only at a multiple of 5), the date-only `updated`, that `MIN_FLOOR` equals `NA_VISITORS_FLOOR` in `app.js`, and that the committed `data/visitors.json` obeys the contract. One test starts two throw-away servers on `127.0.0.1` to prove that a redirect is not followed and that the key never reaches the redirect target; nothing leaves the machine.
 - The script was run against the live account on 2026-11-10 (before the floor was raised from 3 to 10). The per-country query, the dry-run and the written file agreed: one country at the old floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).
 - Pins are placed with the application's existing country-centre logic (`COUNTRY_CENTERS`, then the centre of the country polygon bounds). A country that straddles the date line is centred on its largest part.
@@ -162,6 +199,7 @@ How to update it on purpose (for example when the vendor announces a change, or 
 
 - The count is GoatCounter's visitor count, not page views and not people. A person who returns on another day is counted again, so a country showing 10 may be fewer than 10 people.
 - The public git history of `data/visitors.json` is a time series. Rounding and the floor hide single visits, but a change that appears between two commits still bounds when visits happened to the gap between those refreshes.
+- Region level is off (see "Region level (off)"). When it is turned on, the difference between a published country count and the sum of its published region counts reveals only how many visits came from regions below the floor, rounded; it is still a smaller group per number than the country level, which is why the floor is higher.
 - The opt-out is per browser (it lives in that browser's localStorage). Clearing site data, or using another browser or device, counts again until it is set again.
 - The count script is a pinned copy, so it receives no vendor changes or fixes until someone updates it on purpose (see "The pinned count script"). The count keeps working as long as the vendor keeps accepting requests at `https://CODE.goatcounter.com/count`.
 - Pinning the count script closes the route by which the vendor could change that script. What a script that is already running on the page could send out, and where, is limited by the Content-Security-Policy (`docs/csp.md`): connections and images may reach only the listed hosts, not any HTTPS host. The policy cannot report a violation anywhere and still allows inline styles.
