@@ -1,6 +1,6 @@
-# Handoff, 2026-11-11: visitor work closed out
+# Handoff, 2026-11-11: Nomadic Almanac closed out
 
-State at handoff: `origin/main` is `3fa8b15` (plus this file's own merge), no pull requests and no issues are open, the latest GitHub Pages build is `built`, and the live service worker cache is `nomadic-v61` (the same as `main`). The work order on the visitor layer, from the first layer to the independent security review's fixes and the automatic refresh, is finished. What follows is what is true now, what was not verified, and what could start the next piece of work.
+State at handoff: `origin/main` is `ab936b3` (plus this file's own merge), no pull requests and no issues are open, the latest GitHub Pages build is `built`, and the live service worker cache is `nomadic-v63` (the same as `main`). The work order on the visitor layer, from the first layer to the independent security review's fixes, the automatic refresh, region level and the GoatCounter region list, is finished. **Nothing is left to build.** What remains is time-gated (the first scheduled runs on 2026-11-16, a first real region row) or the owner's (see "Open decisions"). Start no new Nomadic Almanac work unless one of those triggers asks for it. What follows is what is true now, what was not verified, and what could start the next piece of work.
 
 ## Shipped
 
@@ -16,8 +16,12 @@ State at handoff: `origin/main` is `3fa8b15` (plus this file's own merge), no pu
 | [66](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/66) | Region level built and shipped switched off (`NA_VISITORS_REGIONS = false`, region floor 25) | 2026-11-11 |
 | [67](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/67) | Scheduled workflow "Refresh visitor data" (`.github/workflows/refresh-visitors.yml`) | 2026-11-11 |
 | [69](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/69) | The updater retries an HTTP 404 twice (5 s, then 15 s) before failing | 2026-11-11 |
-| [70](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/70) | This handoff document | 2026-11-11 |
+| [70](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/70) | The first version of this handoff document | 2026-11-11 |
 | [71](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/71) | The pinned actions moved from Node 20 to Node 24 builds (`actions/checkout` v7.0.1 in both workflows, `actions/upload-artifact` v7.0.2, `actions/download-artifact` v8.0.2) | 2026-11-11 |
+| [72](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/72) | Handoff brought up to date after PR 69 to 71 and the cleanup | 2026-11-11 |
+| [73](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/73) | Slice G: region level switched on (`NA_VISITORS_REGIONS = true`, floors 10 and 25, `--regions` in the refresh workflow), privacy texts name region | 2026-11-11 |
+| [74](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/74) | Slice H: GoatCounter records regions only for a list of countries, so the notice says "for some countries" (11 languages), `CACHE` v63, docs and tests | 2026-11-11 |
+| [75](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/75) | Docs record that the owner cleared the GoatCounter Region list (every country) | 2026-11-11 |
 
 Which finding went where follows the owner's plan of 2026-11-10 and each pull request's own description.
 
@@ -37,6 +41,7 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
   - the first run failed on one HTTP 404 from GoatCounter, the failure issue opened (the alert path is proven), and the re-run about a minute later succeeded;
   - after PR 69, a second run succeeded on its first attempt: 0 countries kept, counts unchanged, no issue;
   - in both runs the key showed as `***`.
+- 2026-11-11, slice H (PR 74), headless Chrome at 375 and 1440 px with the vendor hosts unreachable: 50 checks each, 0 failed; the notice and the legend note say "for some countries" in all 11 languages and fit the viewport with no sideways scroll; 0 Content-Security-Policy violations; 211 Python tests pass. After the merge `origin/main` serves `nomadic-v63` and the Pages build is `built`.
 - 2026-11-10, production: the 16-check smoke suite passed at 1440, 375 and 1920 px; counting works end to end (a visit reaches the API after about 30 to 40 seconds; automated `HeadlessChrome` visits are not counted); no navigation label clips at 1024, 1440, 1920 and 375 px; the tile canary was healthy.
 - 2026-11-10, load time (375 px, 4x CPU throttle): LCP about 2.0 s, total blocking time 666 ms; with a 1.6 Mbit/s link, LCP 4.6 s. Lab figures, not field data.
 
@@ -55,18 +60,18 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 
 ## Open decisions (need the owner)
 
-1. Region level is on. Still open: a written confirmation from Omri Siri if the owner wants one on file (the sign-off recorded is the owner's statement of 2026-11-11), and a native reader for the region wording in the ten non-English languages. Slice H (the GoatCounter country list): the list is now blank (every country, the owner's statement of 2026-11-11). Still open for the owner: whether to tell Omri Siri that the list is now wider than `US, RU, CN`, and whether the notice keeps "for some countries" or goes back to "by country and by state or province". After the owner merges slice G, watch the next scheduled refresh run (Mondays 07:23 UTC): it must pass `--regions` cleanly, and the `fetch` log shows how many regional rows matched no code.
-2. Housekeeping outside the site (root checkout `/Users/zim/Claude Code`): on 2026-11-11, with the owner's approval and each item re-verified first, 9 merged worktrees (about 380 MB) and 51 merged local branches were removed with `git worktree remove` and `git branch -d` (never `--force`, never `-D`). Left, on purpose: 35 worktrees (about 1.5 GB) that hold nothing but a base commit but belong to Better Volunteer and Mekong sessions that are still open (archive those sessions first, then they can go); the preview worktree `nomadic-almanac-main`; the session worktree `refresh-visitor-data` and its merged branches `ci/actions-node24`, `docs/handoff-na-closeout` and `docs/handoff-final`; the branch `feat/gates-v2.1`, which is merged into `main` but git refuses a plain delete because its remote counterpart lacks one local commit; and three branches that are not merged and need the owner's word (`feature/design-overhaul-v1`, `ui-master-build-v2`, `wip/lcp-tbt-experiment`). Remote branches of merged pull requests were not touched.
+1. Region level is on. Still open: a written confirmation from Omri Siri if the owner wants one on file (the sign-off recorded is the owner's statement of 2026-11-11), and a native reader for the region wording in the ten non-English languages. Slice H (the GoatCounter country list): the list is now blank (every country, the owner's statement of 2026-11-11). Still open for the owner: whether to tell Omri Siri that the list is now wider than `US, RU, CN`, and whether the notice keeps "for some countries" or goes back to "by country and by state or province". Watch the first scheduled refresh run (Monday 2026-11-16, 07:23 UTC): it must pass `--regions` cleanly, and the `fetch` log shows how many regional rows matched no code.
+2. Housekeeping outside the site (root checkout `/Users/zim/Claude Code`): on 2026-11-11, with the owner's approval and each item re-verified first, 9 merged worktrees (about 380 MB) and 51 merged local branches were removed with `git worktree remove` and `git branch -d` (never `--force`, never `-D`). Left, on purpose: 35 worktrees (about 1.5 GB) that hold nothing but a base commit but belong to Better Volunteer and Mekong sessions that are still open (archive those sessions first, then they can go); the preview worktree `nomadic-almanac-main`; the session worktree `refresh-visitor-data` and its merged branches `ci/actions-node24`, `docs/handoff-na-closeout` and `docs/handoff-final`; the session worktrees `visitor-regions-on` (merged branch `feat/visitor-regions-on`) and `region-country-list` (merged branches `docs/region-country-list`, `docs/region-list-blank`, `docs/handoff-na-closed`), to be removed with the owner's approval; the branch `feat/gates-v2.1`, which is merged into `main` but git refuses a plain delete because its remote counterpart lacks one local commit; and three branches that are not merged and need the owner's word (`feature/design-overhaul-v1`, `ui-master-build-v2`, `wip/lcp-tbt-experiment`). Remote branches of merged pull requests were not touched.
 
 ## How to run things (no secrets in this file)
 
 - By hand: `GOATCOUNTER_TOKEN="$(security find-generic-password -s goatcounter-nomadicalmanac -a "$USER" -w)" python3 scripts/update_visitors.py --dry-run`, then without `--dry-run`, then commit `data/visitors.json` on a branch and open a pull request. Never commit to `main`. If the Keychain entry is gone, create a new key with only "Read statistics" and store it with the prompted command in `docs/visitors-layer.md`.
 - The workflow uses its own key (the environment secret). To rotate or revoke it, see `docs/visitors-layer.md`, Step 5. Deleting one key does not affect the other.
 - Tools: audit drivers are in `~/Library/Caches/nomadic-audit/`. They need headless Chrome with `--no-sandbox`, and macOS has no `timeout` command. Any test that loads the live site must make `gc.zgo.at` and `*.goatcounter.com` unreachable, or it counts a visit.
-- Project memory notes: `nomadic-almanac-audit-2026-11-05`, `nomadic-almanac-load-and-nav-2026-11-10`, `na-finish-plan-2026-11-10`, `na-csp-slice-c-2026-11-11`, `na-region-slice-d-2026-11-11`.
+- Project memory notes: `nomadic-almanac-audit-2026-11-05`, `nomadic-almanac-load-and-nav-2026-11-10`, `na-finish-plan-2026-11-10`, `na-csp-slice-c-2026-11-11`, `na-region-slice-d-2026-11-11`, `na-region-on-slice-g-2026-11-11`, `na-region-list-slice-h-2026-11-11`.
 
 ## Next session prompt
 
 > Read docs/HANDOFF.md and docs/visitors-layer.md. First, in the Actions tab, check the "Map tile check" run of Monday 2026-11-16 (06:17 UTC) and the "Refresh visitor data" run (07:23 UTC): both should be green, and the second should report `changed=false` unless a country has reached 10 visits. If a run is red, read its log before anything else; the refresh workflow's messages are explained in `docs/visitors-layer.md`, Step 5. If the refresh run opened a pull request, review the diff against the contract in that document.
-> Done when: both runs are accounted for, and any open decision above the owner has answered is acted on.
-> Out of scope: speed work, any commit to `main`.
+> Done when: both runs are accounted for, and any open decision above the owner has answered is acted on. If both runs are green and no decision is open, stop: Nomadic Almanac is closed, and the next sessions belong to Better Volunteer and Mekong.
+> Out of scope: speed work, any commit to `main`, new Nomadic Almanac features.
