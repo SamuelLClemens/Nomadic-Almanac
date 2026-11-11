@@ -1,8 +1,8 @@
 // Bump CACHE whenever any precached file changes. The activate handler deletes every cache whose
 // name is not CACHE, so returning visitors drop stale copies on their next visit.
-const CACHE = 'nomadic-v58';
+const CACHE = 'nomadic-v60';
 const CORE = [
-  './', './index.html', './app.js', './data.js', './data-cities.js', './data-detail.js', './data-admin2.js', './style.css',
+  './', './index.html', './app.js', './na-boot.js', './data.js', './data-cities.js', './data-detail.js', './data-admin2.js', './style.css',
   './lib/leaflet.js', './lib/leaflet.css',
   './data/countries.geojson',
   './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png',

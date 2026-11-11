@@ -13,8 +13,14 @@ Privacy and safety rules this script keeps:
     the command line, never written to a file and never printed, including in error messages.
   * The only data kept is a two-letter country code and a whole number per country. A value that is
     not exactly that is dropped, so an IP address can never reach the output file.
-  * Countries with fewer than MIN_FLOOR (3) visits are never written. --min-visits can raise the
-    minimum but not lower it. The browser applies the same floor again.
+  * Every published count is rounded DOWN to a multiple of ROUND_STEP (5), and a country is written
+    only when its rounded count is at least the floor (MIN_FLOOR, 10). --min-visits can raise the
+    floor but not lower it. The browser applies the same floor again. Why both: the count is a visit
+    count (one person on several days is counted several times), and this repository is public, so
+    every refresh of data/visitors.json stays in its history for good. Rounding means one extra
+    visit usually changes nothing in the file, and the floor keeps small groups out of it.
+  * "updated" is a date (YYYY-MM-DD) with no time, so the history does not show when a visit
+    happened to a finer grain than the refresh day.
   * On any failure the existing data/visitors.json is left untouched (the write is atomic), and a
     result with no countries does not replace a file that has some unless --allow-empty is given.
   * The token is sent only to https://EXPECTED_SITE.goatcounter.com. A different site code (from
@@ -36,7 +42,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-MIN_FLOOR = 3                                   # the lowest minimum that may ever be written
+MIN_FLOOR = 10                                  # the lowest floor that may ever be written
+ROUND_STEP = 5                                  # published counts are rounded DOWN to a multiple of this
 TOKEN_ENV = "GOATCOUNTER_TOKEN"
 SITE_ENV = "GOATCOUNTER_SITE"
 SITE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
@@ -104,15 +111,23 @@ def parse_locations(payload):
     return out, bool(payload.get("more"))
 
 
+def round_down(n):
+    """Pure. A visit count rounded DOWN to a multiple of ROUND_STEP (12 -> 10, 37 -> 35, 4 -> 0)."""
+    return n - (n % ROUND_STEP)
+
+
 def build_document(counts, floor, now=None):
-    """Pure. The document to write: only countries at or above the floor, largest first."""
+    """Pure. The document to write, largest first. Each count is rounded down to a multiple of
+    ROUND_STEP first, and only countries whose ROUNDED count is at least the floor are kept, so every
+    published number is at least the floor it advertises. "updated" is a date only, no time."""
     if floor < MIN_FLOOR:
         raise UpdateError("The minimum cannot be lower than %d." % MIN_FLOOR)
-    kept = sorted(((c, n) for c, n in counts.items() if CODE_RE.match(c) and n >= floor),
+    kept = sorted(((c, round_down(n)) for c, n in counts.items()
+                   if CODE_RE.match(c) and round_down(n) >= floor),
                   key=lambda kv: (-kv[1], kv[0]))
     now = now or datetime.datetime.now(datetime.timezone.utc)
     return {
-        "updated": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "updated": now.strftime("%Y-%m-%d"),
         "minVisits": floor,
         "countries": dict(kept),
     }
@@ -220,7 +235,8 @@ def run(argv=None, env=None, get=http_get, now=None, out_stream=None):
     ap = argparse.ArgumentParser(description="Refresh data/visitors.json from GoatCounter country totals.")
     ap.add_argument("--site", help="GoatCounter site code (default: $%s, then NA_ANALYTICS_SITE in app.js)" % SITE_ENV)
     ap.add_argument("--min-visits", type=int, default=MIN_FLOOR,
-                    help="hide countries below this many visits (default and lowest allowed: %d)" % MIN_FLOOR)
+                    help="hide countries below this many visits, counted after rounding down to a multiple of %d "
+                         "(default and lowest allowed: %d)" % (ROUND_STEP, MIN_FLOOR))
     ap.add_argument("--since", default="2020-01-01", help="count visits from this date, YYYY-MM-DD (default 2020-01-01)")
     ap.add_argument("--out", default=DEFAULT_OUT, help="file to write (default data/visitors.json)")
     ap.add_argument("--dry-run", action="store_true", help="print the result, write nothing")

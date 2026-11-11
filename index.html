@@ -3,16 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- Content-Security-Policy (defense-in-depth). Inline scripts are kept allowed
-       because the app bootstraps inline; object/base-uri/form-action are locked,
-       and schemes are restricted. The primary XSS defense is per-field _esc() on
-       all OSM/user-derived strings. A tighter connect-src allowlist is a future
-       step (requires testing every tile/API/open-data integration).
-       script-src names no host other than this site. The optional visit-count script is a pinned
-       copy at lib/count.js (see NA_ANALYTICS_SITE in app.js and docs/visitors-layer.md), so it is
-       covered by 'self'. The count itself is sent to https://CODE.goatcounter.com/count, which only
-       the broad connect-src https: rule permits; narrowing that rule is a separate step. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <!-- Content-Security-Policy. docs/csp.md explains each rule and how to add a host;
+       scripts/test_csp_policy.py fails if the policy loosens or drifts from the code.
+       It DOES guarantee, in any browser that enforces CSP:
+       - Script runs only from this site (script-src 'self') plus ONE inline block allowed by hash, the
+         loading-overlay safety valve in <body>. Inline event-handler attributes, javascript: URLs,
+         eval() and scripts from other hosts are refused, so an injected script element or onerror= attribute
+         does not run (the app keeps its click handlers in app.js and na-boot.js).
+       - Requests and images can reach only the hosts named in connect-src and img-src: the map tile
+         and open-data providers the app really uses, the optional Anthropic call, and the visit
+         counter. Injected code can no longer send localStorage or the sessionStorage API key to an
+         arbitrary HTTPS host. Multi-tenant hosts (ArcGIS, GitHub, jsDelivr) are limited to one path.
+       - object-src 'none', base-uri 'self' and form-action 'self' close the plugin, <base> and
+         form-post routes.
+       It does NOT guarantee:
+       - style-src keeps 'unsafe-inline' because the generated HTML sets many inline styles. Injected
+         CSS can restyle or hide the page; it cannot run script.
+       - A <meta> policy cannot carry frame-ancestors, report-uri, report-to or sandbox, and GitHub
+         Pages cannot send response headers. The page can still be framed by another site, and a
+         violation is only visible in the visitor's own console.
+       - Escaping still matters. The app builds HTML from strings and relies on _esc() for OSM and
+         user text; the policy is the second line of defence, not a replacement.
+       - A listed host can still receive a request from injected code. The list keeps that set small.
+       The optional visit-count script is a pinned copy at lib/count.js (NA_ANALYTICS_SITE in app.js,
+       docs/visitors-layer.md), so it is covered by 'self'; its beacon goes to
+       https://nomadicalmanac.goatcounter.com/count (connect-src). -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'sha256-GxyhVb9WZAYC+Hljpr7ZX7oI9Xu1NImW7XIHycRdGvE=';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com data:;
+    img-src 'self'
+        data:
+        https://server.arcgisonline.com
+        https://gibs.earthdata.nasa.gov
+        https://*.tile.opentopomap.org
+        https://*.tiles.openrailwaymap.org
+        https://tile.waymarkedtrails.org
+        https://*.openseamap.org
+        https://nomadicalmanac.goatcounter.com;
+    connect-src 'self'
+        https://overpass-api.de
+        https://nominatim.openstreetmap.org
+        https://api.open-meteo.com
+        https://api.anthropic.com
+        https://nomadicalmanac.goatcounter.com
+        https://data.police.uk
+        https://phl.carto.com
+        https://data.cityofchicago.org
+        https://data.lacity.org
+        https://data.seattle.gov
+        https://data.sfgov.org
+        https://data.cincinnati-oh.gov
+        https://data.montgomerycountymd.gov
+        https://data.buffalony.gov
+        https://data.nola.gov
+        https://data.cityofgainesville.org
+        https://www.dallasopendata.com
+        https://data.kcmo.org
+        https://data.boston.gov
+        https://services1.arcgis.com/UWYHeuuJISiGmgXx/
+        https://services1.arcgis.com/zdB7qR0BtYrg0Xpl/
+        https://services2.arcgis.com/qvkbeam7Wirps6zC/
+        https://services2.arcgis.com/HdTo6HJqh92wn4D8/
+        https://services.arcgis.com/lQySeXwbBg53XWDi/
+        https://services.arcgis.com/v400IkDOw1ad7Yad/
+        https://utility.arcgis.com/usrsvcs/servers/4bc28c820ebd45df8a62feae6dc8822d/
+        https://maps.austintexas.gov/arcgis/rest/services/CrimeViewer_new/
+        https://raw.githubusercontent.com/nvkelso/natural-earth-vector/
+        https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/;
+    worker-src 'self';
+    manifest-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="description" content="The Nomadic Almanac: an interactive atlas of where to go and when. Costs, safety, weather, visas, and key phrases for 195 countries, by month.">
   <title>The Nomadic Almanac: World Travel Intelligence</title>
@@ -25,10 +89,11 @@
   <link rel="preconnect"    href="https://server.arcgisonline.com">
   <link rel="dns-prefetch"  href="https://raw.githubusercontent.com">
   <!-- All six interface font families in ONE request (was 3 links + a duplicate @import).
-       Loaded without blocking first paint: media="print" does not block rendering, and onload
-       switches it on once it arrives. If Google Fonts is slow or blocked the page simply keeps
-       its fallback fonts (display=swap), so the CDN is never a single point of failure. -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+       Loaded without blocking first paint: media="print" does not block rendering, and na-boot.js
+       (deferred, same origin) switches it to "all" once it has arrived; an inline onload cannot be
+       used because the policy forbids inline handlers. If Google Fonts is slow or blocked the page
+       simply keeps its fallback fonts (display=swap), so the CDN is never a single point of failure. -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" media="print" id="na-fonts-css">
   <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"></noscript>
   <style>
     :root {
@@ -251,6 +316,11 @@
   <div style="font-family:'Cinzel','Cinzel Decorative',Georgia,serif;font-size:13px;font-weight:700;color:#E8D8A0;letter-spacing:5px;margin-top:18px;text-transform:uppercase">Nomadic Almanac</div>
   <div style="font-family:'Cinzel',Georgia,serif;font-size:8px;color:#A89060;letter-spacing:3px;margin-top:6px;text-transform:uppercase">Loading World Data&hellip;</div>
 </div>
+<!-- This is the page's ONE inline script. The policy allows it by SHA-256 (script-src above), not by
+     'unsafe-inline'. It stays inline on purpose: it is the fallback for a page whose scripts or network
+     are broken, so it must run at parse time with no request of its own, exactly where it did before.
+     Any edit to the text between the tags changes the hash; scripts/test_csp_policy.py recomputes it
+     and prints the new value (docs/csp.md, "Changing the inline block"). -->
 <script>
   // Hard safety valve: dismiss overlay after 3 s regardless of JS/network state.
   // app.js cancels this timer (dismissOverlay) as soon as the map is ready.
@@ -1056,6 +1126,21 @@
         <button class="pref-opt" id="na-prefs-faq" data-val="faq" aria-label="Open frequently asked questions" style="flex:0 0 auto;padding-left:14px;padding-right:14px" data-i18n="welcome.faq">FAQ</button>
       </div>
 
+      <!-- Privacy: the notice for visit counting, for every visitor (it does not depend on any layer),
+           and the visitor's own opt-out. "On" means opted out: it stores the vendor's skipgc = 't'. -->
+      <div class="pref-row pref-row-stack" id="pref-privacy-row">
+        <span class="pref-label">🔒 <span data-i18n="prefs.privacy">Privacy</span></span>
+        <p class="pref-privacy-note" id="pref-privacy-note" data-i18n="prefs.privacyNote">This site counts visits by country with GoatCounter, a privacy-friendly analytics service. No IP address is stored or shown. The counting script is hosted on this site. Browsers that send Do Not Track or Global Privacy Control are not counted. Countries with fewer than 10 visits are never shown, and counts are rounded down to a multiple of 5. You can switch counting off for your browser below.</p>
+        <div class="pref-privacy-opt">
+          <span class="pref-label" id="pref-optout-label" data-i18n="prefs.optout">Do not count my visits</span>
+          <div class="pref-toggle-group" id="pref-optout" role="group" aria-labelledby="pref-optout-label">
+            <button class="pref-opt" data-val="off" data-i18n="prefs.off">Off</button>
+            <button class="pref-opt" data-val="on" data-i18n="prefs.on">On</button>
+          </div>
+        </div>
+        <p class="pref-privacy-note" id="pref-optout-signal" data-i18n="prefs.optoutSignal" hidden>Your browser already sends Do Not Track or Global Privacy Control, so your visits are not counted.</p>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1078,11 +1163,12 @@
   </div>
 </div>
 
+<script defer src="na-boot.js"></script>
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
 <!-- Heavy split-out data tables are NOT script tags here, so that nothing but the
-     three files above competes with them on a slow first visit:
+     files above (na-boot.js is a few hundred bytes) competes with them on a slow first visit:
      - data-cities.js (the city table, 0.12 MB gz) is injected by app.js
        (_naEnsureCities) once the page is quiet, or at once if something needs it
        sooner (city dots from zoom 4, search, the province and county builds).
@@ -1100,20 +1186,5 @@
        county zoom (_ensureAdmin2Tables), keeping ~0.42 MB gz off the first
        visit entirely. -->
 
-<script>
-  // The worker's install precaches about 15 MB (country polygons, county tables, scripts). Started at
-  // window load on a first visit it competed with the page's own country-polygon download on a slow
-  // link, so app.js calls _naSwRegister once the page is quiet (polygons built, data-detail.js
-  // loaded). The timer is only a backstop in case that never happens (a boot error, say).
-  if ('serviceWorker' in navigator) {
-    window._naSwRegister = function () {
-      if (window._naSwDone) return;
-      window._naSwDone = true;
-      navigator.serviceWorker.register('./sw.js')
-        .catch(e => console.warn('SW registration failed:', e));
-    };
-    window.addEventListener('load', () => setTimeout(window._naSwRegister, 20000));
-  }
-</script>
 </body>
 </html>

@@ -53,25 +53,81 @@ class ParseAndBuild(unittest.TestCase):
             with self.assertRaises(uv.UpdateError):
                 uv.parse_locations(bad)
 
+    def test_floor_is_ten_and_rounding_step_is_five(self):
+        self.assertEqual(uv.MIN_FLOOR, 10)
+        self.assertEqual(uv.ROUND_STEP, 5)
+
     def test_floor_drops_small_countries(self):
-        doc = uv.build_document({"US": 120, "DE": 3, "FR": 2, "IT": 1}, 3, now=NOW)
-        self.assertEqual(doc["countries"], {"US": 120, "DE": 3})
-        self.assertEqual(doc["minVisits"], 3)
-        self.assertEqual(doc["updated"], "2026-11-06T09:30:00Z")
+        doc = uv.build_document({"US": 120, "DE": 10, "FR": 9, "IT": 3, "ES": 1}, 10, now=NOW)
+        self.assertEqual(doc["countries"], {"US": 120, "DE": 10})
+        self.assertEqual(doc["minVisits"], 10)
 
     def test_floor_can_be_raised_but_never_lowered(self):
-        doc = uv.build_document({"US": 120, "DE": 44, "FR": 9}, 10, now=NOW)
+        doc = uv.build_document({"US": 120, "DE": 44, "FR": 19}, 20, now=NOW)
         self.assertEqual(list(doc["countries"]), ["US", "DE"])
-        for low in (2, 1, 0, -5):
+        self.assertEqual(doc["minVisits"], 20)
+        for low in (9, 5, 3, 2, 1, 0, -5):
             with self.assertRaises(uv.UpdateError):
                 uv.build_document({"US": 120}, low, now=NOW)
 
+    def test_counts_are_rounded_down_to_a_multiple_of_five(self):
+        self.assertEqual([uv.round_down(n) for n in (0, 4, 5, 9, 10, 12, 14, 15, 37, 120, 121)],
+                         [0, 0, 5, 5, 10, 10, 10, 15, 35, 120, 120])
+        doc = uv.build_document({"US": 121, "DE": 37, "FR": 14, "IT": 12, "ES": 10, "PT": 9, "NL": 5}, 10, now=NOW)
+        self.assertEqual(doc["countries"], {"US": 120, "DE": 35, "FR": 10, "IT": 10, "ES": 10})
+        for n in doc["countries"].values():
+            self.assertEqual(n % 5, 0)
+
+    def test_rounding_is_downward_only_so_it_never_overstates(self):
+        for n in range(0, 400):
+            self.assertLessEqual(uv.round_down(n), n)
+            self.assertLess(n - uv.round_down(n), 5)
+
+    def test_floor_is_tested_on_the_published_rounded_value(self):
+        # With a floor of 12, a raw 14 would publish as 10, which is below the floor it advertises,
+        # so the country is dropped; a raw 17 publishes as 15 and is kept.
+        doc = uv.build_document({"US": 17, "DE": 14, "FR": 12}, 12, now=NOW)
+        self.assertEqual(doc["countries"], {"US": 15})
+        self.assertTrue(all(n >= doc["minVisits"] for n in doc["countries"].values()))
+
+    def test_one_extra_visit_usually_changes_nothing_in_the_file(self):
+        # A single visit may change the published file only when it carries the raw count across a
+        # multiple of five. For every other raw count the two documents are identical.
+        changed = []
+        for n in range(0, 300):
+            a = uv.build_document({"US": n}, 10, now=NOW)
+            b = uv.build_document({"US": n + 1}, 10, now=NOW)
+            if a != b:
+                changed.append(n + 1)
+        self.assertTrue(changed)
+        for n in changed:
+            self.assertEqual(n % 5, 0, "a change at raw count %d is not at a multiple of 5" % n)
+        self.assertEqual(len(changed), 59)          # 10, 15, ..., 295 (every multiple of 5 from the floor)
+
+    def test_updated_is_a_date_with_no_time(self):
+        doc = uv.build_document({"US": 120}, 10, now=NOW)
+        self.assertEqual(doc["updated"], "2026-11-06")
+        self.assertRegex(doc["updated"], r"^\d{4}-\d{2}-\d{2}$")
+        self.assertNotIn("T", doc["updated"])
+        self.assertNotIn(":", doc["updated"])
+        self.assertNotIn("09:30", json.dumps(doc))
+        # Midnight and late evening give the same shape (a date, never a time).
+        late = datetime.datetime(2026, 11, 6, 23, 59, 59, tzinfo=datetime.timezone.utc)
+        self.assertEqual(uv.build_document({}, 10, now=late)["updated"], "2026-11-06")
+
+    def test_empty_document_is_honest(self):
+        doc = uv.build_document({}, 10, now=NOW)
+        self.assertEqual(doc, {"updated": "2026-11-06", "minVisits": 10, "countries": {}})
+
     def test_output_is_sorted_by_count_then_code(self):
-        doc = uv.build_document({"BR": 5, "AR": 5, "US": 50}, 3, now=NOW)
+        doc = uv.build_document({"BR": 15, "AR": 15, "US": 50}, 10, now=NOW)
         self.assertEqual(list(doc["countries"]), ["US", "AR", "BR"])
+        # Rounding can create a tie; the code then breaks it, so the order is stable.
+        tied = uv.build_document({"BR": 17, "AR": 15}, 10, now=NOW)
+        self.assertEqual(list(tied["countries"]), ["AR", "BR"])
 
     def test_document_has_only_the_agreed_keys(self):
-        doc = uv.build_document({"US": 9}, 3, now=NOW)
+        doc = uv.build_document({"US": 19}, 10, now=NOW)
         self.assertEqual(sorted(doc), ["countries", "minVisits", "updated"])
 
 
@@ -139,6 +195,29 @@ class Config(unittest.TestCase):
         self.assertTrue(site == "" or re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", site), "malformed NA_ANALYTICS_SITE: %r" % site)
 
 
+class CommittedFileAndFloors(unittest.TestCase):
+    """The floor lives in two independent places (here and in app.js), and data/visitors.json is
+    published history, so both are checked against the contract."""
+
+    def test_app_js_floor_equals_the_updater_floor(self):
+        with open(uv.APP_JS, encoding="utf-8") as fh:
+            m = re.search(r"const\s+NA_VISITORS_FLOOR\s*=\s*(\d+)\s*;", fh.read())
+        self.assertIsNotNone(m, "NA_VISITORS_FLOOR not found in app.js")
+        self.assertEqual(int(m.group(1)), uv.MIN_FLOOR)
+
+    def test_committed_data_file_obeys_the_contract(self):
+        with open(uv.DEFAULT_OUT, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        self.assertEqual(sorted(doc), ["countries", "minVisits", "updated"])
+        self.assertRegex(doc["updated"], r"^\d{4}-\d{2}-\d{2}$")       # a date, no time
+        self.assertGreaterEqual(doc["minVisits"], uv.MIN_FLOOR)
+        for code, n in doc["countries"].items():
+            self.assertRegex(code, r"^[A-Z]{2}$")
+            self.assertIsInstance(n, int)
+            self.assertEqual(n % uv.ROUND_STEP, 0, "%s is not a multiple of %d" % (code, uv.ROUND_STEP))
+            self.assertGreaterEqual(n, doc["minVisits"], "%s is below the floor" % code)
+
+
 class EndToEnd(unittest.TestCase):
     def run_main(self, out_path, answers, extra=(), env=None):
         api = FakeApi(answers)
@@ -158,7 +237,9 @@ class EndToEnd(unittest.TestCase):
                 raw = fh.read()
             self.assertNotIn(TOKEN, raw)
             doc = json.loads(raw)
-            self.assertEqual(doc["countries"], {"US": 120, "DE": 44})
+            self.assertEqual(doc["countries"], {"US": 120, "DE": 40})                # 44 is published as 40
+            self.assertEqual(doc["updated"], "2026-11-06")                           # a date, no time
+            self.assertEqual(doc["minVisits"], 10)
             self.assertEqual(os.listdir(os.path.dirname(out)), ["visitors.json"])   # no temp file left behind
 
     def test_failure_leaves_the_existing_file_untouched(self):
@@ -205,10 +286,11 @@ class EndToEnd(unittest.TestCase):
             api = FakeApi([])
             with self.assertRaises(uv.UpdateError):
                 uv.run(["--out", out], env={"GOATCOUNTER_SITE": "example"}, get=api, now=NOW, out_stream=io.StringIO())
-            with self.assertRaises(uv.UpdateError):
-                uv.run(["--out", out, "--allow-other-site", "--min-visits", "1"],
-                       env={"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "example"},
-                       get=api, now=NOW, out_stream=io.StringIO())
+            for low in ("1", "3", "9"):
+                with self.assertRaises(uv.UpdateError):
+                    uv.run(["--out", out, "--allow-other-site", "--min-visits", low],
+                           env={"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "example"},
+                           get=api, now=NOW, out_stream=io.StringIO())
             self.assertEqual(api.calls, [])
 
 
