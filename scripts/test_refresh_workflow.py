@@ -237,7 +237,7 @@ def problems(text, tile_text=None):
         elif ref.split("@")[0] not in ALLOWED_USES:
             found.append("line %d: %s is not one of the allowed actions %s" % (n, ref.split("@")[0], ALLOWED_USES))
         if not re.search(r"uses:\s*\S+\s+#\s*v\d+(\.\d+)*\s*$", raw_lines[n - 1]):
-            found.append("line %d: the pinned action needs its tag in a trailing comment, such as # v4.2.2" % n)
+            found.append("line %d: the pinned action needs its tag in a trailing comment, such as # v7.0.1" % n)
 
     # 3. the secret
     if set(jobs) != set(JOB_PERMISSIONS):
@@ -439,12 +439,13 @@ class Detectors(unittest.TestCase):
         self.assertEqual(problems(text, TILE), [])
 
     def test_unpinned_or_foreign_actions(self):
-        sha = "11bd71901bbe5b1630ceea73d27597364c9af683"
-        self.fires(broken("actions/checkout@%s  # v4.2.2" % sha, "actions/checkout@v4  # v4.2.2"), "not pinned")
-        self.fires(broken("actions/checkout@%s  # v4.2.2" % sha, "actions/checkout@%s" % sha[:39]), "not pinned")
-        self.fires(broken("actions/checkout@%s  # v4.2.2" % sha, "actions/checkout@%s" % sha), "tag in a trailing comment")
-        self.fires(broken("actions/checkout@%s  # v4.2.2" % sha, "somebody/else@%s  # v1" % sha), "allowed actions")
-        self.fires(broken("actions/checkout@%s  # v4.2.2" % sha, "actions/checkout@%s  # v4.2.2\n        # x" % ("G" * 40)), "not pinned")
+        sha, tag = re.search(r"actions/checkout@([0-9a-f]{40})  # (v[\d.]+)", TEXT).groups()
+        pinned = "actions/checkout@%s  # %s" % (sha, tag)
+        self.fires(broken(pinned, "actions/checkout@v4  # %s" % tag), "not pinned")
+        self.fires(broken(pinned, "actions/checkout@%s  # %s" % (sha[:39], tag)), "not pinned")
+        self.fires(broken(pinned, "actions/checkout@%s" % sha), "tag in a trailing comment")
+        self.fires(broken(pinned, "somebody/else@%s  # v1" % sha), "allowed actions")
+        self.fires(broken(pinned, "actions/checkout@%s  # %s\n        # x" % ("G" * 40, tag)), "not pinned")
 
     def test_secret_outside_fetch(self):
         self.fires(broken("          GH_TOKEN: ${{ github.token }}\n          PR_LABEL: visitor-data\n",
