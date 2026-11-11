@@ -4172,13 +4172,7 @@ function _buildTippingTooltip(iso2) {
     var calculator = '<div class="tt-tip-calc">'
       + '<span class="tt-tip-calc-label">Tip calc (' + calcPct + '%):</span>'
       + '<input class="tt-tip-calc-input" type="number" min="0" step="0.01" placeholder="Bill amount"'
-      + ' oninput="(function(el){'
-      +   'var bill=parseFloat(el.value);'
-      +   'var res=document.getElementById(\'' + calcId + '\');'
-      +   'if(!res)return;'
-      +   'if(isNaN(bill)||bill<=0){res.textContent=\'\';return;}'
-      +   'res.textContent=\'Tip: \'+(bill*' + calcPct + '/100).toFixed(2);'
-      + '})(this)">'
+      + ' data-na-input="tipcalc" data-na-target="' + calcId + '" data-na-pct="' + calcPct + '">'
       + '<span class="tt-tip-calc-result" id="' + calcId + '"></span>'
       + '</div>';
 
@@ -4703,7 +4697,7 @@ function showTooltip(html) {
     _ttReturnFocus = (ae && ae !== document.body && !tt.contains(ae)) ? ae : null;
   }
   // Close button injected at the top so users can dismiss and copy text freely
-  const closeBtn = '<button id="tt-close" title="Close" aria-label="Close tooltip" onclick="hideTooltip()">&#x2715;</button>';
+  const closeBtn = '<button id="tt-close" title="Close" aria-label="Close tooltip" data-na-act="hideTooltip">&#x2715;</button>';
   tt.scrollTop = 0;
   tt.innerHTML = closeBtn + html;
   tt.style.display = 'block';
@@ -5082,6 +5076,68 @@ function toggleTooltip(key, html, cx, cy) {
 // Track mouse position so positionTooltip() has a fallback coordinate.
 // Tooltip is click-anchored and no longer repositions on mousemove.
 document.addEventListener('mousemove', e => { _ttX = e.clientX; _ttY = e.clientY; });
+
+// ─── Delegated actions (the page's policy forbids inline event handlers) ───────────────────────────
+// Generated HTML marks a clickable element with data-na-act="<name>", with arguments in data-na-arg
+// and data-na-name, and a typing field with data-na-input="<name>". One capture-phase listener per
+// event type finds the nearest marked element and runs the matching entry below. Every name is a fixed
+// key of NA_ACTIONS and NA_INPUTS, so markup (including text that slipped past _esc) can never name an
+// arbitrary function. Capture phase keeps the old inline-handler order: the action runs before any
+// ancestor's bubble handler, whatever those do with the event. scripts/test_csp_policy.py fails if an
+// inline handler attribute is added to index.html or app.js, or if a name used in markup is missing here.
+const NA_ACTIONS = {
+  hideTooltip:     () => hideTooltip(),
+  toggleTempUnit:  () => toggleTempUnit(),
+  toggleRainUnit:  () => toggleRainUnit(),
+  toggleUnits:     () => na_toggleUnitSystem(),
+  togglePin:       (el) => togglePinCountry(el.dataset.naArg),
+  toggleVisited:   (el) => toggleVisited(el.dataset.naArg, el),
+  openCountry:     (el) => na_openCountryDossier(el.dataset.naArg, true),
+  journalOpen:     (el) => _openJournalEditor(el.dataset.naArg),
+  journalSave:     (el) => _saveJournalEntry(el.dataset.naArg),
+  journalCancel:   (el) => _closeJournalEditor(el.dataset.naArg),
+  shareCompareUrl: () => _shareCompareURL(),
+  closeCompare:    () => closeComparePanel(),
+  closeBestForX: () => {
+    const p = document.getElementById('best-for-x-panel');
+    if (p) p.style.display = 'none';
+  },
+  flyToCountry: (el) => {
+    const c = (typeof COUNTRY_CENTERS !== 'undefined') && COUNTRY_CENTERS[el.dataset.naArg];
+    if (c && map) map.flyTo(c, 5, { duration: 1.2 });
+  },
+  addTripPin: (el) => {
+    const iso2 = el.dataset.naArg, name = el.dataset.naName || '';
+    const c = (typeof COUNTRY_CENTERS !== 'undefined') && COUNTRY_CENTERS[iso2];
+    if (c && typeof _placeTripPinAt === 'function') {
+      _placeTripPinAt(c[0], c[1], name, iso2);
+      if (typeof showToast === 'function') showToast('📍 ' + name + ': added to your trip');
+    }
+  },
+};
+const NA_INPUTS = {
+  // Tip calculator in the tipping dossier: shows the tip for the bill typed, at the country's rate.
+  tipcalc: (el) => {
+    const res = document.getElementById(el.dataset.naTarget);
+    if (!res) return;
+    const bill = parseFloat(el.value);
+    if (isNaN(bill) || bill <= 0) { res.textContent = ''; return; }
+    res.textContent = 'Tip: ' + (bill * Number(el.dataset.naPct) / 100).toFixed(2);
+  },
+};
+document.addEventListener('click', function (e) {
+  const el = e.target && e.target.closest ? e.target.closest('[data-na-act]') : null;
+  if (!el) return;
+  const fn = Object.prototype.hasOwnProperty.call(NA_ACTIONS, el.dataset.naAct) ? NA_ACTIONS[el.dataset.naAct] : null;
+  if (fn) fn(el, e);
+}, true);
+document.addEventListener('input', function (e) {
+  const el = e.target && e.target.closest ? e.target.closest('[data-na-input]') : null;
+  if (!el) return;
+  const fn = Object.prototype.hasOwnProperty.call(NA_INPUTS, el.dataset.naInput) ? NA_INPUTS[el.dataset.naInput] : null;
+  if (fn) fn(el, e);
+}, true);
+
 // Allow keyboard users to dismiss an open tooltip with the Escape key.
 document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); });
 
@@ -5463,12 +5519,12 @@ function buildWeatherDetails(iso2) {
         <div style="display:flex;align-items:center;justify-content:center;gap:5px">
           <span class="tt-temp-val" data-celsius="${avgTempC}" style="font-size:19px;font-weight:700;color:var(--sand)">${dispTemp}</span>
         </div>
-        <button class="tt-unit-btn" onclick="toggleTempUnit()" title="${unitTitle}" style="margin-top:5px;font-size:7px;color:var(--gold);background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${unitLabel}</button>
+        <button class="tt-unit-btn" data-na-act="toggleTempUnit" title="${unitTitle}" style="margin-top:5px;font-size:7px;color:var(--gold);background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${unitLabel}</button>
       </div>
       <div style="flex:1;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:6px;padding:7px 9px;text-align:center">
         <div style="font-size:7.5px;color:rgba(96,165,250,0.65);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px">AVG RAINFALL</div>
         <div style="font-size:19px;font-weight:700;color:#93c5fd">${rainEmoji} <span class="tt-rain-val" data-mm="${avgRain}">${_fmtRainHTML(avgRain)}</span></div>
-        <button class="tt-rain-btn" onclick="toggleRainUnit()" title="${rainTitle}" style="margin-top:5px;font-size:7px;color:#93c5fd;background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${rainLabel}</button>
+        <button class="tt-rain-btn" data-na-act="toggleRainUnit" title="${rainTitle}" style="margin-top:5px;font-size:7px;color:#93c5fd;background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.25);border-radius:3px;padding:2px 6px;cursor:pointer;font-family:var(--fm);letter-spacing:0.5px;line-height:1.4">${rainLabel}</button>
       </div>
     </div>
     ${solarHtml}
@@ -5790,18 +5846,17 @@ function buildCountryTooltip(iso2) {
   const historySection   = (typeof buildHistorySection === 'function') ? buildHistorySection(iso2) : '';
   const extraSection      = (typeof buildExtraSection === 'function') ? buildExtraSection(iso2) : '';
   const phrasebookSection = (typeof buildPhrasebookSection === 'function') ? buildPhrasebookSection(iso2) : '';
-  const unitToggle = `<button class="na-unit-master" onclick="na_toggleUnitSystem()" title="Toggle all units: temperature, distance, elevation">${(typeof _unitsAreImperial === 'function' && _unitsAreImperial()) ? '°F · mi' : '°C · km'}</button>`;
+  const unitToggle = `<button class="na-unit-master" data-na-act="toggleUnits" title="Toggle all units: temperature, distance, elevation">${(typeof _unitsAreImperial === 'function' && _unitsAreImperial()) ? '°F · mi' : '°C · km'}</button>`;
   const tzSection      = buildTimezoneSection(iso2);
   const holSection     = buildHolidaysSection(iso2);
   const journalSection = buildJournalSection(iso2);
   const isPinned    = pinnedCountries.includes(iso2);
-  const _escName    = String(name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   // Action cluster lives at the bottom-right of the dossier header: Compare,
   // Wishlist, and Add-to-trip (drops a trip-planner pin at the country centre).
   const headerActions = `<div class="tt-head-actions">
-    <button class="tt-hact tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" title="${_esc(_t('act.compare'))}" aria-label="${_esc(_t('act.compare'))}" aria-pressed="${isPinned ? 'true' : 'false'}" onclick="togglePinCountry('${iso2}')">&#x21C4;</button>
+    <button class="tt-hact tt-pin-btn${isPinned ? ' pinned' : ''}" data-iso2="${iso2}" title="${_esc(_t('act.compare'))}" aria-label="${_esc(_t('act.compare'))}" aria-pressed="${isPinned ? 'true' : 'false'}" data-na-act="togglePin" data-na-arg="${_esc(iso2)}">&#x21C4;</button>
     <button class="tt-hact tt-wish${_wishlist.has(iso2) ? ' on' : ''}" id="btn-wishlist-${iso2}" title="${_esc(_t('act.wishlist'))}" aria-label="${_esc(_t('act.wishlist'))}" aria-pressed="${_wishlist.has(iso2) ? 'true' : 'false'}">${_wishlist.has(iso2) ? '♥' : '♡'}</button>
-    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" onclick="(function(){var c=(typeof COUNTRY_CENTERS!=='undefined')&&COUNTRY_CENTERS['${iso2}'];if(c&&typeof _placeTripPinAt==='function'){_placeTripPinAt(c[0],c[1],'${_escName}','${iso2}');if(typeof showToast==='function')showToast('📍 '+'${_escName}'+': added to your trip');}})()">📍</button>
+    <button class="tt-hact" title="${_esc(_t('act.addPin'))}" aria-label="${_esc(_t('act.addPin'))}" data-na-act="addTripPin" data-na-arg="${_esc(iso2)}" data-na-name="${_esc(name || '')}">📍</button>
   </div>`;
   const pinSection = '';
   const bestTimeLine = (typeof BEST_TRAVEL_RANGE !== 'undefined' && BEST_TRAVEL_RANGE[iso2])
@@ -5831,7 +5886,7 @@ function buildCountryTooltip(iso2) {
   // Reversible visited toggle: tapping marks the country visited; tapping again
   // unmarks it. State and styling are rendered by _renderVisitedControl.
   const _vOn = isVisited(iso2);
-  const visitedBtn = `<button onclick="toggleVisited('${iso2}', this)" aria-pressed="${_vOn ? 'true' : 'false'}" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,${_vOn ? '0.16' : '0.08'});border:1px solid rgba(34,197,94,${_vOn ? '0.45' : '0.25'});border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">${_vOn ? '&#x2713; VISITED: TAP TO UNMARK' : '+ MARK AS VISITED'}</button>`;
+  const visitedBtn = `<button data-na-act="toggleVisited" data-na-arg="${_esc(iso2)}" aria-pressed="${_vOn ? 'true' : 'false'}" style="width:100%;margin-top:8px;padding:5px;background:rgba(34,197,94,${_vOn ? '0.16' : '0.08'});border:1px solid rgba(34,197,94,${_vOn ? '0.45' : '0.25'});border-radius:5px;color:#4ade80;font-size:8px;cursor:pointer;font-family:var(--fm);letter-spacing:1px">${_vOn ? '&#x2713; VISITED: TAP TO UNMARK' : '+ MARK AS VISITED'}</button>`;
   const flag = getFlag(iso2);
   const scoreChip = buildCompositeScore(CD[iso2] || {}, iso2);
   // Similar countries row
@@ -5842,7 +5897,7 @@ function buildCountryTooltip(iso2) {
       var simItems = simResults.map(function(s) {
         var sf = typeof _countryFlag === 'function' ? _countryFlag(s.iso2) : '';
         var sn = (typeof countryNames !== 'undefined' && countryNames[s.iso2]) || s.iso2;
-        return '<span onclick="(function(){var c=COUNTRY_CENTERS&&COUNTRY_CENTERS[\'' + s.iso2 + '\'];if(c&&map)map.flyTo(c,5,{duration:1.2});})()" title="' + _esc(sn) + '" style="cursor:pointer;margin-right:6px;white-space:nowrap">' + sf + ' ' + _esc(s.iso2) + '</span>';
+        return '<span data-na-act="flyToCountry" data-na-arg="' + _esc(s.iso2) + '" title="' + _esc(sn) + '" style="cursor:pointer;margin-right:6px;white-space:nowrap">' + sf + ' ' + _esc(s.iso2) + '</span>';
       }).join('');
       similarSection = '<div style="padding:4px 14px 8px;font-size:8.5px;color:rgba(232,213,163,0.65);border-top:1px solid rgba(201,168,76,0.1);margin-top:4px"><span style="color:rgba(201,168,76,0.5);letter-spacing:1px;font-size:7.5px;display:block;margin-bottom:3px">SIMILAR</span>' + simItems + '</div>';
     }
@@ -5902,7 +5957,7 @@ function buildBorderTooltip(bc) {
 function _countryGuideBtn(iso2, countryName) {
   if (!/^[A-Za-z]{2}$/.test(iso2 || '')) return '';
   const flag = getFlag(iso2);
-  return `<button type="button" class="tt-open-country" onclick="na_openCountryDossier('${iso2}', true)">` +
+  return `<button type="button" class="tt-open-country" data-na-act="openCountry" data-na-arg="${iso2}">` +
     `${flag ? flag + ' ' : ''}${_esc(countryName || iso2)} · ${_esc(_t('tt.countryGuide'))} →</button>`;
 }
 
@@ -7439,14 +7494,14 @@ function buildJournalSection(iso2) {
   const btnLabel = note ? 'Edit' : '+ Add Note';
   return '<div>' +
     '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:5px">' +
-    '<button id="jbtn-' + iso2 + '" onclick="_openJournalEditor(\'' + iso2 + '\')" style="font-size:7px;color:var(--gold);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:3px;padding:2px 7px;cursor:pointer;font-family:var(--fm)">' + btnLabel + '</button>' +
+    '<button id="jbtn-' + iso2 + '" data-na-act="journalOpen" data-na-arg="' + _esc(iso2) + '" style="font-size:7px;color:var(--gold);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:3px;padding:2px 7px;cursor:pointer;font-family:var(--fm)">' + btnLabel + '</button>' +
     '</div>' +
     '<div id="jnote-' + iso2 + '">' + noteHtml + '</div>' +
     '<div id="jed-' + iso2 + '" style="display:none;margin-top:5px">' +
     '<textarea id="jta-' + iso2 + '" maxlength="2000" placeholder="Your thoughts, tips, memories..." style="width:100%;min-height:70px;background:rgba(14,11,6,0.85);border:1px solid rgba(201,168,76,0.25);border-radius:5px;color:var(--sand);font-family:var(--fm);font-size:8.5px;padding:6px 8px;resize:vertical;outline:none;box-sizing:border-box">' + _esc(note) + '</textarea>' +
     '<div style="display:flex;gap:5px;margin-top:4px">' +
-    '<button onclick="_saveJournalEntry(\'' + iso2 + '\')" style="flex:1;padding:4px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.12);border:1px solid var(--b2);border-radius:4px;color:var(--gold);cursor:pointer">Save</button>' +
-    '<button onclick="_closeJournalEditor(\'' + iso2 + '\')" style="padding:4px 8px;font-family:var(--fm);font-size:8px;background:none;border:1px solid rgba(201,168,76,0.15);border-radius:4px;color:var(--dim);cursor:pointer">Cancel</button>' +
+    '<button data-na-act="journalSave" data-na-arg="' + _esc(iso2) + '" style="flex:1;padding:4px;font-family:var(--fm);font-size:8px;background:rgba(201,168,76,0.12);border:1px solid var(--b2);border-radius:4px;color:var(--gold);cursor:pointer">Save</button>' +
+    '<button data-na-act="journalCancel" data-na-arg="' + _esc(iso2) + '" style="padding:4px 8px;font-family:var(--fm);font-size:8px;background:none;border:1px solid rgba(201,168,76,0.15);border-radius:4px;color:var(--dim);cursor:pointer">Cancel</button>' +
     '</div></div></div>';
 }
 function _openJournalEditor(iso2) {
@@ -7789,7 +7844,7 @@ function _initBestForXPanel() {
   }
   html += '<button id="bfx-run" style="width:100%;padding:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);border-radius:6px;color:var(--gold);font-size:9px;cursor:pointer;margin-top:4px">🔍 Find Matching Countries</button>';
   html += '<div id="bfx-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>';
-  html += '<button onclick="document.getElementById(\'best-for-x-panel\').style.display=\'none\'" style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px">✕</button>';
+  html += '<button data-na-act="closeBestForX" style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px">✕</button>';
   panel.innerHTML = html;
   document.body.appendChild(panel);
   var runBtn = document.getElementById('bfx-run');
@@ -8565,7 +8620,7 @@ function _shareCompareURL() {
   var url = window.location.href;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(function() {
-      var btn = document.querySelector('[onclick="_shareCompareURL()"]');
+      var btn = document.querySelector('[data-na-act="shareCompareUrl"]');
       if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '⎘ Copy Comparison URL'; }, 1800); }
     });
   }
@@ -8576,7 +8631,7 @@ function renderComparePanel() {
   if (!panel) return;
   // Content only: open/close is handled by openComparePanel/closeComparePanel, so
   // this may run on boot (to prefill the empty state) without popping the panel open.
-  var closeBtn = '<button class="compare-close" aria-label="Close comparison" onclick="closeComparePanel()">✕</button>';
+  var closeBtn = '<button class="compare-close" aria-label="Close comparison" data-na-act="closeCompare">✕</button>';
   if (!pinnedCountries || pinnedCountries.length === 0) {
     panel.innerHTML = closeBtn + '<div class="compare-empty-state">' +
       '<svg width="32" height="32" viewBox="0 0 24 24" style="opacity:0.4;margin-bottom:10px"><use href="#icon-compare"/></svg>' +
@@ -8793,7 +8848,7 @@ function renderComparePanel() {
     countries.map(function(iso2){
       var flag = typeof getFlag==='function'?getFlag(iso2):'';
       var name = (typeof countryNames!=='undefined'&&countryNames[iso2])||iso2;
-      return '<th style="padding:5px 8px;font-size:8px;font-weight:700;color:var(--sand);text-align:center;border-bottom:1px solid rgba(201,168,76,0.15)">' + (flag||'') + ' ' + _esc(name.length>12?iso2:name) + '<br><button onclick="togglePinCountry(\'' + iso2 + '\')" style="font-size:7px;color:var(--dim);background:none;border:none;cursor:pointer;margin-top:2px">✕ remove</button></th>';
+      return '<th style="padding:5px 8px;font-size:8px;font-weight:700;color:var(--sand);text-align:center;border-bottom:1px solid rgba(201,168,76,0.15)">' + (flag||'') + ' ' + _esc(name.length>12?iso2:name) + '<br><button data-na-act="togglePin" data-na-arg="' + _esc(iso2) + '" style="font-size:7px;color:var(--dim);background:none;border:none;cursor:pointer;margin-top:2px">✕ remove</button></th>';
     }).join('');
 
   var dataRows = ROWS.map(function(row){
@@ -8815,7 +8870,7 @@ function renderComparePanel() {
     dataRows + climateRow + budgetRow +
     '</tbody></table></div>' +
     '<div style="padding:6px 10px 8px;font-size:7.5px;color:var(--dim);border-top:1px solid rgba(201,168,76,0.08);margin-top:4px">💡 Pin countries on the map to compare them. Click a country name to fly there.</div>' +
-    '<div style="padding:4px 10px 8px;text-align:right"><button onclick="_shareCompareURL()" style="font-size:7px;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:4px;color:var(--gold);cursor:pointer;padding:3px 8px;font-family:var(--fm)">⎘ Copy Comparison URL</button></div>';
+    '<div style="padding:4px 10px 8px;text-align:right"><button data-na-act="shareCompareUrl" style="font-size:7px;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);border-radius:4px;color:var(--gold);cursor:pointer;padding:3px 8px;font-family:var(--fm)">⎘ Copy Comparison URL</button></div>';
 }
 
 
@@ -8964,7 +9019,7 @@ function _idlePrefetchHeavyAssets() {
     _naRegisterSW();
   });
 }
-// index.html defines window._naSwRegister (and a 20 s backstop timer); it is absent without service workers.
+// na-boot.js defines window._naSwRegister (and a 20 s backstop timer); it is absent without service workers.
 function _naRegisterSW() { try { if (window._naSwRegister) window._naSwRegister(); } catch (_e) {} }
 // ─── Post-boot loading chain ────────────────────────────────────────────────
 // Only index.html, style.css, leaflet.js, data.js and app.js are on the first-paint path. The rest
