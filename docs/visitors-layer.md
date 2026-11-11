@@ -32,7 +32,7 @@ Slice B (privacy: raising the floor, rounding, date-only `updated`, the visible 
 ## What the owner supplies
 
 - **The site code** (the `name` in `https://name.goatcounter.com`). It is not a secret: once collection is on it is visible in the page source. It goes into `NA_ANALYTICS_SITE` in `app.js` (step 3) and is the only value that needs to be handed to whoever makes that edit.
-- **The API key.** It is a secret. It goes only into the environment variable `GOATCOUNTER_TOKEN` on the machine that runs the script (step 4). Do not send it to anyone in chat or email, and do not put it in a file in this repository.
+- **The API key.** It is a secret. It goes only into the environment variable `GOATCOUNTER_TOKEN` on the machine that runs the script (step 4), and, for the scheduled workflow, into the secret of the same name in the GitHub environment `visitor-refresh` (step 5, owner step 2). Do not send it to anyone in chat or email, and do not put it in a file in this repository. The workflow uses its own key, separate from the Keychain key.
 
 ## Step 1: create the analytics account (owner action)
 
@@ -100,11 +100,77 @@ On any error the existing file is left untouched and the script exits with a non
 
 ## Step 5: refresh regularly
 
-Choose one:
+The owner decided on 2026-11-10 that the regular refresh is a scheduled GitHub Actions workflow, not a job on the owner's Mac. Running the script by hand (Step 4, with the Keychain key) still works at any time and does not depend on the workflow.
 
-- Run the script by hand when an update is wanted.
-- Schedule it on the owner's own computer with `cron` or `launchd`, supplying `GOATCOUNTER_TOKEN` from the owner's keychain or environment, then commit and open a pull request.
-- A scheduled GitHub Actions workflow is possible but is deliberately not included here. If one is added later, it must store the key as an encrypted repository secret and open a pull request. It must not push to `main`.
+### How the workflow works
+
+The file is `.github/workflows/refresh-visitors.yml` and its name in the Actions tab is "Refresh visitor data". It runs every Monday at 07:23 UTC (an hour after the map tile check at 06:17) and can be started by hand.
+
+- **It opens a pull request only when the published counts change.** It runs `scripts/update_visitors.py` (the same floor of 10, rounding down to a multiple of 5 and date-only `updated` as a run by hand; without `--regions`, because region level is off) and compares the result with the committed file using `scripts/visitors_changed.py`. The comparison covers `minVisits`, `countries` and, if present, `regions`, and ignores `updated`. Because counts are rounded down, most weeks change nothing and open nothing, which matters because every pull request is also a GitHub Pages deploy. The committed file is the empty document today, so the first pull request appears only after a country reaches the floor.
+- **It never pushes to `main`, never merges and never enables auto-merge.** The owner reviews the diff and merges. The pull request lists the published countries and their rounded counts, which are public data.
+- **Three jobs, each with only the power it needs.**
+  - `fetch` reads the key. It runs in the GitHub environment `visitor-refresh`, which only the `main` branch may use, with a read-only repository token. The secret `GOATCOUNTER_TOKEN` is in the environment of one step only (the one that runs the updater), and the job uploads `data/visitors.json` and nothing else.
+  - `propose` has no secret except GitHub's built-in token. It checks the file with the same allowlist the browser applies (only the keys `updated`, `minVisits` and `countries`, two-letter upper-case codes, whole counts, the floor, multiples of 5) and refuses a file that breaks it. It then pushes one new branch named `data/visitors-DATE-RUNID` (a plain push, never forced, never `main`) and opens the pull request.
+  - `report` runs no repository code and can only write issues. When `fetch` or `propose` fails, it opens one issue.
+- **One open pull request at a time.** A pull request opened by the workflow carries the label `visitor-data`. While one is open, later runs log that fact and open nothing. Merge or close it, and the next change gets a new one. The workflow looks for the label, not for words in a title, because in a public repository anyone can choose a title but only people with triage access can apply a label.
+- **A manual run is safe by default.** "Run workflow" has one checkbox, `create_pr`, which is off by default. With it off, a manual run fetches, compares and reports changed or unchanged, and opens nothing. With it on, a manual run opens the pull request like a scheduled run does.
+- **Triggers.** Only the schedule and the manual start. There is no `pull_request` trigger, so nothing a stranger proposes can run in this workflow or reach the key.
+- **The pull request shows no checks.** This repository has no workflow that runs on pull requests, and a pull request opened with GitHub's built-in token does not start one. Run the guard tests by hand (see "Checks") when the workflow itself is changed.
+
+### Owner steps, in order
+
+Do one step at a time and confirm its check before the next. Never paste the key into a chat, a file or a command; the only place it goes after GoatCounter shows it is the secret field in step 2.
+
+Sequence with the pull request that adds the workflow: steps 1 to 3 can be done before it is merged, and should be, because the first scheduled run after the merge would otherwise fail and open an issue. Step 4 can only be done after the merge, because GitHub lists a workflow for a manual start only once it exists on `main`. Step 5 follows step 4.
+
+1. **Create a new GoatCounter key for this workflow.**
+   1. Open `https://nomadicalmanac.goatcounter.com/user/api` while signed in.
+   2. Create a key with only the "Read statistics" permission, and name it for this workflow, for example `github-refresh-visitors`. Keep it separate from the Keychain key, so that either can be revoked without touching the other.
+   3. Copy the key once (it is not shown again) and leave the tab open until step 2 is done.
+
+   Check: the key list shows the new key by name, with "Read statistics" and nothing else ticked, next to the existing Keychain key.
+2. **Create the environment and store the key in it.**
+   1. In the repository, open Settings, then Environments, then "New environment". Name it exactly `visitor-refresh`, then "Configure environment".
+   2. Under "Deployment branches and tags", choose "Selected branches and tags", add a rule for the branch `main`, and save. This is what keeps every other branch from reading the key.
+   3. Under "Environment secrets", add a secret named exactly `GOATCOUNTER_TOKEN` and paste the key into its value field. Do not create a repository-level secret of the same name: a repository secret is readable from every branch.
+
+   Check: the Environments page shows `visitor-refresh` with deployment branches limited to `main` and one secret named `GOATCOUNTER_TOKEN`. GitHub does not display the value, so confirm the name by eye, with no stray space or lower-case letter.
+3. **Allow Actions to open pull requests.** In Settings, Actions, General, under "Workflow permissions", tick "Allow GitHub Actions to create and approve pull requests" and save. Without it the `propose` job fails when it tries to open the pull request. (If the box is greyed out, an organisation policy controls it.) The workflow itself never approves anything.
+
+   Check: reload the page; the box is still ticked.
+4. **Run the workflow once by hand with `create_pr` off.** In the Actions tab, choose "Refresh visitor data", then "Run workflow", select the branch `main`, leave the checkbox unticked and start the run.
+
+   Check the log:
+   1. The job `fetch` is green. In the step "Fetch the counts and rebuild the data file", the line `GOATCOUNTER_TOKEN` shows `***`, never the key, and the output reads `wrote data/visitors.json: N countries kept, ...`.
+   2. The step "Compare with the committed file" prints either "Published counts changed." with `changed=true`, or "Published counts are unchanged" with `changed=false`. Expect unchanged while no country has reached the floor.
+   3. The jobs `propose` and `report` show as skipped, and no pull request and no issue was created.
+
+   If the run is red, read "What a failure looks like" below before trying again.
+5. **Only then rely on the schedule.** The first scheduled run is the next Monday at 07:23 UTC. To see the pull request path once, run the workflow by hand again with `create_pr` ticked, but only when step 4 reported `changed=true`; with `changed=false` there is nothing to open.
+
+### What a failure looks like
+
+- The run is red and `report` opens one issue titled "Visitor data refresh failed", labelled `visitor-refresh-failed`, which GitHub emails to the owner. While an issue with that label is open, further failures only turn the run red and open nothing, so close the issue once the cause is fixed.
+- Messages in the `fetch` log and what they mean:
+  - `GoatCounter refused the key (HTTP 401)` or `(HTTP 403)`: the key was revoked, has expired or lacks "Read statistics". Rotate it (below).
+  - `Set the environment variable GOATCOUNTER_TOKEN to a GoatCounter API key`: the secret is missing or empty, or was stored in the wrong place. Check step 2, including the exact environment name.
+  - `Could not reach GoatCounter` or `GoatCounter returned HTTP 5xx`: a temporary fault at the service. Re-run the failed job. (The first live test run once received a single HTTP 404 that did not repeat.)
+  - `The result has no countries but data/visitors.json has some; refusing to replace it`: the service answered with nothing. Do not work around it with `--allow-empty` in the workflow (a test fails if the flag appears); find out why first.
+- A message in `propose` that begins `invalid:` means the file the updater produced breaks the data contract. Nothing was pushed. Treat it as a defect in the updater and do not publish by hand around it.
+- A manual run started from a branch other than `main` does nothing: every job shows as skipped, because `fetch` runs only on `main` (and the environment only admits `main`). Start the run from `main`.
+
+### Rotate or revoke the key
+
+1. To rotate: create a new key (step 1), open Settings, Environments, `visitor-refresh`, edit the secret `GOATCOUNTER_TOKEN` and paste the new key, run the workflow once by hand with `create_pr` off (step 4), and only then delete the old key in GoatCounter.
+2. To revoke: delete the key on the GoatCounter API page. It stops working at once. The next run fails with HTTP 401 or 403 and opens the issue, and the key in the Keychain is not affected.
+3. If the key may have leaked, delete it in GoatCounter first, then rotate. Anyone who can edit the environment can replace the secret but not read it back.
+
+### Known limits of the workflow
+
+- **Scheduled runs can pause.** GitHub disables scheduled workflows in a repository after 60 days without repository activity. Nothing in the workflow detects this. Running it once by hand (Actions, "Refresh visitor data", "Run workflow") switches the schedule back on, as for the map tile check.
+- **A pull request left open blocks newer ones.** Newer counts wait until the open `visitor-data` pull request is merged or closed.
+- **The history is still a time series.** A weekly refresh publishes at most one change per week, which is coarser than refreshing by hand, but each merged refresh stays in the public git history.
+- **Action versions are pinned.** Every `uses:` names a full commit SHA (a test fails otherwise). `actions/checkout`, `actions/upload-artifact` and `actions/download-artifact` are pinned to Node 20 releases of the v4 line, the same family as the tile check. Newer major versions exist; moving to one is a deliberate edit that updates the SHA and its tag comment together.
 
 ## Privacy notice and opt-out
 
@@ -190,6 +256,7 @@ How to update it on purpose (for example when the vendor announces a change, or 
 ## Checks
 
 - Pin guard: `python3 scripts/test_count_js_pin.py`. It fails when the SHA-256 of `lib/count.js` differs from the pin record above, when the vendor header is missing, when `NA_ANALYTICS_SRC` in `app.js` is not a same-origin path to an existing file, or when `index.html` names any host in `script-src`. It reads local files only and makes no request.
+- Refresh workflow: `python3 scripts/test_refresh_workflow.py` reads `.github/workflows/refresh-visitors.yml` as text (there is no YAML parser in the standard library) and fails when a `pull_request` trigger appears, when an action is not pinned to a full commit SHA, when the secret name appears outside the one updater step of the `fetch` job, when `contents: write` appears outside `propose`, when `propose` reads any secret but the built-in token, when any step pushes to `main` or `master`, forces a push, merges or enables auto-merge, when `--regions` appears, or when a checkout keeps credentials. It runs each rule against a deliberately broken copy of the workflow too, so a rule that stops matching fails instead of passing silently. `python3 scripts/test_visitors_changed.py` tests the helper that decides changed or unchanged and validates the file before the pull request. Neither reads a secret or makes a request.
 - Region level: `python3 scripts/test_update_visitors_regions.py` (the updater with `--regions`, synthetic data and a fake HTTP layer) and `python3 scripts/test_visitor_regions_off.py` (the shipped-off proof described in "Region level (off)").
 - Unit tests for the script: `python3 scripts/test_update_visitors.py`. They use a fake HTTP layer and synthetic data held inside the test file. They cover the floor, the rounding (including that a single extra visit changes the file only at a multiple of 5), the date-only `updated`, that `MIN_FLOOR` equals `NA_VISITORS_FLOOR` in `app.js`, and that the committed `data/visitors.json` obeys the contract. One test starts two throw-away servers on `127.0.0.1` to prove that a redirect is not followed and that the key never reaches the redirect target; nothing leaves the machine.
 - The script was run against the live account on 2026-11-10 (before the floor was raised from 3 to 10). The per-country query, the dry-run and the written file agreed: one country at the old floor of 3 visits (the owner's own visits plus one automated test visit). The request shape follows the vendor's published API description (`GET /api/v0/stats/locations`, bearer token, `limit` and `offset` paging, `count` meaning visitors).

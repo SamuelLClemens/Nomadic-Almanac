@@ -1,0 +1,209 @@
+# Weekly refresh of data/visitors.json (the Visitors map layer).
+#
+# What it does: reads the per-country visit totals from GoatCounter with a read-only key, rebuilds the
+# data file with scripts/update_visitors.py (the same floor of 10, rounding down to a multiple of 5 and
+# date-only "updated" as a run by hand), and opens ONE pull request only when the published counts
+# changed. It never pushes to main, never merges and never enables auto-merge: the owner reviews the
+# file and merges. Most weeks nothing changes and nothing is opened, because a pull request is also a
+# GitHub Pages deploy. Owner set-up steps and how a failure looks: docs/visitors-layer.md, Step 5.
+#
+# Run it by hand at any time: Actions tab, "Refresh visitor data", "Run workflow". With "create_pr" off
+# (the default) a manual run only fetches and reports changed or unchanged, so it proves the key works
+# with no side effect. With it on, a manual run opens the pull request like a scheduled one does.
+# GitHub pauses scheduled workflows after 60 days without any repository activity; running the workflow
+# once by hand switches it back on (same as tile-check.yml). Nothing in this file detects that pause.
+#
+# Three jobs, three different powers, on purpose:
+#   fetch   - the only job that can read the key. It lives in the environment "visitor-refresh", which
+#             the owner limits to deployment branches "main", so no other branch or pull request can
+#             read it. Read-only repository token. It uploads data/visitors.json and nothing else.
+#   propose - no secrets at all, only the built-in token. The only job that can write contents and
+#             pull requests. It validates the file with the browser's own allowlist, pushes a new
+#             branch (never main, never forced) and opens the pull request.
+#   report  - runs no repository code and checks nothing out; its token can only write issues. Opens
+#             one issue when fetch or propose fails (a revoked or expired key, for example).
+#
+# Like tile-check.yml, the "already open" tests look for an open item that carries a label, not for
+# words in a title. In a public repository anyone can open an issue or pull request with any title; only
+# people with triage access or above can apply a label, so the label cannot be forged from outside.
+# Both labels are created on first use.
+#
+# Triggers are schedule and workflow_dispatch only. There is no pull_request trigger, so nothing a
+# stranger proposes can run here, and the environment secret is never exposed to one.
+name: Refresh visitor data
+
+on:
+  schedule:
+    - cron: '23 7 * * 1'     # Mondays 07:23 UTC, an hour after the map tile check (06:17)
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: 'Open a pull request if the counts changed (leave off to only check the key and see the result)'
+        type: boolean
+        default: false
+
+permissions: {}
+
+# One run at a time, so two runs can never both find "no open pull request" and open two.
+concurrency:
+  group: refresh-visitor-data
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: visitor-refresh
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Keep a copy of the committed file
+        run: cp data/visitors.json "$RUNNER_TEMP/committed-visitors.json"
+
+      # The only step that sees the key. The script sends it to nomadicalmanac.goatcounter.com only
+      # (EXPECTED_SITE), follows no redirect, never prints it, and keeps the existing file on any error.
+      - name: Fetch the counts and rebuild the data file
+        env:
+          GOATCOUNTER_TOKEN: ${{ secrets.GOATCOUNTER_TOKEN }}
+        run: python3 scripts/update_visitors.py
+
+      - name: Compare with the committed file
+        id: compare
+        run: |
+          set -euo pipefail
+          python3 scripts/visitors_changed.py compare "$RUNNER_TEMP/committed-visitors.json" data/visitors.json | tee -a "$GITHUB_OUTPUT"
+
+      - name: Upload the new data file
+        if: steps.compare.outputs.changed == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: visitors-json
+          path: data/visitors.json
+          if-no-files-found: error
+          retention-days: 7
+
+  propose:
+    needs: fetch
+    if: ${{ github.ref == 'refs/heads/main' && needs.fetch.outputs.changed == 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.create_pr)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write          # pushes the one new branch; nothing here can touch main (see the push step)
+      pull-requests: write     # opens the pull request and creates its label
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Download the new data file
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: visitors-json
+          path: ${{ runner.temp }}/visitors-artifact
+
+      # The same allowlist the browser applies, but refusing instead of dropping: only the known keys,
+      # two-letter upper-case codes, whole counts, the floors, every count a multiple of 5.
+      - name: Validate the data file
+        run: python3 scripts/visitors_changed.py validate "$RUNNER_TEMP/visitors-artifact/visitors.json"
+
+      - name: Look for an open pull request
+        id: dedupe
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_LABEL: visitor-data
+        run: |
+          set -euo pipefail
+          gh label create "$PR_LABEL" --repo "$GITHUB_REPOSITORY" --color 1D76DB \
+            --description "Opened by the Refresh visitor data workflow" --force
+          open="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label "$PR_LABEL" --json number --jq '.[0].number // empty')"
+          if [ -n "$open" ]; then
+            echo "Pull request #$open already carries the $PR_LABEL label and is open; not opening another."
+          fi
+          echo "open=$open" >> "$GITHUB_OUTPUT"
+
+      - name: Commit, push the branch and open the pull request
+        if: steps.dedupe.outputs.open == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_LABEL: visitor-data
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          day="$(date -u +%Y-%m-%d)"
+          branch="data/visitors-${day}-${RUN_ID}"
+          if [ "$RUN_ATTEMPT" -gt 1 ]; then branch="${branch}-${RUN_ATTEMPT}"; fi
+          case "$branch" in
+            main|master|*/main|*/master|refs/*) echo "Refusing to use the branch name $branch." >&2; exit 1 ;;
+          esac
+          shape='^data/visitors-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]+(-[0-9]+)?$'
+          if [[ ! "$branch" =~ $shape ]]; then
+            echo "Refusing a branch name of an unexpected shape." >&2; exit 1
+          fi
+
+          cp "$RUNNER_TEMP/visitors-artifact/visitors.json" data/visitors.json
+          if git diff --quiet -- data/visitors.json; then
+            echo "The validated file is identical to the committed one; nothing to propose."
+            exit 0
+          fi
+
+          git switch -c "$branch"
+          git add data/visitors.json
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "data(visitors): refresh published visit counts ($day)"
+
+          # A plain push of this one new branch. The checkout kept no credentials, so the token is
+          # given to this one command only, as a header.
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
+          echo "::add-mask::$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push origin "HEAD:refs/heads/$branch"
+
+          {
+            echo "This pull request was opened by the Refresh visitor data workflow ($RUN_URL), because the published visit counts changed."
+            echo
+            echo "It replaces \`data/visitors.json\` with the counts below. Each is rounded down to a multiple of 5, and only countries at or above the floor of 10 are listed. These numbers are public data."
+            echo
+            python3 scripts/visitors_changed.py summary data/visitors.json
+            echo
+            echo "Review the diff and merge it like any other change. The workflow never merges. No other pull request with the \`$PR_LABEL\` label was open when this one was created."
+          } > "$RUNNER_TEMP/pr-body.md"
+
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" --label "$PR_LABEL" \
+            --title "Refresh visitor data ($day)" --body-file "$RUNNER_TEMP/pr-body.md"
+
+  report:
+    needs: [fetch, propose]
+    # always() is required: without a status function a job is skipped as soon as a needed job fails.
+    if: ${{ always() && (needs.fetch.result == 'failure' || needs.propose.result == 'failure') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write            # the only permission here; no contents access and no checkout
+    steps:
+      - name: Open an issue when the refresh fails
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ALERT_LABEL: visitor-refresh-failed
+        run: |
+          set -euo pipefail
+          gh label create "$ALERT_LABEL" --repo "$GITHUB_REPOSITORY" --color D93F0B \
+            --description "Opened by the Refresh visitor data workflow" --force
+          open="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label "$ALERT_LABEL" --json number --jq '.[0].number // empty')"
+          if [ -z "$open" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --label "$ALERT_LABEL" \
+              --title "Visitor data refresh failed" \
+              --body "The scheduled refresh of data/visitors.json did not complete successfully: $RUN_URL. Open the run to see which step failed. A message that GoatCounter refused the key (HTTP 401 or 403) usually means the key was revoked or has expired: create a new key and replace the secret as described in docs/visitors-layer.md, Step 5. No further issue is opened while one with this label is open, so close it once the cause is fixed."
+          else
+            echo "Issue #$open is already open; not creating another."
+          fi
