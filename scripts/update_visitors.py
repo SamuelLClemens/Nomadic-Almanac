@@ -28,6 +28,23 @@ Privacy and safety rules this script keeps:
     NA_ANALYTICS_SITE cannot send the key to someone else's account. An HTTP redirect is never
     followed, because urllib would resend the Authorization header to the new address.
 
+Region level (visits by state or province) is OFF unless --regions is given. Without the flag this
+script behaves exactly as described above and never writes a "regions" key (a file that already has one
+loses it on the next run without the flag). With --regions, after the country query it asks for each
+PUBLISHED country's regions (GET /api/v0/stats/locations/CC, the vendor's detail view for one country)
+and keeps the same rules, only stricter:
+  * a region is written only when its country is itself published (at or above the country floor);
+    the regions of any other country are not even requested;
+  * the region floor is MIN_REGION_FLOOR (25), never lower, never below the country floor;
+    --min-region-visits can raise it. The browser applies the same floor again (NA_VISITORS_REGION_FLOOR);
+  * keys are ISO 3166-2 codes that exist in data/admin1.geojson for that country, counts are rounded
+    DOWN to a multiple of ROUND_STEP before the floor is tested, and only the code and a whole number
+    are kept. The vendor's detail view names a region by display name, not by code (as read from its
+    published source); the name is matched to a code through data/admin1.geojson and a name that matches
+    no code, or more than one, is dropped. Turning region on also needs the steps in
+    docs/visitors-layer.md, section "Region level (off)". The live response could NOT be checked,
+    because Region collection is off in the GoatCounter account; the tests use synthetic data only.
+
 Python 3.8 or newer, standard library only. Run from anywhere; paths are relative to the repository.
 """
 import argparse
@@ -38,6 +55,7 @@ import re
 import sys
 import tempfile
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -51,6 +69,8 @@ SITE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 # a reviewed edit of this file, not something a changed app.js or environment variable can do.
 EXPECTED_SITE = "nomadicalmanac"
 CODE_RE = re.compile(r"^[A-Z]{2}$")
+MIN_REGION_FLOOR = 25                           # region floor: higher than MIN_FLOOR, same as app.js
+REGION_CODE_RE = re.compile(r"^[A-Z]{2}-[A-Z0-9]{1,3}$")   # an ISO 3166-2 code such as US-CA
 PAGE_LIMIT = 100                                # the API maximum
 MAX_PAGES = 10                                  # 1,000 countries is far more than exist
 PAUSE_SECONDS = 0.3                             # the API allows 4 requests per second
@@ -58,6 +78,7 @@ PAUSE_SECONDS = 0.3                             # the API allows 4 requests per 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = os.path.join(REPO, "data", "visitors.json")
 APP_JS = os.path.join(REPO, "app.js")
+ADMIN1 = os.path.join(REPO, "data", "admin1.geojson")      # region names and codes, read only with --regions
 
 
 class UpdateError(Exception):
@@ -116,21 +137,36 @@ def round_down(n):
     return n - (n % ROUND_STEP)
 
 
-def build_document(counts, floor, now=None):
+def build_document(counts, floor, now=None, regions=None, region_floor=None):
     """Pure. The document to write, largest first. Each count is rounded down to a multiple of
     ROUND_STEP first, and only countries whose ROUNDED count is at least the floor are kept, so every
-    published number is at least the floor it advertises. "updated" is a date only, no time."""
+    published number is at least the floor it advertises. "updated" is a date only, no time.
+
+    `regions` is None for the country-only document (no "regions" key, exactly as before). A dict of
+    {ISO 3166-2 code: raw count} adds "minRegionVisits" and "regions": the same rounding, the region
+    floor (never below MIN_REGION_FLOOR or the country floor), and only regions whose country is a
+    published country."""
     if floor < MIN_FLOOR:
         raise UpdateError("The minimum cannot be lower than %d." % MIN_FLOOR)
     kept = sorted(((c, round_down(n)) for c, n in counts.items()
                    if CODE_RE.match(c) and round_down(n) >= floor),
                   key=lambda kv: (-kv[1], kv[0]))
     now = now or datetime.datetime.now(datetime.timezone.utc)
-    return {
+    doc = {
         "updated": now.strftime("%Y-%m-%d"),
         "minVisits": floor,
         "countries": dict(kept),
     }
+    if regions is not None:
+        if region_floor is not None and region_floor < MIN_REGION_FLOOR:
+            raise UpdateError("The region minimum cannot be lower than %d." % MIN_REGION_FLOOR)
+        rfloor = max(MIN_REGION_FLOOR, region_floor or 0, floor)
+        rkept = sorted(((c, round_down(n)) for c, n in regions.items()
+                        if REGION_CODE_RE.match(c) and c[:2] in doc["countries"] and round_down(n) >= rfloor),
+                       key=lambda kv: (-kv[1], kv[0]))
+        doc["minRegionVisits"] = rfloor
+        doc["regions"] = dict(rkept)
+    return doc
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -163,6 +199,34 @@ def http_get(url, token):
         raise UpdateError("Could not reach GoatCounter (%s)." % type(err).__name__)
 
 
+def _get_with_retry(url, token, get, sleep):
+    """One API page; a single polite retry after HTTP 429. Returns (status, payload)."""
+    status, headers, payload = get(url, token)
+    if status == 429:
+        wait = 2
+        try:
+            wait = min(10, max(1, int(headers.get("X-Rate-Limit-Reset", 2))))
+        except (TypeError, ValueError, AttributeError):
+            pass
+        sleep(wait)
+        status, headers, payload = get(url, token)
+    return status, payload
+
+
+def _check_status(status, payload, site, not_found=None):
+    """Raise UpdateError (a message that never contains the token) unless the page is a usable 200."""
+    if status in (401, 403):
+        raise UpdateError("GoatCounter refused the key (HTTP %d). It needs the 'Read statistics' permission "
+                          "and must belong to site '%s'." % (status, site))
+    if 300 <= status < 400:
+        raise UpdateError("GoatCounter answered with a redirect (HTTP %d). It was not followed, because the "
+                          "API key would be sent to the new address. Check the site code." % status)
+    if status == 404:
+        raise UpdateError(not_found or "Site '%s' was not found (HTTP 404). Check the site code." % site)
+    if status != 200 or payload is None:
+        raise UpdateError("GoatCounter returned HTTP %d." % status)
+
+
 def fetch_counts(site, token, since, now=None, get=http_get, sleep=time.sleep):
     """All per-country totals from `since` to now, following the API's pagination."""
     now = now or datetime.datetime.now(datetime.timezone.utc)
@@ -174,25 +238,8 @@ def fetch_counts(site, token, since, now=None, get=http_get, sleep=time.sleep):
             "end": now.strftime("%Y-%m-%dT%H:00:00Z"),
             "limit": PAGE_LIMIT, "offset": offset,
         })
-        status, headers, payload = get(base + "?" + query, token)
-        if status == 429:
-            wait = 2
-            try:
-                wait = min(10, max(1, int(headers.get("X-Rate-Limit-Reset", 2))))
-            except (TypeError, ValueError, AttributeError):
-                pass
-            sleep(wait)
-            status, headers, payload = get(base + "?" + query, token)
-        if status in (401, 403):
-            raise UpdateError("GoatCounter refused the key (HTTP %d). It needs the 'Read statistics' permission "
-                              "and must belong to site '%s'." % (status, site))
-        if 300 <= status < 400:
-            raise UpdateError("GoatCounter answered with a redirect (HTTP %d). It was not followed, because the "
-                              "API key would be sent to the new address. Check the site code." % status)
-        if status == 404:
-            raise UpdateError("Site '%s' was not found (HTTP 404). Check the site code." % site)
-        if status != 200 or payload is None:
-            raise UpdateError("GoatCounter returned HTTP %d." % status)
+        status, payload = _get_with_retry(base + "?" + query, token, get, sleep)
+        _check_status(status, payload, site)
         page, more = parse_locations(payload)
         for code, n in page.items():
             totals[code] = totals.get(code, 0) + n
@@ -203,11 +250,122 @@ def fetch_counts(site, token, since, now=None, get=http_get, sleep=time.sleep):
     return totals
 
 
+# ── Region level (only with --regions) ─────────────────────────────────────────────────────────────
+def normalise_name(name):
+    """Pure. A region display name reduced for matching: accents removed, case folded, punctuation and
+    runs of spaces collapsed ("Île-de-France" and "Ile de France" match; "Zürich" matches "Zurich")."""
+    if not isinstance(name, str):
+        return ""
+    base = unicodedata.normalize("NFKD", name)
+    base = "".join(ch for ch in base if not unicodedata.combining(ch))
+    return re.sub(r"[^a-z0-9]+", " ", base.casefold()).strip()
+
+
+def build_region_table(geojson):
+    """Pure. From the parsed data/admin1.geojson: ({COUNTRY: {normalised name: {codes}}}, {COUNTRY: {codes}}).
+    Only features with a well-formed ISO 3166-2 code are used; the country is the code's own prefix."""
+    names, codes = {}, {}
+    feats = geojson.get("features") if isinstance(geojson, dict) else None
+    for f in feats if isinstance(feats, list) else []:
+        props = f.get("properties") if isinstance(f, dict) else None
+        if not isinstance(props, dict):
+            continue
+        code = props.get("iso_3166_2")
+        if not isinstance(code, str) or not REGION_CODE_RE.match(code):
+            continue
+        country = code[:2]
+        codes.setdefault(country, set()).add(code)
+        key = normalise_name(props.get("name"))
+        if key:
+            names.setdefault(country, {}).setdefault(key, set()).add(code)
+    return names, codes
+
+
+def load_region_table(path=ADMIN1):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return build_region_table(json.load(fh))
+    except (OSError, ValueError):
+        raise UpdateError("Could not read %s (needed for --regions)." % os.path.relpath(path, REPO))
+
+
+def parse_region_rows(payload, country, table):
+    """Pure. From one detail page for `country`, return ({CODE: count}, more, unmatched). A row counts
+    only when it has a whole, non-negative count and resolves to exactly one ISO 3166-2 code of that
+    country: through its own "id" if the vendor ever sends a known code, otherwise through its display
+    "name" and the admin-1 table. Anything else is dropped (and counted in `unmatched`), so free text
+    and unknown places never reach the output."""
+    names, codes = table
+    if not isinstance(payload, dict) or not isinstance(payload.get("stats"), list):
+        raise UpdateError("Unexpected API response for the regions of %s (no 'stats' list)." % country)
+    out, unmatched = {}, 0
+    for row in payload["stats"]:
+        if not isinstance(row, dict):
+            continue
+        count = row.get("count")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+            continue
+        rid = row.get("id")
+        code = None
+        if isinstance(rid, str) and rid.strip().upper() in codes.get(country, ()):
+            code = rid.strip().upper()
+        else:
+            hits = names.get(country, {}).get(normalise_name(row.get("name")), set())
+            if len(hits) == 1:
+                code = next(iter(hits))
+        if code is None:
+            unmatched += 1
+            continue
+        out[code] = out.get(code, 0) + count
+    return out, bool(payload.get("more")), unmatched
+
+
+def fetch_region_counts(site, token, countries, since, table, now=None, get=http_get, sleep=time.sleep):
+    """Per-region totals for each country in `countries` (the published ones only). Returns
+    ({ISO 3166-2 code: count}, unmatched rows). One request per country and page; the country code is
+    checked against CODE_RE before it goes into the address."""
+    now = now or datetime.datetime.now(datetime.timezone.utc)
+    totals, unmatched_total = {}, 0
+    for country in countries:
+        if not CODE_RE.match(country):
+            continue
+        base = "https://%s.goatcounter.com/api/v0/stats/locations/%s" % (site, country)
+        offset = 0
+        for _page in range(MAX_PAGES):
+            query = urllib.parse.urlencode({
+                "start": since.strftime("%Y-%m-%dT00:00:00Z"),
+                "end": now.strftime("%Y-%m-%dT%H:00:00Z"),
+                "limit": PAGE_LIMIT, "offset": offset,
+            })
+            sleep(PAUSE_SECONDS)
+            status, payload = _get_with_retry(base + "?" + query, token, get, sleep)
+            _check_status(status, payload, site,
+                          not_found="Regions of %s were not found (HTTP 404)." % country)
+            page, more, unmatched = parse_region_rows(payload, country, table)
+            unmatched_total += unmatched
+            for code, n in page.items():
+                totals[code] = totals.get(code, 0) + n
+            offset += len(payload["stats"])
+            if not more or not payload["stats"]:
+                break
+    return totals, unmatched_total
+
+
 def existing_country_count(path):
     try:
         with open(path, encoding="utf-8") as fh:
             doc = json.load(fh)
         return len(doc.get("countries", {})) if isinstance(doc, dict) else 0
+    except (OSError, ValueError):
+        return 0
+
+
+def existing_region_count(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        regs = doc.get("regions", {}) if isinstance(doc, dict) else {}
+        return len(regs) if isinstance(regs, dict) else 0
     except (OSError, ValueError):
         return 0
 
@@ -229,7 +387,7 @@ def write_atomic(path, doc):
         raise
 
 
-def run(argv=None, env=None, get=http_get, now=None, out_stream=None):
+def run(argv=None, env=None, get=http_get, now=None, out_stream=None, region_table=None):
     env = os.environ if env is None else env
     out = out_stream or sys.stdout
     ap = argparse.ArgumentParser(description="Refresh data/visitors.json from GoatCounter country totals.")
@@ -237,6 +395,12 @@ def run(argv=None, env=None, get=http_get, now=None, out_stream=None):
     ap.add_argument("--min-visits", type=int, default=MIN_FLOOR,
                     help="hide countries below this many visits, counted after rounding down to a multiple of %d "
                          "(default and lowest allowed: %d)" % (ROUND_STEP, MIN_FLOOR))
+    ap.add_argument("--regions", action="store_true",
+                    help="also collect visits by state or province (OFF by default; needs the steps in "
+                         "docs/visitors-layer.md, section 'Region level (off)')")
+    ap.add_argument("--min-region-visits", type=int, default=MIN_REGION_FLOOR,
+                    help="with --regions: hide regions below this many visits, counted after rounding down "
+                         "(default and lowest allowed: %d; never below --min-visits)" % MIN_REGION_FLOOR)
     ap.add_argument("--since", default="2020-01-01", help="count visits from this date, YYYY-MM-DD (default 2020-01-01)")
     ap.add_argument("--out", default=DEFAULT_OUT, help="file to write (default data/visitors.json)")
     ap.add_argument("--dry-run", action="store_true", help="print the result, write nothing")
@@ -255,6 +419,10 @@ def run(argv=None, env=None, get=http_get, now=None, out_stream=None):
                           % (site, EXPECTED_SITE))
     if args.min_visits < MIN_FLOOR:
         raise UpdateError("--min-visits cannot be lower than %d." % MIN_FLOOR)
+    if args.min_region_visits != MIN_REGION_FLOOR and not args.regions:
+        raise UpdateError("--min-region-visits only applies together with --regions.")
+    if args.min_region_visits < MIN_REGION_FLOOR:
+        raise UpdateError("--min-region-visits cannot be lower than %d." % MIN_REGION_FLOOR)
     try:
         since = datetime.datetime.strptime(args.since, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
     except ValueError:
@@ -264,17 +432,30 @@ def run(argv=None, env=None, get=http_get, now=None, out_stream=None):
     counts = fetch_counts(site, token, since, now=now, get=get)
     doc = build_document(counts, args.min_visits, now=now)
     shown, hidden = len(doc["countries"]), len(counts) - len(doc["countries"])
+    region_note = ""
+    if args.regions:
+        table = region_table if region_table is not None else load_region_table()
+        region_counts, unmatched = fetch_region_counts(site, token, sorted(doc["countries"]), since, table,
+                                                       now=now, get=get)
+        doc = build_document(counts, args.min_visits, now=now, regions=region_counts,
+                             region_floor=args.min_region_visits)
+        rshown = len(doc["regions"])
+        region_note = "; %d regions kept, %d below the region minimum of %d, %d rows matched no region code" % (
+            rshown, len(region_counts) - rshown, doc["minRegionVisits"], unmatched)
 
     if args.dry_run:
         out.write(json.dumps(doc, indent=2) + "\n")
-        out.write("dry run: %d countries kept, %d below the minimum, nothing written\n" % (shown, hidden))
+        out.write("dry run: %d countries kept, %d below the minimum%s, nothing written\n" % (shown, hidden, region_note))
         return 0
     if shown == 0 and not args.allow_empty and existing_country_count(args.out) > 0:
         raise UpdateError("The result has no countries but %s has some; refusing to replace it "
                           "(use --allow-empty if that is really intended)." % os.path.relpath(args.out, REPO))
+    if args.regions and not doc["regions"] and not args.allow_empty and existing_region_count(args.out) > 0:
+        raise UpdateError("The result has no regions but %s has some; refusing to replace it "
+                          "(use --allow-empty if that is really intended)." % os.path.relpath(args.out, REPO))
     write_atomic(args.out, doc)
-    out.write("wrote %s: %d countries kept, %d below the minimum of %d\n"
-              % (os.path.relpath(args.out, REPO), shown, hidden, args.min_visits))
+    out.write("wrote %s: %d countries kept, %d below the minimum of %d%s\n"
+              % (os.path.relpath(args.out, REPO), shown, hidden, args.min_visits, region_note))
     return 0
 
 
