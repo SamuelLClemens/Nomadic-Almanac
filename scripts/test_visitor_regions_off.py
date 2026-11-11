@@ -16,10 +16,11 @@ What this proves, without a browser:
      full of regions, keeps no region state and makes no request, and the copy differs from app.js in that
      one line only.
   4. The privacy texts that the page shows (the legend note, the Preferences notice, the FAQ answer, in all
-     11 languages, and the English fallbacks in index.html and app.js) name region as collected FOR SOME
-     COUNTRIES only (GoatCounter's Region setting has a "for the following countries only" list), name no
-     country list (so they stay true when the list changes), and keep both floors, the rounding, the Do Not
-     Track and Global Privacy Control statements and the opt-out sentence.
+     11 languages, and the English fallbacks in index.html and app.js) name region as collected together
+     with country, WITHOUT limiting it to some countries (GoatCounter's Region list is blank, so every country; if
+     the list is ever set to named countries again, the texts must say "for some countries" again: see
+     docs/visitors-layer.md, "Keeping the notice true"), name no country list, and keep both floors, the rounding,
+     the Do Not Track and Global Privacy Control statements and the opt-out sentence.
   5. The data file in the repository obeys the contract with region level allowed.
 
 The JavaScript part needs `jsc` (JavaScriptCore, shipped with macOS) and is skipped with a message when it
@@ -169,25 +170,18 @@ REGION_STEM = {"en": "state", "es": "estado", "fr": "état", "de": "bundesl", "p
 # key: (how many times the region stem must appear at least)
 TEXT_KEYS = {"visitors.privacy": 2, "prefs.privacyNote": 3, "faq.7.a": 1}
 
-# GoatCounter collects a region only for the countries in the Region setting's "for the following countries
-# only" list (docs/visitors-layer.md, "Which countries have regions"), so every text says region is counted
-# "for some countries". A stem of that phrase in each language, matched case-insensitively. The legend note
-# says it twice (once for how visits are counted, once for the totals that are shown), the others once.
+# The region limit of slice H. While GoatCounter's Region list held three countries (US, RU, CN) the texts said
+# region is counted "for some countries". The owner cleared the list on 2026-11-11 (blank means every country), so
+# the texts went back to slice G's wording, which joins country and region with no limit, and none of them may
+# carry the limit now. If the list is ever set to named countries again, flip these assertions and the texts
+# together (docs/visitors-layer.md, "Keeping the notice true"). A stem of the "for some countries" phrase in each
+# language, matched case-insensitively.
 SOME_COUNTRIES = {"en": "for some countries", "es": "en algunos países", "fr": "certains pays",
                   "de": "einige Länder", "pt": "em alguns países", "ar": "في بعض الدول", "zh": "部分国家",
                   "hi": "कुछ देशों", "ja": "一部の国", "ru": "некоторых стран", "he": "בחלק מהמדינות"}
-SOME_COUNTRIES_LEAST = {"visitors.privacy": 2, "prefs.privacyNote": 1, "faq.7.a": 1}
-# The wording of slice G, which joined "by country" and "by state or province" with no limit (region for every
-# country). It was false while the list held three countries (slice H). With the list blank (every country, from
-# 2026-11-11) it would describe collection more fully than "for some countries", so the owner may return to it on
-# purpose; change SOME_COUNTRIES and this table together then (docs/visitors-layer.md, "Keeping the notice true").
-UNCONDITIONAL = {"en": "by country and by state or province", "es": "por país y por estado o provincia",
-                 "fr": "par pays et par État ou province", "de": "pro Land und pro Bundesland",
-                 "pt": "por país e por estado ou província", "ar": "حسب الدولة وحسب الولاية",
-                 "zh": "国家和州或省", "hi": "देश और राज्य या प्रांत", "ja": "国別および州・省別",
-                 "ru": "по странам и по штатам", "he": "מדינה ולפי אזור"}
+UNLIMITED_EN = "by country and by state or province"
 # Alpha-2 codes of the lists `US, RU, CN` (GoatCounter's default) and `US, CA, BR, AU, IN, RU, CN` (the slice H
-# recommendation): the texts must not name them, so a change of list needs no change of text.
+# recommendation): the texts must not name a country list, whatever the list in GoatCounter is.
 LIST_CODES = re.compile(r"(?<![A-Za-z])(?:US|RU|CN|CA|BR|AU|IN)(?![A-Za-z])")
 LIST_NAMES_EN = re.compile(r"United States|America|Russia|China|Canada|Brazil|Australia|India", re.I)
 
@@ -253,27 +247,23 @@ class PrivacyTextNamesRegion(unittest.TestCase):
             for key in TEXT_KEYS:
                 self.assertNotRegex(self.t[key][lang], r"(?i)\bonly country totals\b|\bby country \(no IP", key)
 
-    def test_every_text_says_region_is_collected_for_some_countries(self):
+    def test_no_text_limits_region_to_some_countries(self):
         self.assertEqual(sorted(SOME_COUNTRIES), sorted(LANGS))
-        for key, least in SOME_COUNTRIES_LEAST.items():
+        for key in TEXT_KEYS:
             for lang in LANGS:
-                n = len(re.findall(re.escape(SOME_COUNTRIES[lang]), self.t[key][lang], re.I))
-                self.assertGreaterEqual(n, least, "%s [%s] says 'for some countries' %d time(s), expected at least %d: %s"
-                                        % (key, lang, n, least, self.t[key][lang]))
+                self.assertNotIn(SOME_COUNTRIES[lang].lower(), self.t[key][lang].lower(),
+                                 "%s [%s] limits region to some countries, but GoatCounter's list is blank: %s"
+                                 % (key, lang, self.t[key][lang]))
 
-    def test_the_english_fallbacks_say_it_too(self):
+    def test_the_english_texts_and_fallbacks_join_country_and_region_without_a_limit(self):
         with open(INDEX_HTML, encoding="utf-8") as fh:
             html = fh.read()
         note = re.search(r'id="pref-privacy-note"[^>]*>([^<]*)</p>', html).group(1)
         faq = re.search(r"\{ q: 'Is my data private\?', a: '((?:[^'\\]|\\.)*)' \}", SRC).group(1)
-        self.assertIn("by state or province for some countries", note)
-        self.assertIn("by state or province for some countries", faq)
-
-    def test_region_is_no_longer_joined_to_country_without_a_limit(self):
-        for lang in LANGS:
-            for key in TEXT_KEYS:
-                self.assertNotIn(UNCONDITIONAL[lang].lower(), self.t[key][lang].lower(),
-                                 "%s [%s] has the unlimited wording of slice G again: %s" % (key, lang, self.t[key][lang]))
+        for key in TEXT_KEYS:
+            self.assertIn(UNLIMITED_EN, self.t[key]["en"], key)
+        self.assertIn(UNLIMITED_EN, note)
+        self.assertIn(UNLIMITED_EN, faq)
 
     def test_the_texts_name_no_country_list(self):
         for key in TEXT_KEYS:
