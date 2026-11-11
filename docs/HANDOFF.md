@@ -1,6 +1,6 @@
 # Handoff, 2026-11-11: visitor work closed out
 
-State at handoff: `origin/main` is `ec6ffe8`, no pull requests and no issues are open, the latest GitHub Pages build is `built`, and the live service worker cache is `nomadic-v61` (the same as `main`). The work order on the visitor layer, from the first layer to the independent security review's fixes and the automatic refresh, is finished. What follows is what is true now, what was not verified, and what could start the next piece of work.
+State at handoff: `origin/main` is `3fa8b15` (plus this file's own merge), no pull requests and no issues are open, the latest GitHub Pages build is `built`, and the live service worker cache is `nomadic-v61` (the same as `main`). The work order on the visitor layer, from the first layer to the independent security review's fixes and the automatic refresh, is finished. What follows is what is true now, what was not verified, and what could start the next piece of work.
 
 ## Shipped
 
@@ -16,6 +16,8 @@ State at handoff: `origin/main` is `ec6ffe8`, no pull requests and no issues are
 | [66](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/66) | Region level built and shipped switched off (`NA_VISITORS_REGIONS = false`, region floor 25) | 2026-11-11 |
 | [67](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/67) | Scheduled workflow "Refresh visitor data" (`.github/workflows/refresh-visitors.yml`) | 2026-11-11 |
 | [69](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/69) | The updater retries an HTTP 404 twice (5 s, then 15 s) before failing | 2026-11-11 |
+| [70](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/70) | This handoff document | 2026-11-11 |
+| [71](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/71) | The pinned actions moved from Node 20 to Node 24 builds (`actions/checkout` v7.0.1 in both workflows, `actions/upload-artifact` v7.0.2, `actions/download-artifact` v8.0.2) | 2026-11-11 |
 
 Which finding went where follows the owner's plan of 2026-11-10 and each pull request's own description.
 
@@ -29,6 +31,7 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 
 ## Verified
 
+- 2026-11-11, after PR 71, both workflows run by hand on `main` (`3fa8b15`): "Map tile check" 7 of 7 layers healthy; "Refresh visitor data" (`create_pr` off) 0 countries kept, counts unchanged. Neither log has the Node 20 warning. The artifact steps, which run only when the counts change, were proven before the merge in a throwaway round trip on GitHub (run 42944574263, branch since deleted): upload, download, `validate`, `compare` and `summary` all worked on a synthetic file. A harmless Node `DEP0005` warning remains, printed by `download-artifact` v8's own bundle.
 - 2026-11-11, refresh workflow on `main` (manual runs, `create_pr` off):
   - the first run failed on one HTTP 404 from GoatCounter, the failure issue opened (the alert path is proven), and the re-run about a minute later succeeded;
   - after PR 69, a second run succeeded on its first attempt: 0 countries kept, counts unchanged, no issue;
@@ -42,7 +45,7 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 - The 404 retry has never been seen live: its waits (5 s, 15 s) are an unmeasured first estimate. A run log with the line "waiting 5 s and trying again" followed by success means it worked; a failure after both retries means `NOT_FOUND_WAITS` in `scripts/update_visitors.py` should be longer.
 - The tile check's own failure step has never run on a real tile failure (the refresh workflow's alert path has).
 - GitHub pauses scheduled workflows after 60 days without repository activity. Run a workflow once by hand (Actions tab, "Run workflow") to switch it back on.
-- The pinned actions ran on Node 20 builds, which GitHub forces onto Node 24 with a warning on every run. [PR 71](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/71) moves them to Node 24 builds. Its artifact steps were proven in a throwaway round trip on GitHub (run 42944574263, since removed), because a manual run of the refresh workflow does not reach them while the counts are unchanged. After it merges, run "Map tile check" and "Refresh visitor data" (`create_pr` off) once by hand and read the logs; if either fails, revert it.
+- The real artifact steps have never run inside the refresh workflow itself (only in the round-trip copy); they first run when a country reaches the floor. If that run fails, the failure issue opens as usual.
 - Ten of the eleven languages of the privacy notice are first drafts that a native reader should confirm.
 - Speed: stop. Reopen only if real users report slowness.
 - GitHub Pages names a deployment after its commit. If a deploy times out, a re-run for the same commit is refused with "Deployment cancelled"; merge a new commit.
@@ -51,8 +54,7 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 ## Open decisions (need the owner)
 
 1. Region level: before switching it on, get Omri Siri's written confirmation and his view on the proposed region floor of 25. The owner reports that Omri Siri is fine with changes; that is an owner statement, not a record of his words. Recommended: keep Region off until he answers.
-2. Pinned actions: merge PR 71, then run both workflows once by hand (see Not done). Recommended: merge it before Monday 2026-11-16 so the by-hand runs come first.
-3. Housekeeping outside the site (root checkout `/Users/zim/Claude Code`, surveyed read-only on 2026-11-11 against `origin/main` `ec6ffe8`): all 45 other worktrees are merged and clean. Nine (about 380 MB; the slice A to D, review and handoff worktrees and two detached ones that belong only to archived sessions) and 52 merged local branches can be removed with `git worktree remove` and `git branch -d` (never `--force`, never `-D`). Another 35 worktrees (about 1.5 GB) hold nothing but a base commit, but each belongs to a Better Volunteer or Mekong session that is still open, so they stay until the owner archives those sessions. Four branches are not merged (`docs/handoff-na-closeout`, `feature/design-overhaul-v1`, `ui-master-build-v2`, `wip/lcp-tbt-experiment`) and need the owner's word. Nothing is deleted until the owner approves; the named lists are in the shared session notes (`cleanup-lists-2026-11-11.md`), not in this repository.
+2. Housekeeping outside the site (root checkout `/Users/zim/Claude Code`): on 2026-11-11, with the owner's approval and each item re-verified first, 9 merged worktrees (about 380 MB) and 51 merged local branches were removed with `git worktree remove` and `git branch -d` (never `--force`, never `-D`). Left, on purpose: 35 worktrees (about 1.5 GB) that hold nothing but a base commit but belong to Better Volunteer and Mekong sessions that are still open (archive those sessions first, then they can go); the preview worktree `nomadic-almanac-main`; the session worktree `refresh-visitor-data` and its merged branches `ci/actions-node24`, `docs/handoff-na-closeout` and `docs/handoff-final`; the branch `feat/gates-v2.1`, which is merged into `main` but git refuses a plain delete because its remote counterpart lacks one local commit; and three branches that are not merged and need the owner's word (`feature/design-overhaul-v1`, `ui-master-build-v2`, `wip/lcp-tbt-experiment`). Remote branches of merged pull requests were not touched.
 
 ## How to run things (no secrets in this file)
 
