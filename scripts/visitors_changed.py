@@ -13,15 +13,20 @@ Three commands, standard library only, no network, no secrets:
       Exit 0 when FILE is exactly the document the updater writes, exit 1 with the reasons when not.
       The rules are the browser's allowlist (app.js, _naVisitorsParse and _naRegionsParse), applied by
       REFUSING instead of silently dropping: only the keys updated, minVisits, countries and, with
-      --allow-regions, minRegionVisits and regions; two-letter upper-case country codes; whole,
-      non-negative counts; the floors respected (never below the country floor of MIN_FLOOR, the
-      file's own minVisits, and for a region the region floor); and every count a multiple of ROUND_STEP
-      (the updater's privacy rule, checked again here). Region level is shipped off, so the workflow
-      never passes --allow-regions and a file with a regions key is refused.
+      --allow-regions, minRegionVisits and regions (the two always together); two-letter upper-case
+      country codes; ISO 3166-2 region codes such as US-CA, each only for a country that is itself
+      published; whole, non-negative counts; the floors respected (never below the country floor of
+      MIN_FLOOR, the file's own minVisits, and for a region the region floor of MIN_REGION_FLOOR, the
+      file's own minRegionVisits and the effective country floor); and every count a multiple of
+      ROUND_STEP (the updater's privacy rule, checked again here). Without --allow-regions a file with
+      either region key is refused. Region level is switched on (slice G), so the workflow passes
+      --allow-regions; the flag stays so the region-off path (a file with no regions) is still strict.
 
   python3 scripts/visitors_changed.py summary FILE.json
       Prints the published countries and their rounded counts as a Markdown list (public data), for
-      the body of the pull request. Run validate first.
+      the body of the pull request, and, when the document has a "regions" key, a second list of the
+      published states or provinces. A document with no regions key prints the country list alone, as
+      before. Run validate first.
 
 Exit status 2 means a file could not be read or is not shaped like the data file at all.
 The floors and the rounding step are imported from update_visitors.py so they cannot drift.
@@ -113,7 +118,7 @@ def problems(doc, allow_regions=False):
     out = []
     allowed = ALLOWED_KEYS | (REGION_KEYS if allow_regions else set())
     for key in sorted(set(doc) - allowed, key=str):
-        out.append("unexpected key %r%s" % (key, " (region level is switched off)" if key in REGION_KEYS else ""))
+        out.append("unexpected key %r%s" % (key, " (pass --allow-regions to accept the region keys)" if key in REGION_KEYS else ""))
     for key in sorted(ALLOWED_KEYS - set(doc)):
         out.append("missing key %r" % key)
 
@@ -153,6 +158,8 @@ def problems(doc, allow_regions=False):
                 else:
                     published.add(code)
 
+    if allow_regions and "minRegionVisits" in doc and "regions" not in doc:
+        out.append("minRegionVisits is present without regions")
     if allow_regions and "regions" in doc:
         rfloor = max(MIN_REGION_FLOOR, floor)
         if "minRegionVisits" not in doc:
@@ -179,12 +186,22 @@ def problems(doc, allow_regions=False):
     return out
 
 
-def summary(doc):
-    """Markdown list of published countries, largest first. Only call it on a document that validates."""
-    rows = sorted(doc["countries"].items(), key=lambda kv: (-kv[1], kv[0]))
+def _list(counts, empty):
+    rows = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
     if not rows:
-        return "- no country is at or above the floor of %d visits" % doc["minVisits"]
+        return "- " + empty
     return "\n".join("- %s: %d" % (code, count) for code, count in rows)
+
+
+def summary(doc):
+    """Markdown list of published countries, largest first, and, when the document has a "regions" key,
+    the published states or provinces after it. Only call it on a document that validates."""
+    countries = _list(doc["countries"], "no country is at or above the floor of %d visits" % doc["minVisits"])
+    if "regions" not in doc:
+        return countries
+    rfloor = max(MIN_REGION_FLOOR, doc["minVisits"], doc.get("minRegionVisits") or 0)
+    regions = _list(doc["regions"], "no state or province is at or above the floor of %d visits" % rfloor)
+    return "Countries:\n%s\n\nStates or provinces (a region is listed only when its country is):\n%s" % (countries, regions)
 
 
 def main(argv):

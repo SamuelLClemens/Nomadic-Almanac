@@ -1,9 +1,10 @@
 # Weekly refresh of data/visitors.json (the Visitors map layer).
 #
-# What it does: reads the per-country visit totals from GoatCounter with a read-only key, rebuilds the
-# data file with scripts/update_visitors.py (the same floor of 10, rounding down to a multiple of 5 and
-# date-only "updated" as a run by hand), and opens ONE pull request only when the published counts
-# changed. It never pushes to main, never merges and never enables auto-merge: the owner reviews the
+# What it does: reads the per-country and per-region (state or province) visit totals from GoatCounter
+# with a read-only key, rebuilds the data file with scripts/update_visitors.py --regions (the same floors
+# of 10 for a country and 25 for a region, rounding down to a multiple of 5 and date-only "updated" as a
+# run by hand; a region is written only when its country is published), and opens ONE pull request only
+# when the published counts changed. It never pushes to main, never merges and never enables auto-merge: the owner reviews the
 # file and merges. Most weeks nothing changes and nothing is opened, because a pull request is also a
 # GitHub Pages deploy. Owner set-up steps and how a failure looks: docs/visitors-layer.md, Step 5.
 #
@@ -70,10 +71,13 @@ jobs:
 
       # The only step that sees the key. The script sends it to nomadicalmanac.goatcounter.com only
       # (EXPECTED_SITE), follows no redirect, never prints it, and keeps the existing file on any error.
+      # --regions (slice G, region level switched on) is the only flag allowed here, and only in this step:
+      # it makes the script also ask for the regions of each published country. scripts/test_refresh_workflow.py
+      # fails if it appears anywhere else or if any other flag joins it.
       - name: Fetch the counts and rebuild the data file
         env:
           GOATCOUNTER_TOKEN: ${{ secrets.GOATCOUNTER_TOKEN }}
-        run: python3 scripts/update_visitors.py
+        run: python3 scripts/update_visitors.py --regions
 
       - name: Compare with the committed file
         id: compare
@@ -111,9 +115,11 @@ jobs:
           path: ${{ runner.temp }}/visitors-artifact
 
       # The same allowlist the browser applies, but refusing instead of dropping: only the known keys,
-      # two-letter upper-case codes, whole counts, the floors, every count a multiple of 5.
+      # two-letter upper-case codes, whole counts, the floors, every count a multiple of 5. --allow-regions
+      # admits the keys minRegionVisits and regions and then checks them too (ISO 3166-2 codes, a region only
+      # for a published country, the region floor of 25); without it a file with regions would be refused.
       - name: Validate the data file
-        run: python3 scripts/visitors_changed.py validate "$RUNNER_TEMP/visitors-artifact/visitors.json"
+        run: python3 scripts/visitors_changed.py validate --allow-regions "$RUNNER_TEMP/visitors-artifact/visitors.json"
 
       - name: Look for an open pull request
         id: dedupe
@@ -171,7 +177,7 @@ jobs:
           {
             echo "This pull request was opened by the Refresh visitor data workflow ($RUN_URL), because the published visit counts changed."
             echo
-            echo "It replaces \`data/visitors.json\` with the counts below. Each is rounded down to a multiple of 5, and only countries at or above the floor of 10 are listed. These numbers are public data."
+            echo "It replaces \`data/visitors.json\` with the counts below. Each is rounded down to a multiple of 5. Only countries at or above the floor of 10 are listed, and only states or provinces at or above the floor of 25 whose country is also listed. These numbers are public data."
             echo
             python3 scripts/visitors_changed.py summary data/visitors.json
             echo

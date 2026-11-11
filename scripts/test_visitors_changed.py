@@ -137,10 +137,27 @@ class Validate(unittest.TestCase):
         self.assertTrue(vc.problems(doc(countries={"US": 12})))
         self.assertTrue(vc.problems(doc(countries={"US": 11, "DE": 10})))
 
-    def test_regions_are_refused_while_region_level_is_off(self):
+    def test_regions_are_refused_without_the_allow_regions_flag(self):
+        # Region level is switched on and the workflow passes --allow-regions; without it (the region-off
+        # path) either region key is still refused, so a stray file with regions cannot slip through.
         problems = vc.problems(WITH_REGIONS)
-        self.assertTrue(any("regions" in p and "switched off" in p for p in problems), problems)
+        self.assertTrue(any("regions" in p and "--allow-regions" in p for p in problems), problems)
+        self.assertTrue(any("minRegionVisits" in p for p in problems), problems)
         self.assertTrue(vc.problems(doc(minRegionVisits=25)))
+
+    def test_a_region_floor_without_regions_is_refused(self):
+        d = doc(minRegionVisits=25)
+        self.assertTrue(any("without regions" in p for p in vc.problems(d, allow_regions=True)))
+        # ... while the pair the updater writes when no region reaches the floor is accepted
+        self.assertEqual(vc.problems(doc(minRegionVisits=25, regions={}), allow_regions=True), [])
+
+    def test_only_the_known_keys_with_regions_allowed(self):
+        d = copy.deepcopy(WITH_REGIONS)
+        d["regionCounts"] = {"US-CA": 40}
+        self.assertTrue(any("unexpected key 'regionCounts'" in p for p in vc.problems(d, allow_regions=True)))
+        d = copy.deepcopy(WITH_REGIONS)
+        d["visitorId"] = "not-collected"
+        self.assertTrue(vc.problems(d, allow_regions=True))
 
     def test_region_rules_when_allowed(self):
         ok = copy.deepcopy(WITH_REGIONS)
@@ -183,6 +200,23 @@ class Summary(unittest.TestCase):
 
     def test_empty_document(self):
         self.assertIn("no country", vc.summary({"minVisits": 10, "countries": {}}))
+
+    def test_a_document_without_a_regions_key_prints_the_country_list_alone(self):
+        self.assertEqual(vc.summary(BASE), "- US: 120\n- DE: 40\n- FR: 10")
+
+    def test_regions_are_listed_after_the_countries_largest_first(self):
+        d = dict(copy.deepcopy(BASE), minRegionVisits=25, regions={"DE-BY": 25, "US-CA": 40, "US-TX": 25})
+        self.assertEqual(vc.summary(d), "Countries:\n- US: 120\n- DE: 40\n- FR: 10\n\n"
+                         "States or provinces (a region is listed only when its country is):\n"
+                         "- US-CA: 40\n- DE-BY: 25\n- US-TX: 25")
+
+    def test_an_empty_regions_object_says_so_with_the_floor(self):
+        d = dict(copy.deepcopy(BASE), minRegionVisits=25, regions={})
+        out = vc.summary(d)
+        self.assertIn("- no state or province is at or above the floor of 25 visits", out)
+        # the floor named is the effective one: a raised country floor raises it
+        d = {"minVisits": 50, "countries": {"US": 100}, "minRegionVisits": 25, "regions": {}}
+        self.assertIn("floor of 50 visits", vc.summary(d))
 
 
 class Load(unittest.TestCase):
@@ -254,6 +288,10 @@ class CommandLine(unittest.TestCase):
     def test_summary_output(self):
         code, out, _ = self.run_cli("summary", self.path("s.json", BASE))
         self.assertEqual((code, out), (0, "- US: 120\n- DE: 40\n- FR: 10\n"))
+        code, out, _ = self.run_cli("summary", self.path("r.json", WITH_REGIONS))
+        self.assertEqual(code, 0)
+        self.assertTrue(out.startswith("Countries:\n- US: 120"), out)
+        self.assertIn("- US-CA: 40\n- DE-BY: 25\n", out)
 
     def test_usage_error(self):
         self.assertEqual(self.run_cli()[0], 2)

@@ -25,9 +25,9 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 
 - Counting is on for `nomadicalmanac`. Every visitor whose browser allows it is counted, unless they use "Do not count my visits" in Settings. The count script is a pinned copy served from this site; the page loads nothing from the vendor's host.
 - `data/visitors.json` is the honest empty document. No country has reached the floor (10 visits, published rounded down to a multiple of 5), so the Visitors layer shows "No visit data yet".
-- Region level is built and off. It stays off until the owner turns it on with the steps in `docs/visitors-layer.md`, "Region level (off)".
+- Region level (visits by state or province) is switched on by slice G, [pull request 73](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/73) (`NA_VISITORS_REGIONS = true`, region floor 25, the refresh workflow passes `--regions`). No region pin appears until a region reaches 25 visits in a published country, and the layer is unchanged until then. The owner's statement of 2026-11-11 that Omri Siri signed off on it is recorded in `docs/visitors-layer.md`, "Region level" (not verified, not legal advice), together with whether the GoatCounter Region setting and the live response shape were verified.
 - The data file refreshes by itself: every Monday at 07:23 UTC, in the environment `visitor-refresh` (limited to `main`, holding the read-only key as the secret `GOATCOUNTER_TOKEN`). It opens a pull request only when the published counts change, never pushes to `main`, never merges, and opens one issue when it fails. Owner steps, failure messages, key rotation and limits: `docs/visitors-layer.md`, Step 5. The key in the macOS Keychain is a separate key, for runs by hand.
-- Tests: 185 Python tests in 7 files, each run as `python3 -I scripts/test_NAME.py` (`test_count_js_pin`, `test_csp_policy`, `test_refresh_workflow`, `test_update_visitors`, `test_update_visitors_regions`, `test_visitor_regions_off`, `test_visitors_changed`). No CI runs them on pull requests; run them by hand when the updater, the workflows or the policy change.
+- Tests: 205 Python tests in 7 files (185 before slice G), each run as `python3 -I scripts/test_NAME.py` (`test_count_js_pin`, `test_csp_policy`, `test_refresh_workflow`, `test_update_visitors`, `test_update_visitors_regions`, `test_visitor_regions_off`, `test_visitors_changed`). No CI runs them on pull requests; run them by hand when the updater, the workflows or the policy change.
 
 ## Verified
 
@@ -46,14 +46,15 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 - The tile check's own failure step has never run on a real tile failure (the refresh workflow's alert path has).
 - GitHub pauses scheduled workflows after 60 days without repository activity. Run a workflow once by hand (Actions tab, "Run workflow") to switch it back on.
 - The real artifact steps have never run inside the refresh workflow itself (only in the round-trip copy); they first run when a country reaches the floor. If that run fails, the failure issue opens as usual.
-- Ten of the eleven languages of the privacy notice are first drafts that a native reader should confirm.
+- Ten of the eleven languages of the privacy notice are first drafts that a native reader should confirm; slice G added the region wording to all eleven.
+- The live response shape for regions has never been seen. The owner confirmed on 2026-11-11 that Region is ticked in GoatCounter, and a live `--regions --dry-run` ran cleanly that day, but no country was published, so no region request was made. The first run with a published country shows the `rows matched no region code` count.
 - Speed: stop. Reopen only if real users report slowness.
 - GitHub Pages names a deployment after its commit. If a deploy times out, a re-run for the same commit is refused with "Deployment cancelled"; merge a new commit.
 - The auto-mode classifier refuses `gh pr merge` and `gh run cancel`, so the owner merges pull requests on GitHub. It allowed `gh pr ready` and `gh workflow run`.
 
 ## Open decisions (need the owner)
 
-1. Region level: before switching it on, get Omri Siri's written confirmation and his view on the proposed region floor of 25. The owner reports that Omri Siri is fine with changes; that is an owner statement, not a record of his words. Recommended: keep Region off until he answers.
+1. Region level is on. Still open: a written confirmation from Omri Siri if the owner wants one on file (the sign-off recorded is the owner's statement of 2026-11-11), and a native reader for the region wording in the ten non-English languages. After the owner merges slice G, watch the next scheduled refresh run (Mondays 07:23 UTC): it must pass `--regions` cleanly, and the `fetch` log shows how many regional rows matched no code.
 2. Housekeeping outside the site (root checkout `/Users/zim/Claude Code`): on 2026-11-11, with the owner's approval and each item re-verified first, 9 merged worktrees (about 380 MB) and 51 merged local branches were removed with `git worktree remove` and `git branch -d` (never `--force`, never `-D`). Left, on purpose: 35 worktrees (about 1.5 GB) that hold nothing but a base commit but belong to Better Volunteer and Mekong sessions that are still open (archive those sessions first, then they can go); the preview worktree `nomadic-almanac-main`; the session worktree `refresh-visitor-data` and its merged branches `ci/actions-node24`, `docs/handoff-na-closeout` and `docs/handoff-final`; the branch `feat/gates-v2.1`, which is merged into `main` but git refuses a plain delete because its remote counterpart lacks one local commit; and three branches that are not merged and need the owner's word (`feature/design-overhaul-v1`, `ui-master-build-v2`, `wip/lcp-tbt-experiment`). Remote branches of merged pull requests were not touched.
 
 ## How to run things (no secrets in this file)
@@ -67,4 +68,4 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 
 > Read docs/HANDOFF.md and docs/visitors-layer.md. First, in the Actions tab, check the "Map tile check" run of Monday 2026-11-16 (06:17 UTC) and the "Refresh visitor data" run (07:23 UTC): both should be green, and the second should report `changed=false` unless a country has reached 10 visits. If a run is red, read its log before anything else; the refresh workflow's messages are explained in `docs/visitors-layer.md`, Step 5. If the refresh run opened a pull request, review the diff against the contract in that document.
 > Done when: both runs are accounted for, and any open decision above the owner has answered is acted on.
-> Out of scope: region level (needs Omri Siri's confirmation first), speed work, any commit to `main`.
+> Out of scope: speed work, any commit to `main`.
