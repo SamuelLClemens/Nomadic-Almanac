@@ -42,7 +42,7 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 - The 404 retry has never been seen live: its waits (5 s, 15 s) are an unmeasured first estimate. A run log with the line "waiting 5 s and trying again" followed by success means it worked; a failure after both retries means `NOT_FOUND_WAITS` in `scripts/update_visitors.py` should be longer.
 - The tile check's own failure step has never run on a real tile failure (the refresh workflow's alert path has).
 - GitHub pauses scheduled workflows after 60 days without repository activity. Run a workflow once by hand (Actions tab, "Run workflow") to switch it back on.
-- The pinned actions run on Node 20, which GitHub currently forces onto Node 24 with a warning. Moving them to newer majors is a small separate edit (see Open decisions).
+- The pinned actions ran on Node 20 builds, which GitHub forces onto Node 24 with a warning on every run. [PR 71](https://github.com/SamuelLClemens/Nomadic-Almanac/pull/71) moves them to Node 24 builds. Its artifact steps were proven in a throwaway round trip on GitHub (run 42944574263, since removed), because a manual run of the refresh workflow does not reach them while the counts are unchanged. After it merges, run "Map tile check" and "Refresh visitor data" (`create_pr` off) once by hand and read the logs; if either fails, revert it.
 - Ten of the eleven languages of the privacy notice are first drafts that a native reader should confirm.
 - Speed: stop. Reopen only if real users report slowness.
 - GitHub Pages names a deployment after its commit. If a deploy times out, a re-run for the same commit is refused with "Deployment cancelled"; merge a new commit.
@@ -51,8 +51,8 @@ Which finding went where follows the owner's plan of 2026-11-10 and each pull re
 ## Open decisions (need the owner)
 
 1. Region level: before switching it on, get Omri Siri's written confirmation and his view on the proposed region floor of 25. The owner reports that Omri Siri is fine with changes; that is an owner statement, not a record of his words. Recommended: keep Region off until he answers.
-2. Pinned actions: move `actions/checkout`, `actions/upload-artifact` and `actions/download-artifact` to newer majors, then run both workflows once by hand. Recommended: do it, but not in the same week as a change to the updater.
-3. Housekeeping outside the site: the root checkout has many merged worktrees under `.claude/worktrees` and merged local branches. Lists were prepared on 2026-11-11 and nothing is deleted until the owner approves them.
+2. Pinned actions: merge PR 71, then run both workflows once by hand (see Not done). Recommended: merge it before Monday 2026-11-16 so the by-hand runs come first.
+3. Housekeeping outside the site (root checkout `/Users/zim/Claude Code`, surveyed read-only on 2026-11-11 against `origin/main` `ec6ffe8`): all 45 other worktrees are merged and clean. Nine (about 380 MB; the slice A to D, review and handoff worktrees and two detached ones that belong only to archived sessions) and 52 merged local branches can be removed with `git worktree remove` and `git branch -d` (never `--force`, never `-D`). Another 35 worktrees (about 1.5 GB) hold nothing but a base commit, but each belongs to a Better Volunteer or Mekong session that is still open, so they stay until the owner archives those sessions. Four branches are not merged (`docs/handoff-na-closeout`, `feature/design-overhaul-v1`, `ui-master-build-v2`, `wip/lcp-tbt-experiment`) and need the owner's word. Nothing is deleted until the owner approves; the named lists are in the shared session notes (`cleanup-lists-2026-11-11.md`), not in this repository.
 
 ## How to run things (no secrets in this file)
 
