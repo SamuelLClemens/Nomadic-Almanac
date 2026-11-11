@@ -23,6 +23,9 @@ Privacy and safety rules this script keeps:
     happened to a finer grain than the refresh day.
   * On any failure the existing data/visitors.json is left untouched (the write is atomic), and a
     result with no countries does not replace a file that has some unless --allow-empty is given.
+  * An HTTP 404 from the service is retried twice (after 5 s and after 15 s) before it is reported,
+    because the service has answered 404 once to the first request of a run and then answered normally.
+    A rate limit (429) is retried once. No other status is retried.
   * The token is sent only to https://EXPECTED_SITE.goatcounter.com. A different site code (from
     app.js, GOATCOUNTER_SITE or --site) is refused unless --allow-other-site is given, so a changed
     NA_ANALYTICS_SITE cannot send the key to someone else's account. An HTTP redirect is never
@@ -74,6 +77,7 @@ REGION_CODE_RE = re.compile(r"^[A-Z]{2}-[A-Z0-9]{1,3}$")   # an ISO 3166-2 code 
 PAGE_LIMIT = 100                                # the API maximum
 MAX_PAGES = 10                                  # 1,000 countries is far more than exist
 PAUSE_SECONDS = 0.3                             # the API allows 4 requests per second
+NOT_FOUND_WAITS = (5, 15)                       # seconds to wait before each retry of an HTTP 404 (see _get_with_retry)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = os.path.join(REPO, "data", "visitors.json")
@@ -199,18 +203,39 @@ def http_get(url, token):
         raise UpdateError("Could not reach GoatCounter (%s)." % type(err).__name__)
 
 
+def _note(message):
+    """One progress line on stderr. It never carries the address or the token."""
+    sys.stderr.write("update_visitors: %s\n" % message)
+
+
 def _get_with_retry(url, token, get, sleep):
-    """One API page; a single polite retry after HTTP 429. Returns (status, payload)."""
+    """One API page. Returns (status, payload). Two kinds of answer are retried, nothing else:
+      * HTTP 429 (rate limit): once, after the wait the service asks for (1 to 10 seconds);
+      * HTTP 404: up to len(NOT_FOUND_WAITS) times, after each wait in turn. The service has answered
+        "site not found" to the first request of a run and then answered normally on the next call, with
+        the same key and the same site code (2026-11-10 from a Mac, 2026-11-11 from a GitHub runner), so a
+        single 404 is not trusted. A site that really does not exist answers 404 every time and still
+        fails, after the last wait. 401, 403, 3xx and 5xx are not retried (a redirect must never be
+        followed, a refused key does not get better, and a server fault is for a person to re-run)."""
     status, headers, payload = get(url, token)
-    if status == 429:
-        wait = 2
-        try:
-            wait = min(10, max(1, int(headers.get("X-Rate-Limit-Reset", 2))))
-        except (TypeError, ValueError, AttributeError):
-            pass
+    rate_limit_retried = False
+    waits = list(NOT_FOUND_WAITS)
+    while True:
+        if status == 429 and not rate_limit_retried:
+            rate_limit_retried = True
+            wait = 2
+            try:
+                wait = min(10, max(1, int(headers.get("X-Rate-Limit-Reset", 2))))
+            except (TypeError, ValueError, AttributeError):
+                pass
+        elif status == 404 and waits:
+            wait = waits.pop(0)
+            _note("GoatCounter answered HTTP 404; waiting %d s and trying again (retry %d of %d)."
+                  % (wait, len(NOT_FOUND_WAITS) - len(waits), len(NOT_FOUND_WAITS)))
+        else:
+            return status, payload
         sleep(wait)
         status, headers, payload = get(url, token)
-    return status, payload
 
 
 def _check_status(status, payload, site, not_found=None):
@@ -387,7 +412,7 @@ def write_atomic(path, doc):
         raise
 
 
-def run(argv=None, env=None, get=http_get, now=None, out_stream=None, region_table=None):
+def run(argv=None, env=None, get=http_get, now=None, out_stream=None, region_table=None, sleep=time.sleep):
     env = os.environ if env is None else env
     out = out_stream or sys.stdout
     ap = argparse.ArgumentParser(description="Refresh data/visitors.json from GoatCounter country totals.")
@@ -429,14 +454,14 @@ def run(argv=None, env=None, get=http_get, now=None, out_stream=None, region_tab
         raise UpdateError("--since must be a date like 2024-01-31.")
 
     now = now or datetime.datetime.now(datetime.timezone.utc)
-    counts = fetch_counts(site, token, since, now=now, get=get)
+    counts = fetch_counts(site, token, since, now=now, get=get, sleep=sleep)
     doc = build_document(counts, args.min_visits, now=now)
     shown, hidden = len(doc["countries"]), len(counts) - len(doc["countries"])
     region_note = ""
     if args.regions:
         table = region_table if region_table is not None else load_region_table()
         region_counts, unmatched = fetch_region_counts(site, token, sorted(doc["countries"]), since, table,
-                                                       now=now, get=get)
+                                                       now=now, get=get, sleep=sleep)
         doc = build_document(counts, args.min_visits, now=now, regions=region_counts,
                              region_floor=args.min_region_visits)
         rshown = len(doc["regions"])

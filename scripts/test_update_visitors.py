@@ -5,6 +5,7 @@ All data below is synthetic test input defined in this file. Nothing here is wri
 The tests never touch the internet: the HTTP call is replaced by a fake. The one exception is
 NoRedirect, which talks to two throw-away servers on 127.0.0.1 to prove that a redirect is not followed.
 """
+import contextlib
 import datetime
 import http.server
 import io
@@ -153,14 +154,102 @@ class Fetch(unittest.TestCase):
             self.assertNotIn(TOKEN, str(ctx.exception))
 
     def test_unknown_site_and_server_errors(self):
-        for status in (404, 500, 502):
-            with self.assertRaises(uv.UpdateError):
-                uv.fetch_counts("example", TOKEN, NOW, now=NOW, get=FakeApi([(status, None)]), sleep=lambda s: None)
+        for status, answers in ((404, [(404, None)] * 3), (500, [(500, None)]), (502, [(502, None)])):
+            with self.assertRaises(uv.UpdateError), contextlib.redirect_stderr(io.StringIO()):
+                uv.fetch_counts("example", TOKEN, NOW, now=NOW, get=FakeApi(answers), sleep=lambda s: None)
 
     def test_rate_limit_is_retried_once(self):
         api = FakeApi([(429, None), (200, page([("US", 9)]))])
         counts = uv.fetch_counts("example", TOKEN, NOW, now=NOW, get=api, sleep=lambda s: None)
         self.assertEqual(counts, {"US": 9})
+
+
+class NotFoundRetry(unittest.TestCase):
+    """The service has answered "site not found" (HTTP 404) to the first request of a run and then answered
+    normally on the next call (2026-11-10 from a Mac, 2026-11-11 from a GitHub runner), so one 404 must not
+    fail a scheduled run. A site that does not exist must still fail. Nothing here sleeps for real."""
+
+    def fetch(self, answers):
+        api, waits, err = FakeApi(answers), [], io.StringIO()
+        with contextlib.redirect_stderr(err):
+            try:
+                result = uv.fetch_counts("example", TOKEN, NOW, now=NOW, get=api, sleep=waits.append)
+            except uv.UpdateError as exc:
+                result = exc
+        return result, api, waits, err.getvalue()
+
+    def test_the_waits_are_five_then_fifteen_seconds(self):
+        self.assertEqual(uv.NOT_FOUND_WAITS, (5, 15))
+
+    def test_one_404_then_success_gives_the_counts_after_one_wait(self):
+        result, api, waits, err = self.fetch([(404, None), (200, page([("US", 120)]))])
+        self.assertEqual(result, {"US": 120})
+        self.assertEqual(len(api.calls), 2)
+        self.assertEqual(waits, [5])
+        self.assertEqual(api.calls[0], api.calls[1])                 # the same request, same address, same key
+        self.assertIn("HTTP 404", err)
+        self.assertIn("retry 1 of 2", err)
+
+    def test_two_404s_then_success_waits_five_then_fifteen(self):
+        result, api, waits, err = self.fetch([(404, None), (404, None), (200, page([("US", 120)]))])
+        self.assertEqual(result, {"US": 120})
+        self.assertEqual(len(api.calls), 3)
+        self.assertEqual(waits, [5, 15])
+        self.assertIn("retry 2 of 2", err)
+
+    def test_three_404s_in_a_row_still_fail_with_the_not_found_message_after_exactly_three_requests(self):
+        result, api, waits, err = self.fetch([(404, None)] * 3)
+        self.assertIsInstance(result, uv.UpdateError)
+        self.assertIn("Site 'example' was not found (HTTP 404)", str(result))
+        self.assertEqual(len(api.calls), 3)
+        self.assertEqual(waits, [5, 15])
+
+    def test_a_404_on_a_later_page_is_retried_too(self):
+        result, api, waits, _err = self.fetch([(200, page([("US", 100)], more=True)), (404, None),
+                                               (200, page([("DE", 40)]))])
+        self.assertEqual(result, {"US": 100, "DE": 40})
+        self.assertIn("offset=1", api.calls[1][0])
+        self.assertEqual(api.calls[1], api.calls[2])
+        self.assertEqual(waits[:1], [0.3])                           # the pause between pages, then the 404 wait
+        self.assertEqual(waits[1:], [5])
+
+    def test_the_retry_line_never_shows_the_token_or_the_address(self):
+        _result, _api, _waits, err = self.fetch([(404, None), (200, page([("US", 120)]))])
+        self.assertNotIn(TOKEN, err)
+        self.assertNotIn("goatcounter.com", err)
+        self.assertNotIn("http", err.lower().replace("http 404", ""))
+
+    def test_only_404_and_429_are_retried(self):
+        for status in (401, 403, 500, 502, 503, 301, 302, 307, 308):
+            result, api, waits, err = self.fetch([(status, None), (200, page([("US", 120)]))])
+            self.assertIsInstance(result, uv.UpdateError, status)
+            self.assertEqual(len(api.calls), 1, "status %d must not be retried" % status)
+            self.assertEqual(waits, [], status)
+            self.assertEqual(err, "", status)
+
+    def test_a_429_keeps_its_single_retry_and_a_404_after_it_gets_its_own(self):
+        result, api, waits, _err = self.fetch([(429, None), (404, None), (200, page([("US", 120)]))])
+        self.assertEqual(result, {"US": 120})
+        self.assertEqual(len(api.calls), 3)
+        self.assertEqual(waits, [2, 5])
+        result, api, waits, _err = self.fetch([(429, None), (429, None), (200, page([("US", 120)]))])
+        self.assertIsInstance(result, uv.UpdateError)                # a second 429 is still reported, as before
+        self.assertEqual(len(api.calls), 2)
+
+    def test_run_survives_a_single_404_end_to_end(self):
+        # The whole script, with the same fake service: first call 404, then a normal answer.
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "visitors.json")
+            api = FakeApi([(404, None), (200, page([("US", 123), ("DE", 41)]))])
+            stream, waits = io.StringIO(), []
+            with contextlib.redirect_stderr(io.StringIO()):
+                code = uv.run(["--out", out, "--allow-other-site"],
+                              env={"GOATCOUNTER_TOKEN": TOKEN, "GOATCOUNTER_SITE": "example"},
+                              get=api, now=NOW, out_stream=stream, sleep=waits.append)
+            self.assertEqual(code, 0)
+            self.assertEqual(waits, [5])
+            with open(out, encoding="utf-8") as fh:
+                self.assertEqual(json.load(fh)["countries"], {"US": 120, "DE": 40})
 
 
 class Config(unittest.TestCase):
