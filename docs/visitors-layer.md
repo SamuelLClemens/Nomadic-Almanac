@@ -172,7 +172,7 @@ Sequence with the pull request that adds the workflow: steps 1 to 3 can be done 
 - **Scheduled runs can pause.** GitHub disables scheduled workflows in a repository after 60 days without repository activity. Nothing in the workflow detects this. Running it once by hand (Actions, "Refresh visitor data", "Run workflow") switches the schedule back on, as for the map tile check.
 - **A pull request left open blocks newer ones.** Newer counts wait until the open `visitor-data` pull request is merged or closed.
 - **The history is still a time series.** A weekly refresh publishes at most one change per week, which is coarser than refreshing by hand, but each merged refresh stays in the public git history.
-- **Action versions are pinned.** Every `uses:` names a full commit SHA (a test fails otherwise). `actions/checkout`, `actions/upload-artifact` and `actions/download-artifact` are pinned to Node 20 releases of the v4 line, the same family as the tile check. Newer major versions exist; moving to one is a deliberate edit that updates the SHA and its tag comment together.
+- **Action versions are pinned.** Every `uses:` names a full commit SHA with its tag in a comment (a test fails otherwise): `actions/checkout` v7.0.1 (in both workflows), `actions/upload-artifact` v7.0.2 and `actions/download-artifact` v8.0.2, all of which run on Node 24. Moving to a newer version is a deliberate edit: read the release notes, check the tag with `gh api repos/OWNER/REPO/git/ref/tags/TAG` (and dereference it if it is an annotated tag), change the SHA and its tag comment together, then run both workflows once by hand (the artifact steps of the refresh workflow only run when the counts change, so they need a separate round-trip test).
 
 ## Privacy notice and opt-out
 
