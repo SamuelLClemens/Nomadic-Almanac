@@ -8,6 +8,7 @@ is replaced by a fake. The live shape of the vendor's per-country response could
 because Region collection is off in the owner's GoatCounter account; these tests encode what the
 vendor's published API description and source say, nothing more.
 """
+import contextlib
 import datetime
 import io
 import json
@@ -245,14 +246,21 @@ class FetchRegions(unittest.TestCase):
 
     def test_errors_never_show_the_token_and_redirects_are_not_followed(self):
         for status in (301, 302, 307, 308, 401, 403, 404, 500):
-            with self.assertRaises(uv.UpdateError) as ctx:
-                self.fetch([(status, None)])
+            with self.assertRaises(uv.UpdateError) as ctx, contextlib.redirect_stderr(io.StringIO()):
+                self.fetch([(status, None)] * (3 if status == 404 else 1))     # a 404 is tried three times
             self.assertNotIn(TOKEN, str(ctx.exception))
             if 300 <= status < 400:
                 self.assertIn("redirect", str(ctx.exception))
-        with self.assertRaises(uv.UpdateError) as ctx:
-            self.fetch([(404, None)])
+        with self.assertRaises(uv.UpdateError) as ctx, contextlib.redirect_stderr(io.StringIO()):
+            self.fetch([(404, None)] * 3)
         self.assertIn("Regions of US", str(ctx.exception))
+
+    def test_a_single_404_is_retried_like_the_country_query(self):
+        with contextlib.redirect_stderr(io.StringIO()):
+            (counts, _u), api = self.fetch([(404, None), (200, region_page([("Texas", 30)]))])
+        self.assertEqual(counts, {"US-TX": 30})
+        self.assertEqual(len(api.calls), 2)
+        self.assertEqual(api.calls[0], api.calls[1])
 
     def test_rate_limit_is_retried_once(self):
         (counts, _u), api = self.fetch([(429, None), (200, region_page([("Texas", 30)]))])
