@@ -16,8 +16,10 @@ What this proves, without a browser:
      full of regions, keeps no region state and makes no request, and the copy differs from app.js in that
      one line only.
   4. The privacy texts that the page shows (the legend note, the Preferences notice, the FAQ answer, in all
-     11 languages, and the English fallback in index.html) name region and both floors, so the notice
-     matches what is collected.
+     11 languages, and the English fallbacks in index.html and app.js) name region as collected FOR SOME
+     COUNTRIES only (GoatCounter's Region setting has a "for the following countries only" list), name no
+     country list (so they stay true when the list changes), and keep both floors, the rounding, the Do Not
+     Track and Global Privacy Control statements and the opt-out sentence.
   5. The data file in the repository obeys the contract with region level allowed.
 
 The JavaScript part needs `jsc` (JavaScriptCore, shipped with macOS) and is skipped with a message when it
@@ -167,6 +169,26 @@ REGION_STEM = {"en": "state", "es": "estado", "fr": "état", "de": "bundesl", "p
 # key: (how many times the region stem must appear at least)
 TEXT_KEYS = {"visitors.privacy": 2, "prefs.privacyNote": 3, "faq.7.a": 1}
 
+# GoatCounter collects a region only for the countries in the Region setting's "for the following countries
+# only" list (docs/visitors-layer.md, "Which countries have regions"), so every text says region is counted
+# "for some countries". A stem of that phrase in each language, matched case-insensitively. The legend note
+# says it twice (once for how visits are counted, once for the totals that are shown), the others once.
+SOME_COUNTRIES = {"en": "for some countries", "es": "en algunos países", "fr": "certains pays",
+                  "de": "einige Länder", "pt": "em alguns países", "ar": "في بعض الدول", "zh": "部分国家",
+                  "hi": "कुछ देशों", "ja": "一部の国", "ru": "некоторых стран", "he": "בחלק מהמדינות"}
+SOME_COUNTRIES_LEAST = {"visitors.privacy": 2, "prefs.privacyNote": 1, "faq.7.a": 1}
+# The wording of slice G, which joined "by country" and "by state or province" with no limit (region for every
+# country). It was true only while the list held every country, and the list never did, so it must not return.
+UNCONDITIONAL = {"en": "by country and by state or province", "es": "por país y por estado o provincia",
+                 "fr": "par pays et par État ou province", "de": "pro Land und pro Bundesland",
+                 "pt": "por país e por estado ou província", "ar": "حسب الدولة وحسب الولاية",
+                 "zh": "国家和州或省", "hi": "देश और राज्य या प्रांत", "ja": "国別および州・省別",
+                 "ru": "по странам и по штатам", "he": "מדינה ולפי אזור"}
+# Alpha-2 codes of the countries in the list in force or recommended (US RU CN, and CA BR AU IN): the texts must
+# not name them, so they stay true when the list in the GoatCounter setting changes.
+LIST_CODES = re.compile(r"(?<![A-Za-z])(?:US|RU|CN|CA|BR|AU|IN)(?![A-Za-z])")
+LIST_NAMES_EN = re.compile(r"United States|America|Russia|China|Canada|Brazil|Australia|India", re.I)
+
 
 def i18n_strings(src):
     """{key: {lang: text}} for the privacy keys, read from the interface-string tables in app.js."""
@@ -228,6 +250,48 @@ class PrivacyTextNamesRegion(unittest.TestCase):
         for lang in LANGS:
             for key in TEXT_KEYS:
                 self.assertNotRegex(self.t[key][lang], r"(?i)\bonly country totals\b|\bby country \(no IP", key)
+
+    def test_every_text_says_region_is_collected_for_some_countries(self):
+        self.assertEqual(sorted(SOME_COUNTRIES), sorted(LANGS))
+        for key, least in SOME_COUNTRIES_LEAST.items():
+            for lang in LANGS:
+                n = len(re.findall(re.escape(SOME_COUNTRIES[lang]), self.t[key][lang], re.I))
+                self.assertGreaterEqual(n, least, "%s [%s] says 'for some countries' %d time(s), expected at least %d: %s"
+                                        % (key, lang, n, least, self.t[key][lang]))
+
+    def test_the_english_fallbacks_say_it_too(self):
+        with open(INDEX_HTML, encoding="utf-8") as fh:
+            html = fh.read()
+        note = re.search(r'id="pref-privacy-note"[^>]*>([^<]*)</p>', html).group(1)
+        faq = re.search(r"\{ q: 'Is my data private\?', a: '((?:[^'\\]|\\.)*)' \}", SRC).group(1)
+        self.assertIn("by state or province for some countries", note)
+        self.assertIn("by state or province for some countries", faq)
+
+    def test_region_is_no_longer_joined_to_country_without_a_limit(self):
+        for lang in LANGS:
+            for key in TEXT_KEYS:
+                self.assertNotIn(UNCONDITIONAL[lang].lower(), self.t[key][lang].lower(),
+                                 "%s [%s] has the unlimited wording of slice G again: %s" % (key, lang, self.t[key][lang]))
+
+    def test_the_texts_name_no_country_list(self):
+        for key in TEXT_KEYS:
+            for lang in LANGS:
+                text = self.t[key][lang]
+                self.assertIsNone(LIST_CODES.search(text), "%s [%s] names a country code: %s" % (key, lang, text))
+        for key in TEXT_KEYS:
+            self.assertIsNone(LIST_NAMES_EN.search(self.t[key]["en"]), "%s [en] names a country" % key)
+
+    def test_do_not_track_and_global_privacy_control_are_still_stated_in_every_language(self):
+        for lang in LANGS:
+            self.assertIn("Do Not Track", self.t["visitors.privacy"][lang], lang)
+            self.assertIn("Do Not Track", self.t["prefs.privacyNote"][lang], lang)
+            self.assertIn("Global Privacy Control", self.t["prefs.privacyNote"][lang], lang)
+
+    def test_the_last_sentence_of_the_notice_is_still_the_opt_out_that_covers_region(self):
+        for lang in LANGS:
+            sentences = [s for s in re.split(r"(?<=[.。।])\s*", self.t["prefs.privacyNote"][lang].strip()) if s]
+            self.assertIn(REGION_STEM[lang].lower(), sentences[-1].lower(),
+                          "[%s] the closing opt-out sentence no longer covers region: %s" % (lang, sentences[-1]))
 
 
 FIXTURE = {
