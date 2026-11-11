@@ -121,6 +121,8 @@ The file is `.github/workflows/refresh-visitors.yml` and its name in the Actions
 
 Do one step at a time and confirm its check before the next. Never paste the key into a chat, a file or a command; the only place it goes after GoatCounter shows it is the secret field in step 2.
 
+Sequence with the pull request that adds the workflow: steps 1 to 3 can be done before it is merged, and should be, because the first scheduled run after the merge would otherwise fail and open an issue. Step 4 can only be done after the merge, because GitHub lists a workflow for a manual start only once it exists on `main`. Step 5 follows step 4.
+
 1. **Create a new GoatCounter key for this workflow.**
    1. Open `https://nomadicalmanac.goatcounter.com/user/api` while signed in.
    2. Create a key with only the "Read statistics" permission, and name it for this workflow, for example `github-refresh-visitors`. Keep it separate from the Keychain key, so that either can be revoked without touching the other.
