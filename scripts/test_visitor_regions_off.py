@@ -178,14 +178,16 @@ SOME_COUNTRIES = {"en": "for some countries", "es": "en algunos países", "fr": 
                   "hi": "कुछ देशों", "ja": "一部の国", "ru": "некоторых стран", "he": "בחלק מהמדינות"}
 SOME_COUNTRIES_LEAST = {"visitors.privacy": 2, "prefs.privacyNote": 1, "faq.7.a": 1}
 # The wording of slice G, which joined "by country" and "by state or province" with no limit (region for every
-# country). It was true only while the list held every country, and the list never did, so it must not return.
+# country). It was false while the list held three countries (slice H). With the list blank (every country, from
+# 2026-11-11) it would describe collection more fully than "for some countries", so the owner may return to it on
+# purpose; change SOME_COUNTRIES and this table together then (docs/visitors-layer.md, "Keeping the notice true").
 UNCONDITIONAL = {"en": "by country and by state or province", "es": "por país y por estado o provincia",
                  "fr": "par pays et par État ou province", "de": "pro Land und pro Bundesland",
                  "pt": "por país e por estado ou província", "ar": "حسب الدولة وحسب الولاية",
                  "zh": "国家和州或省", "hi": "देश और राज्य या प्रांत", "ja": "国別および州・省別",
                  "ru": "по странам и по штатам", "he": "מדינה ולפי אזור"}
-# Alpha-2 codes of the countries in the list in force or recommended (US RU CN, and CA BR AU IN): the texts must
-# not name them, so they stay true when the list in the GoatCounter setting changes.
+# Alpha-2 codes of the lists `US, RU, CN` (GoatCounter's default) and `US, CA, BR, AU, IN, RU, CN` (the slice H
+# recommendation): the texts must not name them, so a change of list needs no change of text.
 LIST_CODES = re.compile(r"(?<![A-Za-z])(?:US|RU|CN|CA|BR|AU|IN)(?![A-Za-z])")
 LIST_NAMES_EN = re.compile(r"United States|America|Russia|China|Canada|Brazil|Australia|India", re.I)
 
