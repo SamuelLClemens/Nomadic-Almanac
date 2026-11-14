@@ -91,7 +91,7 @@ Any edit to the text between the `<script>` tags changes its hash, and the page 
 1. Edit the block.
 2. Run `python3 scripts/test_csp_policy.py`. The failing test prints the new value (`Inline blocks hash to: ...`).
 3. Put that value in `script-src` in `index.html`, replacing the old `'sha256-...'`.
-4. Run the test again, and raise `CACHE` in `sw.js` (`index.html` is precached).
+4. Run the test again, and run `python3 scripts/bump_version.py` (`index.html` is a shipped file; the release number lives in three places, see `docs/update-delivery.md`).
 
 A second inline block needs a reason written here first; the guard test fails until it is allowed on purpose.
 
@@ -101,7 +101,7 @@ A second inline block needs a reason written here first; the guard test fails un
 2. Add the narrowest source that works: a single host, not a wildcard. If anyone can publish on the host (a shared cloud or code host), add the path of the one organisation or repository, with a trailing `/`. A path without a trailing slash matches that exact path only.
 3. Add a wildcard only if the provider rotates subdomains, and then add it to `WILDCARDS` in `scripts/test_csp_policy.py` with the reason, and to the table above.
 4. Run `python3 scripts/test_csp_policy.py`. It fails if the code names a host the policy does not allow, and it fails if the policy names a host no code uses, so a stale entry has to be removed with the code that needed it.
-5. Raise `CACHE` in `sw.js`, and exercise the feature in a real browser while watching the console for `Content Security Policy` messages. The `securitypolicyviolation` event shows the blocked URL and the directive.
+5. Run `python3 scripts/bump_version.py`, and exercise the feature in a real browser while watching the console for `Content Security Policy` messages. The `securitypolicyviolation` event shows the blocked URL and the directive.
 
 A link the visitor clicks (an `<a href>`) needs no policy entry; add its host to `NAVIGATION_ONLY` in the test instead.
 

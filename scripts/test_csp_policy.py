@@ -25,7 +25,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX_HTML = os.path.join(ROOT, "index.html")
 APP_JS = os.path.join(ROOT, "app.js")
 SW_JS = os.path.join(ROOT, "sw.js")
-CODE_FILES = [APP_JS, os.path.join(ROOT, "data.js"), os.path.join(ROOT, "na-boot.js")]
+CODE_FILES = [APP_JS, os.path.join(ROOT, "data.js"), os.path.join(ROOT, "na-boot.js"),
+              os.path.join(ROOT, "na-update.js")]
 
 
 def read(path):

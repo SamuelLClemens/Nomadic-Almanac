@@ -2802,6 +2802,55 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 }
 .pref-privacy-opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 4px; }
 .pref-privacy-note[hidden] { display: none; }
+
+/* ─── Update banner (na-update.js) ───────────────────────────────────────────────
+   Shown when a newer release exists and a reload would discard something the user typed, or the app
+   has been in use. Above the toast line, clear of the bottom navigation on phones. */
+#na-update-bar {
+  position: fixed;
+  left: 8px; right: 8px;
+  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 64px);
+  z-index: 3001;
+  display: flex; justify-content: center;
+  pointer-events: none;
+}
+/* From 768 px the navigation is a floating pill (bottom 18px, about 60px high): stay clear of it. */
+@media (min-width: 768px) { #na-update-bar { bottom: 96px; } }
+.na-update-banner {
+  display: flex; align-items: center; gap: var(--sp-2);
+  max-width: 100%;
+  background: var(--na-glass-navy);
+  backdrop-filter: blur(var(--na-glass-blur));
+  -webkit-backdrop-filter: blur(var(--na-glass-blur));
+  border: var(--na-border-glass);
+  border-left: 3px solid var(--na-gold-mid);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  border-radius: var(--na-border-radius);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+  font-family: var(--font-label); font-size: var(--ts-small); letter-spacing: var(--track-wide);
+  color: var(--na-text-primary);
+  pointer-events: auto;
+  animation: na-toast-in var(--dur-mid) var(--ease-panel) forwards;
+}
+.na-update-msg { min-width: 0; }
+.na-update-btn, .na-update-later {
+  min-width: 44px; min-height: 44px; padding: 0 var(--sp-4);
+  border-radius: var(--na-border-radius);
+  font: inherit; letter-spacing: inherit; cursor: pointer;
+}
+.na-update-btn { background: var(--na-gold-mid); border: 1px solid var(--na-gold-mid); color: #1B2A4A; font-weight: 700; }
+.na-update-later { background: none; border: 1px solid rgba(232,213,163,0.35); color: var(--na-text-secondary, rgba(232,213,163,0.75)); }
+.na-update-btn:focus-visible, .na-update-later:focus-visible { outline: 2px solid var(--na-gold-bright); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .na-update-banner { animation: none; } }
+
+/* Release line at the foot of Preferences (na-update.js): "v65 · nomadicalmanac.com". */
+.pref-version {
+  margin: 14px 0 0; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); text-align: center;
+  font-family: var(--font-data); font-size: 12px; letter-spacing: 0.04em;
+  color: var(--na-text-secondary, rgba(232,213,163,0.75)); opacity: 0.8;
+  -webkit-user-select: text; user-select: text;
+}
+.pref-version:empty { display: none; }
 .na-curr-picker { display: flex; flex-wrap: wrap; gap: 5px; max-height: 168px; overflow-y: auto; padding: 2px; }
 .na-curr-opt {
   display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
