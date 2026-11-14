@@ -1,0 +1,47 @@
+# Update delivery guard.
+#
+# Why: an installed copy of the app (a Home Screen icon, an open tab) learns that a newer release exists
+# by comparing the release number it was loaded as with version.json on the server. A pull request that
+# changes shipped files without raising that number would reach nobody who already has the app open, and
+# nothing would show an error. scripts/check_update_delivery.py fails such a pull request. It also checks
+# that the three places holding the number agree, that every file the service worker precaches exists
+# (one missing file makes the worker's install fail), and that manifest.json keeps relative addresses.
+# docs/update-delivery.md explains the mechanism. Raise the number with: python3 scripts/bump_version.py
+#
+# Both steps run even when the first one fails, so a single run lists every problem. The workflow needs no
+# secrets, makes no request beyond fetching this repository, and holds a read-only token.
+name: Update delivery guard
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repository with its history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Guard tests
+        if: ${{ always() }}
+        run: python3 -I scripts/test_update_delivery.py
+
+      - name: Update delivery check
+        if: ${{ always() }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then
+            python3 -I scripts/check_update_delivery.py --base "origin/$BASE_REF"
+          else
+            python3 -I scripts/check_update_delivery.py
+          fi
