@@ -866,7 +866,7 @@
 
     <!-- Inline search -->
     <div id="search-wrap">
-      <input id="country-search" type="text" placeholder="&#128269; Search&hellip;" autocomplete="off" spellcheck="false" />
+      <input id="country-search" type="text" data-na-ephemeral placeholder="&#128269; Search&hellip;" autocomplete="off" spellcheck="false" />
       <div id="search-results"></div>
     </div>
 
@@ -1141,6 +1141,10 @@
         <p class="pref-privacy-note" id="pref-optout-signal" data-i18n="prefs.optoutSignal" hidden>Your browser already sends Do Not Track or Global Privacy Control, so your visits are not counted.</p>
       </div>
 
+      <!-- The release this copy is running, written by na-update.js ("v65 · nomadicalmanac.com"). Language-neutral
+           on purpose. An address other than nomadicalmanac.com here means the icon was saved from an old address. -->
+      <p class="pref-version" id="na-version-line" aria-label="App version"></p>
+
     </div>
   </div>
 </div>
@@ -1157,13 +1161,16 @@
   <div id="na-search-panel" class="glass-panel">
     <div id="na-search-input-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-search"/></svg>
-      <input id="na-search-input" type="search" placeholder="Search countries, layers, or features…" autocomplete="off" spellcheck="false" aria-label="Search">
+      <input id="na-search-input" type="search" data-na-ephemeral placeholder="Search countries, layers, or features…" autocomplete="off" spellcheck="false" aria-label="Search">
     </div>
     <div id="na-search-results"></div>
   </div>
 </div>
 
 <script defer src="na-boot.js"></script>
+<!-- na-update.js asks the server for a newer release when the app is reopened (docs/update-delivery.md).
+     It is independent of app.js on purpose, so a release whose app.js fails to start can still be replaced. -->
+<script defer src="na-update.js"></script>
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
