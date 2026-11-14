@@ -102,8 +102,23 @@ only; the rest of the interface has languages, the banner does not yet.
 
 ## Reading what a phone runs
 
-Preferences (the Settings button), last line: `v65 · nomadicalmanac.com`. A different address means the icon
-was saved from an old address.
+Preferences (the Settings button), last line: `v66 · nomadicalmanac.com`. A different address means the icon
+was saved from an old address. Tapping that line shows what the phone reports about its screen: window and
+screen size, the safe areas for the status bar and the home indicator, whether the page runs as a Home Screen
+app, and where the top and bottom menus sit. Nothing is sent anywhere. It exists because a layout problem on a
+real phone cannot be reproduced on a computer.
+
+## iPhone Home Screen layout
+
+A Home Screen app runs under a translucent status bar (`apple-mobile-web-app-status-bar-style` is
+`black-translucent`, with `viewport-fit=cover`). Release 65 and earlier ignored the top safe area, so the top
+menu sat under the clock and could not be touched. No Chrome test showed it, because desktop Chrome has no
+insets. `--header-h` now includes `env(safe-area-inset-top)` and `#na-header` pads by it. Two traps: the
+header's padding is written as a shorthand in two places (the base rule and the 600px breakpoint), so both carry
+the inset; and a panel that sits under the header must use `var(--header-h)`, never a fixed 56px. Landscape side
+insets are not handled. To check: `python3 ~/Library/Caches/nomadic-audit/safe_area_check.py URL LABEL` loads the
+page with iPhone insets emulated (`Emulation.setSafeAreaInsetsOverride`) and lists every touchable control under
+the status bar, per screen.
 
 ## Checking a release on a real phone
 

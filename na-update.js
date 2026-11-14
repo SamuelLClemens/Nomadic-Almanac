@@ -27,7 +27,7 @@
 (function () {
   'use strict';
 
-  var VERSION = 65;
+  var VERSION = 66;
 
   var AWAY_MS = 30000;          // away at least this long: coming back counts as a "return"
   var POLL_MS = 600000;         // while the app is in use, ask this often (ten minutes)
@@ -269,6 +269,58 @@
     var el = document.getElementById('na-version-line');
     if (el) el.textContent = 'v' + VERSION + ' · ' + location.host;
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showVersion);
-  else showVersion();
+  // What the phone reports about its screen: window and screen size, the safe areas (status bar,
+  // home indicator), whether the page runs as a Home Screen app, and where the menus sit. Shown only
+  // when the release line is tapped and sent nowhere. A layout problem on a real phone cannot be
+  // reproduced on a computer, and these few numbers are what it takes to read one off the screen.
+  function screenDetails() {
+    var probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+    document.body.appendChild(probe);
+    var cs = getComputedStyle(probe);
+    var safe = [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft]
+      .map(function (p) { return parseInt(p, 10) || 0; }).join('/');
+    document.body.removeChild(probe);
+    var app = navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var vv = window.visualViewport;
+    var header = document.getElementById('na-header');
+    var nav = document.getElementById('na-bottom-nav');
+    return [
+      'window ' + window.innerWidth + 'x' + window.innerHeight,
+      'screen ' + screen.width + 'x' + screen.height,
+      'safe ' + safe + ' (top/right/bottom/left)',
+      app ? 'home screen app' : 'browser',
+      vv ? 'visual ' + Math.round(vv.width) + 'x' + Math.round(vv.height) + ' at ' + Math.round(vv.offsetTop) : '',
+      header ? 'top menu ends at ' + Math.round(header.getBoundingClientRect().bottom) : '',
+      nav && nav.offsetHeight ? 'bottom menu starts at ' + Math.round(nav.getBoundingClientRect().top) : ''
+    ].filter(Boolean).join(' · ');
+  }
+
+  function wireDetails() {
+    var line = document.getElementById('na-version-line');
+    if (!line || !line.textContent) return;
+    var detail = null;
+    function toggle() {
+      if (detail) {
+        if (detail.parentNode) detail.parentNode.removeChild(detail);
+        detail = null;
+        return;
+      }
+      detail = document.createElement('p');
+      detail.className = 'pref-version pref-version-detail';
+      detail.textContent = screenDetails();
+      line.parentNode.insertBefore(detail, line.nextSibling);
+    }
+    line.setAttribute('role', 'button');
+    line.setAttribute('tabindex', '0');
+    line.setAttribute('title', 'Tap to show what this screen reports');
+    line.addEventListener('click', toggle);
+    line.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  }
+
+  function onReady() { showVersion(); wireDetails(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady);
+  else onReady();
 })();

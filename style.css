@@ -118,7 +118,7 @@
   --sidebar-w:     240px;   /* full desktop sidebar */
   --sidebar-w-sm:  64px;    /* collapsed laptop sidebar */
   --rail-w:        72px;    /* tablet rail */
-  --header-h:      56px;    /* top header bar (unified glass menu) */
+  --header-h:      calc(56px + env(safe-area-inset-top, 0px));    /* top header bar (unified glass menu) plus the status-bar strip it must clear on an iPhone Home Screen app; env() is 0px elsewhere */
   --bottom-nav-h:  56px;    /* mobile bottom nav */
 }
 
@@ -1334,7 +1334,11 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  padding: 0 var(--sp-4);
+  /* The top inset keeps the bar's contents below the iPhone status bar. A Home Screen app runs under a
+     translucent status bar (apple-mobile-web-app-status-bar-style in index.html), so without it the logo,
+     the months and the buttons sit under the clock and cannot be touched. --header-h already includes it.
+     The 600px rule below repeats it because its padding shorthand would otherwise reset the top to 0. */
+  padding: env(safe-area-inset-top, 0px) var(--sp-4) 0;
   /* Facelift: a deeper, dimensional glass bar with a layered navy gradient. */
   background: linear-gradient(180deg, rgba(22,34,58,0.94) 0%, rgba(11,22,40,0.86) 100%);
   backdrop-filter: blur(var(--na-glass-blur)) saturate(1.35);
@@ -1382,7 +1386,7 @@ html, body {
 /* On compact widths the month strip is the priority on the top menu: drop the
    wordmark to the compass mark only, and tighten spacing so months keep room. */
 @media (max-width: 600px) {
-  #na-header { gap: var(--sp-2); padding: 0 var(--sp-2); }
+  #na-header { gap: var(--sp-2); padding: env(safe-area-inset-top, 0px) var(--sp-2) 0; }
   #na-header-wordmark { display: none; }
   #na-header-actions { gap: 4px; }
   #na-header-months .mb { padding: 6px 9px; font-size: 10.5px; }
@@ -2845,12 +2849,18 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 
 /* Release line at the foot of Preferences (na-update.js): "v65 · nomadicalmanac.com". */
 .pref-version {
-  margin: 14px 0 0; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); text-align: center;
+  margin: 14px 0 0; padding-bottom: 6px; text-align: center;
   font-family: var(--font-data); font-size: 12px; letter-spacing: 0.04em;
   color: var(--na-text-secondary, rgba(232,213,163,0.75)); opacity: 0.8;
   -webkit-user-select: text; user-select: text;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
+/* The last line of the sheet clears the iPhone home indicator. */
+.pref-version:last-child { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+.pref-version:focus-visible { outline: 2px solid var(--na-gold-bright); outline-offset: 2px; }
 .pref-version:empty { display: none; }
+/* Tapping the release line shows what the phone reports about its screen (na-update.js). */
+.pref-version-detail { margin-top: 0; font-size: 11px; line-height: 1.5; letter-spacing: 0; cursor: auto; }
 .na-curr-picker { display: flex; flex-wrap: wrap; gap: 5px; max-height: 168px; overflow-y: auto; padding: 2px; }
 .na-curr-opt {
   display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
