@@ -116,7 +116,10 @@ menu sat under the clock and could not be touched. No Chrome test showed it, bec
 insets. `--header-h` now includes `env(safe-area-inset-top)` and `#na-header` pads by it. Two traps: the
 header's padding is written as a shorthand in two places (the base rule and the 600px breakpoint), so both carry
 the inset; and a panel that sits under the header must use `var(--header-h)`, never a fixed 56px. Landscape side
-insets are not handled. To check: `python3 ~/Library/Caches/nomadic-audit/safe_area_check.py URL LABEL` loads the
+insets are not handled. The strip under the bottom menu is `--nav-safe-bottom`, the home-indicator inset minus
+14 px (20 px on a notch iPhone): the labels sit closer to the screen edge and stay clear of the indicator line, and
+every rule that positions something above the menu uses it, not `env(safe-area-inset-bottom)` directly (the foot of
+the Preferences sheet keeps the full inset, because that sheet scrolls under the indicator). To check: `python3 ~/Library/Caches/nomadic-audit/safe_area_check.py URL LABEL` loads the
 page with iPhone insets emulated (`Emulation.setSafeAreaInsetsOverride`) and lists every touchable control under
 the status bar, per screen.
 

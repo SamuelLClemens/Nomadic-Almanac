@@ -120,6 +120,10 @@
   --rail-w:        72px;    /* tablet rail */
   --header-h:      calc(56px + env(safe-area-inset-top, 0px));    /* top header bar (unified glass menu) plus the status-bar strip it must clear on an iPhone Home Screen app; env() is 0px elsewhere */
   --bottom-nav-h:  56px;    /* mobile bottom nav */
+  /* The strip under the bottom menu on an iPhone. The full home-indicator inset (34px) left the labels
+     about 34px above the screen edge, which read as a wide empty band; 14px less keeps them clear of the
+     indicator line (it sits 8 to 13px above the edge) and closer to the edge. env() is 0px elsewhere. */
+  --nav-safe-bottom: max(env(safe-area-inset-bottom, 0px) - 14px, 0px);
 }
 
 /* ── Glass Panel component ───────────────────────────────────────────────── */
@@ -632,7 +636,7 @@ html, body {
   pointer-events: none; letter-spacing: 0.04em;
 }
 @media (max-width: 1279px) { #map-status { left: calc(var(--sidebar-w-sm) + 14px); } }
-@media (max-width: 767px)  { #map-status { left: 10px; bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 10px); } }
+@media (max-width: 767px)  { #map-status { left: 10px; bottom: calc(var(--bottom-nav-h) + var(--nav-safe-bottom) + 10px); } }
 
 /* ─── Legend (Field Guide) ───────────────────────────────────────────────── */
 #legend {
@@ -1806,8 +1810,8 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
     display: flex;
     justify-content: space-around;
     align-items: stretch;
-    height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(var(--bottom-nav-h) + var(--nav-safe-bottom));
+    padding-bottom: var(--nav-safe-bottom);
     background: var(--na-glass-navy);
     backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
     -webkit-backdrop-filter: blur(var(--na-glass-blur)) saturate(1.2);
@@ -1896,7 +1900,7 @@ button.na-nav-group-label[aria-expanded="true"] .na-accordion-arrow {
 
 /* Mobile: keep the Field Guide legend clear of the bottom nav (56px + safe area). */
 @media (max-width: 767px) {
-  #legend { bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important; }
+  #legend { bottom: calc(74px + var(--nav-safe-bottom)) !important; }
 }
 
 /* Emoji glyphs for the generated all-layer sidebar items + mobile sheet tiles.
@@ -2813,7 +2817,7 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
 #na-update-bar {
   position: fixed;
   left: 8px; right: 8px;
-  bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px) + 64px);
+  bottom: calc(var(--bottom-nav-h) + var(--nav-safe-bottom) + 64px);
   z-index: 3001;
   display: flex; justify-content: center;
   pointer-events: none;
