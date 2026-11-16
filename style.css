@@ -123,8 +123,14 @@
   /* The strip under the bottom menu on an iPhone. The full home-indicator inset (34px) left the labels
      about 34px above the screen edge, which read as a wide empty band; 14px less keeps them clear of the
      indicator line (it sits 8 to 13px above the edge) and closer to the edge. env() is 0px elsewhere. */
-  --nav-safe-bottom: max(env(safe-area-inset-bottom, 0px) - 14px, 0px);
+  --nav-safe-bottom: max(env(safe-area-inset-bottom, 0px) - var(--na-vp-short, 0px) - 14px, 0px);
+  /* --na-vp-short (set by na-viewport.js, 0px when absent): how far the page ends above the screen bottom on an
+     iPhone Home Screen app whose window is the screen height minus the status bar (47px on the owner's phone).
+     The window then already ends above the home indicator, so the strip above is not added on top of it. */
 }
+
+/* na-viewport.js: the page is as tall as the screen (kept by the owner after a ten-second try). */
+html.na-fullh, html.na-fullh body { height: var(--na-full-h); }
 
 /* ── Glass Panel component ───────────────────────────────────────────────── */
 .glass-panel {
@@ -2859,12 +2865,23 @@ html[dir="rtl"] .na-hint-flag-menu .na-lang-opt { justify-content: flex-end; }
   -webkit-user-select: text; user-select: text;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
-/* The last line of the sheet clears the iPhone home indicator. */
-.pref-version:last-child { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+/* The last line of the sheet clears the iPhone home indicator (less when the window already ends above it). */
+.pref-version:last-child { padding-bottom: calc(14px + max(env(safe-area-inset-bottom, 0px) - var(--na-vp-short, 0px), 0px)); }
 .pref-version:focus-visible { outline: 2px solid var(--na-gold-bright); outline-offset: 2px; }
 .pref-version:empty { display: none; }
 /* Tapping the release line shows what the phone reports about its screen (na-update.js). */
 .pref-version-detail { margin-top: 0; font-size: 11px; line-height: 1.5; letter-spacing: 0; cursor: auto; }
+/* The ten-second full-height try (na-viewport.js): a bar under the status bar that is always in view, and the
+   button in the readout that starts it. */
+#na-vp-bar { position: fixed; left: 8px; right: 8px; top: calc(env(safe-area-inset-top, 0px) + 8px); z-index: 10000; }
+.na-vp-msg { flex: 1; min-width: 0; }
+.na-vp-test-btn {
+  display: block; margin: 10px auto 0; min-height: 44px; padding: 0 var(--sp-4);
+  background: none; border: 1px solid var(--na-gold-mid); border-radius: var(--na-border-radius);
+  color: var(--na-gold-mid); font: inherit; font-size: 12px; letter-spacing: 0.04em; cursor: pointer;
+}
+.na-vp-test-btn:focus-visible { outline: 2px solid var(--na-gold-bright); outline-offset: 2px; }
+.na-vp-test-btn:last-child { margin-bottom: calc(14px + max(env(safe-area-inset-bottom, 0px) - var(--na-vp-short, 0px), 0px)); }
 .na-curr-picker { display: flex; flex-wrap: wrap; gap: 5px; max-height: 168px; overflow-y: auto; padding: 2px; }
 .na-curr-opt {
   display: inline-flex; align-items: center; gap: 4px; cursor: pointer;

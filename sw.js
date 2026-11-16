@@ -3,9 +3,9 @@
 // request when they differ or when shipped files change without a new number. The activate handler
 // deletes every cache whose name is not CACHE, so returning visitors drop stale copies on their next
 // visit; na-update.js uses the same number to tell an open app that a newer release exists.
-const CACHE = 'nomadic-v66';
+const CACHE = 'nomadic-v67';
 const CORE = [
-  './', './index.html', './app.js', './na-boot.js', './na-update.js', './data.js', './data-cities.js', './data-detail.js', './data-admin2.js', './style.css',
+  './', './index.html', './app.js', './na-boot.js', './na-update.js', './na-viewport.js', './data.js', './data-cities.js', './data-detail.js', './data-admin2.js', './style.css',
   './lib/leaflet.js', './lib/leaflet.css',
   './data/countries.geojson',
   './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png',

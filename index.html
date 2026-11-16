@@ -1171,6 +1171,9 @@
 <!-- na-update.js asks the server for a newer release when the app is reopened (docs/update-delivery.md).
      It is independent of app.js on purpose, so a release whose app.js fails to start can still be replaced. -->
 <script defer src="na-update.js"></script>
+<!-- na-viewport.js handles an iPhone Home Screen app whose page is shorter than the screen (docs/update-delivery.md).
+     It runs before app.js so the map is created at its final height. -->
+<script defer src="na-viewport.js"></script>
 <script defer src="lib/leaflet.js"></script>
 <script defer src="data.js"></script>
 <script defer src="app.js"></script>
