@@ -27,7 +27,7 @@
 (function () {
   'use strict';
 
-  var VERSION = 66;
+  var VERSION = 67;
 
   var AWAY_MS = 30000;          // away at least this long: coming back counts as a "return"
   var POLL_MS = 600000;         // while the app is in use, ask this often (ten minutes)
@@ -296,20 +296,75 @@
     ].filter(Boolean).join(' · ');
   }
 
+  // Height of a CSS length in px as the page measures it ("-" when the unit is not supported).
+  function unitPx(css) {
+    try {
+      var p = document.createElement('div');
+      p.style.cssText = 'position:fixed;left:0;top:0;width:1px;visibility:hidden;pointer-events:none;height:' + css;
+      document.body.appendChild(p);
+      var h = Math.round(p.getBoundingClientRect().height);
+      document.body.removeChild(p);
+      return h > 0 ? String(h) : '-';
+    } catch (e) { return '-'; }
+  }
+  // The second line of the readout: the other heights the phone reports, the system version, and whether the
+  // short-window layout (na-viewport.js) applies and is on.
+  function moreDetails() {
+    var ua = navigator.userAgent || '';
+    var os = /OS (\d+)[_.](\d+)/.exec(ua);
+    var safari = /Version\/([\d.]+)/.exec(ua);
+    var vp = window.naViewport && window.naViewport.state ? window.naViewport.state() : null;
+    return [
+      'vh ' + unitPx('100vh') + ' · dvh ' + unitPx('100dvh') + ' · svh ' + unitPx('100svh') + ' · lvh ' + unitPx('100lvh'),
+      'html ' + Math.round(document.documentElement.getBoundingClientRect().height),
+      'avail ' + (screen.availHeight || '-'),
+      os ? 'iOS ' + os[1] + '.' + os[2] : '',
+      safari ? 'Safari ' + safari[1] : '',
+      vp ? (vp.available ? 'short window' : 'normal window') + (vp.on ? ', full height on' : ', full height off') : ''
+    ].filter(Boolean).join(' · ');
+  }
+
   function wireDetails() {
     var line = document.getElementById('na-version-line');
     if (!line || !line.textContent) return;
-    var detail = null;
-    function toggle() {
-      if (detail) {
-        if (detail.parentNode) detail.parentNode.removeChild(detail);
-        detail = null;
-        return;
+    var shown = [];
+    function clear() {
+      shown.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+      shown = [];
+    }
+    function add(node) {
+      var anchor = shown.length ? shown[shown.length - 1] : line;
+      anchor.parentNode.insertBefore(node, anchor.nextSibling);
+      shown.push(node);
+    }
+    function para(text) {
+      var p = document.createElement('p');
+      p.className = 'pref-version pref-version-detail';
+      p.textContent = text;
+      return p;
+    }
+    function render() {
+      clear();
+      add(para(screenDetails()));
+      add(para(moreDetails()));
+      var vp = window.naViewport && window.naViewport.state ? window.naViewport.state() : null;
+      if (vp && vp.available) {
+        var keep = vp.on && vp.stored;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'na-vp-test-btn';
+        btn.textContent = keep ? 'Switch off the full-height screen' : 'Try the full-height screen';
+        btn.addEventListener('click', function () {
+          if (keep) { window.naViewport.off(); render(); return; }
+          clear();
+          if (typeof window.na_closePrefsSheet === 'function') window.na_closePrefsSheet();
+          window.naViewport.test();
+        });
+        add(btn);
       }
-      detail = document.createElement('p');
-      detail.className = 'pref-version pref-version-detail';
-      detail.textContent = screenDetails();
-      line.parentNode.insertBefore(detail, line.nextSibling);
+    }
+    function toggle() {
+      if (shown.length) clear(); else render();
     }
     line.setAttribute('role', 'button');
     line.setAttribute('tabindex', '0');

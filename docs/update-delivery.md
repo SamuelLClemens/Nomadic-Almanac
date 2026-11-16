@@ -17,8 +17,9 @@ at launch. Release 65 adds the missing step: the page asks.
 | File | Role |
 |---|---|
 | `na-update.js` | Runs in every page. Asks the server for `version.json`, reloads or shows a banner, and writes the release line in Preferences. Independent of `app.js`, so a release whose `app.js` fails to start can still be replaced. |
-| `version.json` | `{"version": 65}`. Never cached by the worker, always read from the network. |
-| `sw.js` | Network-first for the site's own files, asking the server to revalidate (the browser's own copy lives ten minutes on GitHub Pages). Steps aside for `version.json`. `CACHE = 'nomadic-v65'`. |
+| `na-viewport.js` | An iPhone Home Screen app whose page is shorter than the screen (below). Independent of `app.js`, runs before it. |
+| `version.json` | `{"version": N}`. Never cached by the worker, always read from the network. |
+| `sw.js` | Network-first for the site's own files, asking the server to revalidate (the browser's own copy lives ten minutes on GitHub Pages). Steps aside for `version.json`. `CACHE = 'nomadic-vN'`. |
 | `Nomadic-Almanac/index.html` | A redirect to the app. From 2026-05-31 to 2026-11-05 `manifest.json` named `/Nomadic-Almanac/` as the start page, which is a 404 on `nomadicalmanac.com`; an icon saved in that period can still start there. Keep this file. |
 | `scripts/bump_version.py` | Raises the number in `sw.js`, `version.json` and `na-update.js` together. |
 | `scripts/check_update_delivery.py` | The guard (below). Tests: `scripts/test_update_delivery.py`. CI: `.github/workflows/update-delivery.yml`. |
@@ -102,11 +103,13 @@ only; the rest of the interface has languages, the banner does not yet.
 
 ## Reading what a phone runs
 
-Preferences (the Settings button), last line: `v66 · nomadicalmanac.com`. A different address means the icon
+Preferences (the Settings button), last line: `v67 · nomadicalmanac.com`. A different address means the icon
 was saved from an old address. Tapping that line shows what the phone reports about its screen: window and
 screen size, the safe areas for the status bar and the home indicator, whether the page runs as a Home Screen
-app, and where the top and bottom menus sit. Nothing is sent anywhere. It exists because a layout problem on a
-real phone cannot be reproduced on a computer.
+app, and where the top and bottom menus sit; a second line lists the other heights (`vh`, `dvh`, `svh`, `lvh`, the
+page, the available screen), the system version and whether the short-window layout applies. On a phone that shows
+the short-window signature a button starts the ten-second full-height try (below). Nothing is sent anywhere. It
+exists because a layout problem on a real phone cannot be reproduced on a computer.
 
 ## iPhone Home Screen layout
 
@@ -122,6 +125,32 @@ every rule that positions something above the menu uses it, not `env(safe-area-i
 the Preferences sheet keeps the full inset, because that sheet scrolls under the indicator). To check: `python3 ~/Library/Caches/nomadic-audit/safe_area_check.py URL LABEL` loads the
 page with iPhone insets emulated (`Emulation.setSafeAreaInsetsOverride`) and lists every touchable control under
 the status bar, per screen.
+
+### The page can be shorter than the screen
+
+Found on the owner's iPhone (release 66, 2026-11-16), read off the screen readout: window 390x797 in a screen of
+390x844, safe areas 47 top and 34 bottom, the page drawn under the status bar. The page is exactly one status-bar
+inset shorter than the screen, so the bottom 47px of the screen lie outside it and the bottom menu sits above the
+screen edge with an empty band under it. A computer and Chrome's phone emulation cannot show this (their window is the
+screen). WebKit bugs 237961 and 210009 describe the same family; no page-side fix is documented, and minor versions of
+iOS 26 have behaved differently, so the page measures instead of assuming.
+
+`na-viewport.js` (release 67):
+
+- Signature: Home Screen app, portrait, and `max(screen.width, screen.height) - innerHeight` within 3px of the top
+  inset. Not applied in a browser tab, in landscape, on a computer or on Android.
+- When it matches, `--na-vp-short` (px) is set on `<html>` and `--nav-safe-bottom` subtracts it: the window already
+  ends above the home indicator, so the 20px strip is no longer added on top of the missing 47px.
+- The full-height layout (`html.na-fullh`, `height: var(--na-full-h)`, the screen height) is opt-in. Settings, tap the
+  release line, "Try the full-height screen" applies it for 10 seconds; a tap on the bottom menu while it is on keeps it
+  (`localStorage` key `na_fullh` = `1`, the only thing stored), otherwise it undoes itself. A kept choice is applied
+  at load before the map is created, is switched off by a keyboard-sized or landscape window, and is removed by
+  "Switch off the full-height screen". Why a try: headless Chrome cannot draw below its own window, so only a phone
+  shows whether the strip below the window can be drawn on and tapped.
+- Check: `python3 ~/Library/Caches/nomadic-audit/short_viewport_check.py WORKTREE` emulates the owner's numbers
+  (window 797, screen 844, insets 47 and 34) and runs 28 checks: the strip, the readout, the try (undone, and kept
+  with a real tap), the reload, the switch-off, a keyboard-sized window, landscape, a normal window, a browser tab and
+  a computer.
 
 ## Checking a release on a real phone
 
