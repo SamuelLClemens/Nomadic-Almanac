@@ -1,5 +1,9 @@
 {
-  "updated": "2026-11-10",
+  "updated": "2026-11-16",
   "minVisits": 10,
-  "countries": {}
+  "countries": {
+    "IL": 10
+  },
+  "minRegionVisits": 25,
+  "regions": {}
 }
